@@ -67,7 +67,7 @@ function MenuItem({ icon, label, color, onPress, badge }: MenuItemProps) {
 
 export default function MoreTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, isRTL } = useApp();
+  const { theme, t, isRTL, language } = useApp();
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
