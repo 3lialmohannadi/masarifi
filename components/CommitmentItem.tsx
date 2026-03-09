@@ -21,11 +21,12 @@ export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItem
   const { getAccount } = useAccounts();
 
   const account = getAccount(commitment.account_id);
+
   const statusColors = {
     upcoming: { bg: theme.primaryLight, text: theme.primary },
-    due_today: { bg: "#FEF3C7", text: "#D97706" },
-    overdue: { bg: "#FEF2F2", text: "#EF4444" },
-    paid: { bg: "#F0FDF4", text: "#22C55E" },
+    due_today: { bg: theme.warningBackground, text: theme.warningText },
+    overdue: { bg: theme.expenseBackground, text: theme.expense },
+    paid: { bg: theme.incomeBackground, text: theme.income },
   };
   const statusColor = statusColors[commitment.status];
 
@@ -47,12 +48,12 @@ export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItem
           width: 44,
           height: 44,
           borderRadius: 12,
-          backgroundColor: "#F59E0B20",
+          backgroundColor: `${theme.warning}20`,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <Feather name="calendar" size={20} color="#F59E0B" />
+        <Feather name="calendar" size={20} color={theme.warning} />
       </View>
       <View style={{ flex: 1, gap: 3 }}>
         <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text }} numberOfLines={1}>

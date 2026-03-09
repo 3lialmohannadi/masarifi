@@ -67,17 +67,17 @@ export default function CommitmentsScreen() {
             {(overdueCount > 0 || dueTodayCount > 0) && (
               <View style={{ gap: 8 }}>
                 {overdueCount > 0 && (
-                  <View style={{ backgroundColor: "#FEF2F2", borderRadius: 12, padding: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, borderWidth: 1, borderColor: "#FECACA" }}>
-                    <Feather name="alert-circle" size={18} color="#EF4444" />
-                    <Text style={{ flex: 1, color: "#EF4444", fontWeight: "600" }}>
+                  <View style={{ backgroundColor: theme.expenseBackground, borderRadius: 12, padding: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, borderWidth: 1, borderColor: `${theme.expense}40` }}>
+                    <Feather name="alert-circle" size={18} color={theme.expense} />
+                    <Text style={{ flex: 1, color: theme.expense, fontWeight: "600" }}>
                       {overdueCount} {t.commitments.overdueAlert}
                     </Text>
                   </View>
                 )}
                 {dueTodayCount > 0 && (
-                  <View style={{ backgroundColor: "#FFFBEB", borderRadius: 12, padding: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, borderWidth: 1, borderColor: "#FDE68A" }}>
-                    <Feather name="clock" size={18} color="#D97706" />
-                    <Text style={{ flex: 1, color: "#D97706", fontWeight: "600" }}>
+                  <View style={{ backgroundColor: theme.warningBackground, borderRadius: 12, padding: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, borderWidth: 1, borderColor: theme.warningBorder }}>
+                    <Feather name="clock" size={18} color={theme.warningText} />
+                    <Text style={{ flex: 1, color: theme.warningText, fontWeight: "600" }}>
                       {dueTodayCount} {t.commitments.dueTodayAlert}
                     </Text>
                   </View>

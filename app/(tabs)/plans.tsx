@@ -115,9 +115,9 @@ export default function PlansTab() {
                     </View>
                   </View>
                   {isOver && (
-                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, backgroundColor: "#FEF2F2", borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7 }}>
-                      <Feather name="alert-triangle" size={13} color="#EF4444" />
-                      <Text style={{ fontSize: 12, color: "#EF4444", fontWeight: "600" }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, backgroundColor: theme.expenseBackground, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7 }}>
+                      <Feather name="alert-triangle" size={13} color={theme.expense} />
+                      <Text style={{ fontSize: 12, color: theme.expense, fontWeight: "600" }}>
                         {t.plans.overBudgetBy} {formatCurrency(Math.abs(remaining), plan.currency, language)}
                       </Text>
                     </View>

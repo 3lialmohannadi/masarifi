@@ -95,7 +95,7 @@ export default function BudgetScreen() {
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
                   <View>
                     <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t.budget.totalSpent}</Text>
-                    <Text style={{ fontSize: 20, fontWeight: "800", color: overallProgress > 1 ? "#EF4444" : theme.text }}>
+                    <Text style={{ fontSize: 20, fontWeight: "800", color: overallProgress > 1 ? theme.expense : theme.text }}>
                       {formatCurrency(totalSpent, primaryCurrency, language)}
                     </Text>
                   </View>
@@ -108,7 +108,7 @@ export default function BudgetScreen() {
                 </View>
                 <ProgressBar
                   progress={Math.min(overallProgress, 1)}
-                  color={overallProgress > 1 ? "#EF4444" : overallProgress > 0.8 ? "#F97316" : "#F59E0B"}
+                  color={overallProgress > 1 ? theme.expense : overallProgress > 0.8 ? "#F97316" : theme.warning}
                   height={8}
                 />
                 <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
@@ -122,7 +122,7 @@ export default function BudgetScreen() {
           const category = getCategory(item.category_id);
           const progress = item.amount > 0 ? item.spent / item.amount : 0;
           const isOver = progress > 1;
-          const barColor = isOver ? "#EF4444" : progress > 0.8 ? "#F97316" : theme.primary;
+          const barColor = isOver ? theme.expense : progress > 0.8 ? "#F97316" : theme.primary;
 
           return (
             <Pressable
@@ -134,7 +134,7 @@ export default function BudgetScreen() {
                 gap: 12,
                 marginTop: 10,
                 borderWidth: isOver ? 1 : 0,
-                borderColor: isOver ? "#EF4444" + "40" : "transparent",
+                borderColor: isOver ? theme.expense + "40" : "transparent",
               })}
             >
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
@@ -155,15 +155,15 @@ export default function BudgetScreen() {
                     {formatCurrency(item.spent, primaryCurrency, language)} / {formatCurrency(item.amount, primaryCurrency, language)}
                   </Text>
                 </View>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: isOver ? "#EF4444" : theme.text }}>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: isOver ? theme.expense : theme.text }}>
                   {Math.round(progress * 100)}%
                 </Text>
               </View>
               <ProgressBar progress={Math.min(progress, 1)} color={barColor} height={6} />
               {isOver && (
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                  <Feather name="alert-triangle" size={14} color="#EF4444" />
-                  <Text style={{ fontSize: 12, color: "#EF4444", fontWeight: "600", textAlign: isRTL ? "right" : "left" }}>
+                  <Feather name="alert-triangle" size={14} color={theme.expense} />
+                  <Text style={{ fontSize: 12, color: theme.expense, fontWeight: "600", textAlign: isRTL ? "right" : "left" }}>
                     {t.budget.overBudget}: {formatCurrency(item.spent - item.amount, primaryCurrency, language)}
                   </Text>
                 </View>

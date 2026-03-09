@@ -272,7 +272,7 @@ export default function DashboardScreen() {
                         <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
                           {getDisplayName(c, language)}
                         </Text>
-                        <Text style={{ fontSize: 12, color: isOverdue ? "#EF4444" : theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                        <Text style={{ fontSize: 12, color: isOverdue ? theme.expense : theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
                           {formatDateShort(c.due_date, language)}
                         </Text>
                       </View>

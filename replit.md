@@ -135,6 +135,7 @@ workspace/
   - Sub-screens for accounts, commitments, budgets, categories, settings
 - **UI Platform Adaptation**: Uses `expo-glass-effect` and native tab bars on iOS when Liquid Glass is available; falls back to a classic Expo `Tabs` layout on Android and web
 - **Styling**: StyleSheet-based inline styles driven by a theme object (`LightTheme` / `DarkTheme` in `constants/colors.ts`). No external UI library.
+- **Theme System**: Three modes (light/dark/auto). Auto follows system `useColorScheme()`. Theme stored as `settings.theme` in AppContext, persisted to AsyncStorage. `isDark` boolean computed by AppContext. StatusBar style auto-adapts via `AppLoadingGate`. New semantic color tokens: `warningBackground`, `warningText`, `warningBorder` (adapts between light/dark). All screens use `theme.xxx` — no hardcoded light-only colors like `#FEF2F2`, `#F0FDF4`, `#FFFBEB`.
 - **Animations**: `react-native-reanimated` and `react-native-gesture-handler` for gestures and transitions
 - **Haptics**: `expo-haptics` used throughout for tactile feedback on button presses
 

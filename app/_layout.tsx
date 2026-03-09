@@ -8,6 +8,7 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -26,15 +27,21 @@ import { BudgetsProvider } from "@/store/BudgetsContext";
 SplashScreen.preventAutoHideAsync();
 
 function AppLoadingGate({ children }: { children: React.ReactNode }) {
-  const { isLoaded, theme } = useApp();
+  const { isLoaded, isDark } = useApp();
   if (!isLoaded) {
     return (
       <View style={{ flex: 1, backgroundColor: "#0F172A", alignItems: "center", justifyContent: "center" }}>
+        <StatusBar style="light" />
         <ActivityIndicator size="large" color="#10B981" />
       </View>
     );
   }
-  return <>{children}</>;
+  return (
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      {children}
+    </>
+  );
 }
 
 function Providers({ children }: { children: React.ReactNode }) {

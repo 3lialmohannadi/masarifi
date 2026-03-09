@@ -246,13 +246,13 @@ export default function StatisticsTab() {
                     </View>
                     {(acctIncome > 0 || acctExpense > 0) && (
                       <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
-                        <View style={{ flex: 1, backgroundColor: "#22C55E12", borderRadius: 10, padding: 8, alignItems: "center" }}>
-                          <Text style={{ fontSize: 10, color: "#22C55E", fontWeight: "600" }}>{t.transactions.income}</Text>
-                          <Text style={{ fontSize: 13, fontWeight: "700", color: "#22C55E" }}>{formatCurrency(acctIncome, account.currency, language)}</Text>
+                        <View style={{ flex: 1, backgroundColor: `${theme.income}20`, borderRadius: 10, padding: 8, alignItems: "center" }}>
+                          <Text style={{ fontSize: 10, color: theme.income, fontWeight: "600" }}>{t.transactions.income}</Text>
+                          <Text style={{ fontSize: 13, fontWeight: "700", color: theme.income }}>{formatCurrency(acctIncome, account.currency, language)}</Text>
                         </View>
-                        <View style={{ flex: 1, backgroundColor: "#EF444412", borderRadius: 10, padding: 8, alignItems: "center" }}>
-                          <Text style={{ fontSize: 10, color: "#EF4444", fontWeight: "600" }}>{t.transactions.expense}</Text>
-                          <Text style={{ fontSize: 13, fontWeight: "700", color: "#EF4444" }}>{formatCurrency(acctExpense, account.currency, language)}</Text>
+                        <View style={{ flex: 1, backgroundColor: `${theme.expense}20`, borderRadius: 10, padding: 8, alignItems: "center" }}>
+                          <Text style={{ fontSize: 10, color: theme.expense, fontWeight: "600" }}>{t.transactions.expense}</Text>
+                          <Text style={{ fontSize: 13, fontWeight: "700", color: theme.expense }}>{formatCurrency(acctExpense, account.currency, language)}</Text>
                         </View>
                       </View>
                     )}

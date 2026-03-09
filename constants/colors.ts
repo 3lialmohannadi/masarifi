@@ -55,6 +55,9 @@ export const LightTheme = {
   expense: "#EF4444",
   incomeBackground: "#F0FDF4",
   expenseBackground: "#FEF2F2",
+  warningBackground: "#FFFBEB",
+  warningText: "#D97706",
+  warningBorder: "#FDE68A",
   ...AppColors,
 };
 
@@ -81,6 +84,9 @@ export const DarkTheme = {
   expense: "#EF4444",
   incomeBackground: "#052e16",
   expenseBackground: "#450a0a",
+  warningBackground: "#451a03",
+  warningText: "#FBBF24",
+  warningBorder: "#78350F",
   ...AppColors,
 };
 
