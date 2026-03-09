@@ -23,7 +23,8 @@ import { AppButton } from "@/components/ui/AppButton";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
-import type { TransactionType } from "@/types";
+import { SMART_SUGGESTIONS } from "@/utils/defaults";
+import type { TransactionType, Category } from "@/types";
 
 function isValidDate(str: string): boolean {
   if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
@@ -33,7 +34,7 @@ function isValidDate(str: string): boolean {
 
 export default function AddTransactionModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, selectedAccountId, updateSettings, isRTL } = useApp();
+  const { theme, t, language, selectedAccountId, updateSettings, isRTL, settings } = useApp();
   const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
   const { accounts, updateBalance } = useAccounts();
   const { categories, getCategoriesByType } = useCategories();
@@ -69,10 +70,41 @@ export default function AddTransactionModal() {
     [type, categories]
   );
 
+  const smartSuggestion = useMemo<Category | null>(() => {
+    if (!note.trim()) return null;
+    const lower = note.toLowerCase().trim();
+    const words = lower.split(/\s+/);
+    for (const word of words) {
+      const names = SMART_SUGGESTIONS[word];
+      if (names) {
+        const matched = relevantCategories.find(
+          (c) => c.name_ar === names[0] || c.name_en === names[1]
+        );
+        if (matched) return matched;
+      }
+    }
+    return null;
+  }, [note, relevantCategories]);
+
+  const showSmartSuggestion = !!smartSuggestion && smartSuggestion.id !== categoryId;
+
   const activeAccounts = accounts.filter((a) => a.is_active);
   const selectedAccount = accounts.find((a) => a.id === accountId);
   const selectedCategory = categories.find((c) => c.id === categoryId);
   const selectedPlan = plans.find((p) => p.id === linkedPlanId);
+
+  // Pre-select last used category per type for new transactions
+  const [typeInitialized, setTypeInitialized] = React.useState(false);
+  React.useEffect(() => {
+    if (existingTx || typeInitialized) return;
+    const key =
+      type === "expense"
+        ? settings.last_used_expense_category_id
+        : settings.last_used_income_category_id;
+    const found = key ? relevantCategories.find((c) => c.id === key) : null;
+    if (found) setCategoryId(found.id);
+    setTypeInitialized(true);
+  }, [relevantCategories]);
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
@@ -120,7 +152,12 @@ export default function AddTransactionModal() {
       } else {
         const delta = type === "income" ? amountNum : -amountNum;
         updateBalance(accountId, delta);
-        updateSettings({ last_used_category_id: categoryId });
+        updateSettings({
+          last_used_category_id: categoryId,
+          ...(type === "expense"
+            ? { last_used_expense_category_id: categoryId }
+            : { last_used_income_category_id: categoryId }),
+        });
         addTransaction({
           type,
           amount: amountNum,
@@ -497,6 +534,36 @@ export default function AddTransactionModal() {
             />
           </View>
         </Field>
+
+        {/* ── Smart Suggestion ── */}
+        {showSmartSuggestion && smartSuggestion && (
+          <Pressable
+            onPress={() => {
+              Haptics.selectionAsync();
+              setCategoryId(smartSuggestion.id);
+              setErrors((e) => ({ ...e, category: "" }));
+            }}
+            style={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              gap: 8,
+              backgroundColor: smartSuggestion.color + "15",
+              borderRadius: 12,
+              paddingHorizontal: 14,
+              paddingVertical: 10,
+              borderWidth: 1,
+              borderColor: smartSuggestion.color + "40",
+            }}
+          >
+            <Feather name="zap" size={14} color={smartSuggestion.color} />
+            <Text style={{ fontSize: 13, color: smartSuggestion.color, fontWeight: "600", flex: 1, textAlign: isRTL ? "right" : "left" }}>
+              {t.validation.smartSuggestion}: {getDisplayName(smartSuggestion, language)}
+            </Text>
+            <View style={{ width: 30, height: 30, borderRadius: 9, backgroundColor: smartSuggestion.color + "20", alignItems: "center", justifyContent: "center" }}>
+              <Feather name={smartSuggestion.icon as any} size={14} color={smartSuggestion.color} />
+            </View>
+          </Pressable>
+        )}
 
         {/* ── Link to Plan ── */}
         {type === "expense" && plans.length > 0 && (

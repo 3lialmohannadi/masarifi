@@ -370,5 +370,6 @@ export const en = {
     insufficientBalance: "Insufficient balance",
     categoryBudgetExceeded: "Categories total exceeds plan budget",
     walletRequired: "Savings wallet is required",
+    smartSuggestion: "Suggestion",
   },
 };

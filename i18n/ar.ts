@@ -370,6 +370,7 @@ export const ar = {
     insufficientBalance: "الرصيد غير كافٍ",
     categoryBudgetExceeded: "مجموع الفئات يتجاوز ميزانية الخطة",
     walletRequired: "محفظة الادخار مطلوبة",
+    smartSuggestion: "اقتراح",
   },
 };
 

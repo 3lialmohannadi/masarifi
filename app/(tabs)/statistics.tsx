@@ -6,6 +6,7 @@ import { useApp } from "@/store/AppContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { useAccounts } from "@/store/AccountsContext";
+import { useSavings } from "@/store/SavingsContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { useMonthPicker, MONTH_NAMES_AR, MONTH_NAMES_EN } from "@/hooks/useMonthPicker";
@@ -16,6 +17,7 @@ export default function StatisticsTab() {
   const { transactions } = useTransactions();
   const { getCategory } = useCategories();
   const { accounts } = useAccounts();
+  const { savingsTransactions } = useSavings();
 
   const { month: selectedMonth, year: selectedYear, monthName, monthKey, goToPrev, goToNext } = useMonthPicker(language);
 
@@ -26,6 +28,20 @@ export default function StatisticsTab() {
   const totalIncome = monthTxs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
   const totalExpense = monthTxs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
   const netSavings = totalIncome - totalExpense;
+
+  // Monthly savings deposits (deposited into savings wallets this month)
+  const monthSavingsDeposited = useMemo(() => {
+    return savingsTransactions
+      .filter(
+        (tx) =>
+          tx.date.startsWith(monthKey) &&
+          (tx.type === "deposit_internal" || tx.type === "deposit_external")
+      )
+      .reduce((s, tx) => s + tx.amount, 0);
+  }, [savingsTransactions, monthKey]);
+
+  // Remaining = net income/expense balance minus what was deposited to savings
+  const monthRemaining = netSavings - monthSavingsDeposited;
 
   const categorySpending = useMemo(() => {
     const spending: Record<string, { amount: number; category: ReturnType<typeof getCategory> }> = {};
@@ -138,6 +154,73 @@ export default function StatisticsTab() {
         </View>
 
         <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 20 }}>
+
+          {/* Monthly Summary: Income / Expense / Savings / Remaining */}
+          <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 12 }}>
+            <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+              {t.statistics.monthlySummary}
+            </Text>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", flexWrap: "wrap", gap: 10 }}>
+              {/* Income */}
+              <View style={{ flex: 1, minWidth: "44%", backgroundColor: "rgba(34,197,94,0.08)", borderRadius: 14, padding: 13, gap: 5, borderWidth: 1, borderColor: "rgba(34,197,94,0.18)" }}>
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
+                  <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: "#22C55E20", alignItems: "center", justifyContent: "center" }}>
+                    <Feather name="arrow-down-left" size={13} color="#22C55E" />
+                  </View>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: "#22C55E" }}>{t.statistics.income}</Text>
+                </View>
+                <Text style={{ fontSize: 16, fontWeight: "800", color: "#22C55E" }} numberOfLines={1}>
+                  {formatCurrency(totalIncome, primaryCurrency, language)}
+                </Text>
+              </View>
+
+              {/* Expense */}
+              <View style={{ flex: 1, minWidth: "44%", backgroundColor: "rgba(239,68,68,0.08)", borderRadius: 14, padding: 13, gap: 5, borderWidth: 1, borderColor: "rgba(239,68,68,0.18)" }}>
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
+                  <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: "#EF444420", alignItems: "center", justifyContent: "center" }}>
+                    <Feather name="arrow-up-right" size={13} color="#EF4444" />
+                  </View>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: "#EF4444" }}>{t.statistics.expense}</Text>
+                </View>
+                <Text style={{ fontSize: 16, fontWeight: "800", color: "#EF4444" }} numberOfLines={1}>
+                  {formatCurrency(totalExpense, primaryCurrency, language)}
+                </Text>
+              </View>
+
+              {/* Savings Deposited */}
+              <View style={{ flex: 1, minWidth: "44%", backgroundColor: "rgba(16,185,129,0.08)", borderRadius: 14, padding: 13, gap: 5, borderWidth: 1, borderColor: "rgba(16,185,129,0.18)" }}>
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
+                  <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: "#10B98120", alignItems: "center", justifyContent: "center" }}>
+                    <Feather name="archive" size={13} color="#10B981" />
+                  </View>
+                  <Text style={{ fontSize: 11, fontWeight: "600", color: "#10B981" }}>{t.statistics.savings}</Text>
+                </View>
+                <Text style={{ fontSize: 16, fontWeight: "800", color: "#10B981" }} numberOfLines={1}>
+                  {formatCurrency(monthSavingsDeposited, primaryCurrency, language)}
+                </Text>
+              </View>
+
+              {/* Remaining */}
+              {(() => {
+                const isPositive = monthRemaining >= 0;
+                const remColor = isPositive ? "#3B82F6" : "#F59E0B";
+                return (
+                  <View style={{ flex: 1, minWidth: "44%", backgroundColor: remColor + "10", borderRadius: 14, padding: 13, gap: 5, borderWidth: 1, borderColor: remColor + "25" }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
+                      <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: remColor + "20", alignItems: "center", justifyContent: "center" }}>
+                        <Feather name={isPositive ? "pocket" : "alert-circle"} size={13} color={remColor} />
+                      </View>
+                      <Text style={{ fontSize: 11, fontWeight: "600", color: remColor }}>{t.statistics.remaining}</Text>
+                    </View>
+                    <Text style={{ fontSize: 16, fontWeight: "800", color: remColor }} numberOfLines={1}>
+                      {formatCurrency(monthRemaining, primaryCurrency, language)}
+                    </Text>
+                  </View>
+                );
+              })()}
+            </View>
+          </View>
+
           {/* 6-Month Trend Chart */}
           <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14 }}>
             <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>

@@ -80,7 +80,9 @@ export function CategoriesProvider({
   const getCategory = (id: string) => categories.find((c) => c.id === id);
 
   const getCategoriesByType = (type: CategoryType) =>
-    categories.filter((c) => c.type === type && c.is_active);
+    categories
+      .filter((c) => c.type === type && c.is_active)
+      .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
 
   const toggleFavorite = (id: string) => {
     persist(

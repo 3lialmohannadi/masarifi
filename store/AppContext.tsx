@@ -19,6 +19,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   manual_daily_limit: 0,
   selected_account_id: "",
   last_used_category_id: "",
+  last_used_expense_category_id: "",
+  last_used_income_category_id: "",
   onboarded: false,
   notification_enabled: true,
 };

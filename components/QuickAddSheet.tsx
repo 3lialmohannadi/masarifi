@@ -9,7 +9,6 @@ import {
   FlatList,
   Keyboard,
   Platform,
-  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -21,6 +20,7 @@ import { useCategories } from "@/store/CategoriesContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
+import { SMART_SUGGESTIONS } from "@/utils/defaults";
 import type { TransactionType, Category } from "@/types";
 
 interface QuickAddSheetProps {
@@ -35,9 +35,27 @@ function isValidDate(str: string): boolean {
   return !isNaN(d.getTime());
 }
 
+function getSmartSuggestion(note: string, categories: Category[], language: string): Category | null {
+  if (!note.trim()) return null;
+  const lower = note.toLowerCase().trim();
+  const words = lower.split(/\s+/);
+  for (const word of words) {
+    const names = SMART_SUGGESTIONS[word];
+    if (names) {
+      const arName = names[0];
+      const enName = names[1];
+      const matched = categories.find(
+        (c) => c.name_ar === arName || c.name_en === enName
+      );
+      if (matched) return matched;
+    }
+  }
+  return null;
+}
+
 export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetProps) {
   const insets = useSafeAreaInsets();
-  const { theme, language, isRTL, t, selectedAccountId } = useApp();
+  const { theme, language, isRTL, t, selectedAccountId, settings, updateSettings } = useApp();
   const { accounts, updateBalance } = useAccounts();
   const { addTransaction } = useTransactions();
   const { getCategoriesByType } = useCategories();
@@ -70,12 +88,20 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const selectedAccount = activeAccounts.find((a) => a.id === accountId);
   const selectedCategory = categories.find((c) => c.id === categoryId);
 
+  const smartSuggestion = useMemo(
+    () => getSmartSuggestion(note, categories, language),
+    [note, categories, language]
+  );
+
+  const showSmartSuggestion =
+    !!smartSuggestion && smartSuggestion.id !== categoryId;
+
+  // Pre-select last used category when sheet opens or type changes
   useEffect(() => {
     if (visible) {
       setType(initialType);
       setAmount("");
       setAccountId(defaultAccount?.id || "");
-      setCategoryId("");
       setNote("");
       setDate(todayISOString());
       setStep("main");
@@ -87,10 +113,16 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   }, [visible]);
 
   useEffect(() => {
-    if (visible) {
-      setCategoryId("");
-    }
-  }, [type]);
+    if (!visible) return;
+    const key =
+      type === "expense"
+        ? settings.last_used_expense_category_id
+        : settings.last_used_income_category_id;
+    const cats = getCategoriesByType(type === "income" ? "income" : "expense");
+    const found = key ? cats.find((c) => c.id === key) : null;
+    setCategoryId(found?.id || "");
+    setCategoryError("");
+  }, [type, visible]);
 
   const handleSave = () => {
     Keyboard.dismiss();
@@ -140,6 +172,13 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
       date,
       note,
     });
+
+    // Save last used category per type
+    if (type === "expense") {
+      updateSettings({ last_used_expense_category_id: categoryId });
+    } else {
+      updateSettings({ last_used_income_category_id: categoryId });
+    }
 
     setSaving(false);
     onClose();
@@ -237,7 +276,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               onPress={() => { if (isValidDate(date)) { setDateError(""); setStep("main"); } else setDateError(t.validation.dateInvalid); }}
               style={{ backgroundColor: typeColor, borderRadius: 14, padding: 15, alignItems: "center" }}
             >
-              <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>{t.common.confirm || t.common.save}</Text>
+              <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>{t.common.confirm}</Text>
             </Pressable>
           </View>
         </View>
@@ -316,9 +355,9 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
           </View>
 
           {/* Category Grid */}
-          <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
+          <View style={{ paddingHorizontal: 16, marginBottom: 6 }}>
             {!!categoryError && (
-              <Text style={{ fontSize: 12, color: "#EF4444", marginBottom: 6, textAlign: isRTL ? "right" : "left" }}>{categoryError}</Text>
+              <Text style={{ fontSize: 12, color: "#EF4444", marginBottom: 4, textAlign: isRTL ? "right" : "left" }}>{categoryError}</Text>
             )}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
               {categories.map((cat) => {
@@ -326,23 +365,29 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
                 return (
                   <Pressable
                     key={cat.id}
+                    testID={`cat-chip-${cat.id}`}
                     onPress={() => { Haptics.selectionAsync(); setCategoryId(cat.id); setCategoryError(""); }}
                     style={{
                       alignItems: "center",
                       gap: 5,
-                      paddingHorizontal: 12,
-                      paddingVertical: 10,
+                      paddingHorizontal: 10,
+                      paddingVertical: 8,
                       borderRadius: 14,
                       backgroundColor: isSelected ? cat.color + "25" : theme.background,
                       borderWidth: 1.5,
                       borderColor: isSelected ? cat.color : theme.border,
-                      minWidth: 72,
+                      minWidth: 66,
                     }}
                   >
-                    <View style={{ width: 36, height: 36, borderRadius: 11, backgroundColor: cat.color + "22", alignItems: "center", justifyContent: "center" }}>
-                      <Feather name={cat.icon as any} size={18} color={cat.color} />
+                    <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: cat.color + "22", alignItems: "center", justifyContent: "center" }}>
+                      <Feather name={cat.icon as any} size={17} color={cat.color} />
                     </View>
-                    <Text style={{ fontSize: 11, fontWeight: "600", color: isSelected ? cat.color : theme.textSecondary, textAlign: "center" }} numberOfLines={1}>
+                    {cat.is_favorite && !isSelected && (
+                      <View style={{ position: "absolute", top: 4, right: isRTL ? "auto" : 4, left: isRTL ? 4 : "auto" }}>
+                        <Feather name="star" size={8} color="#F59E0B" />
+                      </View>
+                    )}
+                    <Text style={{ fontSize: 10, fontWeight: "600", color: isSelected ? cat.color : theme.textSecondary, textAlign: "center" }} numberOfLines={1}>
                       {getDisplayName(cat, language)}
                     </Text>
                   </Pressable>
@@ -353,6 +398,38 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               )}
             </ScrollView>
           </View>
+
+          {/* Smart Suggestion Banner */}
+          {showSmartSuggestion && smartSuggestion && (
+            <Pressable
+              onPress={() => {
+                Haptics.selectionAsync();
+                setCategoryId(smartSuggestion.id);
+                setCategoryError("");
+              }}
+              style={{
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 8,
+                marginHorizontal: 16,
+                marginBottom: 8,
+                backgroundColor: smartSuggestion.color + "15",
+                borderRadius: 12,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderWidth: 1,
+                borderColor: smartSuggestion.color + "40",
+              }}
+            >
+              <Feather name="zap" size={13} color={smartSuggestion.color} />
+              <Text style={{ fontSize: 12, color: smartSuggestion.color, fontWeight: "600", flex: 1, textAlign: isRTL ? "right" : "left" }}>
+                {t.validation.smartSuggestion}: {getDisplayName(smartSuggestion, language)}
+              </Text>
+              <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: smartSuggestion.color + "20", alignItems: "center", justifyContent: "center" }}>
+                <Feather name={smartSuggestion.icon as any} size={13} color={smartSuggestion.color} />
+              </View>
+            </Pressable>
+          )}
 
           {/* Bottom Row: Account + Date + Note + Save */}
           <View style={{ paddingHorizontal: 16, gap: 10 }}>
@@ -389,13 +466,13 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               </Pressable>
             </View>
 
-            {/* Note */}
+            {/* Note with smart suggestions trigger */}
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, backgroundColor: theme.background, borderRadius: 12, paddingHorizontal: 12, borderWidth: 1, borderColor: theme.border }}>
               <Feather name="message-square" size={14} color={theme.textMuted} />
               <TextInput
                 value={note}
                 onChangeText={setNote}
-                placeholder={language === "ar" ? "ملاحظة... (اختياري)" : "Note... (optional)"}
+                placeholder={language === "ar" ? "ملاحظة... (ستاربكس، أوبر، ...)" : "Note... (starbucks, uber, ...)"}
                 placeholderTextColor={theme.textMuted}
                 style={{ flex: 1, paddingVertical: 11, color: theme.text, fontSize: 13, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
               />
@@ -405,6 +482,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
             <Pressable
               onPress={handleSave}
               disabled={saving}
+              testID="quick-save-btn"
               style={{ backgroundColor: typeColor, borderRadius: 16, paddingVertical: 16, alignItems: "center", opacity: saving ? 0.7 : 1 }}
             >
               <Text style={{ color: "#fff", fontSize: 17, fontWeight: "800" }}>
