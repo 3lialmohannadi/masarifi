@@ -15,67 +15,94 @@ import { useApp } from "@/store/AppContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { TransactionItem } from "@/components/TransactionItem";
+import { TransferItem } from "@/components/TransferItem";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getDisplayName } from "@/utils/display";
 import { useDebounce } from "@/hooks/useDebounce";
-import type { Transaction } from "@/types";
+import type { Transaction, Transfer } from "@/types";
 
-type Filter = "all" | "income" | "expense";
-type ListItem = { type: "header"; date: string } | { type: "tx"; tx: Transaction };
+type Filter = "all" | "income" | "expense" | "transfer";
+
+type CombinedEntry =
+  | { kind: "tx"; tx: Transaction; date: string }
+  | { kind: "transfer"; transfer: Transfer; date: string };
+
+type ListItem =
+  | { type: "header"; date: string }
+  | { type: "tx"; tx: Transaction }
+  | { type: "transfer"; transfer: Transfer; perspective: "source" | "destination" | "both" };
 
 const MONTH_NAMES_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const MONTH_NAMES_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-function groupByDate(txs: Transaction[]): { date: string; items: Transaction[] }[] {
-  const groups: { date: string; items: Transaction[] }[] = [];
-  const map: Record<string, number> = {};
-  for (const tx of txs) {
-    const d = tx.date.slice(0, 10);
-    if (map[d] === undefined) {
-      map[d] = groups.length;
-      groups.push({ date: d, items: [] });
-    }
-    groups[map[d]].items.push(tx);
-  }
-  return groups;
-}
-
 export default function TransactionsTab() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, selectedAccountId, isRTL } = useApp();
-  const { transactions, isLoaded } = useTransactions();
+  const { transactions, transfers, isLoaded } = useTransactions();
   const { getCategory } = useCategories();
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 250);
 
-  const filtered = useMemo(() => {
-    let result = [...transactions];
-    if (selectedAccountId) result = result.filter((tx) => tx.account_id === selectedAccountId);
-    if (filter !== "all") result = result.filter((tx) => tx.type === filter);
-    if (debouncedSearch.trim()) {
-      const q = debouncedSearch.toLowerCase();
-      result = result.filter((tx) => {
+  const combined = useMemo<CombinedEntry[]>(() => {
+    const entries: CombinedEntry[] = [];
+
+    for (const tx of transactions) {
+      if (selectedAccountId && tx.account_id !== selectedAccountId) continue;
+      if (filter === "income" && tx.type !== "income") continue;
+      if (filter === "expense" && tx.type !== "expense") continue;
+      if (filter === "transfer") continue;
+      if (debouncedSearch.trim()) {
+        const q = debouncedSearch.toLowerCase();
         const cat = getCategory(tx.category_id);
         const catName = cat ? getDisplayName(cat, language).toLowerCase() : "";
-        return catName.includes(q) || (tx.note || "").toLowerCase().includes(q);
-      });
+        if (!catName.includes(q) && !(tx.note || "").toLowerCase().includes(q)) continue;
+      }
+      entries.push({ kind: "tx", tx, date: tx.date.slice(0, 10) });
     }
-    return result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [transactions, filter, debouncedSearch, selectedAccountId, language]);
 
-  const groups = useMemo(() => groupByDate(filtered), [filtered]);
+    if (filter !== "income" && filter !== "expense") {
+      for (const tf of transfers) {
+        const isSource = tf.source_account_id === selectedAccountId;
+        const isDest = tf.destination_account_id === selectedAccountId;
+        if (selectedAccountId && !isSource && !isDest) continue;
+        if (debouncedSearch.trim()) {
+          const q = debouncedSearch.toLowerCase();
+          if (!(tf.note || "").toLowerCase().includes(q)) continue;
+        }
+        entries.push({ kind: "transfer", transfer: tf, date: tf.date.slice(0, 10) });
+      }
+    }
 
-  const listData: ListItem[] = useMemo(() => {
+    return entries.sort((a, b) => {
+      const dateA = a.kind === "tx" ? a.tx.date : a.transfer.date;
+      const dateB = b.kind === "tx" ? b.tx.date : b.transfer.date;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
+  }, [transactions, transfers, filter, debouncedSearch, selectedAccountId, language]);
+
+  const listData = useMemo<ListItem[]>(() => {
     const items: ListItem[] = [];
-    for (const group of groups) {
-      items.push({ type: "header", date: group.date });
-      for (const tx of group.items) {
-        items.push({ type: "tx", tx });
+    let currentDate = "";
+    for (const entry of combined) {
+      const date = entry.date;
+      if (date !== currentDate) {
+        currentDate = date;
+        items.push({ type: "header", date });
+      }
+      if (entry.kind === "tx") {
+        items.push({ type: "tx", tx: entry.tx });
+      } else {
+        const isSource = entry.transfer.source_account_id === selectedAccountId;
+        const isDest = entry.transfer.destination_account_id === selectedAccountId;
+        const perspective = selectedAccountId
+          ? isSource ? "source" : isDest ? "destination" : "both"
+          : "both";
+        items.push({ type: "transfer", transfer: entry.transfer, perspective });
       }
     }
     return items;
-  }, [groups]);
+  }, [combined, selectedAccountId]);
 
   const formatGroupDate = (dateStr: string): string => {
     const today = new Date().toISOString().slice(0, 10);
@@ -93,6 +120,7 @@ export default function TransactionsTab() {
     { key: "all", label: t.transactions.filterAll },
     { key: "income", label: t.transactions.filterIncome, color: theme.income },
     { key: "expense", label: t.transactions.filterExpense, color: theme.expense },
+    { key: "transfer", label: t.transactions.transfer, color: theme.transfer },
   ];
 
   return (
@@ -142,9 +170,9 @@ export default function TransactionsTab() {
               <Pressable
                 key={f.key}
                 onPress={() => { Haptics.selectionAsync(); setFilter(f.key); }}
-                style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: isActive ? activeColor + "20" : theme.card, borderWidth: 1, borderColor: isActive ? activeColor : theme.border }}
+                style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: isActive ? activeColor + "20" : theme.card, borderWidth: 1, borderColor: isActive ? activeColor : theme.border }}
               >
-                <Text style={{ fontSize: 13, fontWeight: "600", color: isActive ? activeColor : theme.textSecondary }}>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: isActive ? activeColor : theme.textSecondary }}>
                   {f.label}
                 </Text>
               </Pressable>
@@ -155,9 +183,11 @@ export default function TransactionsTab() {
 
       <FlatList
         data={listData}
-        keyExtractor={(item, i) =>
-          item.type === "header" ? `h-${item.date}` : `tx-${item.tx.id}`
-        }
+        keyExtractor={(item, i) => {
+          if (item.type === "header") return `h-${item.date}`;
+          if (item.type === "tx") return `tx-${item.tx.id}`;
+          return `tf-${item.transfer.id}`;
+        }}
         renderItem={({ item }) => {
           if (item.type === "header") {
             return (
@@ -166,6 +196,18 @@ export default function TransactionsTab() {
                   {formatGroupDate(item.date)}
                 </Text>
                 <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+              </View>
+            );
+          }
+          if (item.type === "transfer") {
+            return (
+              <View style={{ paddingHorizontal: 16 }}>
+                <TransferItem
+                  transfer={item.transfer}
+                  perspective={item.perspective}
+                  showDate={false}
+                  onPress={() => router.push(`/(modals)/transfer-detail?id=${item.transfer.id}`)}
+                />
               </View>
             );
           }
@@ -184,8 +226,8 @@ export default function TransactionsTab() {
           !isLoaded ? null : (
             <EmptyState
               icon="repeat"
-              title={t.transactions.noTransactions}
-              subtitle={t.transactions.addFirst}
+              title={filter === "transfer" ? t.transfer.noTransfers : t.transactions.noTransactions}
+              subtitle={filter !== "transfer" ? t.transactions.addFirst : undefined}
             />
           )
         }

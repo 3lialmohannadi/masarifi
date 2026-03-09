@@ -5,8 +5,8 @@
 Masarifi (مصاريفي) is a bilingual (Arabic/English) personal finance mobile app built with React Native and Expo. It targets users in the Gulf region (Qatar, Saudi Arabia, UAE, etc.) and supports multiple Gulf currencies. The app provides comprehensive money management features including:
 
 - **Accounts** – Multiple bank/cash accounts with balance tracking
-- **Transactions** – Income and expense logging with categories and grouped-by-date view
-- **Transfers** – Move money between accounts (multi-currency with exchange rate)
+- **Transactions** – Income and expense logging with categories and grouped-by-date view. Transfers are merged into the same list with a "Transfer" filter pill.
+- **Transfers** – Move money between accounts (multi-currency with exchange rate). Tapping a transfer opens a detail modal with delete + balance reversal.
 - **Savings** – Savings wallets with goal-tracking and progress visualization
 - **Commitments** – Recurring financial obligations (rent, installments, insurance) with due-date tracking and pay-now functionality
 - **Plans** – Financial plans for specific goals (travel, wedding, car, etc.) with budget tracking

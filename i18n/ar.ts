@@ -144,6 +144,13 @@ export const ar = {
     differentCurrencies: "العملتان مختلفتان",
     enterRate: "أدخل سعر الصرف أو مبلغ الوجهة",
     confirm: "تأكيد التحويل",
+    detail: "تفاصيل التحويل",
+    delete: "حذف التحويل",
+    deleteConfirm: "هل تريد حذف هذا التحويل؟ سيتم استرجاع الأرصدة تلقائياً.",
+    transferTo: "تحويل إلى",
+    transferFrom: "تحويل من",
+    noTransfers: "لا توجد تحويلات",
+    rate: "السعر",
   },
   categories: {
     title: "التصنيفات",

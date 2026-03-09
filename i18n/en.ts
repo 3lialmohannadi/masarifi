@@ -144,6 +144,13 @@ export const en = {
     differentCurrencies: "Different currencies",
     enterRate: "Enter exchange rate or destination amount",
     confirm: "Confirm Transfer",
+    detail: "Transfer Details",
+    delete: "Delete Transfer",
+    deleteConfirm: "Delete this transfer? Account balances will be automatically reversed.",
+    transferTo: "Transfer to",
+    transferFrom: "Transfer from",
+    noTransfers: "No transfers yet",
+    rate: "Rate",
   },
   categories: {
     title: "Categories",
