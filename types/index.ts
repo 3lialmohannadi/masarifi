@@ -203,4 +203,5 @@ export interface AppSettings {
   last_used_income_category_id: string;
   onboarded: boolean;
   notification_enabled: boolean;
+  default_currency: string;
 }

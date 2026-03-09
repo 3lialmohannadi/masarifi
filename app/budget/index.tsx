@@ -20,7 +20,7 @@ type BudgetWithSpent = Budget & { spent: number };
 
 export default function BudgetScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, settings } = useApp();
   const { budgets } = useBudgets();
   const { transactions } = useTransactions();
   const { getCategory } = useCategories();
@@ -28,7 +28,7 @@ export default function BudgetScreen() {
 
   const { year: selectedYear, month: selectedMonth, monthName, monthKey, goToPrev, goToNext } = useMonthPicker(language);
 
-  const primaryCurrency = accounts.find((a) => a.is_active)?.currency || "QAR";
+  const primaryCurrency = settings.default_currency || accounts.find((a) => a.is_active)?.currency || "QAR";
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
   const budgetsWithSpending = useMemo((): BudgetWithSpent[] => {

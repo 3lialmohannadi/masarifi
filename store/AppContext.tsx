@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   last_used_income_category_id: "",
   onboarded: false,
   notification_enabled: true,
+  default_currency: "QAR",
 };
 
 interface AppContextValue {

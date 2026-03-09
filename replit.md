@@ -12,6 +12,7 @@ Masarifi (مصاريفي) is a bilingual (Arabic/English) personal finance mobil
 - **Plans** – Financial plans for specific goals (travel, wedding, car, etc.) with budget tracking
 - **Budgets** – Monthly category-level budget limits with progress bars
 - **Statistics** – Full analytics with: Donut/Pie chart (expense by category), grouped Bar chart (income vs expense 6-month), Line chart (monthly expense trend), ranked top categories list, monthly summary, and accounts overview. All charts built with react-native-svg
+- **Settings** – Language (AR/EN), Theme (Light/Dark/Auto), Daily Limit Mode (Smart/Manual with amount), Manage Accounts link, Manage Categories link, Default Currency picker (9 Gulf/global currencies), Export Data (JSON download on web / Share on mobile), Notifications toggle. All settings persist via AsyncStorage immediately on change
 - **Dashboard** – Overview of balances, daily spending limit, upcoming commitments, and recent activity
 
 All data is stored locally on-device using AsyncStorage — there is no user authentication or cloud sync. The app has a dark/light/auto theme system and full RTL layout support.

@@ -180,7 +180,7 @@ function LineChart({ data, color, theme, isRTL }: { data: LineMonth[]; color: st
 // ─── Main Statistics Screen ──────────────────────────────────────────────────
 export default function StatisticsTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL, isDark } = useApp();
+  const { theme, t, language, isRTL, isDark, settings } = useApp();
   const { transactions } = useTransactions();
   const { getCategory } = useCategories();
   const { accounts } = useAccounts();
@@ -254,7 +254,7 @@ export default function StatisticsTab() {
     [trend6]
   );
 
-  const primaryCurrency = accounts.find((a) => a.is_active)?.currency || "QAR";
+  const primaryCurrency = settings.default_currency || accounts.find((a) => a.is_active)?.currency || "QAR";
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
   const hasExpenses = totalExpense > 0;
 
