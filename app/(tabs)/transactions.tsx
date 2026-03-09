@@ -17,14 +17,19 @@ import { useCategories } from "@/store/CategoriesContext";
 import { TransactionItem } from "@/components/TransactionItem";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getDisplayName } from "@/utils/display";
-import { formatCurrency } from "@/utils/currency";
+import { useDebounce } from "@/hooks/useDebounce";
+import type { Transaction } from "@/types";
 
 type Filter = "all" | "income" | "expense";
+type ListItem = { type: "header"; date: string } | { type: "tx"; tx: Transaction };
 
-function groupByDate(transactions: any[]) {
-  const groups: { date: string; items: any[] }[] = [];
+const MONTH_NAMES_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const MONTH_NAMES_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function groupByDate(txs: Transaction[]): { date: string; items: Transaction[] }[] {
+  const groups: { date: string; items: Transaction[] }[] = [];
   const map: Record<string, number> = {};
-  for (const tx of transactions) {
+  for (const tx of txs) {
     const d = tx.date.slice(0, 10);
     if (map[d] === undefined) {
       map[d] = groups.length;
@@ -38,17 +43,18 @@ function groupByDate(transactions: any[]) {
 export default function TransactionsTab() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, selectedAccountId, isRTL } = useApp();
-  const { transactions } = useTransactions();
+  const { transactions, isLoaded } = useTransactions();
+  const { getCategory } = useCategories();
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
-  const { getCategory } = useCategories();
+  const debouncedSearch = useDebounce(search, 250);
 
   const filtered = useMemo(() => {
     let result = [...transactions];
     if (selectedAccountId) result = result.filter((tx) => tx.account_id === selectedAccountId);
     if (filter !== "all") result = result.filter((tx) => tx.type === filter);
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
       result = result.filter((tx) => {
         const cat = getCategory(tx.category_id);
         const catName = cat ? getDisplayName(cat, language).toLowerCase() : "";
@@ -56,36 +62,10 @@ export default function TransactionsTab() {
       });
     }
     return result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [transactions, filter, search, selectedAccountId, language]);
-
-  const totalIncome = filtered.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
-  const totalExpense = filtered.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+  }, [transactions, filter, debouncedSearch, selectedAccountId, language]);
 
   const groups = useMemo(() => groupByDate(filtered), [filtered]);
 
-  const MONTH_NAMES_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-  const MONTH_NAMES_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-  const formatGroupDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (dateStr === today.toISOString().slice(0, 10)) return language === "ar" ? "اليوم" : "Today";
-    if (dateStr === yesterday.toISOString().slice(0, 10)) return language === "ar" ? "أمس" : "Yesterday";
-    const monthNames = language === "ar" ? MONTH_NAMES_AR : MONTH_NAMES_EN;
-    return `${d.getDate()} ${monthNames[d.getMonth()]}`;
-  };
-
-  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
-
-  const FILTERS: { key: Filter; label: string; color?: string }[] = [
-    { key: "all", label: t.transactions.filterAll },
-    { key: "income", label: t.transactions.filterIncome, color: theme.income },
-    { key: "expense", label: t.transactions.filterExpense, color: theme.expense },
-  ];
-
-  type ListItem = { type: "header"; date: string } | { type: "tx"; tx: any };
   const listData: ListItem[] = useMemo(() => {
     const items: ListItem[] = [];
     for (const group of groups) {
@@ -97,9 +77,26 @@ export default function TransactionsTab() {
     return items;
   }, [groups]);
 
+  const formatGroupDate = (dateStr: string): string => {
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    if (dateStr === today) return language === "ar" ? "اليوم" : "Today";
+    if (dateStr === yesterday) return language === "ar" ? "أمس" : "Yesterday";
+    const d = new Date(dateStr);
+    const names = language === "ar" ? MONTH_NAMES_AR : MONTH_NAMES_EN;
+    return `${d.getDate()} ${names[d.getMonth()]}`;
+  };
+
+  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
+
+  const FILTERS: { key: Filter; label: string; color?: string }[] = [
+    { key: "all", label: t.transactions.filterAll },
+    { key: "income", label: t.transactions.filterIncome, color: theme.income },
+    { key: "expense", label: t.transactions.filterExpense, color: theme.expense },
+  ];
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      {/* Header */}
       <View style={{ paddingTop: topPadding, paddingHorizontal: 20, paddingBottom: 12, backgroundColor: theme.background, gap: 12 }}>
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text }}>{t.transactions.title}</Text>
@@ -130,7 +127,7 @@ export default function TransactionsTab() {
             style={{ flex: 1, paddingVertical: 12, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left" }}
           />
           {search.length > 0 && (
-            <Pressable onPress={() => setSearch("")}>
+            <Pressable onPress={() => setSearch("")} hitSlop={8}>
               <Feather name="x" size={15} color={theme.textMuted} />
             </Pressable>
           )}
@@ -158,7 +155,9 @@ export default function TransactionsTab() {
 
       <FlatList
         data={listData}
-        keyExtractor={(item, i) => item.type === "header" ? `h-${item.date}` : `tx-${item.tx.id}`}
+        keyExtractor={(item, i) =>
+          item.type === "header" ? `h-${item.date}` : `tx-${item.tx.id}`
+        }
         renderItem={({ item }) => {
           if (item.type === "header") {
             return (
@@ -182,7 +181,13 @@ export default function TransactionsTab() {
         }}
         contentContainerStyle={{ paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 110) }}
         ListEmptyComponent={
-          <EmptyState icon="repeat" title={t.transactions.noTransactions} subtitle={t.transactions.addFirst} />
+          !isLoaded ? null : (
+            <EmptyState
+              icon="repeat"
+              title={t.transactions.noTransactions}
+              subtitle={t.transactions.addFirst}
+            />
+          )
         }
         showsVerticalScrollIndicator={false}
       />

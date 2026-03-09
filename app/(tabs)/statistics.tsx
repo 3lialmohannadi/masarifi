@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { View, Text, ScrollView, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -8,7 +8,7 @@ import { useCategories } from "@/store/CategoriesContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
-import { getCurrentMonthYear } from "@/utils/date";
+import { useMonthPicker, MONTH_NAMES_AR, MONTH_NAMES_EN } from "@/hooks/useMonthPicker";
 
 export default function StatisticsTab() {
   const insets = useSafeAreaInsets();
@@ -16,28 +16,19 @@ export default function StatisticsTab() {
   const { transactions } = useTransactions();
   const { getCategory } = useCategories();
   const { accounts } = useAccounts();
-  const { month, year } = getCurrentMonthYear();
 
-  const [selectedMonth, setSelectedMonth] = useState(month);
-  const [selectedYear, setSelectedYear] = useState(year);
-
-  const MONTH_NAMES_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-  const MONTH_NAMES_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const monthName = language === "ar" ? MONTH_NAMES_AR[selectedMonth - 1] : MONTH_NAMES_EN[selectedMonth - 1];
+  const { month: selectedMonth, year: selectedYear, monthName, monthKey, goToPrev, goToNext } = useMonthPicker(language);
 
   const monthTxs = useMemo(() => {
-    return transactions.filter((tx) => {
-      const d = new Date(tx.date);
-      return d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear;
-    });
-  }, [transactions, selectedMonth, selectedYear]);
+    return transactions.filter((tx) => tx.date.startsWith(monthKey));
+  }, [transactions, monthKey]);
 
   const totalIncome = monthTxs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
   const totalExpense = monthTxs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
   const netSavings = totalIncome - totalExpense;
 
   const categorySpending = useMemo(() => {
-    const spending: Record<string, { amount: number; category: any }> = {};
+    const spending: Record<string, { amount: number; category: ReturnType<typeof getCategory> }> = {};
     monthTxs.filter((tx) => tx.type === "expense").forEach((tx) => {
       if (!spending[tx.category_id]) {
         spending[tx.category_id] = { amount: 0, category: getCategory(tx.category_id) };
@@ -67,15 +58,6 @@ export default function StatisticsTab() {
   }, [transactions, selectedMonth, selectedYear, language]);
 
   const maxTrendValue = Math.max(...trendData.map((d) => Math.max(d.income, d.expense)), 1);
-
-  const prevMonth = () => {
-    if (selectedMonth === 1) { setSelectedMonth(12); setSelectedYear((y) => y - 1); }
-    else setSelectedMonth((m) => m - 1);
-  };
-  const nextMonth = () => {
-    if (selectedMonth === 12) { setSelectedMonth(1); setSelectedYear((y) => y + 1); }
-    else setSelectedMonth((m) => m + 1);
-  };
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
 
@@ -108,13 +90,13 @@ export default function StatisticsTab() {
 
           {/* Month Picker */}
           <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 16, overflow: "hidden" }}>
-            <Pressable onPress={prevMonth} style={{ width: 48, height: 48, alignItems: "center", justifyContent: "center" }}>
+            <Pressable onPress={goToPrev} style={{ width: 48, height: 48, alignItems: "center", justifyContent: "center" }}>
               <Feather name="chevron-left" size={20} color="rgba(255,255,255,0.8)" />
             </Pressable>
             <Text style={{ flex: 1, fontSize: 16, fontWeight: "700", color: "#fff", textAlign: "center" }}>
               {monthName} {selectedYear}
             </Text>
-            <Pressable onPress={nextMonth} style={{ width: 48, height: 48, alignItems: "center", justifyContent: "center" }}>
+            <Pressable onPress={goToNext} style={{ width: 48, height: 48, alignItems: "center", justifyContent: "center" }}>
               <Feather name="chevron-right" size={20} color="rgba(255,255,255,0.8)" />
             </Pressable>
           </View>
