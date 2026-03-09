@@ -24,9 +24,11 @@ export default function SavingsMovementModal() {
   const { accounts, updateBalance } = useAccounts();
   const { addTransaction } = useTransactions();
   const { getCategoriesByType } = useCategories();
-  const params = useLocalSearchParams<{ walletId?: string }>();
+  const params = useLocalSearchParams<{ walletId?: string; type?: string }>();
 
-  const [movementType, setMovementType] = useState<MovementType>("deposit");
+  const [movementType, setMovementType] = useState<MovementType>(
+    params.type === "withdraw" ? "withdraw" : "deposit"
+  );
   const [walletId, setWalletId] = useState(params.walletId || wallets[0]?.id || "");
   const [accountId, setAccountId] = useState(
     selectedAccountId && accounts.find((a) => a.id === selectedAccountId && a.is_active)

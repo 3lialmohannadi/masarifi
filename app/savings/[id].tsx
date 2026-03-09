@@ -194,7 +194,7 @@ export default function SavingsDetailScreen() {
         <Pressable
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            router.push(`/(modals)/savings-movement?walletId=${wallet.id}`);
+            router.push(`/(modals)/savings-movement?walletId=${wallet.id}&type=deposit`);
           }}
           style={{
             flex: 1,
@@ -213,7 +213,7 @@ export default function SavingsDetailScreen() {
         <Pressable
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            router.push(`/(modals)/savings-movement?walletId=${wallet.id}`);
+            router.push(`/(modals)/savings-movement?walletId=${wallet.id}&type=withdraw`);
           }}
           style={{
             flex: 1,
