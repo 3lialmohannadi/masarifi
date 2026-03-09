@@ -9,7 +9,7 @@ import React, {
 import type { Category, CategoryType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
-import { createDefaultCategories } from "@/utils/defaults";
+import { createDefaultCategories, mergeDefaultCategories } from "@/utils/defaults";
 
 interface CategoriesContextValue {
   categories: Category[];
@@ -37,7 +37,9 @@ export function CategoriesProvider({
   useEffect(() => {
     loadData<Category[]>(KEYS.CATEGORIES).then((saved) => {
       if (saved && saved.length > 0) {
-        setCategories(saved);
+        const { merged, added } = mergeDefaultCategories(saved);
+        setCategories(merged);
+        if (added > 0) saveData(KEYS.CATEGORIES, merged);
       } else {
         const defaults = createDefaultCategories();
         setCategories(defaults);

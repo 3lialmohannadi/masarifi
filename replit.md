@@ -108,7 +108,7 @@ workspace/
 ├── utils/                        # Pure utility functions
 │   ├── currency.ts               # formatCurrency, getCurrencySymbol, CURRENCIES list
 │   ├── date.ts                   # Date helpers: format, parse, compare, month math
-│   ├── defaults.ts               # createDefaultCategories(), createDefaultSavingsWallet()
+│   ├── defaults.ts               # DEFAULT_CATEGORIES (fixed IDs), createDefaultCategories(), mergeDefaultCategories(), createDefaultSavingsWallet()
 │   ├── display.ts                # getDisplayName() for bilingual name objects
 │   ├── id.ts                     # generateId(), now() timestamp
 │   ├── storage.ts                # AsyncStorage wrappers with error logging

@@ -160,7 +160,8 @@ export const ar = {
     deleteConfirm: "هل تريد حذف هذا التصنيف؟",
     deleteInUse: "هذا التصنيف مستخدم في عمليات. لا يمكن حذفه.",
     cannotDelete: "لا يمكن الحذف",
-    cannotDeleteInUse: "هذا التصنيف مستخدم في عمليات ولا يمكن حذفه.",
+    cannotDeleteDefault: "لا يمكن حذف التصنيفات الافتراضية.",
+    cannotDeleteInUse: "هذا التصنيف مستخدم في عمليات. لا يمكن حذفه.",
     types: {
       income: "دخل",
       expense: "مصروف",

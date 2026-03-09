@@ -160,6 +160,7 @@ export const en = {
     deleteConfirm: "Delete this category?",
     deleteInUse: "This category is in use and cannot be deleted.",
     cannotDelete: "Cannot Delete",
+    cannotDeleteDefault: "Default categories cannot be deleted.",
     cannotDeleteInUse: "This category is used in transactions and cannot be deleted.",
     types: {
       income: "Income",
