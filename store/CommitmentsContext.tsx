@@ -32,14 +32,31 @@ export function deriveStatus(dueDate: string): CommitmentStatus {
   return "upcoming";
 }
 
-function getNextDueDate(dueDate: string, recurrenceType: RecurrenceType): string {
+function advanceOneStep(dateStr: string, recurrenceType: RecurrenceType): string {
   switch (recurrenceType) {
-    case "daily": return addDays(dueDate, 1);
-    case "weekly": return addWeeks(dueDate, 1);
-    case "monthly": return addMonths(dueDate, 1);
-    case "yearly": return addYears(dueDate, 1);
-    default: return dueDate;
+    case "daily":   return addDays(dateStr, 1);
+    case "weekly":  return addWeeks(dateStr, 1);
+    case "monthly": return addMonths(dateStr, 1);
+    case "yearly":  return addYears(dateStr, 1);
+    default:        return dateStr;
   }
+}
+
+/**
+ * Returns the next due date that is in the future (today or later).
+ * If the commitment was overdue for many periods, it advances through all
+ * past occurrences and returns the first upcoming one — preserving the
+ * original billing cycle (e.g. always the 1st of the month).
+ * Safety cap: max 730 iterations (2 years of daily).
+ */
+function getNextFutureDueDate(dueDate: string, recurrenceType: RecurrenceType): string {
+  let next = dueDate;
+  let iterations = 0;
+  do {
+    next = advanceOneStep(next, recurrenceType);
+    iterations++;
+  } while (isPastDate(next) && !isToday(next) && iterations < 730);
+  return next;
 }
 
 function refreshCommitmentStatuses(list: Commitment[]): Commitment[] {
@@ -114,7 +131,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     );
 
     if (commitment.recurrence_type !== "none") {
-      const nextDueDate = getNextDueDate(commitment.due_date, commitment.recurrence_type);
+      const nextDueDate = getNextFutureDueDate(commitment.due_date, commitment.recurrence_type);
       const newCommitment: Commitment = {
         ...commitment,
         id: generateId(),
