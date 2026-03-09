@@ -54,7 +54,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteAccount = (id: string) => {
-    persist(accounts.filter((a) => a.id !== id));
+    persist(accounts.map((a) => (a.id === id ? { ...a, is_active: false, updated_at: now() } : a)));
   };
 
   const getAccount = (id: string) => accounts.find((a) => a.id === id);

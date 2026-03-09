@@ -34,7 +34,7 @@ export default function AddTransactionModal() {
   const { updateBalance } = useAccounts();
   const { categories, getCategoriesByType } = useCategories();
   const { plans } = usePlans();
-  const params = useLocalSearchParams<{ id?: string; type?: string }>();
+  const params = useLocalSearchParams<{ id?: string; type?: string; accountId?: string }>();
 
   const existingTx = params.id ? transactions.find((t) => t.id === params.id) : undefined;
 
@@ -42,7 +42,9 @@ export default function AddTransactionModal() {
     existingTx?.type || (params.type === "income" ? "income" : "expense")
   );
   const [amount, setAmount] = useState(existingTx ? String(existingTx.amount) : "");
-  const [accountId, setAccountId] = useState(existingTx?.account_id || selectedAccountId || accounts[0]?.id || "");
+  const [accountId, setAccountId] = useState(
+    existingTx?.account_id || params.accountId || selectedAccountId || accounts.find((a) => a.is_active)?.id || ""
+  );
   const [categoryId, setCategoryId] = useState(existingTx?.category_id || "");
   const [date, setDate] = useState(existingTx?.date || todayISOString());
   const [note, setNote] = useState(existingTx?.note || "");

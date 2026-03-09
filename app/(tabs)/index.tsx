@@ -33,7 +33,10 @@ export default function DashboardScreen() {
   const { getCategory } = useCategories();
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
 
-  const selectedAccount = accounts.find((a) => a.id === selectedAccountId) || accounts[0];
+  const activeAccounts = accounts.filter((a) => a.is_active);
+  const selectedAccount =
+    accounts.find((a) => a.id === selectedAccountId && a.is_active) ||
+    activeAccounts[0];
   const totalBalance = selectedAccount?.balance ?? 0;
   const allocatedMoney = selectedAccount ? allocatedMoneyForAccount(selectedAccount.id) : 0;
   const realAvailable = totalBalance - allocatedMoney;
@@ -109,9 +112,9 @@ export default function DashboardScreen() {
           </View>
 
           {/* Account Pills */}
-          {accounts.length > 0 && (
+          {activeAccounts.length > 0 && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-              {accounts.filter((a) => a.is_active).map((acc) => {
+              {activeAccounts.map((acc) => {
                 const isSelected = acc.id === (selectedAccount?.id || "");
                 return (
                   <Pressable

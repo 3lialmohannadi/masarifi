@@ -33,7 +33,7 @@ export default function AccountDetailScreen() {
   if (!account) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: theme.textMuted }}>{language === "ar" ? "الحساب غير موجود" : "Account not found"}</Text>
+        <Text style={{ color: theme.textMuted }}>{t.accounts.accountNotFound}</Text>
       </View>
     );
   }
@@ -104,31 +104,33 @@ export default function AccountDetailScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* FAB */}
-      <Pressable
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          router.push("/(modals)/add-transaction");
-        }}
-        style={{
-          position: "absolute",
-          bottom: insets.bottom + 24,
-          right: 20,
-          width: 54,
-          height: 54,
-          borderRadius: 27,
-          backgroundColor: theme.primary,
-          alignItems: "center",
-          justifyContent: "center",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 6,
-        }}
-      >
-        <Feather name="plus" size={24} color="#fff" />
-      </Pressable>
+      {/* FAB — only for active accounts */}
+      {account.is_active ? (
+        <Pressable
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            router.push(`/(modals)/add-transaction?accountId=${account.id}`);
+          }}
+          style={{
+            position: "absolute",
+            bottom: insets.bottom + 24,
+            right: 20,
+            width: 54,
+            height: 54,
+            borderRadius: 27,
+            backgroundColor: theme.primary,
+            alignItems: "center",
+            justifyContent: "center",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
+        >
+          <Feather name="plus" size={24} color="#fff" />
+        </Pressable>
+      ) : null}
     </View>
   );
 }

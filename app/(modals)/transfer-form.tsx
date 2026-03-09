@@ -19,9 +19,16 @@ export default function TransferFormModal() {
   const { accounts, updateBalance } = useAccounts();
   const { addTransfer } = useTransactions();
 
-  const [fromId, setFromId] = useState(selectedAccountId || accounts[0]?.id || "");
-  const [toId, setToId] = useState(accounts.length > 1 ? accounts.find((a) => a.id !== (selectedAccountId || accounts[0]?.id))?.id || "" : "");
+  const activeAccounts = accounts.filter((a) => a.is_active);
+
+  const [fromId, setFromId] = useState(selectedAccountId || activeAccounts[0]?.id || "");
+  const [toId, setToId] = useState(
+    activeAccounts.length > 1
+      ? activeAccounts.find((a) => a.id !== (selectedAccountId || activeAccounts[0]?.id))?.id || ""
+      : ""
+  );
   const [amount, setAmount] = useState("");
+  const [exchangeRate, setExchangeRate] = useState("1");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(todayISOString());
   const [showFrom, setShowFrom] = useState(false);
@@ -32,6 +39,9 @@ export default function TransferFormModal() {
   const fromAccount = accounts.find((a) => a.id === fromId);
   const toAccount = accounts.find((a) => a.id === toId);
   const sameCurrency = fromAccount?.currency === toAccount?.currency;
+  const rate = parseFloat(exchangeRate) || 1;
+  const sourceAmount = parseFloat(amount) || 0;
+  const destinationAmount = sameCurrency ? sourceAmount : sourceAmount * rate;
 
   const validate = () => {
     const err: Record<string, string> = {};
@@ -40,6 +50,9 @@ export default function TransferFormModal() {
     if (fromId && toId && fromId === toId) err.to = t.validation.differentAccounts;
     if (!amount || parseFloat(amount) <= 0) err.amount = t.validation.amountPositive;
     if (fromAccount && parseFloat(amount) > fromAccount.balance) err.amount = t.validation.insufficientBalance;
+    if (!sameCurrency && (parseFloat(exchangeRate) <= 0 || isNaN(parseFloat(exchangeRate)))) {
+      err.exchangeRate = t.validation.amountPositive;
+    }
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -49,18 +62,17 @@ export default function TransferFormModal() {
     setLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
-      const amountNum = parseFloat(amount);
       addTransfer({
         source_account_id: fromId,
         destination_account_id: toId,
-        source_amount: amountNum,
-        destination_amount: amountNum,
-        exchange_rate: 1,
+        source_amount: sourceAmount,
+        destination_amount: destinationAmount,
+        exchange_rate: sameCurrency ? 1 : rate,
         date,
         note: note || (language === "ar" ? "تحويل" : "Transfer"),
       });
-      updateBalance(fromId, -amountNum);
-      updateBalance(toId, amountNum);
+      updateBalance(fromId, -sourceAmount);
+      updateBalance(toId, destinationAmount);
       router.back();
     } finally {
       setLoading(false);
@@ -90,12 +102,12 @@ export default function TransferFormModal() {
             <Pressable onPress={onClose}><Feather name="x" size={22} color={theme.textSecondary} /></Pressable>
           </View>
           <FlatList
-            data={accounts.filter((a) => a.is_active && a.id !== exclude)}
+            data={activeAccounts.filter((a) => a.id !== exclude)}
             keyExtractor={(a) => a.id}
             renderItem={({ item }) => (
               <Pressable
                 onPress={() => { onSelect(item.id); onClose(); }}
-                style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 14, backgroundColor: item.id === selected ? theme.primaryLight : "transparent", borderRadius: 12, marginHorizontal: 8, marginVertical: 2 }}
+                style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, padding: 14, backgroundColor: item.id === selected ? theme.primaryLight : "transparent", borderRadius: 12, marginHorizontal: 8, marginVertical: 2 }}
               >
                 <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: item.color }} />
                 <View style={{ flex: 1 }}>
@@ -185,8 +197,9 @@ export default function TransferFormModal() {
           {errors.to && <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.to}</Text>}
         </View>
 
+        {/* Source Amount */}
         <AppInput
-          label={t.common.amount}
+          label={sameCurrency ? t.common.amount : t.transfer.sourceAmount}
           value={amount}
           onChangeText={setAmount}
           keyboardType="decimal-pad"
@@ -196,6 +209,35 @@ export default function TransferFormModal() {
           style={{ fontSize: 24, fontWeight: "700" }}
         />
 
+        {/* Exchange Rate — only when currencies differ */}
+        {!sameCurrency && fromAccount && toAccount && (
+          <View style={{ gap: 8 }}>
+            <View style={{ backgroundColor: theme.warningBackground, borderRadius: 12, padding: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+              <Feather name="alert-circle" size={16} color={theme.warningText} />
+              <Text style={{ flex: 1, fontSize: 13, color: theme.warningText }}>
+                {t.transfer.differentCurrencies}: {fromAccount.currency} → {toAccount.currency}
+              </Text>
+            </View>
+            <AppInput
+              label={`${t.transfer.exchangeRate} (1 ${fromAccount.currency} = ? ${toAccount.currency})`}
+              value={exchangeRate}
+              onChangeText={setExchangeRate}
+              keyboardType="decimal-pad"
+              placeholder="1.00"
+              error={errors.exchangeRate}
+            />
+            {sourceAmount > 0 && rate > 0 && (
+              <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 12, alignItems: "center" }}>
+                <Text style={{ fontSize: 13, color: theme.textSecondary }}>
+                  {formatCurrency(sourceAmount, fromAccount.currency, language)}
+                  {" → "}
+                  {formatCurrency(destinationAmount, toAccount.currency, language)}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+
         <AppInput label={t.common.date} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" />
 
         <AppInput
@@ -204,18 +246,6 @@ export default function TransferFormModal() {
           onChangeText={setNote}
           placeholder={language === "ar" ? "ملاحظة..." : "Note..."}
         />
-
-        {fromAccount && toAccount && (
-          <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 14, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10 }}>
-            <Feather name="info" size={16} color={theme.textSecondary} />
-            <Text style={{ flex: 1, fontSize: 13, color: theme.textSecondary }}>
-              {getDisplayName(fromAccount, language)} → {getDisplayName(toAccount, language)}
-              {!sameCurrency && (
-                <Text style={{ color: theme.primary }}>  {fromAccount.currency} → {toAccount.currency}</Text>
-              )}
-            </Text>
-          </View>
-        )}
 
         <AppButton title={t.transfer.confirm} onPress={handleSave} loading={loading} fullWidth size="lg" />
       </ScrollView>

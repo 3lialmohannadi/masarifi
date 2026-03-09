@@ -66,12 +66,12 @@ export default function AccountFormModal() {
         currency,
         color,
         icon,
-        is_active: true,
+        is_active: existing ? existing.is_active : true,
       };
       if (existing) {
         updateAccount(existing.id, data);
       } else {
-        const acct = addAccount(data);
+        addAccount(data);
       }
       router.back();
     } finally {
@@ -79,11 +79,11 @@ export default function AccountFormModal() {
     }
   };
 
-  const handleDelete = () => {
+  const handleArchive = () => {
     Alert.alert(t.common.areYouSure, t.accounts.deleteConfirm, [
       { text: t.common.cancel, style: "cancel" },
       {
-        text: t.common.delete,
+        text: t.accounts.delete,
         style: "destructive",
         onPress: () => {
           if (existing) deleteAccount(existing.id);
@@ -91,6 +91,13 @@ export default function AccountFormModal() {
         },
       },
     ]);
+  };
+
+  const handleRestore = () => {
+    if (existing) {
+      updateAccount(existing.id, { is_active: true });
+      router.back();
+    }
   };
 
   return (
@@ -115,9 +122,15 @@ export default function AccountFormModal() {
           {existing ? t.accounts.edit : t.accounts.add}
         </Text>
         {existing ? (
-          <Pressable onPress={handleDelete}>
-            <Feather name="trash-2" size={20} color={theme.expense} />
-          </Pressable>
+          existing.is_active ? (
+            <Pressable onPress={handleArchive}>
+              <Feather name="archive" size={20} color={theme.expense} />
+            </Pressable>
+          ) : (
+            <Pressable onPress={handleRestore}>
+              <Feather name="refresh-cw" size={20} color={theme.primary} />
+            </Pressable>
+          )
         ) : (
           <View style={{ width: 24 }} />
         )}

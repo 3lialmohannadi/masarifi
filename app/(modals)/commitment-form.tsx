@@ -38,7 +38,7 @@ export default function CommitmentFormModal() {
   const [nameAr, setNameAr] = useState(existing?.name_ar || "");
   const [nameEn, setNameEn] = useState(existing?.name_en || "");
   const [amount, setAmount] = useState(existing ? String(existing.amount) : "");
-  const [accountId, setAccountId] = useState(existing?.account_id || accounts[0]?.id || "");
+  const [accountId, setAccountId] = useState(existing?.account_id || accounts.find((a) => a.is_active)?.id || "");
   const [categoryId, setCategoryId] = useState(existing?.category_id || commitmentCategories[0]?.id || "");
   const [dueDate, setDueDate] = useState(existing?.due_date || todayISOString());
   const [recurrence, setRecurrence] = useState<RecurrenceType>(existing?.recurrence_type || "monthly");

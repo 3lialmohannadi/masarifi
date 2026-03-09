@@ -28,7 +28,11 @@ export default function SavingsMovementModal() {
 
   const [movementType, setMovementType] = useState<MovementType>("deposit");
   const [walletId, setWalletId] = useState(params.walletId || wallets[0]?.id || "");
-  const [accountId, setAccountId] = useState(selectedAccountId || accounts[0]?.id || "");
+  const [accountId, setAccountId] = useState(
+    selectedAccountId && accounts.find((a) => a.id === selectedAccountId && a.is_active)
+      ? selectedAccountId
+      : accounts.find((a) => a.is_active)?.id || ""
+  );
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [showWallets, setShowWallets] = useState(false);
