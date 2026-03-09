@@ -12,16 +12,17 @@ import * as Haptics from "expo-haptics";
 interface TransactionItemProps {
   transaction: Transaction;
   onPress?: () => void;
+  showDate?: boolean;
 }
 
-export function TransactionItem({ transaction, onPress }: TransactionItemProps) {
-  const { theme, language } = useApp();
+export function TransactionItem({ transaction, onPress, showDate = true }: TransactionItemProps) {
+  const { theme, language, isRTL } = useApp();
   const { getCategory } = useCategories();
 
   const category = getCategory(transaction.category_id);
   const isIncome = transaction.type === "income";
   const color = isIncome ? theme.income : theme.expense;
-  const bg = isIncome ? theme.incomeBackground : theme.expenseBackground;
+  const catColor = category?.color || color;
 
   const handlePress = () => {
     Haptics.selectionAsync();
@@ -32,47 +33,53 @@ export function TransactionItem({ transaction, onPress }: TransactionItemProps) 
     <Pressable
       onPress={handlePress}
       style={({ pressed }) => ({
-        flexDirection: "row",
+        flexDirection: isRTL ? "row-reverse" : "row",
         alignItems: "center",
-        gap: 12,
-        padding: 14,
-        borderRadius: 14,
+        gap: 14,
+        paddingVertical: 13,
+        paddingHorizontal: 16,
         backgroundColor: pressed ? theme.cardSecondary : theme.card,
-        marginBottom: 6,
+        borderRadius: 16,
+        marginBottom: 8,
       })}
     >
       <View
         style={{
-          width: 44,
-          height: 44,
-          borderRadius: 12,
-          backgroundColor: category ? `${category.color}20` : bg,
+          width: 46,
+          height: 46,
+          borderRadius: 14,
+          backgroundColor: `${catColor}18`,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
         <Feather
-          name={(category?.icon || "circle") as any}
+          name={(category?.icon || (isIncome ? "arrow-down-left" : "arrow-up-right")) as any}
           size={20}
-          color={category?.color || color}
+          color={catColor}
         />
       </View>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, gap: 2 }}>
         <Text
-          style={{ fontSize: 15, fontWeight: "600", color: theme.text }}
+          style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}
           numberOfLines={1}
         >
           {getDisplayName(category, language) || (isIncome ? "Income" : "Expense")}
         </Text>
-        <Text style={{ fontSize: 13, color: theme.textSecondary }}>
-          {formatDateShort(transaction.date, language)}
-          {transaction.note ? ` · ${transaction.note}` : ""}
+        {(showDate || transaction.note) && (
+          <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+            {showDate ? formatDateShort(transaction.date, language) : ""}
+            {showDate && transaction.note ? " · " : ""}
+            {transaction.note || ""}
+          </Text>
+        )}
+      </View>
+      <View style={{ alignItems: "flex-end", gap: 2 }}>
+        <Text style={{ fontSize: 16, fontWeight: "700", color }}>
+          {isIncome ? "+" : "-"}
+          {formatCurrency(transaction.amount, transaction.currency, language)}
         </Text>
       </View>
-      <Text style={{ fontSize: 16, fontWeight: "700", color }}>
-        {isIncome ? "+" : "-"}
-        {formatCurrency(transaction.amount, transaction.currency, language)}
-      </Text>
     </Pressable>
   );
 }

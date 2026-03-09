@@ -124,10 +124,6 @@ function RootLayoutNav() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="transactions/index"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
         name="commitments/index"
         options={{ headerShown: false }}
       />

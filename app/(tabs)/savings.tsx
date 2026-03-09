@@ -2,9 +2,8 @@ import React, { useMemo } from "react";
 import {
   View,
   Text,
-  FlatList,
-  Pressable,
   ScrollView,
+  Pressable,
   Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,123 +15,128 @@ import { useSavings } from "@/store/SavingsContext";
 import { SavingsWalletCard } from "@/components/SavingsWalletCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency } from "@/utils/currency";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export default function SavingsTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, isDark } = useApp();
   const { wallets, totalSavings } = useSavings();
 
   const generalWallets = wallets.filter((w) => w.type === "general_savings" && !w.is_archived);
   const goalWallets = wallets.filter((w) => w.type === "goal_savings" && !w.is_archived);
 
-  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
+  const totalGoal = goalWallets.reduce((s, w) => s + (w.target_amount || 0), 0);
+  const totalGoalReached = goalWallets.reduce((s, w) => s + w.current_amount, 0);
+  const overallGoalProgress = totalGoal > 0 ? totalGoalReached / totalGoal : 0;
+
+  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <ScrollView
         contentContainerStyle={{
-          paddingTop: topPadding,
-          paddingHorizontal: 16,
-          paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 100),
-          gap: 20,
+          paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 110),
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={{ fontSize: 22, fontWeight: "700", color: theme.text }}>
-            {t.savings.title}
-          </Text>
-          <Pressable
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              router.push("/(modals)/saving-wallet-form");
-            }}
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 19,
-              backgroundColor: theme.primary,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Feather name="plus" size={20} color="#fff" />
-          </Pressable>
-        </View>
-
-        {/* Total Savings */}
+        {/* Hero */}
         <View
           style={{
-            backgroundColor: theme.savings,
-            borderRadius: 20,
-            padding: 20,
-            alignItems: "center",
-            gap: 6,
+            backgroundColor: isDark ? "#0D1B35" : "#1E3A5F",
+            paddingTop: topPadding,
+            paddingHorizontal: 20,
+            paddingBottom: 28,
+            borderBottomLeftRadius: 30,
+            borderBottomRightRadius: 30,
+            gap: 20,
           }}
         >
-          <Text style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
-            {t.savings.totalSavings}
-          </Text>
-          <Text style={{ fontSize: 32, fontWeight: "800", color: "#fff" }}>
-            {formatCurrency(totalSavings, "USD", language)}
-          </Text>
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
+            <Text style={{ fontSize: 22, fontWeight: "800", color: "#fff" }}>{t.savings.title}</Text>
+            <Pressable
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/(modals)/saving-wallet-form"); }}
+              style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center" }}
+            >
+              <Feather name="plus" size={20} color="#fff" />
+            </Pressable>
+          </View>
+
+          {/* Total Savings */}
+          <View style={{ gap: 4 }}>
+            <Text style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>{t.savings.totalSavings}</Text>
+            <Text style={{ fontSize: 36, fontWeight: "800", color: "#fff", letterSpacing: -1 }}>
+              {formatCurrency(totalSavings, "QAR", language)}
+            </Text>
+          </View>
+
+          {/* Goal Progress */}
+          {goalWallets.length > 0 && totalGoal > 0 && (
+            <View style={{ backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 14, padding: 14, gap: 10 }}>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                  <Feather name="target" size={13} color="rgba(255,255,255,0.6)" />
+                  <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: "600" }}>
+                    {t.savings.goals}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: "#10B981" }}>
+                  {Math.round(overallGoalProgress * 100)}%
+                </Text>
+              </View>
+              <ProgressBar progress={overallGoalProgress} color="#10B981" height={5} trackColor="rgba(255,255,255,0.15)" />
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between" }}>
+                <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+                  {formatCurrency(totalGoalReached, "QAR", language)}
+                </Text>
+                <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+                  {formatCurrency(totalGoal, "QAR", language)}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
 
-        {/* General Savings */}
-        {generalWallets.length > 0 && (
-          <View style={{ gap: 10 }}>
-            <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
-              {t.savings.general}
-            </Text>
-            {generalWallets.map((w) => (
-              <SavingsWalletCard
-                key={w.id}
-                wallet={w}
-                onPress={() => router.push(`/savings/${w.id}`)}
-              />
-            ))}
-          </View>
-        )}
-
-        {/* Goal Wallets */}
-        <View style={{ gap: 10 }}>
-          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
-            <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
-              {t.savings.goals}
-            </Text>
-          </View>
-
-          {goalWallets.length === 0 ? (
-            <EmptyState
-              icon="target"
-              title={t.savings.noWallets}
-              action={
-                <Pressable
-                  onPress={() => router.push("/(modals)/saving-wallet-form")}
-                  style={{
-                    backgroundColor: theme.primary,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
-                    borderRadius: 10,
-                    marginTop: 8,
-                  }}
-                >
-                  <Text style={{ color: "#fff", fontWeight: "600" }}>
-                    {t.savings.add}
-                  </Text>
-                </Pressable>
-              }
-            />
-          ) : (
-            goalWallets.map((w) => (
-              <SavingsWalletCard
-                key={w.id}
-                wallet={w}
-                onPress={() => router.push(`/savings/${w.id}`)}
-              />
-            ))
+        <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 24 }}>
+          {/* General Savings */}
+          {generalWallets.length > 0 && (
+            <View style={{ gap: 12 }}>
+              <Text style={{ fontSize: 15, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                {t.savings.general}
+              </Text>
+              <View style={{ gap: 10 }}>
+                {generalWallets.map((w) => (
+                  <SavingsWalletCard key={w.id} wallet={w} onPress={() => router.push(`/savings/${w.id}`)} />
+                ))}
+              </View>
+            </View>
           )}
+
+          {/* Goal Savings */}
+          <View style={{ gap: 12 }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text style={{ fontSize: 15, fontWeight: "700", color: theme.text }}>{t.savings.goals}</Text>
+            </View>
+            {goalWallets.length === 0 ? (
+              <EmptyState
+                icon="target"
+                title={t.savings.noWallets}
+                action={
+                  <Pressable
+                    onPress={() => router.push("/(modals)/saving-wallet-form")}
+                    style={{ backgroundColor: theme.primary, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10, marginTop: 8 }}
+                  >
+                    <Text style={{ color: "#fff", fontWeight: "600" }}>{t.savings.add}</Text>
+                  </Pressable>
+                }
+              />
+            ) : (
+              <View style={{ gap: 10 }}>
+                {goalWallets.map((w) => (
+                  <SavingsWalletCard key={w.id} wallet={w} onPress={() => router.push(`/savings/${w.id}`)} />
+                ))}
+              </View>
+            )}
+          </View>
         </View>
       </ScrollView>
     </View>
