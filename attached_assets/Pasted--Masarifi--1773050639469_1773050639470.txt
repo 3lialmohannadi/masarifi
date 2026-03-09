@@ -1,0 +1,2147 @@
+
+
+
+أريدك أن تبني تطبيق موبايل حديث لإدارة الأموال الشخصية باسم:
+
+مصاريفي / Masarifi
+
+أريدك أن تنفذ المشروع بشكل تدريجي ومنظم، وليس فقط إنشاء واجهات شكلية.
+يجب أن يكون المشروع فعلي، قابل للتشغيل، منظم، وقابل للتوسع.
+
+⸻
+
+1) التقنية المطلوبة
+
+ابنِ التطبيق باستخدام:
+	•	React Native + Expo
+	•	TypeScript
+	•	Supabase أو Firebase
+‎	•	بنية مشروع نظيفة ومنظمة
+‎	•	دعم RTL / LTR
+‎	•	دعم Light / Dark Mode
+‎	•	دعم العربية والإنجليزية
+
+⸻
+
+2) قواعد صارمة قبل البدء
+
+التزم بهذه القواعد بدقة:
+	•	لا تختصر المتطلبات
+	•	لا تضف ميزات غير مطلوبة
+	•	لا تبنِ UI فقط بدون منطق فعلي
+	•	لا تنفذ كل شيء دفعة واحدة بشكل عشوائي
+	•	ابنِ المشروع على مراحل واضحة
+	•	تأكد أن كل مرحلة تعمل قبل الانتقال للتي بعدها
+	•	اجعل الكود reusable وقابل للصيانة
+	•	استخدم state management مناسب
+	•	أضف validation للنماذج
+	•	أضف loading states
+	•	أضف empty states
+	•	أضف error states
+
+⸻
+
+3) الميزات الممنوعة
+
+لا تقم بإضافة أي من الميزات التالية:
+	•	رفع الصور
+	•	إرفاق صور للفواتير
+‏	•	Privacy Mode
+‏	•	Calendar page
+‏	•	Multi Users
+‏	•	Expense Split
+
+⸻
+
+4) قاعدة أساسية مهمة جداً
+
+التطبيق لمستخدم واحد فقط.
+
+لكن يمكن للمستخدم إنشاء:
+	•	عدة حسابات
+	•	عدة محافظ ادخار
+	•	عدة التزامات
+	•	عدة خطط
+	•	عدة تصنيفات
+
+⸻
+
+5) ابدأ بهذا الترتيب فقط
+
+نفّذ المشروع على هذه المراحل بالترتيب:
+
+المرحلة 1 — Project Setup
+
+أنشئ المشروع وهيئ:
+	•	Expo project
+	•	TypeScript
+	•	folder structure احترافي
+	•	navigation
+	•	theme system
+	•	i18n
+	•	RTL/LTR support
+
+المرحلة 2 — Database
+
+أنشئ قاعدة البيانات والجداول والعلاقات والأنواع.
+
+المرحلة 3 — Accounts
+
+أنشئ نظام الحسابات كاملاً.
+
+المرحلة 4 — Categories + Transactions
+
+أنشئ التصنيفات والعمليات المالية.
+
+المرحلة 5 — Savings
+
+أنشئ نظام الادخار الكامل.
+
+المرحلة 6 — Commitments
+
+أنشئ نظام الالتزامات مع منطق الحجز والدفع.
+
+المرحلة 7 — Plan Mode
+
+أنشئ نظام الخطط المالية.
+
+المرحلة 8 — Budgets + Statistics + Settings
+
+أنشئ الميزانيات والإحصائيات والإعدادات.
+
+المرحلة 9 — Final Polish
+
+حسن التصميم، التحقق، الأخطاء، وتجربة المستخدم.
+
+⸻
+
+6) هيكل المشروع المطلوب
+
+استخدم Structure قريب من هذا:
+	•	components
+	•	screens
+	•	navigation
+	•	services
+	•	hooks
+	•	utils
+	•	constants
+	•	types
+	•	store
+	•	database
+	•	i18n
+	•	theme
+
+⸻
+
+7) نظام اللغة
+
+التطبيق يجب أن يدعم:
+	•	العربية
+	•	الإنجليزية
+
+العربية:
+	•	واجهة كاملة بالعربية
+‏	•	RTL
+
+الإنجليزية:
+	•	واجهة كاملة بالإنجليزية
+‏	•	LTR
+
+عند تغيير اللغة:
+	•	تتغير الواجهة بالكامل مباشرة
+
+⸻
+
+8) دعم الإدخال بلغتين داخل البيانات
+
+أي عنصر له اسم يجب أن يحتوي على:
+	•	name_ar
+	•	name_en
+
+وهذا يشمل:
+	•	الحسابات
+	•	التصنيفات
+	•	محافظ الادخار
+	•	الخطط
+	•	فئات الخطط
+	•	الالتزامات
+
+قاعدة العرض
+
+إذا كانت لغة التطبيق عربية:
+	•	اعرض name_ar
+
+إذا كانت لغة التطبيق إنجليزية:
+	•	اعرض name_en
+
+إذا لم يكن الاسم الثاني موجوداً:
+	•	استخدم الاسم الأول كبديل
+
+⸻
+
+9) Auto Translate Button
+
+أضف زر ترجمة تلقائية في النماذج التي تحتوي على اسم عربي واسم إنجليزي.
+
+يعمل في:
+	•	الحسابات
+	•	التصنيفات
+	•	محافظ الادخار
+	•	الخطط
+	•	فئات الخطط
+	•	الالتزامات
+
+السلوك:
+	•	إذا كتب المستخدم بالعربية، يترجم للإنجليزية
+	•	إذا كتب بالإنجليزية، يترجم للعربية
+
+قواعد:
+	•	الترجمة مجرد مساعدة
+	•	يمكن تعديل النص يدوياً
+	•	إذا فشلت الترجمة، لا يتعطل النموذج
+
+⸻
+
+10) نظام المظهر
+
+ادعم:
+	•	Light Mode
+	•	Dark Mode
+	•	Auto Mode
+
+ويجب حفظ التفضيل في الإعدادات.
+
+⸻
+
+11) نظام الحسابات Accounts
+
+المستخدم يمكنه إنشاء عدة حسابات.
+
+كل حساب يحتوي على:
+	•	name_ar
+	•	name_en
+	•	type
+	•	balance
+	•	currency
+	•	color
+	•	icon
+
+أمثلة:
+	•	الحساب الجاري
+	•	حساب السفر
+	•	حساب نقدي
+	•	حساب بنك
+	•	حساب توفير
+
+⸻
+
+12) نظام العملات
+
+كل حساب له عملة مستقلة.
+
+أمثلة العملات:
+	•	QAR
+	•	USD
+	•	EUR
+	•	SAR
+	•	AED
+	•	GBP
+	•	KWD
+	•	BHD
+	•	OMR
+
+إذا كان هناك تحويل بين حسابين بعملتين مختلفتين:
+	•	اطلب exchange rate
+	•	نفذ التحويل
+	•	سجل المصدر والوجهة
+
+⸻
+
+13) الصفحة الرئيسية Dashboard
+
+الصفحة الرئيسية يجب أن تعتمد دائماً على:
+
+الحساب المختار حالياً فقط
+
+في الأعلى يجب وجود:
+
+Account Selector
+
+⸻
+
+14) تعريفات مالية يجب عدم الخلط بينها
+
+الرصيد الكلي
+
+هو:
+رصيد الحساب المختار حالياً فقط
+
+الأموال المخصصة
+
+هي:
+المبالغ المحجوزة للالتزامات فقط
+
+ولا تشمل:
+	•	الادخار
+	•	الخطط
+	•	الميزانيات
+
+المبلغ المتاح الحقيقي
+
+هو:
+رصيد الحساب المختار - الأموال المخصصة
+
+⸻
+
+15) الحد اليومي للصرف
+
+يجب دعم نوعين:
+
+الحد الذكي
+
+يحسب هكذا:
+
+real_available_money / remaining_days_in_month
+
+الحد اليدوي
+
+يمكن للمستخدم إدخال رقم يدوي
+
+إذا اختار المستخدم الوضع اليدوي:
+	•	استخدم الرقم اليدوي
+	•	لا تستخدم الحساب الذكي
+
+⸻
+
+16) محتويات الصفحة الرئيسية
+
+يجب أن تحتوي الصفحة الرئيسية على:
+	1.	الرصيد الكلي
+	2.	الأموال المخصصة
+	3.	المبلغ المتاح الحقيقي
+	4.	الحد اليومي للصرف
+	5.	زر الإضافة السريعة
+	6.	آخر 3 عمليات فقط
+	7.	زر “إظهار المزيد” يفتح صفحة العمليات
+	8.	الالتزامات القادمة
+	9.	المحافظ الادخارية
+
+⸻
+
+17) آخر العمليات
+
+في الصفحة الرئيسية:
+	•	اعرض آخر 3 عمليات فقط
+
+لكل عملية اعرض:
+	•	التصنيف
+	•	المبلغ
+	•	التاريخ
+	•	الأيقونة
+
+ثم زر:
+إظهار المزيد
+
+يفتح:
+Transactions History
+
+⸻
+
+18) Quick Add
+
+أضف زر واضح في الصفحة الرئيسية:
+
+إضافة عملية
+
+يسمح بإضافة:
+	•	دخل
+	•	مصروف
+
+بأقل عدد خطوات ممكن.
+
+⸻
+
+19) العمليات المالية Transactions
+
+ادعم:
+	•	إضافة دخل
+	•	إضافة مصروف
+	•	تعديل عملية
+	•	حذف عملية
+	•	عرض سجل العمليات
+	•	البحث والفلترة
+
+كل عملية يجب أن تحتوي على:
+	•	النوع
+	•	المبلغ
+	•	الحساب
+	•	التصنيف
+	•	التاريخ
+	•	ملاحظة اختيارية
+
+قواعد صارمة
+
+كل عملية:
+	•	مبلغ واحد فقط
+	•	تصنيف واحد فقط
+	•	حساب واحد فقط
+
+ولا يمكن حفظ العملية بدون:
+	•	مبلغ
+	•	حساب
+	•	تصنيف
+	•	نوع
+	•	تاريخ
+
+⸻
+
+20) التحويل بين الحسابات
+
+أضف نظام تحويل بين الحسابات.
+
+المدخلات:
+	•	الحساب المصدر
+	•	الحساب المستلم
+	•	المبلغ
+	•	التاريخ
+	•	ملاحظة
+
+إذا اختلفت العملات:
+	•	اطلب exchange rate أو destination amount
+	•	نفذ التحويل
+	•	حدث الأرصدة
+
+⸻
+
+21) التصنيفات Categories
+
+اسمح للمستخدم بإنشاء تصنيفات إضافية يدوياً.
+
+كل تصنيف يحتوي على:
+	•	name_ar
+	•	name_en
+	•	icon
+	•	color
+	•	type
+
+أنواع التصنيفات:
+	•	income
+	•	expense
+	•	savings
+	•	commitment
+	•	plan
+
+يجب دعم:
+	•	إنشاء تصنيف
+	•	تعديل تصنيف
+	•	حذف آمن
+	•	اختيار أيقونة
+	•	اختيار لون
+
+⸻
+
+22) ميزات ذكية للإدخال
+
+أضف:
+
+Last Used Category
+
+يتذكر آخر تصنيف استخدمه المستخدم
+
+Smart Suggestions
+
+أمثلة:
+	•	Uber → مواصلات
+	•	Starbucks → قهوة
+	•	McDonald’s → مطاعم
+	•	Fuel → وقود
+
+Favorite Categories
+
+يمكن تحديد تصنيفات مفضلة
+
+Monthly Summary
+
+اعرض:
+	•	مجموع الدخل
+	•	مجموع المصروف
+	•	مجموع الادخار
+	•	المتبقي
+
+⸻
+
+23) نظام الادخار Savings
+
+يجب دعم نوعين:
+
+التوفير العام
+
+محفظة افتراضية أساسية
+
+خصائصها:
+	•	بدون هدف
+	•	بدون تاريخ
+	•	يمكن الإيداع والسحب
+	•	لا يمكن حذفها
+	•	يمكن تعديل الاسم أو اللون أو الأيقونة فقط
+
+الادخار بهدف
+
+يمكن إنشاء عدة محافظ هدف
+
+كل محفظة تحتوي على:
+	•	name_ar
+	•	name_en
+	•	description
+	•	current_amount
+	•	target_amount
+	•	target_date
+	•	color
+	•	icon
+	•	progress
+
+⸻
+
+24) عرض الادخار
+
+إذا كانت المحفظة هدف:
+اعرض:
+	•	المبلغ الحالي
+	•	الهدف
+	•	المتبقي
+	•	نسبة الإنجاز
+	•	شريط تقدم
+
+إذا كان هناك target date:
+اعرض:
+	•	الأيام المتبقية
+	•	التقدم الزمني عند الحاجة
+
+⸻
+
+25) الإيداع في الادخار
+
+عند الإيداع يجب أن يختار المستخدم المصدر:
+
+من حساب
+	•	خصم من الحساب
+	•	إضافة إلى المحفظة
+
+من حساب خارجي
+	•	إضافة إلى المحفظة فقط
+	•	لا خصم من أي حساب داخلي
+
+⸻
+
+26) السحب من الادخار
+
+عند السحب:
+
+إلى حساب داخلي
+	•	خصم من المحفظة
+	•	إضافة إلى الحساب
+
+سحب خارجي
+	•	خصم من المحفظة فقط
+
+⸻
+
+27) سجل عمليات الادخار
+
+لكل محفظة سجل خاص بها يتضمن:
+	•	الإيداعات
+	•	السحوبات
+	•	التحويلات
+	•	التاريخ
+	•	المبلغ
+	•	النوع
+	•	المصدر أو الوجهة
+	•	ملاحظة
+
+⸻
+
+28) صفحة الادخار
+
+تحتوي على:
+	•	بطاقة التوفير العام
+	•	قائمة المحافظ الهدف
+	•	زر إنشاء محفظة جديدة
+	•	إجمالي الادخار
+	•	نسب التقدم
+
+⸻
+
+29) Plan Mode
+
+أنشئ نظام شامل للتخطيط المالي يسمى:
+
+Plan Mode
+
+أمثلة:
+	•	سفر
+	•	زواج
+	•	سيارة
+	•	منزل
+	•	مشروع
+	•	دراسة
+	•	مناسبة
+	•	علاج
+
+⸻
+
+30) الخطة
+
+كل خطة تحتوي على:
+	•	name_ar
+	•	name_en
+	•	plan_type
+	•	description
+	•	start_date
+	•	end_date
+	•	total_budget
+	•	currency
+
+⸻
+
+31) فئات الخطة
+
+كل خطة يمكن تقسيمها إلى فئات.
+
+كل فئة تحتوي على:
+	•	name_ar
+	•	name_en
+	•	budget_amount
+	•	color
+	•	icon
+
+قاعدة
+
+مجموع الفئات يجب ألا يتجاوز ميزانية الخطة
+
+⸻
+
+32) ربط المصروفات بالخطة
+
+عند إضافة مصروف:
+اسمح للمستخدم باختيار:
+	•	خطة
+	•	فئة من الخطة
+
+⸻
+
+33) صفحة تفاصيل الخطة
+
+اعرض:
+	•	الميزانية الكلية
+	•	المصروف
+	•	المتبقي
+	•	نسبة الاستخدام
+	•	بطاقات الفئات
+	•	سجل العمليات
+	•	إحصائيات بسيطة
+
+⸻
+
+34) الالتزامات Commitments
+
+ادعم:
+	•	الالتزامات اليدوية
+	•	الالتزامات المتكررة
+
+كل التزام يحتوي على:
+	•	name_ar
+	•	name_en
+	•	amount
+	•	account_id
+	•	category_id
+	•	due_date
+	•	recurrence_type
+	•	status
+	•	is_manual
+
+⸻
+
+35) منطق الأموال المخصصة
+
+التطبيق لا يجب أن يحجز أموالاً أو ينشئ التزامات من تلقاء نفسه.
+
+الأموال المخصصة تأتي فقط من:
+	•	التزامات أضافها المستخدم
+	•	الالتزامات المتكررة التي أنشأها المستخدم
+	•	الاستحقاقات التي دخلت نافذة الحجز
+
+⸻
+
+36) دفع الالتزام
+
+عند دفع الالتزام يجب أن يحدث التالي:
+	1.	إنشاء مصروف
+	2.	خصم من الحساب
+	3.	إزالة من الأموال المخصصة
+	4.	تحديث المبلغ المتاح الحقيقي
+	5.	اعتبار الالتزام مدفوعاً
+	6.	إظهاره ضمن المدفوعات
+
+⸻
+
+37) زر دفع الآن
+
+في صفحة الالتزامات:
+كل التزام غير مدفوع يجب أن يحتوي على زر:
+
+دفع الآن
+
+عند الضغط:
+	•	افتح modal تأكيد
+	•	اعرض الاسم
+	•	اعرض المبلغ
+	•	اعرض الحساب
+	•	اعرض التاريخ
+	•	اسمح بملاحظة اختيارية
+
+بعد التأكيد:
+	•	سجل المصروف
+	•	خصم من الحساب
+	•	تحديث الالتزام
+	•	تحديث الأموال المخصصة
+
+⸻
+
+38) حالات الالتزام
+
+الحالات:
+	•	upcoming
+	•	due_today
+	•	overdue
+	•	paid
+
+⸻
+
+39) الالتزامات المتكررة
+
+إذا كان الالتزام متكرراً، بعد الدفع:
+	•	يصبح الالتزام الحالي paid
+	•	يظهر ضمن المدفوعات
+	•	يتم إنشاء الاستحقاق القادم تلقائياً
+
+⸻
+
+40) نافذة 29 يوم
+
+هذه نقطة مهمة جداً.
+
+الاستحقاق القادم للالتزام المتكرر:
+	•	لا يدخل مباشرة ضمن الأموال المخصصة
+	•	يدخل ضمن الأموال المخصصة فقط إذا أصبح موعده خلال 29 يوم أو أقل
+
+مثال
+
+قسط سيارة 5000
+الاستحقاق القادم 1/4
+
+إذا كان اليوم 28/2:
+	•	لا يتم حجزه
+
+إذا أصبح اليوم 3/3:
+	•	إذا بقي 29 يوم أو أقل، يتم حجزه
+
+⸻
+
+41) عرض الالتزامات القادمة في الصفحة الرئيسية
+
+اعرض:
+	•	الاسم
+	•	المبلغ
+	•	تاريخ الاستحقاق
+	•	الحالة
+
+⸻
+
+42) الميزانية الشهرية Budget
+
+اسمح للمستخدم بإنشاء ميزانية شهرية لكل تصنيف.
+
+مثال:
+	•	الأكل 1500
+	•	القهوة 300
+	•	التسوق 1000
+
+اعرض:
+	•	الميزانية
+	•	المصروف
+	•	المتبقي
+	•	نسبة الاستهلاك
+
+⸻
+
+43) الإحصائيات Statistics
+
+أنشئ صفحة إحصائيات تعرض:
+	•	توزيع المصروفات حسب التصنيف
+	•	دخل مقابل مصروف
+	•	المصروف الشهري
+	•	أكثر التصنيفات صرفاً
+	•	ملخص الشهر
+
+استخدم:
+	•	Pie Chart
+	•	Bar Chart
+	•	Line Chart
+
+⸻
+
+44) الإعدادات Settings
+
+أنشئ صفحة إعدادات تحتوي على:
+	•	تغيير اللغة
+	•	تغيير المظهر
+	•	اختيار نوع الحد اليومي (ذكي / يدوي)
+	•	قيمة الحد اليدوي
+	•	إدارة الحسابات
+	•	إدارة العملات
+	•	التصدير
+
+⸻
+
+45) الصفحات المطلوبة
+
+أنشئ الصفحات التالية:
+	•	Splash Screen
+	•	Login / Register
+	•	Dashboard
+	•	Accounts List
+	•	Account Details
+	•	Add Transaction
+	•	Transactions History
+	•	Categories Management
+	•	Savings Page
+	•	Savings Wallet Details
+	•	Create Savings Goal
+	•	Plans List
+	•	Plan Details
+	•	Create Plan
+	•	Commitments Page
+	•	Monthly Budget Page
+	•	Statistics Page
+	•	Settings Page
+
+⸻
+
+46) الجداول المطلوبة
+
+أنشئ الجداول التالية:
+	•	users
+	•	settings
+	•	accounts
+	•	categories
+	•	transactions
+	•	transfers
+	•	savings_wallets
+	•	savings_transactions
+	•	plans
+	•	plan_categories
+	•	commitments
+	•	budgets
+
+⸻
+
+47) قواعد التحقق Validation
+
+الحسابات
+	•	الاسم مطلوب في لغة واحدة على الأقل
+	•	العملة مطلوبة
+	•	الرصيد صالح
+
+العمليات
+	•	المبلغ > 0
+	•	الحساب مطلوب
+	•	التصنيف مطلوب
+	•	النوع مطلوب
+	•	التاريخ مطلوب
+
+الادخار
+	•	في هدف الادخار: target_amount مطلوب
+‏	•	current_amount لا يكون سالباً
+
+الالتزامات
+	•	amount > 0
+	•	due_date مطلوب
+	•	account مطلوب
+‎	•	الاسم مطلوب في لغة واحدة على الأقل
+
+الخطط
+	•	total_budget > 0
+‎	•	الاسم مطلوب في لغة واحدة على الأقل
+‎	•	العملة مطلوبة
+
+⸻
+
+48) Edge Cases يجب التعامل معها
+	•	تغيير اللغة مع وجود اسم بلغة واحدة فقط
+	•	حذف تصنيف مستخدم فعلياً
+	•	إيداع في الادخار من حساب خارجي
+	•	سحب من الادخار بشكل خارجي
+	•	تغيير الحساب المختار في Dashboard
+	•	وجود حد يومي يدوي
+	•	تحويل بين عملات مختلفة
+	•	فشل الترجمة التلقائية
+	•	التزام متكرر تم إنشاء موعده القادم لكن لم يدخل بعد نافذة 29 يوم
+
+⸻
+
+49) المطلوب النهائي
+
+لا أريد Prototype فقط.
+
+أريد:
+	•	تطبيق يعمل فعلياً
+	•	شاشات حقيقية
+‏	•	Navigation كامل
+	•	قاعدة بيانات حقيقية
+	•	حسابات مالية صحيحة
+	•	منطق التزامات صحيح
+	•	منطق ادخار صحيح
+	•	دعم العربية والإنجليزية
+	•	دعم بيانات ثنائية اللغة
+‏	•	Auto Translate helper
+	•	كود نظيف وقابل للتوسع
+
+⸻
+
+50) المطلوب أثناء التنفيذ
+
+ابدأ بالتنفيذ على مراحل.
+في كل مرحلة:
+	•	أنشئ الملفات بشكل منظم
+	•	نفذ المنطق
+	•	اربط الواجهة بالبيانات
+	•	لا تنتقل للمرحلة التالية قبل إنهاء الحالية
+	•	لا تختصر
+	•	لا تتجاهل أي قاعدة مالية مذكورة
+
+
+————
+
+ENGINEERING SPECIFICATION — Masarifi App
+
+Product Name
+
+مصاريفي / Masarifi
+
+⸻
+
+1. Product Overview
+
+Masarifi is a modern mobile personal finance management app for a single user.
+
+The app helps the user manage:
+	•	Financial accounts
+	•	Income and expenses
+	•	Savings wallets
+	•	Commitments and recurring obligations
+	•	Financial plans (Plan Mode)
+	•	Monthly budgets
+	•	Financial statistics
+	•	Real available money
+	•	Daily spending limit
+
+The app must be production-ready, well-structured, scalable, and built with clean architecture.
+
+⸻
+
+2. Tech Stack
+
+Build the app using:
+	•	React Native with Expo
+	•	Supabase or Firebase as backend/database
+	•	TypeScript
+	•	Clean and modular architecture
+	•	Reusable UI components
+	•	RTL/LTR support
+	•	Light/Dark theme support
+	•	Localized UI with bilingual data support
+
+⸻
+
+3. Core Product Rules
+
+These rules are mandatory and must not be violated:
+	1.	The app is for one user only
+	2.	The Dashboard always shows data for one selected account only
+	3.	Total Balance = balance of the selected account only
+	4.	Allocated Money = reserved money for commitments only
+	5.	Savings are not part of Allocated Money
+	6.	Plans are not part of Allocated Money
+	7.	Every transaction must belong to exactly:
+	•	one account
+	•	one category
+	•	one amount
+	8.	Expense Split is not allowed
+	9.	Multi-user support is not allowed
+	10.	Calendar view is not allowed
+	11.	Image attachments are not allowed
+	12.	Privacy mode is not allowed
+
+⸻
+
+4. Localization and Language System
+
+The app must support:
+	•	Arabic
+	•	English
+
+UI Requirements
+	•	Arabic UI must use RTL layout
+	•	English UI must use LTR layout
+	•	Switching language must update the whole UI immediately
+
+Bilingual Data Requirements
+
+Entities with names must support:
+	•	name_ar
+	•	name_en
+
+Applies to:
+	•	accounts
+	•	categories
+	•	savings wallets
+	•	plans
+	•	plan categories
+	•	commitments
+
+Fallback Logic
+	•	If app language is Arabic, show name_ar
+	•	If app language is English, show name_en
+	•	If one field is empty, use the other as fallback
+
+⸻
+
+5. Auto Translate Feature
+
+All forms that include bilingual name fields must support:
+	•	Arabic name input
+	•	English name input
+	•	Auto Translate button
+
+Behaviour
+	•	If user enters Arabic text, translate into English
+	•	If user enters English text, translate into Arabic
+
+Auto Translate applies to:
+	•	Accounts
+	•	Categories
+	•	Savings wallets
+	•	Plans
+	•	Plan categories
+	•	Commitments
+
+Important Rules
+	•	Translation is a helper only
+	•	User can edit translated text manually
+	•	If translation service fails, form still works normally
+
+⸻
+
+6. Theme System
+
+Support:
+	•	Light Mode
+	•	Dark Mode
+	•	System / Auto Mode
+
+Theme preference should be saved in user settings.
+
+⸻
+
+7. Main Modules
+
+The app must be separated into these modules:
+	1.	Authentication Module
+	2.	Accounts Module
+	3.	Transactions Module
+	4.	Categories Module
+	5.	Savings Module
+	6.	Commitments Module
+	7.	Plan Mode Module
+	8.	Budget Module
+	9.	Statistics Module
+	10.	Settings Module
+
+⸻
+
+8. Authentication Module
+
+Support:
+	•	Sign up
+	•	Login
+	•	Logout
+	•	Password reset
+	•	Session persistence
+
+The app is still single-user in data ownership, but authentication is allowed for the user’s own account.
+
+⸻
+
+9. Accounts Module
+
+Users can create multiple financial accounts.
+
+Each account has:
+	•	id
+	•	user_id
+	•	name_ar
+	•	name_en
+	•	type
+	•	balance
+	•	currency
+	•	color
+	•	icon
+	•	is_active
+	•	created_at
+	•	updated_at
+
+Example account types
+	•	current account
+	•	cash account
+	•	travel account
+	•	savings bank account
+	•	wallet
+
+Rules
+	•	Each account has exactly one currency
+	•	Account balance updates automatically after transactions/transfers
+	•	Dashboard is always linked to one selected account
+
+⸻
+
+10. Currency System
+
+Each account can have its own currency.
+
+Supported examples
+	•	QAR
+	•	USD
+	•	EUR
+	•	SAR
+	•	AED
+	•	GBP
+	•	KWD
+	•	BHD
+	•	OMR
+
+Transfers between different currencies
+
+If transferring between accounts with different currencies:
+	•	ask for exchange rate
+	•	support manual exchange rate input
+	•	optionally support API-based rate later
+	•	save source amount and destination amount
+
+⸻
+
+11. Dashboard Logic
+
+The Dashboard must always be tied to the selected account only.
+
+A visible Account Selector must exist at the top.
+
+When the selected account changes, the following must refresh:
+	•	total balance
+	•	allocated money
+	•	real available money
+	•	daily spending limit
+	•	latest transactions
+	•	upcoming commitments
+	•	savings overview linked to user data
+
+⸻
+
+12. Financial Definitions
+
+Total Balance
+
+Total Balance = current balance of the selected account only
+
+Allocated Money
+
+Allocated Money = reserved money for commitments only
+
+Includes:
+	•	upcoming manual commitments
+	•	active recurring commitments inside the allocation window
+	•	unpaid current commitments
+
+Does NOT include:
+	•	savings
+	•	plans
+	•	budgets
+
+Real Available Money
+
+Real Available Money = selected account balance - allocated money
+
+⸻
+
+13. Daily Spending Limit
+
+Support two modes:
+
+Smart Daily Limit
+
+Formula:
+real_available_money / remaining_days_in_month
+
+Manual Daily Limit
+
+User manually enters a daily limit value
+
+Rules
+	•	If manual mode is enabled, manual value overrides smart calculation
+	•	Daily limit must update after any relevant financial change
+	•	Show warning if today’s spending exceeds daily limit
+
+⸻
+
+14. Dashboard Content
+
+The Dashboard must include:
+	1.	Total Balance
+	2.	Allocated Money
+	3.	Real Available Money
+	4.	Daily Spending Limit
+	5.	Quick Add button
+	6.	Latest 3 transactions only
+	7.	“Show More” button to open Transactions History
+	8.	Upcoming commitments
+	9.	Savings wallets summary
+
+⸻
+
+15. Quick Add
+
+Quick Add must allow fast creation of:
+	•	income
+	•	expense
+
+Required fields:
+	•	amount
+	•	account
+	•	category
+	•	date
+	•	optional note
+
+Keep the flow extremely fast.
+
+⸻
+
+16. Transactions Module
+
+Support:
+	•	add income
+	•	add expense
+	•	edit transaction
+	•	delete transaction
+	•	list transactions
+	•	filter/search transactions
+
+Each transaction includes:
+	•	id
+	•	user_id
+	•	account_id
+	•	category_id
+	•	type (income / expense / transfer / savings movement / commitment payment if needed as expense subtype)
+	•	amount
+	•	currency
+	•	date
+	•	note
+	•	linked_commitment_id (optional)
+	•	linked_plan_id (optional)
+	•	linked_plan_category_id (optional)
+	•	created_at
+	•	updated_at
+
+Rules
+	•	one transaction = one amount
+	•	one transaction = one category
+	•	one transaction = one account
+	•	no split transactions
+
+⸻
+
+17. Transfers Between Accounts
+
+Transfers must have:
+	•	source account
+	•	destination account
+	•	source amount
+	•	destination amount
+	•	exchange rate if currencies differ
+	•	date
+	•	note
+
+A transfer must:
+	•	subtract from source
+	•	add to destination
+	•	create auditable records
+
+⸻
+
+18. Categories Module
+
+Each category includes:
+	•	id
+	•	user_id
+	•	name_ar
+	•	name_en
+	•	icon
+	•	color
+	•	type
+	•	is_default
+	•	is_active
+	•	created_at
+	•	updated_at
+
+Category types
+	•	income
+	•	expense
+	•	savings
+	•	commitment
+	•	plan
+
+Must support
+	•	create category
+	•	edit category
+	•	safe delete category
+	•	choose icon
+	•	choose color
+
+Safe delete rules
+
+If category is in use:
+	•	either prevent deletion
+	•	or require reassignment before deletion
+
+⸻
+
+19. Smart Input Features
+
+Support:
+
+Last Used Category
+
+Remember last used category for faster input
+
+Smart Suggestions
+
+Examples:
+	•	Uber → Transport
+	•	Starbucks → Coffee
+	•	McDonald’s → Restaurants
+	•	Fuel → Fuel
+
+Favorite Categories
+
+Allow user to mark categories as favorites and display them first
+
+Monthly Summary
+
+Display a clear monthly summary:
+	•	total income
+	•	total expense
+	•	total savings movement
+	•	remaining amount
+
+⸻
+
+20. Savings Module
+
+There are two savings wallet types:
+
+A. General Savings
+
+Default wallet created automatically for each user
+
+Rules:
+	•	no target amount required
+	•	no target date required
+	•	cannot be deleted
+	•	can be renamed / recolored / change icon
+	•	supports deposit and withdrawal
+
+B. Goal Savings
+
+User can create multiple goal-based wallets
+
+Fields:
+	•	id
+	•	user_id
+	•	name_ar
+	•	name_en
+	•	description
+	•	type (general_savings or goal_savings)
+	•	current_amount
+	•	target_amount
+	•	target_date
+	•	color
+	•	icon
+	•	is_default
+	•	is_archived
+	•	created_at
+	•	updated_at
+
+⸻
+
+21. Savings Progress Logic
+
+For goal savings wallets display:
+	•	current amount
+	•	target amount
+	•	remaining amount
+	•	progress percentage
+	•	progress bar
+
+If target date exists:
+	•	show days remaining
+	•	optionally show required periodic saving pace
+
+If no target date:
+	•	show financial progress only
+
+⸻
+
+22. Savings Deposits
+
+When adding money into a savings wallet, user must choose source:
+
+Source Type 1: Internal Account
+	•	choose one saved account
+	•	subtract amount from selected account
+	•	add amount to savings wallet
+	•	log operation in account history
+	•	log operation in savings history
+
+Source Type 2: External Account
+	•	add amount to savings wallet
+	•	do not subtract from any app account
+	•	mark movement as external source
+
+⸻
+
+23. Savings Withdrawals
+
+When withdrawing from savings wallet:
+
+Destination Type 1: Internal Account
+	•	subtract from wallet
+	•	add to selected account
+
+Destination Type 2: External Withdrawal
+	•	subtract from wallet only
+	•	do not add to any internal account
+
+⸻
+
+24. Savings Transactions History
+
+Each wallet must have its own history including:
+	•	deposits
+	•	withdrawals
+	•	transfer from account
+	•	transfer to account
+	•	external deposit
+	•	external withdrawal
+	•	amount
+	•	date
+	•	note
+	•	source/destination details
+
+⸻
+
+25. Plan Mode Module
+
+Plan Mode is for future financial planning.
+
+Examples:
+	•	travel
+	•	wedding
+	•	car purchase
+	•	house project
+	•	study
+	•	business
+	•	event
+	•	medical goal
+
+Each plan includes:
+	•	id
+	•	user_id
+	•	name_ar
+	•	name_en
+	•	plan_type
+	•	description
+	•	start_date
+	•	end_date
+	•	total_budget
+	•	currency
+	•	color (optional if desired)
+	•	icon (optional if desired)
+	•	created_at
+	•	updated_at
+
+⸻
+
+26. Plan Categories
+
+Each plan can contain multiple budget categories.
+
+Each plan category includes:
+	•	id
+	•	plan_id
+	•	name_ar
+	•	name_en
+	•	budget_amount
+	•	color
+	•	icon
+	•	created_at
+	•	updated_at
+
+Rules
+	•	Sum of plan category budgets should not exceed total plan budget
+	•	User may create custom categories
+
+⸻
+
+27. Linking Expenses to Plans
+
+When creating an expense, user may optionally link it to:
+	•	a plan
+	•	a plan category
+
+This enables:
+	•	plan spending tracking
+	•	plan progress stats
+	•	category-level tracking inside the plan
+
+⸻
+
+28. Plan Detail View
+
+Each plan detail screen should show:
+	•	total budget
+	•	spent amount
+	•	remaining amount
+	•	plan category cards
+	•	percentage used
+	•	linked expense history
+	•	simple statistics
+
+⸻
+
+29. Commitments Module
+
+Support both manual and recurring commitments.
+
+Each commitment includes:
+	•	id
+	•	user_id
+	•	account_id
+	•	category_id (optional but recommended)
+	•	name_ar
+	•	name_en
+	•	amount
+	•	due_date
+	•	recurrence_type (none, weekly, monthly, yearly)
+	•	status (upcoming, due_today, overdue, paid)
+	•	is_manual
+	•	parent_commitment_id (for recurring chain if needed)
+	•	created_at
+	•	updated_at
+	•	paid_at
+
+⸻
+
+30. Commitments Business Logic
+
+The app must NOT auto-create commitments on its own without user input.
+
+Allocated money comes only from:
+	•	commitments the user created manually
+	•	recurring commitments the user created
+	•	recurring instances that entered the allocation window
+
+⸻
+
+31. Paying a Commitment
+
+When user pays a commitment:
+
+The app must:
+	1.	create an expense transaction
+	2.	subtract amount from selected account
+	3.	remove the amount from allocated money
+	4.	mark commitment as paid
+	5.	show it in paid commitments / payment history
+	6.	refresh all dashboard numbers
+
+⸻
+
+32. Quick Pay in Commitments Page
+
+Each unpaid commitment must have a clear:
+
+Pay Now
+
+button.
+
+On tap:
+	•	open confirmation modal
+	•	show commitment name
+	•	show amount
+	•	show account
+	•	show date
+	•	allow optional note
+	•	confirm payment
+
+After confirmation:
+	•	create expense
+	•	update account balance
+	•	mark commitment as paid
+	•	update allocated money
+	•	update real available money
+
+⸻
+
+33. Recurring Commitments Logic
+
+If commitment is recurring, after payment:
+	•	current instance becomes paid
+	•	it appears in paid history
+	•	next occurrence is created automatically based on recurrence rule
+
+Examples:
+	•	car installment
+	•	rent
+	•	subscription
+
+⸻
+
+34. Allocation Window for Recurring Commitments
+
+This is critical.
+
+The next recurring commitment must not be included in Allocated Money immediately after creation.
+
+It should be included in Allocated Money only when its due date becomes within:
+
+29 days or less
+
+Example
+
+Recurring car installment:
+	•	amount = 5000
+	•	next due date = 1/4
+
+If today is:
+	•	28/2 → do NOT allocate yet
+	•	3/3 → if due date is within 29 days, allocate it
+
+This prevents future commitments from blocking the current available balance too early.
+
+⸻
+
+35. Upcoming Commitments on Dashboard
+
+Dashboard should show upcoming commitments list with:
+	•	name
+	•	amount
+	•	due date
+	•	status
+
+Prefer ordering:
+	1.	due today
+	2.	overdue
+	3.	nearest upcoming
+	4.	later upcoming
+
+⸻
+
+36. Budget Module
+
+Allow user to define monthly budgets per category.
+
+Each budget includes:
+	•	id
+	•	user_id
+	•	category_id
+	•	amount
+	•	month
+	•	year
+	•	created_at
+	•	updated_at
+
+Show:
+	•	budget amount
+	•	actual spent
+	•	remaining
+	•	usage percentage
+
+⸻
+
+37. Statistics Module
+
+Provide:
+	•	expense distribution by category
+	•	income vs expense
+	•	monthly spending trend
+	•	highest spending categories
+	•	monthly summary
+
+Use:
+	•	pie chart
+	•	bar chart
+	•	line chart
+
+⸻
+
+38. Settings Module
+
+Must include:
+	•	app language
+	•	theme mode
+	•	daily limit mode (smart/manual)
+	•	manual daily limit value
+	•	account management
+	•	export options
+	•	maybe translation preferences if needed later
+
+⸻
+
+39. Required Screens
+
+Build these screens:
+	1.	Splash Screen
+	2.	Login / Register
+	3.	Dashboard
+	4.	Accounts List
+	5.	Account Details
+	6.	Add Transaction
+	7.	Transactions History
+	8.	Categories Management
+	9.	Savings Page
+	10.	Savings Wallet Details
+	11.	Create Savings Goal
+	12.	Plans List
+	13.	Plan Details
+	14.	Create Plan
+	15.	Commitments Page
+	16.	Monthly Budget Page
+	17.	Statistics Page
+	18.	Settings Page
+
+⸻
+
+40. Database Schema
+
+Create these tables:
+	•	users
+	•	accounts
+	•	categories
+	•	transactions
+	•	transfers
+	•	savings_wallets
+	•	savings_transactions
+	•	plans
+	•	plan_categories
+	•	commitments
+	•	budgets
+	•	settings
+
+⸻
+
+41. Suggested Table Fields
+
+users
+	•	id
+	•	email
+	•	created_at
+
+settings
+	•	id
+	•	user_id
+	•	app_language
+	•	theme_mode
+	•	daily_limit_mode
+	•	manual_daily_limit
+	•	created_at
+	•	updated_at
+
+accounts
+	•	id
+	•	user_id
+	•	name_ar
+	•	name_en
+	•	type
+	•	balance
+	•	currency
+	•	icon
+	•	color
+	•	is_active
+	•	created_at
+	•	updated_at
+
+categories
+	•	id
+	•	user_id
+	•	name_ar
+	•	name_en
+	•	icon
+	•	color
+	•	type
+	•	is_default
+	•	is_active
+	•	created_at
+	•	updated_at
+
+transactions
+	•	id
+	•	user_id
+	•	account_id
+	•	category_id
+	•	type
+	•	amount
+	•	currency
+	•	date
+	•	note
+	•	linked_commitment_id
+	•	linked_plan_id
+	•	linked_plan_category_id
+	•	created_at
+	•	updated_at
+
+transfers
+	•	id
+	•	user_id
+	•	source_account_id
+	•	destination_account_id
+	•	source_amount
+	•	source_currency
+	•	destination_amount
+	•	destination_currency
+	•	exchange_rate
+	•	date
+	•	note
+	•	created_at
+	•	updated_at
+
+savings_wallets
+	•	id
+	•	user_id
+	•	name_ar
+	•	name_en
+	•	description
+	•	type
+	•	current_amount
+	•	target_amount
+	•	target_date
+	•	color
+	•	icon
+	•	is_default
+	•	is_archived
+	•	created_at
+	•	updated_at
+
+savings_transactions
+	•	id
+	•	wallet_id
+	•	type
+	•	amount
+	•	source_account_id
+	•	destination_account_id
+	•	is_external
+	•	note
+	•	created_at
+
+plans
+	•	id
+	•	user_id
+	•	name_ar
+	•	name_en
+	•	plan_type
+	•	description
+	•	start_date
+	•	end_date
+	•	total_budget
+	•	currency
+	•	created_at
+	•	updated_at
+
+plan_categories
+	•	id
+	•	plan_id
+	•	name_ar
+	•	name_en
+	•	budget_amount
+	•	color
+	•	icon
+	•	created_at
+	•	updated_at
+
+commitments
+	•	id
+	•	user_id
+	•	account_id
+	•	category_id
+	•	name_ar
+	•	name_en
+	•	amount
+	•	due_date
+	•	recurrence_type
+	•	status
+	•	is_manual
+	•	parent_commitment_id
+	•	paid_at
+	•	created_at
+	•	updated_at
+
+budgets
+	•	id
+	•	user_id
+	•	category_id
+	•	amount
+	•	month
+	•	year
+	•	created_at
+	•	updated_at
+
+⸻
+
+42. Validation Rules
+
+Accounts
+	•	name required in at least one language
+	•	balance cannot be invalid
+	•	currency required
+
+Transactions
+	•	amount must be > 0
+	•	account required
+	•	category required
+	•	type required
+	•	date required
+
+Savings wallet
+	•	for goal wallet, target amount required
+	•	target date optional
+	•	current amount cannot be negative
+
+Commitment
+	•	amount > 0
+	•	due date required
+	•	account required
+	•	name required in at least one language
+
+Plan
+	•	total budget > 0
+	•	name required in at least one language
+	•	currency required
+
+⸻
+
+43. Edge Cases
+
+Handle these carefully:
+	1.	User changes app language and only one language field exists
+	•	fallback to available name
+	2.	User deletes category in use
+	•	prevent delete or require reassignment
+	3.	User pays commitment and account balance becomes low
+	•	still process normally if business rules allow negative or prevent if insufficient funds rule is enabled
+	4.	Recurring commitment next occurrence exists but should not allocate yet
+	•	only allocate within 29-day window
+	5.	User deposits to savings from external source
+	•	wallet increases, account unchanged
+	6.	User withdraws from savings externally
+	•	wallet decreases, no account change
+	7.	User changes selected account
+	•	dashboard recalculates all summary values
+	8.	Manual daily limit exists
+	•	ignore smart formula
+	9.	Transfer between different currencies
+	•	require destination amount or exchange rate
+	10.	Missing translation result
+
+	•	do not block form submission
+
+⸻
+
+44. UX Requirements
+
+The app should feel like a polished fintech product.
+
+Requirements:
+	•	clean cards
+	•	clear spacing
+	•	modern typography
+	•	easy-to-read dashboard
+	•	quick actions
+	•	clear colors for financial meaning
+	•	strong Arabic support
+	•	smooth switching between languages
+	•	strong dark mode compatibility
+
+⸻
+
+45. Forbidden Features
+
+Do NOT include:
+	•	image uploads
+	•	receipt attachments
+	•	privacy mode
+	•	calendar page
+	•	multi-user/shared-family mode
+	•	expense split
+
+⸻
+
+46. Project Structure
+
+Use a structure similar to:
+	•	components/
+	•	screens/
+	•	navigation/
+	•	services/
+	•	hooks/
+	•	utils/
+	•	constants/
+	•	types/
+	•	store/
+	•	database/
+	•	i18n/
+	•	theme/
+
+⸻
+
+47. Development Phases
+
+Build in this order:
+
+Phase 1
+
+Project setup
+	•	Expo
+	•	TypeScript
+	•	navigation
+	•	i18n
+	•	RTL/LTR
+	•	theme system
+
+Phase 2
+
+Database setup
+	•	tables
+	•	types
+	•	CRUD services
+
+Phase 3
+
+Accounts + settings
+	•	account management
+	•	language/theme settings
+
+Phase 4
+
+Transactions + categories
+	•	add/edit/delete
+	•	suggestions
+	•	favorites
+	•	last used category
+
+Phase 5
+
+Savings
+	•	general savings
+	•	goal savings
+	•	wallet details
+	•	deposits/withdrawals
+
+Phase 6
+
+Commitments
+	•	manual commitments
+	•	recurring commitments
+	•	pay now
+	•	paid history
+	•	29-day allocation logic
+
+Phase 7
+
+Plans
+	•	create plans
+	•	create plan categories
+	•	link expenses
+	•	plan stats
+
+Phase 8
+
+Budgets + statistics
+	•	monthly budgets
+	•	charts
+	•	monthly summary
+
+Phase 9
+
+Polish
+	•	loading states
+	•	empty states
+	•	validations
+	•	error handling
+	•	UI refinement
+
+⸻
+
+48. Final Delivery Expectations
+
+Deliver a real working app, not only UI mockups.
+
+The final result must include:
+	•	working screens
+	•	working navigation
+	•	working database integration
+	•	correct financial calculations
+	•	bilingual data support
+	•	auto translate helper
+	•	reusable components
+	•	scalable codebase
+	•	polished dashboard
+	•	correct commitment allocation logic
+	•	correct savings logic
+	•	correct account-based summaries
+
+⸻
+
+49. Final Critical Definitions
+
+Do not confuse these:
+
+Total Balance
+
+Balance of selected account only
+
+Allocated Money
+
+Reserved money for commitments only
+
+Real Available Money
+
+Selected account balance minus allocated money
+
+Savings
+
+Separate from allocated money
+
+Plans
+
+Separate from allocated money
+
+Next recurring commitment
+
+Does not affect allocated money until due date is within 29 days or less
