@@ -17,6 +17,7 @@ export default function StatisticsScreen() {
   const { transactions } = useTransactions();
   const { getCategory } = useCategories();
   const { accounts } = useAccounts();
+  const primaryCurrency = accounts.find((a) => a.is_active)?.currency || "QAR";
   const { month, year } = getCurrentMonthYear();
 
   const [selectedMonth, setSelectedMonth] = useState(month);
@@ -96,12 +97,12 @@ export default function StatisticsScreen() {
           <View style={{ flex: 1, backgroundColor: theme.incomeBackground, borderRadius: 16, padding: 14, gap: 4 }}>
             <Feather name="arrow-down-circle" size={20} color={theme.income} />
             <Text style={{ fontSize: 12, color: theme.income, fontWeight: "600" }}>{t.transactions.income}</Text>
-            <Text style={{ fontSize: 16, fontWeight: "800", color: theme.income }}>{formatCurrency(totalIncome, "USD", language)}</Text>
+            <Text style={{ fontSize: 16, fontWeight: "800", color: theme.income }}>{formatCurrency(totalIncome, primaryCurrency, language)}</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: theme.expenseBackground, borderRadius: 16, padding: 14, gap: 4 }}>
             <Feather name="arrow-up-circle" size={20} color={theme.expense} />
             <Text style={{ fontSize: 12, color: theme.expense, fontWeight: "600" }}>{t.transactions.expense}</Text>
-            <Text style={{ fontSize: 16, fontWeight: "800", color: theme.expense }}>{formatCurrency(totalExpense, "USD", language)}</Text>
+            <Text style={{ fontSize: 16, fontWeight: "800", color: theme.expense }}>{formatCurrency(totalExpense, primaryCurrency, language)}</Text>
           </View>
         </View>
 
@@ -117,7 +118,7 @@ export default function StatisticsScreen() {
           <View>
             <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t.statistics.netSavings}</Text>
             <Text style={{ fontSize: 24, fontWeight: "800", color: netSavings >= 0 ? theme.income : theme.expense }}>
-              {netSavings >= 0 ? "+" : ""}{formatCurrency(netSavings, "USD", language)}
+              {netSavings >= 0 ? "+" : ""}{formatCurrency(netSavings, primaryCurrency, language)}
             </Text>
           </View>
           <Feather name={netSavings >= 0 ? "trending-up" : "trending-down"} size={32} color={netSavings >= 0 ? theme.income : theme.expense} />
@@ -144,7 +145,7 @@ export default function StatisticsScreen() {
                     </Text>
                     <View style={{ alignItems: "flex-end" }}>
                       <Text style={{ fontSize: 14, fontWeight: "700", color: theme.expense }}>
-                        {formatCurrency(amount, "USD", language)}
+                        {formatCurrency(amount, primaryCurrency, language)}
                       </Text>
                       <Text style={{ fontSize: 12, color: theme.textSecondary }}>
                         {Math.round(percent * 100)}%

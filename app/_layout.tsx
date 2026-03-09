@@ -112,6 +112,10 @@ function RootLayoutNav() {
         options={{ presentation: "modal", headerShown: false }}
       />
       <Stack.Screen
+        name="accounts/list"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="accounts/[id]"
         options={{ headerShown: false }}
       />

@@ -188,14 +188,14 @@ export default function DashboardScreen() {
         <View style={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 4 }}>
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
             <Pressable
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/(modals)/add-transaction"); }}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/(modals)/add-transaction?type=expense"); }}
               style={{ flex: 1, backgroundColor: theme.expense, borderRadius: 14, paddingVertical: 14, alignItems: "center", gap: 6 }}
             >
               <Feather name="minus" size={18} color="#fff" />
               <Text style={{ color: "#fff", fontSize: 12, fontWeight: "600" }}>{t.transactions.expense}</Text>
             </Pressable>
             <Pressable
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/(modals)/add-transaction"); }}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/(modals)/add-transaction?type=income"); }}
               style={{ flex: 1, backgroundColor: theme.income, borderRadius: 14, paddingVertical: 14, alignItems: "center", gap: 6 }}
             >
               <Feather name="plus" size={18} color="#fff" />

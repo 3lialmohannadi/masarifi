@@ -33,12 +33,14 @@ export default function AddTransactionModal() {
   const { accounts } = useAccounts();
   const { updateBalance } = useAccounts();
   const { categories, getCategoriesByType } = useCategories();
-  const { plans, planCategories } = usePlans();
-  const params = useLocalSearchParams<{ id?: string }>();
+  const { plans } = usePlans();
+  const params = useLocalSearchParams<{ id?: string; type?: string }>();
 
   const existingTx = params.id ? transactions.find((t) => t.id === params.id) : undefined;
 
-  const [type, setType] = useState<TransactionType>(existingTx?.type || "expense");
+  const [type, setType] = useState<TransactionType>(
+    existingTx?.type || (params.type === "income" ? "income" : "expense")
+  );
   const [amount, setAmount] = useState(existingTx ? String(existingTx.amount) : "");
   const [accountId, setAccountId] = useState(existingTx?.account_id || selectedAccountId || accounts[0]?.id || "");
   const [categoryId, setCategoryId] = useState(existingTx?.category_id || "");

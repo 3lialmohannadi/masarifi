@@ -5,6 +5,7 @@ import { Feather } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
+import { useAccounts } from "@/store/AccountsContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { getCurrentMonthYear } from "@/utils/date";
@@ -14,13 +15,14 @@ export default function StatisticsTab() {
   const { theme, t, language, isRTL, isDark } = useApp();
   const { transactions } = useTransactions();
   const { getCategory } = useCategories();
+  const { accounts } = useAccounts();
   const { month, year } = getCurrentMonthYear();
 
   const [selectedMonth, setSelectedMonth] = useState(month);
   const [selectedYear, setSelectedYear] = useState(year);
 
-  const MONTH_NAMES_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-  const MONTH_NAMES_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const MONTH_NAMES_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+  const MONTH_NAMES_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const monthName = language === "ar" ? MONTH_NAMES_AR[selectedMonth - 1] : MONTH_NAMES_EN[selectedMonth - 1];
 
   const monthTxs = useMemo(() => {
@@ -30,8 +32,8 @@ export default function StatisticsTab() {
     });
   }, [transactions, selectedMonth, selectedYear]);
 
-  const totalIncome = monthTxs.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
-  const totalExpense = monthTxs.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+  const totalIncome = monthTxs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
+  const totalExpense = monthTxs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
   const netSavings = totalIncome - totalExpense;
 
   const categorySpending = useMemo(() => {
@@ -47,6 +49,25 @@ export default function StatisticsTab() {
       .sort((a, b) => b.amount - a.amount);
   }, [monthTxs]);
 
+  // Last 6 months trend data
+  const trendData = useMemo(() => {
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      let m = selectedMonth - i;
+      let y = selectedYear;
+      while (m <= 0) { m += 12; y--; }
+      const key = `${y}-${String(m).padStart(2, "0")}`;
+      const txs = transactions.filter((tx) => tx.date.startsWith(key));
+      const inc = txs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
+      const exp = txs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
+      const label = language === "ar" ? MONTH_NAMES_AR[m - 1].slice(0, 3) : MONTH_NAMES_EN[m - 1].slice(0, 3);
+      months.push({ key, label, income: inc, expense: exp });
+    }
+    return months;
+  }, [transactions, selectedMonth, selectedYear, language]);
+
+  const maxTrendValue = Math.max(...trendData.map((d) => Math.max(d.income, d.expense)), 1);
+
   const prevMonth = () => {
     if (selectedMonth === 1) { setSelectedMonth(12); setSelectedYear((y) => y - 1); }
     else setSelectedMonth((m) => m - 1);
@@ -57,6 +78,9 @@ export default function StatisticsTab() {
   };
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
+
+  // Determine primary currency from active accounts
+  const primaryCurrency = accounts.find((a) => a.is_active)?.currency || "QAR";
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -100,7 +124,7 @@ export default function StatisticsTab() {
             <View>
               <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{t.statistics.netSavings}</Text>
               <Text style={{ fontSize: 28, fontWeight: "800", color: netSavings >= 0 ? "#22C55E" : "#EF4444", marginTop: 2 }}>
-                {netSavings >= 0 ? "+" : ""}{formatCurrency(netSavings, "QAR", language)}
+                {netSavings >= 0 ? "+" : ""}{formatCurrency(netSavings, primaryCurrency, language)}
               </Text>
             </View>
             <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: (netSavings >= 0 ? "#22C55E" : "#EF4444") + "20", alignItems: "center", justifyContent: "center" }}>
@@ -116,7 +140,7 @@ export default function StatisticsTab() {
                 <Text style={{ fontSize: 11, color: "#22C55E", fontWeight: "600" }}>{t.transactions.income}</Text>
               </View>
               <Text style={{ fontSize: 18, fontWeight: "800", color: "#22C55E" }}>
-                {formatCurrency(totalIncome, "QAR", language)}
+                {formatCurrency(totalIncome, primaryCurrency, language)}
               </Text>
             </View>
             <View style={{ flex: 1, backgroundColor: "rgba(239,68,68,0.12)", borderRadius: 14, padding: 14, gap: 6, borderWidth: 1, borderColor: "rgba(239,68,68,0.2)" }}>
@@ -125,20 +149,55 @@ export default function StatisticsTab() {
                 <Text style={{ fontSize: 11, color: "#EF4444", fontWeight: "600" }}>{t.transactions.expense}</Text>
               </View>
               <Text style={{ fontSize: 18, fontWeight: "800", color: "#EF4444" }}>
-                {formatCurrency(totalExpense, "QAR", language)}
+                {formatCurrency(totalExpense, primaryCurrency, language)}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Category Breakdown */}
-        <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 12 }}>
+        <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 20 }}>
+          {/* 6-Month Trend Chart */}
+          <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14 }}>
+            <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+              {language === "ar" ? "الاتجاه (٦ أشهر)" : "Trend (6 Months)"}
+            </Text>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "flex-end", gap: 6, height: 100 }}>
+              {trendData.map((d, i) => (
+                <View key={d.key} style={{ flex: 1, alignItems: "center", gap: 4 }}>
+                  {/* Bars */}
+                  <View style={{ width: "100%", alignItems: "center", justifyContent: "flex-end", height: 80, gap: 2, flexDirection: isRTL ? "row-reverse" : "row" }}>
+                    <View style={{ flex: 1, justifyContent: "flex-end", alignItems: "center", height: "100%" }}>
+                      <View style={{ width: "80%", height: `${Math.max((d.income / maxTrendValue) * 100, 2)}%`, backgroundColor: "#22C55E" + "80", borderRadius: 3 }} />
+                    </View>
+                    <View style={{ flex: 1, justifyContent: "flex-end", alignItems: "center", height: "100%" }}>
+                      <View style={{ width: "80%", height: `${Math.max((d.expense / maxTrendValue) * 100, 2)}%`, backgroundColor: "#EF4444" + "80", borderRadius: 3 }} />
+                    </View>
+                  </View>
+                  {/* Label */}
+                  <Text style={{ fontSize: 9, color: theme.textMuted, fontWeight: "600" }}>{d.label}</Text>
+                </View>
+              ))}
+            </View>
+            {/* Legend */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 16 }}>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                <View style={{ width: 12, height: 4, borderRadius: 2, backgroundColor: "#22C55E" }} />
+                <Text style={{ fontSize: 11, color: theme.textSecondary }}>{t.transactions.income}</Text>
+              </View>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                <View style={{ width: 12, height: 4, borderRadius: 2, backgroundColor: "#EF4444" }} />
+                <Text style={{ fontSize: 11, color: theme.textSecondary }}>{t.transactions.expense}</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Category Breakdown */}
           {categorySpending.length > 0 ? (
             <>
               <Text style={{ fontSize: 15, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
                 {t.statistics.topCategories}
               </Text>
-              {categorySpending.map(({ id, amount, category }) => {
+              {categorySpending.slice(0, 8).map(({ id, amount, category }) => {
                 const percent = totalExpense > 0 ? amount / totalExpense : 0;
                 const catColor = category?.color || theme.expense;
                 return (
@@ -147,21 +206,21 @@ export default function StatisticsTab() {
                       <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: catColor + "18", alignItems: "center", justifyContent: "center" }}>
                         <Feather name={(category?.icon || "tag") as any} size={20} color={catColor} />
                       </View>
-                      <View style={{ flex: 1 }}>
+                      <View style={{ flex: 1, gap: 6 }}>
                         <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
                           {category ? getDisplayName(category, language) : id}
                         </Text>
-                        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, marginTop: 4 }}>
+                        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
                           <View style={{ flex: 1, height: 4, backgroundColor: theme.border, borderRadius: 2, overflow: "hidden" }}>
                             <View style={{ height: "100%", width: `${percent * 100}%`, backgroundColor: catColor, borderRadius: 2 }} />
                           </View>
-                          <Text style={{ fontSize: 11, color: theme.textMuted, minWidth: 32, textAlign: "right" }}>
+                          <Text style={{ fontSize: 11, color: theme.textMuted, minWidth: 34, textAlign: isRTL ? "left" : "right" }}>
                             {Math.round(percent * 100)}%
                           </Text>
                         </View>
                       </View>
                       <Text style={{ fontSize: 15, fontWeight: "700", color: catColor }}>
-                        {formatCurrency(amount, "QAR", language)}
+                        {formatCurrency(amount, primaryCurrency, language)}
                       </Text>
                     </View>
                   </View>
@@ -177,6 +236,48 @@ export default function StatisticsTab() {
                 {t.statistics.noData}
               </Text>
             </View>
+          )}
+
+          {/* Account Balance Overview */}
+          {accounts.filter((a) => a.is_active).length > 0 && (
+            <>
+              <Text style={{ fontSize: 15, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                {language === "ar" ? "نظرة عامة على الحسابات" : "Accounts Overview"}
+              </Text>
+              {accounts.filter((a) => a.is_active).map((account) => {
+                const acctIncome = monthTxs.filter((tx) => tx.account_id === account.id && tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
+                const acctExpense = monthTxs.filter((tx) => tx.account_id === account.id && tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
+                return (
+                  <View key={account.id} style={{ backgroundColor: theme.card, borderRadius: 16, padding: 14, gap: 10 }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
+                      <View style={{ width: 40, height: 40, borderRadius: 11, backgroundColor: account.color + "20", alignItems: "center", justifyContent: "center" }}>
+                        <Feather name={account.icon as any} size={20} color={account.color} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                          {getDisplayName(account, language)}
+                        </Text>
+                        <Text style={{ fontSize: 13, fontWeight: "700", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
+                          {formatCurrency(account.balance, account.currency, language)}
+                        </Text>
+                      </View>
+                    </View>
+                    {(acctIncome > 0 || acctExpense > 0) && (
+                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+                        <View style={{ flex: 1, backgroundColor: "#22C55E12", borderRadius: 10, padding: 8, alignItems: "center" }}>
+                          <Text style={{ fontSize: 10, color: "#22C55E", fontWeight: "600" }}>{t.transactions.income}</Text>
+                          <Text style={{ fontSize: 13, fontWeight: "700", color: "#22C55E" }}>{formatCurrency(acctIncome, account.currency, language)}</Text>
+                        </View>
+                        <View style={{ flex: 1, backgroundColor: "#EF444412", borderRadius: 10, padding: 8, alignItems: "center" }}>
+                          <Text style={{ fontSize: 10, color: "#EF4444", fontWeight: "600" }}>{t.transactions.expense}</Text>
+                          <Text style={{ fontSize: 13, fontWeight: "700", color: "#EF4444" }}>{formatCurrency(acctExpense, account.currency, language)}</Text>
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+            </>
           )}
         </View>
       </ScrollView>
