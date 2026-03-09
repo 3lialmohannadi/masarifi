@@ -358,6 +358,8 @@ export const en = {
     categoryRequired: "Category is required",
     currencyRequired: "Currency is required",
     dateRequired: "Date is required",
+    dateInvalid: "Invalid date",
+    typeRequired: "Transaction type is required",
     targetAmountRequired: "Target amount is required",
     budgetRequired: "Budget is required",
     sourceAccountRequired: "Source account is required",

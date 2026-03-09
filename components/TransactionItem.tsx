@@ -16,7 +16,7 @@ interface TransactionItemProps {
 }
 
 export function TransactionItem({ transaction, onPress, showDate = true }: TransactionItemProps) {
-  const { theme, language, isRTL } = useApp();
+  const { theme, language, isRTL, t } = useApp();
   const { getCategory } = useCategories();
 
   const category = getCategory(transaction.category_id);
@@ -64,7 +64,7 @@ export function TransactionItem({ transaction, onPress, showDate = true }: Trans
           style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}
           numberOfLines={1}
         >
-          {getDisplayName(category, language) || (isIncome ? "Income" : "Expense")}
+          {getDisplayName(category, language) || (isIncome ? t.transactions.income : t.transactions.expense)}
         </Text>
         {(showDate || transaction.note) && (
           <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>

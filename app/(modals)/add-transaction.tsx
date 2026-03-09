@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -20,36 +20,43 @@ import { useAccounts } from "@/store/AccountsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { usePlans } from "@/store/PlansContext";
 import { AppButton } from "@/components/ui/AppButton";
-import { AppInput } from "@/components/ui/AppInput";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
 import type { TransactionType } from "@/types";
 
+function isValidDate(str: string): boolean {
+  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+  const d = new Date(str);
+  return !isNaN(d.getTime());
+}
+
 export default function AddTransactionModal() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, selectedAccountId, updateSettings, isRTL } = useApp();
   const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
-  const { accounts } = useAccounts();
-  const { updateBalance } = useAccounts();
+  const { accounts, updateBalance } = useAccounts();
   const { categories, getCategoriesByType } = useCategories();
   const { plans } = usePlans();
   const params = useLocalSearchParams<{ id?: string; type?: string; accountId?: string }>();
 
-  const existingTx = params.id ? transactions.find((t) => t.id === params.id) : undefined;
+  const existingTx = params.id ? transactions.find((tx) => tx.id === params.id) : undefined;
 
   const [type, setType] = useState<TransactionType>(
     existingTx?.type || (params.type === "income" ? "income" : "expense")
   );
   const [amount, setAmount] = useState(existingTx ? String(existingTx.amount) : "");
   const [accountId, setAccountId] = useState(
-    existingTx?.account_id || params.accountId || selectedAccountId || accounts.find((a) => a.is_active)?.id || ""
+    existingTx?.account_id ||
+      params.accountId ||
+      selectedAccountId ||
+      accounts.find((a) => a.is_active)?.id ||
+      ""
   );
   const [categoryId, setCategoryId] = useState(existingTx?.category_id || "");
   const [date, setDate] = useState(existingTx?.date || todayISOString());
   const [note, setNote] = useState(existingTx?.note || "");
   const [linkedPlanId, setLinkedPlanId] = useState(existingTx?.linked_plan_id || "");
-  const [linkedPlanCategoryId, setLinkedPlanCategoryId] = useState(existingTx?.linked_plan_category_id || "");
 
   const [showAccounts, setShowAccounts] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
@@ -62,39 +69,41 @@ export default function AddTransactionModal() {
     [type, categories]
   );
 
+  const activeAccounts = accounts.filter((a) => a.is_active);
   const selectedAccount = accounts.find((a) => a.id === accountId);
   const selectedCategory = categories.find((c) => c.id === categoryId);
   const selectedPlan = plans.find((p) => p.id === linkedPlanId);
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!amount || parseFloat(amount) <= 0) newErrors.amount = t.validation.amountPositive;
-    if (!accountId) newErrors.account = t.validation.accountRequired;
-    if (!categoryId) newErrors.category = t.validation.categoryRequired;
-    if (!date) newErrors.date = t.validation.dateRequired;
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validate = (): boolean => {
+    const errs: Record<string, string> = {};
+    const amountNum = parseFloat(amount);
+    if (!amount || isNaN(amountNum) || amountNum <= 0)
+      errs.amount = t.validation.amountPositive;
+    if (!accountId) errs.account = t.validation.accountRequired;
+    if (!categoryId) errs.category = t.validation.categoryRequired;
+    if (!date) errs.date = t.validation.dateRequired;
+    else if (!isValidDate(date)) errs.date = t.validation.dateInvalid;
+    if (!type) errs.type = t.validation.typeRequired;
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
     setLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
     try {
       const amountNum = parseFloat(amount);
       const currency = selectedAccount?.currency || "USD";
 
       if (existingTx) {
-        const oldAmount = existingTx.amount;
-        const oldType = existingTx.type;
-        const oldAccountId = existingTx.account_id;
-
-        // Reverse old effect
-        const oldDelta = oldType === "income" ? -oldAmount : oldAmount;
-        updateBalance(oldAccountId, oldDelta);
-
-        // Apply new effect
+        // Reverse old balance effect
+        const oldDelta = existingTx.type === "income" ? -existingTx.amount : existingTx.amount;
+        updateBalance(existingTx.account_id, oldDelta);
+        // Apply new balance effect
         const newDelta = type === "income" ? amountNum : -amountNum;
         updateBalance(accountId, newDelta);
 
@@ -107,7 +116,6 @@ export default function AddTransactionModal() {
           date,
           note,
           linked_plan_id: linkedPlanId || undefined,
-          linked_plan_category_id: linkedPlanCategoryId || undefined,
         });
       } else {
         const delta = type === "income" ? amountNum : -amountNum;
@@ -122,7 +130,6 @@ export default function AddTransactionModal() {
           date,
           note,
           linked_plan_id: linkedPlanId || undefined,
-          linked_plan_category_id: linkedPlanCategoryId || undefined,
         });
       }
       router.back();
@@ -149,6 +156,52 @@ export default function AddTransactionModal() {
     ]);
   };
 
+  const setQuickDate = (daysAgo: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    setDate(d.toISOString().split("T")[0]);
+    if (errors.date) setErrors((e) => ({ ...e, date: "" }));
+  };
+
+  const Field = ({
+    label,
+    children,
+    error,
+    required,
+  }: {
+    label: string;
+    children: React.ReactNode;
+    error?: string;
+    required?: boolean;
+  }) => (
+    <View style={{ gap: 6 }}>
+      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+        <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary }}>
+          {label}
+        </Text>
+        {required && <Text style={{ fontSize: 12, color: theme.expense }}>*</Text>}
+      </View>
+      {children}
+      {!!error && (
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+          <Feather name="alert-circle" size={12} color="#EF4444" />
+          <Text style={{ fontSize: 12, color: "#EF4444" }}>{error}</Text>
+        </View>
+      )}
+    </View>
+  );
+
+  const pickerStyle = (hasError: boolean) => ({
+    backgroundColor: theme.input,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: hasError ? "#EF4444" : theme.inputBorder,
+    padding: 13,
+    flexDirection: (isRTL ? "row-reverse" : "row") as "row" | "row-reverse",
+    alignItems: "center" as const,
+    justifyContent: "space-between" as const,
+  });
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       {/* Header */}
@@ -159,20 +212,20 @@ export default function AddTransactionModal() {
           justifyContent: "space-between",
           paddingTop: insets.top + 16,
           paddingHorizontal: 16,
-          paddingBottom: 12,
+          paddingBottom: 14,
           backgroundColor: theme.card,
           borderBottomWidth: 1,
           borderBottomColor: theme.border,
         }}
       >
-        <Pressable onPress={() => router.back()}>
+        <Pressable onPress={() => router.back()} hitSlop={8}>
           <Feather name="x" size={24} color={theme.textSecondary} />
         </Pressable>
         <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
           {existingTx ? t.transactions.edit : t.transactions.add}
         </Text>
         {existingTx ? (
-          <Pressable onPress={handleDelete}>
+          <Pressable onPress={handleDelete} hitSlop={8}>
             <Feather name="trash-2" size={20} color={theme.expense} />
           </Pressable>
         ) : (
@@ -181,13 +234,10 @@ export default function AddTransactionModal() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{
-          padding: 16,
-          paddingBottom: insets.bottom + 30,
-          gap: 16,
-        }}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40, gap: 18 }}
       >
-        {/* Type Selector */}
+        {/* ── Type Selector ── */}
         <View
           style={{
             flexDirection: "row",
@@ -195,12 +245,15 @@ export default function AddTransactionModal() {
             borderRadius: 14,
             padding: 4,
             gap: 4,
+            borderWidth: 1,
+            borderColor: errors.type ? "#EF4444" : theme.border,
           }}
         >
           {(["expense", "income"] as TransactionType[]).map((ty) => {
             const isActive = type === ty;
             const label = ty === "income" ? t.transactions.income : t.transactions.expense;
             const activeColor = ty === "income" ? theme.income : theme.expense;
+            const icon = ty === "income" ? "arrow-down" : "arrow-up";
             return (
               <Pressable
                 key={ty}
@@ -208,15 +261,20 @@ export default function AddTransactionModal() {
                   Haptics.selectionAsync();
                   setType(ty);
                   setCategoryId("");
+                  if (errors.type) setErrors((e) => ({ ...e, type: "" }));
                 }}
                 style={{
                   flex: 1,
-                  paddingVertical: 12,
-                  borderRadius: 11,
+                  flexDirection: "row",
                   alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                  paddingVertical: 13,
+                  borderRadius: 11,
                   backgroundColor: isActive ? activeColor : "transparent",
                 }}
               >
+                <Feather name={icon as any} size={16} color={isActive ? "#fff" : theme.textSecondary} />
                 <Text
                   style={{
                     fontSize: 15,
@@ -231,140 +289,237 @@ export default function AddTransactionModal() {
           })}
         </View>
 
-        {/* Amount */}
-        <AppInput
-          label={t.common.amount}
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="decimal-pad"
-          placeholder="0.00"
-          error={errors.amount}
-          textAlign="center"
-          style={{ fontSize: 28, fontWeight: "700", textAlign: "center" }}
-        />
-
-        {/* Account */}
-        <View style={{ gap: 6 }}>
-          <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-            {t.transactions.account}
-          </Text>
-          <Pressable
-            onPress={() => setShowAccounts(true)}
+        {/* ── Amount ── */}
+        <Field label={t.common.amount} error={errors.amount} required>
+          <View
             style={{
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.account ? "#EF4444" : theme.inputBorder,
-              padding: 13,
-              flexDirection: isRTL ? "row-reverse" : "row",
+              borderColor: errors.amount ? "#EF4444" : theme.inputBorder,
+              paddingVertical: 8,
+              paddingHorizontal: 16,
               alignItems: "center",
-              justifyContent: "space-between",
             }}
           >
+            <TextInput
+              testID="amount-input"
+              value={amount}
+              onChangeText={(v) => {
+                setAmount(v);
+                if (errors.amount) setErrors((e) => ({ ...e, amount: "" }));
+              }}
+              keyboardType="decimal-pad"
+              placeholder="0.00"
+              placeholderTextColor={theme.textMuted}
+              style={{
+                fontSize: 32,
+                fontWeight: "800",
+                color: type === "income" ? theme.income : theme.expense,
+                textAlign: "center",
+                width: "100%",
+                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+              }}
+            />
+            {selectedAccount && (
+              <Text style={{ fontSize: 12, color: theme.textMuted, marginTop: 2 }}>
+                {t.transactions.account}: {formatCurrency(selectedAccount.balance, selectedAccount.currency, language)}
+              </Text>
+            )}
+          </View>
+        </Field>
+
+        {/* ── Account ── */}
+        <Field label={t.transactions.account} error={errors.account} required>
+          <Pressable
+            onPress={() => setShowAccounts(true)}
+            style={pickerStyle(!!errors.account)}
+          >
             {selectedAccount ? (
-              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
-                <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: selectedAccount.color }} />
-                <Text style={{ color: theme.text, fontSize: 15, fontWeight: "500" }}>
-                  {getDisplayName(selectedAccount, language)}
-                </Text>
-                <Text style={{ color: theme.textSecondary, fontSize: 13 }}>
-                  ({formatCurrency(selectedAccount.balance, selectedAccount.currency, language)})
-                </Text>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, flex: 1 }}>
+                <View
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 9,
+                    backgroundColor: selectedAccount.color + "22",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Feather name={selectedAccount.icon as any} size={15} color={selectedAccount.color} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: theme.text, fontSize: 15, fontWeight: "600" }}>
+                    {getDisplayName(selectedAccount, language)}
+                  </Text>
+                  <Text style={{ color: theme.textMuted, fontSize: 12 }}>
+                    {formatCurrency(selectedAccount.balance, selectedAccount.currency, language)}
+                  </Text>
+                </View>
               </View>
             ) : (
-              <Text style={{ color: theme.textMuted, fontSize: 15 }}>
-                {t.transactions.selectAccount}
-              </Text>
+              <Text style={{ color: theme.textMuted, fontSize: 15 }}>{t.transactions.selectAccount}</Text>
             )}
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
-          {errors.account && (
-            <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.account}</Text>
-          )}
-        </View>
+        </Field>
 
-        {/* Category */}
-        <View style={{ gap: 6 }}>
-          <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-            {t.transactions.category}
-          </Text>
+        {/* ── Category ── */}
+        <Field label={t.transactions.category} error={errors.category} required>
           <Pressable
             onPress={() => setShowCategories(true)}
-            style={{
-              backgroundColor: theme.input,
-              borderRadius: 12,
-              borderWidth: 1.5,
-              borderColor: errors.category ? "#EF4444" : theme.inputBorder,
-              padding: 13,
-              flexDirection: isRTL ? "row-reverse" : "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
+            style={pickerStyle(!!errors.category)}
           >
             {selectedCategory ? (
-              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
-                <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: `${selectedCategory.color}20`, alignItems: "center", justifyContent: "center" }}>
-                  <Feather name={selectedCategory.icon as any} size={14} color={selectedCategory.color} />
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, flex: 1 }}>
+                <View
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 9,
+                    backgroundColor: `${selectedCategory.color}22`,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Feather name={selectedCategory.icon as any} size={15} color={selectedCategory.color} />
                 </View>
-                <Text style={{ color: theme.text, fontSize: 15, fontWeight: "500" }}>
+                <Text style={{ color: theme.text, fontSize: 15, fontWeight: "600", flex: 1 }}>
                   {getDisplayName(selectedCategory, language)}
                 </Text>
               </View>
             ) : (
-              <Text style={{ color: theme.textMuted, fontSize: 15 }}>
-                {t.transactions.selectCategory}
-              </Text>
+              <Text style={{ color: theme.textMuted, fontSize: 15 }}>{t.transactions.selectCategory}</Text>
             )}
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
-          {errors.category && (
-            <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.category}</Text>
-          )}
-        </View>
+        </Field>
 
-        {/* Date */}
-        <AppInput
-          label={t.common.date}
-          value={date}
-          onChangeText={setDate}
-          placeholder="YYYY-MM-DD"
-          error={errors.date}
-        />
+        {/* ── Date ── */}
+        <Field label={t.common.date} error={errors.date} required>
+          {/* Quick date buttons */}
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8, marginBottom: 8 }}>
+            {[
+              { label: t.transactions.today, days: 0 },
+              { label: t.transactions.yesterday, days: 1 },
+            ].map(({ label, days }) => {
+              const d = new Date();
+              d.setDate(d.getDate() - days);
+              const val = d.toISOString().split("T")[0];
+              const isActive = date === val;
+              return (
+                <Pressable
+                  key={days}
+                  onPress={() => setQuickDate(days)}
+                  style={{
+                    paddingHorizontal: 14,
+                    paddingVertical: 8,
+                    borderRadius: 20,
+                    backgroundColor: isActive ? theme.primary + "20" : theme.card,
+                    borderWidth: 1,
+                    borderColor: isActive ? theme.primary : theme.border,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: "600",
+                      color: isActive ? theme.primary : theme.textSecondary,
+                    }}
+                  >
+                    {label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
-        {/* Note */}
-        <AppInput
-          label={`${t.common.note} (${t.common.optional})`}
-          value={note}
-          onChangeText={setNote}
-          placeholder={language === "ar" ? "ملاحظة..." : "Note..."}
-          multiline
-        />
+          {/* Date text input */}
+          <View
+            style={{
+              backgroundColor: theme.input,
+              borderRadius: 12,
+              borderWidth: 1.5,
+              borderColor: errors.date ? "#EF4444" : theme.inputBorder,
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              paddingHorizontal: 13,
+              gap: 10,
+            }}
+          >
+            <Feather name="calendar" size={16} color={theme.textMuted} />
+            <TextInput
+              value={date}
+              onChangeText={(v) => {
+                setDate(v);
+                if (errors.date) setErrors((e) => ({ ...e, date: "" }));
+              }}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor={theme.textMuted}
+              style={{
+                flex: 1,
+                paddingVertical: 13,
+                color: theme.text,
+                fontSize: 15,
+                textAlign: isRTL ? "right" : "left",
+                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+              }}
+            />
+          </View>
+        </Field>
 
-        {/* Link to Plan (for expense) */}
+        {/* ── Note ── */}
+        <Field label={`${t.common.note} (${t.common.optional})`}>
+          <View
+            style={{
+              backgroundColor: theme.input,
+              borderRadius: 12,
+              borderWidth: 1.5,
+              borderColor: theme.inputBorder,
+              paddingHorizontal: 13,
+              minHeight: 80,
+            }}
+          >
+            <TextInput
+              value={note}
+              onChangeText={setNote}
+              placeholder={language === "ar" ? "ملاحظة..." : "Note..."}
+              placeholderTextColor={theme.textMuted}
+              multiline
+              style={{
+                color: theme.text,
+                fontSize: 14,
+                paddingVertical: 12,
+                textAlign: isRTL ? "right" : "left",
+                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+              }}
+            />
+          </View>
+        </Field>
+
+        {/* ── Link to Plan ── */}
         {type === "expense" && plans.length > 0 && (
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-              {t.transactions.linkedPlan} ({t.common.optional})
-            </Text>
+          <Field label={`${t.transactions.linkedPlan} (${t.common.optional})`}>
             <Pressable
               onPress={() => setShowPlans(true)}
-              style={{
-                backgroundColor: theme.input,
-                borderRadius: 12,
-                borderWidth: 1.5,
-                borderColor: theme.inputBorder,
-                padding: 13,
-                flexDirection: isRTL ? "row-reverse" : "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
+              style={pickerStyle(false)}
             >
-              <Text style={{ color: selectedPlan ? theme.text : theme.textMuted, fontSize: 15 }}>
+              <Text style={{ color: selectedPlan ? theme.text : theme.textMuted, fontSize: 15, flex: 1 }}>
                 {selectedPlan ? getDisplayName(selectedPlan, language) : t.transactions.selectPlan}
               </Text>
+              {selectedPlan && (
+                <Pressable
+                  onPress={(e) => { e.stopPropagation(); setLinkedPlanId(""); }}
+                  hitSlop={8}
+                  style={{ marginRight: 8 }}
+                >
+                  <Feather name="x" size={14} color={theme.textMuted} />
+                </Pressable>
+              )}
               <Feather name="chevron-down" size={16} color={theme.textMuted} />
             </Pressable>
-          </View>
+          </Field>
         )}
 
         <AppButton
@@ -374,53 +529,88 @@ export default function AddTransactionModal() {
           fullWidth
           size="lg"
         />
+
+        {existingTx && (
+          <Pressable
+            onPress={handleDelete}
+            style={{
+              backgroundColor: theme.expenseBackground,
+              borderRadius: 14,
+              padding: 16,
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+            }}
+          >
+            <Feather name="trash-2" size={18} color={theme.expense} />
+            <Text style={{ fontSize: 15, fontWeight: "700", color: theme.expense }}>
+              {t.transactions.delete}
+            </Text>
+          </Pressable>
+        )}
       </ScrollView>
 
-      {/* Account Picker */}
+      {/* ── Account Picker ── */}
       <SelectorModal
         visible={showAccounts}
         onClose={() => setShowAccounts(false)}
         title={t.transactions.selectAccount}
         theme={theme}
+        insets={insets}
       >
         <FlatList
-          data={accounts.filter((a) => a.is_active)}
+          data={activeAccounts}
           keyExtractor={(a) => a.id}
           renderItem={({ item }) => (
             <Pressable
               onPress={() => {
                 setAccountId(item.id);
                 setShowAccounts(false);
+                if (errors.account) setErrors((e) => ({ ...e, account: "" }));
               }}
               style={{
-                flexDirection: "row",
+                flexDirection: isRTL ? "row-reverse" : "row",
                 alignItems: "center",
                 gap: 12,
                 padding: 14,
-                backgroundColor: item.id === accountId ? theme.primaryLight : "transparent",
+                backgroundColor: item.id === accountId ? theme.primary + "15" : "transparent",
                 borderRadius: 12,
                 marginHorizontal: 8,
                 marginVertical: 2,
               }}
             >
-              <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: item.color }} />
-              <Text style={{ flex: 1, color: theme.text, fontWeight: "500" }}>
-                {getDisplayName(item, language)}
-              </Text>
-              <Text style={{ color: theme.textSecondary, fontSize: 13 }}>
-                {formatCurrency(item.balance, item.currency, language)}
-              </Text>
+              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: item.color + "22", alignItems: "center", justifyContent: "center" }}>
+                <Feather name={item.icon as any} size={17} color={item.color} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: theme.text, fontWeight: "600", fontSize: 15 }}>
+                  {getDisplayName(item, language)}
+                </Text>
+                <Text style={{ color: theme.textMuted, fontSize: 12 }}>
+                  {formatCurrency(item.balance, item.currency, language)}
+                </Text>
+              </View>
+              {item.id === accountId && (
+                <Feather name="check" size={18} color={theme.primary} />
+              )}
             </Pressable>
           )}
+          ListEmptyComponent={
+            <Text style={{ color: theme.textMuted, textAlign: "center", padding: 20 }}>
+              {t.accounts.noAccounts}
+            </Text>
+          }
         />
       </SelectorModal>
 
-      {/* Category Picker */}
+      {/* ── Category Picker ── */}
       <SelectorModal
         visible={showCategories}
         onClose={() => setShowCategories(false)}
         title={t.transactions.selectCategory}
         theme={theme}
+        insets={insets}
       >
         <FlatList
           data={relevantCategories}
@@ -430,27 +620,27 @@ export default function AddTransactionModal() {
               onPress={() => {
                 setCategoryId(item.id);
                 setShowCategories(false);
+                if (errors.category) setErrors((e) => ({ ...e, category: "" }));
               }}
               style={{
-                flexDirection: "row",
+                flexDirection: isRTL ? "row-reverse" : "row",
                 alignItems: "center",
                 gap: 12,
                 padding: 14,
-                backgroundColor: item.id === categoryId ? theme.primaryLight : "transparent",
+                backgroundColor: item.id === categoryId ? theme.primary + "15" : "transparent",
                 borderRadius: 12,
                 marginHorizontal: 8,
                 marginVertical: 2,
               }}
             >
-              <View style={{ width: 36, height: 36, borderRadius: 9, backgroundColor: `${item.color}20`, alignItems: "center", justifyContent: "center" }}>
-                <Feather name={item.icon as any} size={18} color={item.color} />
+              <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: `${item.color}22`, alignItems: "center", justifyContent: "center" }}>
+                <Feather name={item.icon as any} size={19} color={item.color} />
               </View>
-              <Text style={{ flex: 1, color: theme.text, fontWeight: "500" }}>
+              <Text style={{ flex: 1, color: theme.text, fontWeight: "500", fontSize: 15 }}>
                 {getDisplayName(item, language)}
               </Text>
-              {item.is_favorite && (
-                <Feather name="star" size={14} color="#F59E0B" />
-              )}
+              {item.is_favorite && <Feather name="star" size={14} color="#F59E0B" />}
+              {item.id === categoryId && <Feather name="check" size={18} color={theme.primary} />}
             </Pressable>
           )}
           ListEmptyComponent={
@@ -461,41 +651,47 @@ export default function AddTransactionModal() {
         />
       </SelectorModal>
 
-      {/* Plan Picker */}
-      <SelectorModal
-        visible={showPlans}
-        onClose={() => setShowPlans(false)}
-        title={t.transactions.selectPlan}
-        theme={theme}
-      >
-        <FlatList
-          data={[{ id: "", name_ar: "لا يوجد", name_en: "None", color: theme.textMuted }, ...plans] as any[]}
-          keyExtractor={(p) => p.id}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setLinkedPlanId(item.id);
-                setLinkedPlanCategoryId("");
-                setShowPlans(false);
-              }}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 12,
-                padding: 14,
-                backgroundColor: item.id === linkedPlanId ? theme.primaryLight : "transparent",
-                borderRadius: 12,
-                marginHorizontal: 8,
-                marginVertical: 2,
-              }}
-            >
-              <Text style={{ flex: 1, color: theme.text, fontWeight: "500" }}>
-                {getDisplayName(item, language)}
-              </Text>
-            </Pressable>
-          )}
-        />
-      </SelectorModal>
+      {/* ── Plan Picker ── */}
+      {type === "expense" && plans.length > 0 && (
+        <SelectorModal
+          visible={showPlans}
+          onClose={() => setShowPlans(false)}
+          title={t.transactions.selectPlan}
+          theme={theme}
+          insets={insets}
+        >
+          <FlatList
+            data={[
+              { id: "", name_ar: "بدون خطة", name_en: "No Plan" },
+              ...plans,
+            ] as any[]}
+            keyExtractor={(p) => p.id || "none"}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => {
+                  setLinkedPlanId(item.id);
+                  setShowPlans(false);
+                }}
+                style={{
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: 14,
+                  backgroundColor: item.id === linkedPlanId ? theme.primary + "15" : "transparent",
+                  borderRadius: 12,
+                  marginHorizontal: 8,
+                  marginVertical: 2,
+                }}
+              >
+                <Text style={{ flex: 1, color: item.id ? theme.text : theme.textMuted, fontWeight: "500", fontSize: 15 }}>
+                  {getDisplayName(item, language)}
+                </Text>
+                {item.id === linkedPlanId && <Feather name="check" size={18} color={theme.primary} />}
+              </Pressable>
+            )}
+          />
+        </SelectorModal>
+      )}
     </View>
   );
 }
@@ -505,28 +701,47 @@ function SelectorModal({
   onClose,
   title,
   theme,
+  insets,
   children,
 }: {
   visible: boolean;
   onClose: () => void;
   title: string;
   theme: any;
+  insets: { bottom: number };
   children: React.ReactNode;
 }) {
   return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }}>
-        <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "70%", paddingVertical: 8 }}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12 }}>
+    <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
+      <Pressable
+        style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }}
+        onPress={onClose}
+      >
+        <Pressable
+          onPress={() => {}}
+          style={{
+            backgroundColor: theme.card,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            maxHeight: "72%",
+            paddingTop: 12,
+            paddingBottom: insets.bottom + 16,
+          }}
+        >
+          {/* Handle */}
+          <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginBottom: 12 }} />
+
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}>
             <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>{title}</Text>
-            <Pressable onPress={onClose}>
+            <Pressable onPress={onClose} hitSlop={8}>
               <Feather name="x" size={22} color={theme.textSecondary} />
             </Pressable>
           </View>
-          {children}
-          <View style={{ height: 20 }} />
-        </View>
-      </View>
+          <View style={{ flex: 1 }}>
+            {children}
+          </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }

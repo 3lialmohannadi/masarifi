@@ -130,12 +130,16 @@ export default function TransactionsTab() {
           <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text }}>{t.transactions.title}</Text>
           <View style={{ flexDirection: "row", gap: 8 }}>
             <Pressable
+              testID="btn-new-transfer"
+              accessibilityLabel={t.transfer.title}
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/(modals)/transfer-form"); }}
               style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: theme.card, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: theme.border }}
             >
               <Feather name="shuffle" size={16} color={theme.transfer} />
             </Pressable>
             <Pressable
+              testID="btn-add-transaction"
+              accessibilityLabel={t.transactions.add}
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/(modals)/add-transaction"); }}
               style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: theme.primary, alignItems: "center", justifyContent: "center" }}
             >

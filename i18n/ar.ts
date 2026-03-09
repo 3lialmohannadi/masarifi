@@ -358,6 +358,8 @@ export const ar = {
     categoryRequired: "التصنيف مطلوب",
     currencyRequired: "العملة مطلوبة",
     dateRequired: "التاريخ مطلوب",
+    dateInvalid: "التاريخ غير صالح",
+    typeRequired: "يجب اختيار نوع العملية",
     targetAmountRequired: "المبلغ المستهدف مطلوب",
     budgetRequired: "الميزانية مطلوبة",
     sourceAccountRequired: "الحساب المصدر مطلوب",
