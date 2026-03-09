@@ -4,7 +4,7 @@ import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { BlurView } from "expo-blur";
 import { Platform, StyleSheet, View } from "react-native";
 import React from "react";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 
 function NativeTabLayout() {
@@ -23,9 +23,9 @@ function NativeTabLayout() {
         <Icon sf={{ default: "banknote", selected: "banknote.fill" }} />
         <Label>{t.tabs.savings}</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="plans">
+      <NativeTabs.Trigger name="statistics">
         <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
-        <Label>{t.tabs.plans}</Label>
+        <Label>{t.tabs.statistics}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="more">
         <Icon sf={{ default: "ellipsis.circle", selected: "ellipsis.circle.fill" }} />
@@ -95,12 +95,18 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="statistics"
+        options={{
+          title: t.tabs.statistics,
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="bar-chart-2" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="plans"
         options={{
-          title: t.tabs.plans,
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="target" size={size} color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen

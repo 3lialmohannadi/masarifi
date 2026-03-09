@@ -46,6 +46,7 @@ export const ar = {
     transactions: "العمليات",
     savings: "الادخار",
     plans: "الخطط",
+    statistics: "الإحصائيات",
     more: "المزيد",
   },
   dashboard: {

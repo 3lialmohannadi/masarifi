@@ -79,19 +79,61 @@ export default function MoreTab() {
         </Text>
 
         <SectionHeader title={language === "ar" ? "الإدارة المالية" : "Financial"} />
-        <MenuItem icon="calendar" label={t.commitments.title} subtitle={language === "ar" ? "الالتزامات والفواتير" : "Bills & Commitments"} color="#F59E0B" onPress={() => router.push("/commitments/index")} />
-        <MenuItem icon="pie-chart" label={t.budget.title} subtitle={language === "ar" ? "ميزانية شهرية" : "Monthly Budgets"} color="#8B5CF6" onPress={() => router.push("/budget/index")} />
-        <MenuItem icon="bar-chart-2" label={t.statistics.title} subtitle={language === "ar" ? "تحليل المصروفات" : "Spending Analytics"} color="#3B82F6" onPress={() => router.push("/statistics/index")} />
+        <MenuItem
+          icon="target"
+          label={t.plans.title}
+          subtitle={language === "ar" ? "خطط الإنفاق والميزانية" : "Spending & Budget Plans"}
+          color={theme.plan}
+          onPress={() => router.push("/(tabs)/plans")}
+        />
+        <MenuItem
+          icon="calendar"
+          label={t.commitments.title}
+          subtitle={language === "ar" ? "الالتزامات والفواتير" : "Bills & Commitments"}
+          color="#F59E0B"
+          onPress={() => router.push("/commitments/index")}
+        />
+        <MenuItem
+          icon="pie-chart"
+          label={t.budget.title}
+          subtitle={language === "ar" ? "ميزانية شهرية" : "Monthly Budgets"}
+          color="#8B5CF6"
+          onPress={() => router.push("/budget/index")}
+        />
 
         <View style={{ height: 12 }} />
         <SectionHeader title={language === "ar" ? "الحسابات" : "Accounts"} />
-        <MenuItem icon="credit-card" label={t.accounts.title} subtitle={language === "ar" ? "إدارة حساباتك" : "Manage Accounts"} color={theme.primary} onPress={() => router.push("/accounts/list")} />
-        <MenuItem icon="tag" label={t.categories.title} subtitle={language === "ar" ? "تصنيفات المعاملات" : "Transaction Categories"} color="#EC4899" onPress={() => router.push("/categories/index")} />
-        <MenuItem icon="shuffle" label={t.transfer.title} subtitle={language === "ar" ? "تحويل بين الحسابات" : "Transfer Between Accounts"} color="#06B6D4" onPress={() => router.push("/(modals)/transfer-form")} />
+        <MenuItem
+          icon="credit-card"
+          label={t.accounts.title}
+          subtitle={language === "ar" ? "إدارة حساباتك" : "Manage Accounts"}
+          color={theme.primary}
+          onPress={() => router.push("/accounts/list")}
+        />
+        <MenuItem
+          icon="tag"
+          label={t.categories.title}
+          subtitle={language === "ar" ? "تصنيفات المعاملات" : "Transaction Categories"}
+          color="#EC4899"
+          onPress={() => router.push("/categories/index")}
+        />
+        <MenuItem
+          icon="shuffle"
+          label={t.transfer.title}
+          subtitle={language === "ar" ? "تحويل بين الحسابات" : "Transfer Between Accounts"}
+          color="#06B6D4"
+          onPress={() => router.push("/(modals)/transfer-form")}
+        />
 
         <View style={{ height: 12 }} />
         <SectionHeader title={language === "ar" ? "الإعدادات" : "Settings"} />
-        <MenuItem icon="settings" label={t.settings.title} subtitle={language === "ar" ? "اللغة، المظهر، والمزيد" : "Language, Theme & More"} color={theme.textSecondary} onPress={() => router.push("/settings/index")} />
+        <MenuItem
+          icon="settings"
+          label={t.settings.title}
+          subtitle={language === "ar" ? "اللغة، المظهر، والمزيد" : "Language, Theme & More"}
+          color={theme.textSecondary}
+          onPress={() => router.push("/settings/index")}
+        />
       </ScrollView>
     </View>
   );

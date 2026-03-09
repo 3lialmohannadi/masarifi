@@ -46,6 +46,7 @@ export const en = {
     transactions: "Transactions",
     savings: "Savings",
     plans: "Plans",
+    statistics: "Statistics",
     more: "More",
   },
   dashboard: {
