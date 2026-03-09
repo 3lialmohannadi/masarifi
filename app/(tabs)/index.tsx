@@ -338,6 +338,8 @@ export default function DashboardScreen() {
                   const isOverdue = c.status === "overdue";
                   const isDueToday = c.status === "due_today";
                   const accentColor = isOverdue ? "#EF4444" : isDueToday ? "#F59E0B" : theme.primary;
+                  const commitmentAccount = accounts.find((a) => a.id === c.account_id);
+                  const commitmentCurrency = commitmentAccount?.currency || "SAR";
                   return (
                     <Pressable
                       key={c.id}
@@ -357,7 +359,7 @@ export default function DashboardScreen() {
                       })}
                     >
                       <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: accentColor + "18", alignItems: "center", justifyContent: "center" }}>
-                        <Feather name="calendar" size={18} color={accentColor} />
+                        <Feather name={c.recurrence_type !== "none" ? "repeat" : "calendar"} size={18} color={accentColor} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
@@ -365,11 +367,14 @@ export default function DashboardScreen() {
                         </Text>
                         <Text style={{ fontSize: 12, color: isOverdue ? theme.expense : theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
                           {formatDateShort(c.due_date, language)}
+                          {c.recurrence_type !== "none" && (
+                            <Text style={{ color: theme.textMuted }}> · {t.commitments.recurrenceTypes[c.recurrence_type]}</Text>
+                          )}
                         </Text>
                       </View>
                       <View style={{ alignItems: isRTL ? "flex-start" : "flex-end", gap: 4 }}>
                         <Text style={{ fontSize: 15, fontWeight: "700", color: accentColor }}>
-                          {formatCurrency(c.amount, c.currency, language)}
+                          {formatCurrency(c.amount, commitmentCurrency, language)}
                         </Text>
                         <View style={{ backgroundColor: accentColor + "20", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
                           <Text style={{ fontSize: 10, fontWeight: "700", color: accentColor }}>

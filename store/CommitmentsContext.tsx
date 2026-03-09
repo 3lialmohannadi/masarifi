@@ -13,19 +13,20 @@ import { isWithin29Days, isPastDate, isToday, addMonths, addWeeks, addDays, addY
 
 interface CommitmentsContextValue {
   commitments: Commitment[];
-  addCommitment: (c: Omit<Commitment, "id" | "created_at" | "updated_at">) => Commitment;
-  updateCommitment: (id: string, updates: Partial<Commitment>) => void;
+  addCommitment: (c: Omit<Commitment, "id" | "created_at" | "updated_at" | "status">) => Commitment;
+  updateCommitment: (id: string, updates: Partial<Omit<Commitment, "status">>) => void;
   deleteCommitment: (id: string) => void;
   getCommitment: (id: string) => Commitment | undefined;
   payCommitment: (id: string) => void;
   allocatedMoneyForAccount: (accountId: string) => number;
   upcomingCommitments: Commitment[];
+  refreshStatuses: () => void;
   isLoaded: boolean;
 }
 
 const CommitmentsContext = createContext<CommitmentsContextValue | null>(null);
 
-function deriveStatus(dueDate: string): CommitmentStatus {
+export function deriveStatus(dueDate: string): CommitmentStatus {
   if (isToday(dueDate)) return "due_today";
   if (isPastDate(dueDate)) return "overdue";
   return "upcoming";
@@ -41,13 +42,26 @@ function getNextDueDate(dueDate: string, recurrenceType: RecurrenceType): string
   }
 }
 
+function refreshCommitmentStatuses(list: Commitment[]): Commitment[] {
+  return list.map((c) => {
+    if (c.status === "paid") return c;
+    const fresh = deriveStatus(c.due_date);
+    if (fresh === c.status) return c;
+    return { ...c, status: fresh, updated_at: now() };
+  });
+}
+
 export function CommitmentsProvider({ children }: { children: ReactNode }) {
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     loadData<Commitment[]>(KEYS.COMMITMENTS).then((saved) => {
-      setCommitments(saved || []);
+      const refreshed = refreshCommitmentStatuses(saved || []);
+      setCommitments(refreshed);
+      if (saved && refreshed.some((c, i) => c.status !== (saved[i]?.status))) {
+        saveData(KEYS.COMMITMENTS, refreshed);
+      }
       setIsLoaded(true);
     });
   }, []);
@@ -57,11 +71,11 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     saveData(KEYS.COMMITMENTS, data);
   };
 
-  const addCommitment = (c: Omit<Commitment, "id" | "created_at" | "updated_at">) => {
+  const addCommitment = (c: Omit<Commitment, "id" | "created_at" | "updated_at" | "status">) => {
     const status = deriveStatus(c.due_date);
     const newC: Commitment = {
       ...c,
-      status: c.status || status,
+      status,
       id: generateId(),
       created_at: now(),
       updated_at: now(),
@@ -70,11 +84,16 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     return newC;
   };
 
-  const updateCommitment = (id: string, updates: Partial<Commitment>) => {
+  const updateCommitment = (id: string, updates: Partial<Omit<Commitment, "status">>) => {
     persist(
       commitments.map((c) =>
         c.id === id
-          ? { ...c, ...updates, status: updates.due_date ? deriveStatus(updates.due_date) : c.status, updated_at: now() }
+          ? {
+              ...c,
+              ...updates,
+              status: c.status === "paid" ? "paid" : deriveStatus(updates.due_date || c.due_date),
+              updated_at: now(),
+            }
           : c
       )
     );
@@ -123,6 +142,11 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       .reduce((sum, c) => sum + c.amount, 0);
   };
 
+  const refreshStatuses = () => {
+    const refreshed = refreshCommitmentStatuses(commitments);
+    persist(refreshed);
+  };
+
   const upcomingCommitments = useMemo(
     () =>
       commitments
@@ -141,6 +165,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       payCommitment,
       allocatedMoneyForAccount,
       upcomingCommitments,
+      refreshStatuses,
       isLoaded,
     }),
     [commitments, isLoaded]
