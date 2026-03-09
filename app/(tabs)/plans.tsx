@@ -118,7 +118,7 @@ export default function PlansTab() {
                     <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, backgroundColor: "#FEF2F2", borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7 }}>
                       <Feather name="alert-triangle" size={13} color="#EF4444" />
                       <Text style={{ fontSize: 12, color: "#EF4444", fontWeight: "600" }}>
-                        {language === "ar" ? "تجاوز الميزانية بـ" : "Over budget by"} {formatCurrency(Math.abs(remaining), plan.currency, language)}
+                        {t.plans.overBudgetBy} {formatCurrency(Math.abs(remaining), plan.currency, language)}
                       </Text>
                     </View>
                   )}

@@ -59,7 +59,7 @@ function SectionHeader({ title }: { title: string }) {
 
 export default function MoreTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, isRTL, language } = useApp();
+  const { theme, t, isRTL } = useApp();
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
@@ -78,59 +78,59 @@ export default function MoreTab() {
           {t.tabs.more}
         </Text>
 
-        <SectionHeader title={language === "ar" ? "الإدارة المالية" : "Financial"} />
+        <SectionHeader title={t.more.financial} />
         <MenuItem
           icon="target"
           label={t.plans.title}
-          subtitle={language === "ar" ? "خطط الإنفاق والميزانية" : "Spending & Budget Plans"}
+          subtitle={t.more.plansSubtitle}
           color={theme.plan}
           onPress={() => router.push("/(tabs)/plans")}
         />
         <MenuItem
           icon="calendar"
           label={t.commitments.title}
-          subtitle={language === "ar" ? "الالتزامات والفواتير" : "Bills & Commitments"}
+          subtitle={t.more.commitmentsSubtitle}
           color="#F59E0B"
           onPress={() => router.push("/commitments")}
         />
         <MenuItem
           icon="pie-chart"
           label={t.budget.title}
-          subtitle={language === "ar" ? "ميزانية شهرية" : "Monthly Budgets"}
+          subtitle={t.more.budgetSubtitle}
           color="#8B5CF6"
           onPress={() => router.push("/budget")}
         />
 
         <View style={{ height: 12 }} />
-        <SectionHeader title={language === "ar" ? "الحسابات" : "Accounts"} />
+        <SectionHeader title={t.more.accounts} />
         <MenuItem
           icon="credit-card"
           label={t.accounts.title}
-          subtitle={language === "ar" ? "إدارة حساباتك" : "Manage Accounts"}
+          subtitle={t.more.accountsSubtitle}
           color={theme.primary}
           onPress={() => router.push("/accounts/list")}
         />
         <MenuItem
           icon="tag"
           label={t.categories.title}
-          subtitle={language === "ar" ? "تصنيفات المعاملات" : "Transaction Categories"}
+          subtitle={t.more.categoriesSubtitle}
           color="#EC4899"
           onPress={() => router.push("/categories")}
         />
         <MenuItem
           icon="shuffle"
           label={t.transfer.title}
-          subtitle={language === "ar" ? "تحويل بين الحسابات" : "Transfer Between Accounts"}
+          subtitle={t.more.transferSubtitle}
           color="#06B6D4"
           onPress={() => router.push("/(modals)/transfer-form")}
         />
 
         <View style={{ height: 12 }} />
-        <SectionHeader title={language === "ar" ? "الإعدادات" : "Settings"} />
+        <SectionHeader title={t.more.settings} />
         <MenuItem
           icon="settings"
           label={t.settings.title}
-          subtitle={language === "ar" ? "اللغة، المظهر، والمزيد" : "Language, Theme & More"}
+          subtitle={t.more.settingsSubtitle}
           color={theme.textSecondary}
           onPress={() => router.push("/settings")}
         />

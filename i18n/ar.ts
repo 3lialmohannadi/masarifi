@@ -68,6 +68,19 @@ export const ar = {
     smartLimit: "ذكي",
     manualLimit: "يدوي",
     remainingDays: "أيام متبقية في الشهر",
+    day: "يوم",
+  },
+  more: {
+    financial: "الإدارة المالية",
+    accounts: "الحسابات",
+    settings: "الإعدادات",
+    plansSubtitle: "خطط الإنفاق والميزانية",
+    commitmentsSubtitle: "الالتزامات والفواتير",
+    budgetSubtitle: "ميزانية شهرية",
+    accountsSubtitle: "إدارة حساباتك",
+    categoriesSubtitle: "تصنيفات المعاملات",
+    transferSubtitle: "تحويل بين الحسابات",
+    settingsSubtitle: "اللغة، المظهر، والمزيد",
   },
   accounts: {
     title: "الحسابات",
@@ -112,6 +125,8 @@ export const ar = {
     linkedPlan: "مرتبط بخطة",
     selectPlan: "اختر الخطة",
     selectPlanCategory: "اختر فئة الخطة",
+    today: "اليوم",
+    yesterday: "أمس",
   },
   transfer: {
     title: "تحويل بين الحسابات",
@@ -201,6 +216,7 @@ export const ar = {
     noPlans: "لا توجد خطط",
     noPlanCategories: "لا توجد فئات",
     categoryBudgetExceeded: "مجموع الفئات يتجاوز ميزانية الخطة",
+    overBudgetBy: "تجاوز الميزانية بـ",
     types: {
       travel: "سفر",
       wedding: "زواج",
@@ -261,6 +277,9 @@ export const ar = {
     exceeded: "تجاوز الميزانية",
     overBudget: "تجاوز الميزانية",
     onTrack: "في المسار",
+    totalSpent: "إجمالي الإنفاق",
+    ofBudget: "من الميزانية",
+    percentUsed: "مُستهلك",
   },
   statistics: {
     title: "الإحصائيات",
@@ -282,6 +301,8 @@ export const ar = {
     netSavings: "صافي الادخار",
     noData: "لا توجد بيانات لهذه الفترة",
     progress: "نسبة التقدم",
+    trend6Months: "الاتجاه (٦ أشهر)",
+    accountsOverview: "نظرة عامة على الحسابات",
   },
   settings: {
     title: "الإعدادات",

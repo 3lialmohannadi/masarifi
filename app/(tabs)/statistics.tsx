@@ -141,7 +141,7 @@ export default function StatisticsTab() {
           {/* 6-Month Trend Chart */}
           <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14 }}>
             <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-              {language === "ar" ? "الاتجاه (٦ أشهر)" : "Trend (6 Months)"}
+              {t.statistics.trend6Months}
             </Text>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "flex-end", gap: 6, height: 100 }}>
               {trendData.map((d, i) => (
@@ -224,7 +224,7 @@ export default function StatisticsTab() {
           {accounts.filter((a) => a.is_active).length > 0 && (
             <>
               <Text style={{ fontSize: 15, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-                {language === "ar" ? "نظرة عامة على الحسابات" : "Accounts Overview"}
+                {t.statistics.accountsOverview}
               </Text>
               {accounts.filter((a) => a.is_active).map((account) => {
                 const acctIncome = monthTxs.filter((tx) => tx.account_id === account.id && tx.type === "income").reduce((s, tx) => s + tx.amount, 0);

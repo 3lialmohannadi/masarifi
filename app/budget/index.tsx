@@ -94,13 +94,13 @@ export default function BudgetScreen() {
               <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 16, gap: 10 }}>
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
                   <View>
-                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>{language === "ar" ? "إجمالي الإنفاق" : "Total Spent"}</Text>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t.budget.totalSpent}</Text>
                     <Text style={{ fontSize: 20, fontWeight: "800", color: overallProgress > 1 ? "#EF4444" : theme.text }}>
                       {formatCurrency(totalSpent, primaryCurrency, language)}
                     </Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>{language === "ar" ? "من إجمالي الميزانية" : "of Total Budget"}</Text>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t.budget.ofBudget}</Text>
                     <Text style={{ fontSize: 16, fontWeight: "700", color: theme.textSecondary }}>
                       {formatCurrency(totalBudget, primaryCurrency, language)}
                     </Text>
@@ -112,7 +112,7 @@ export default function BudgetScreen() {
                   height={8}
                 />
                 <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                  {Math.round(overallProgress * 100)}% {language === "ar" ? "مُستهلك" : "used"}
+                  {Math.round(overallProgress * 100)}% {t.budget.percentUsed}
                 </Text>
               </View>
             )}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View } from "react-native";
 import { AppInput } from "@/components/ui/AppInput";
 import { useApp } from "@/store/AppContext";
-import { autoTranslate, detectLanguage } from "@/utils/translate";
+import { autoTranslate } from "@/utils/translate";
 
 interface BilingualNameInputProps {
   nameAr: string;
@@ -22,30 +22,30 @@ export function BilingualNameInput({
   errorEn,
 }: BilingualNameInputProps) {
   const { t } = useApp();
-  const [translatingAr, setTranslatingAr] = useState(false);
-  const [translatingEn, setTranslatingEn] = useState(false);
+  const [translatingToEn, setTranslatingToEn] = useState(false);
+  const [translatingToAr, setTranslatingToAr] = useState(false);
 
-  const handleTranslateAr = async () => {
+  const handleFillEnglish = async () => {
     const source = nameAr.trim() || nameEn.trim();
     if (!source) return;
-    setTranslatingEn(true);
+    setTranslatingToEn(true);
     try {
       const result = await autoTranslate(source, "en");
       if (result) onChangeEn(result);
     } finally {
-      setTranslatingEn(false);
+      setTranslatingToEn(false);
     }
   };
 
-  const handleTranslateEn = async () => {
+  const handleFillArabic = async () => {
     const source = nameEn.trim() || nameAr.trim();
     if (!source) return;
-    setTranslatingAr(true);
+    setTranslatingToAr(true);
     try {
       const result = await autoTranslate(source, "ar");
       if (result) onChangeAr(result);
     } finally {
-      setTranslatingAr(false);
+      setTranslatingToAr(false);
     }
   };
 
@@ -56,22 +56,22 @@ export function BilingualNameInput({
         value={nameAr}
         onChangeText={onChangeAr}
         placeholder="الاسم بالعربية"
-        textAlign="right"
+        fieldDirection="rtl"
         error={errorAr}
         translateButton
-        onTranslate={handleTranslateEn}
-        isTranslating={translatingAr}
+        onTranslate={handleFillEnglish}
+        isTranslating={translatingToEn}
       />
       <AppInput
         label={t.common.nameEn}
         value={nameEn}
         onChangeText={onChangeEn}
         placeholder="Name in English"
-        textAlign="left"
+        fieldDirection="ltr"
         error={errorEn}
         translateButton
-        onTranslate={handleTranslateAr}
-        isTranslating={translatingEn}
+        onTranslate={handleFillArabic}
+        isTranslating={translatingToAr}
       />
     </View>
   );

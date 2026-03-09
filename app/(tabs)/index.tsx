@@ -179,7 +179,7 @@ export default function DashboardScreen() {
             </View>
             <Text style={{ fontSize: 16, fontWeight: "700", color: "#10B981" }}>
               {formatCurrency(Math.max(0, dailyLimit), currency, language)}
-              <Text style={{ fontSize: 11, fontWeight: "400", color: "rgba(255,255,255,0.4)" }}> /{language === "ar" ? "يوم" : "day"}</Text>
+              <Text style={{ fontSize: 11, fontWeight: "400", color: "rgba(255,255,255,0.4)" }}> /{t.dashboard.day}</Text>
             </Text>
           </View>
         </View>

@@ -3,7 +3,6 @@ import {
   TextInput,
   View,
   Text,
-  StyleSheet,
   TextInputProps,
   Pressable,
   ActivityIndicator,
@@ -19,6 +18,7 @@ interface AppInputProps extends TextInputProps {
   onTranslate?: () => void;
   isTranslating?: boolean;
   containerStyle?: object;
+  fieldDirection?: "rtl" | "ltr";
 }
 
 export function AppInput({
@@ -30,10 +30,14 @@ export function AppInput({
   isTranslating,
   containerStyle,
   style,
+  fieldDirection,
   ...props
 }: AppInputProps) {
   const { theme, isRTL } = useApp();
   const [focused, setFocused] = useState(false);
+
+  const dir = fieldDirection ?? (isRTL ? "rtl" : "ltr");
+  const textAlignStyle = dir === "rtl" ? "right" : "left";
 
   return (
     <View style={[{ gap: 6 }, containerStyle]}>
@@ -68,8 +72,8 @@ export function AppInput({
               paddingVertical: 12,
               fontSize: 15,
               color: theme.text,
-              textAlign: isRTL ? "right" : "left",
-              writingDirection: isRTL ? "rtl" : "ltr",
+              textAlign: props.textAlign ?? textAlignStyle,
+              writingDirection: dir,
             },
             style,
           ]}

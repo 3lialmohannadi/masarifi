@@ -68,6 +68,19 @@ export const en = {
     smartLimit: "Smart",
     manualLimit: "Manual",
     remainingDays: "days left in month",
+    day: "day",
+  },
+  more: {
+    financial: "Financial",
+    accounts: "Accounts",
+    settings: "Settings",
+    plansSubtitle: "Spending & Budget Plans",
+    commitmentsSubtitle: "Bills & Commitments",
+    budgetSubtitle: "Monthly Budgets",
+    accountsSubtitle: "Manage Accounts",
+    categoriesSubtitle: "Transaction Categories",
+    transferSubtitle: "Transfer Between Accounts",
+    settingsSubtitle: "Language, Theme & More",
   },
   accounts: {
     title: "Accounts",
@@ -112,6 +125,8 @@ export const en = {
     linkedPlan: "Linked to Plan",
     selectPlan: "Select Plan",
     selectPlanCategory: "Select Plan Category",
+    today: "Today",
+    yesterday: "Yesterday",
   },
   transfer: {
     title: "Transfer Between Accounts",
@@ -201,6 +216,7 @@ export const en = {
     noPlans: "No plans yet",
     noPlanCategories: "No categories",
     categoryBudgetExceeded: "Categories total exceeds plan budget",
+    overBudgetBy: "Over budget by",
     types: {
       travel: "Travel",
       wedding: "Wedding",
@@ -261,6 +277,9 @@ export const en = {
     exceeded: "Budget exceeded",
     overBudget: "Over budget",
     onTrack: "On track",
+    totalSpent: "Total Spent",
+    ofBudget: "of Budget",
+    percentUsed: "used",
   },
   statistics: {
     title: "Statistics",
@@ -282,6 +301,8 @@ export const en = {
     netSavings: "Net Savings",
     noData: "No data for this period",
     progress: "Progress",
+    trend6Months: "Trend (6 Months)",
+    accountsOverview: "Accounts Overview",
   },
   settings: {
     title: "Settings",
