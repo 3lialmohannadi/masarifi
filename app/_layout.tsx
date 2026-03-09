@@ -122,6 +122,10 @@ function RootLayoutNav() {
         options={{ presentation: "modal", headerShown: false }}
       />
       <Stack.Screen
+        name="(modals)/plan-category-form"
+        options={{ presentation: "modal", headerShown: false }}
+      />
+      <Stack.Screen
         name="(modals)/transfer-form"
         options={{ presentation: "modal", headerShown: false }}
       />

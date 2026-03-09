@@ -22,6 +22,7 @@ interface PlansContextValue {
   deletePlanCategory: (id: string) => void;
   getPlanCategories: (planId: string) => PlanCategory[];
   getPlanSpent: (planId: string, transactions: { linked_plan_id?: string; amount: number; type: string }[]) => number;
+  getPlanCategorySpent: (planCategoryId: string, transactions: { linked_plan_category_id?: string; amount: number; type: string }[]) => number;
   isLoaded: boolean;
 }
 
@@ -100,6 +101,14 @@ export function PlansProvider({ children }: { children: ReactNode }) {
       .filter((t) => t.linked_plan_id === planId && t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
+  const getPlanCategorySpent = (
+    planCategoryId: string,
+    transactions: { linked_plan_category_id?: string; amount: number; type: string }[]
+  ) =>
+    transactions
+      .filter((t) => t.linked_plan_category_id === planCategoryId && t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0);
+
   const value = useMemo(
     () => ({
       plans,
@@ -113,6 +122,7 @@ export function PlansProvider({ children }: { children: ReactNode }) {
       deletePlanCategory,
       getPlanCategories,
       getPlanSpent,
+      getPlanCategorySpent,
       isLoaded,
     }),
     [plans, planCategories, isLoaded]
