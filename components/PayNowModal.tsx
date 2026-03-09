@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Modal, View, Text, Pressable, TextInput, StyleSheet, Alert } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  Pressable,
+  TextInput,
+  StyleSheet,
+  Platform,
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 import { useCommitments } from "@/store/CommitmentsContext";
 import { useTransactions } from "@/store/TransactionsContext";
@@ -7,9 +16,7 @@ import { useAccounts } from "@/store/AccountsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
-import { formatDate } from "@/utils/date";
-import { todayISOString } from "@/utils/date";
-import { AppButton } from "@/components/ui/AppButton";
+import { formatDate, todayISOString } from "@/utils/date";
 import * as Haptics from "expo-haptics";
 
 interface PayNowModalProps {
@@ -22,9 +29,10 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
   const { getCommitment, payCommitment } = useCommitments();
   const { addTransaction } = useTransactions();
   const { getAccount, updateBalance } = useAccounts();
-  const { getCategory, getCategoriesByType } = useCategories();
+  const { getCategory } = useCategories();
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
+  const [paid, setPaid] = useState(false);
 
   const commitment = getCommitment(commitmentId);
   const account = commitment ? getAccount(commitment.account_id) : undefined;
@@ -32,9 +40,21 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
 
   if (!commitment || !account) return null;
 
+  const hasInsufficientBalance = account.balance < commitment.amount;
+  const isOverdue = commitment.status === "overdue";
+  const isDueToday = commitment.status === "due_today";
+
+  const statusColors = {
+    upcoming: theme.primary,
+    due_today: "#F59E0B",
+    overdue: "#EF4444",
+    paid: theme.income,
+  };
+  const accentColor = statusColors[commitment.status] || theme.primary;
+
   const handleConfirm = async () => {
-    if (account.balance < commitment.amount) {
-      Alert.alert(t.validation.insufficientBalance);
+    if (hasInsufficientBalance) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
     setLoading(true);
@@ -48,36 +68,132 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
         amount: commitment.amount,
         currency: account.currency,
         date: todayISOString(),
-        note: note || getDisplayName(commitment, language),
+        note: note.trim() || getDisplayName(commitment, language),
         linked_commitment_id: commitment.id,
       });
 
       updateBalance(commitment.account_id, -commitment.amount);
       payCommitment(commitment.id);
-      onClose();
+      setPaid(true);
+
+      setTimeout(() => {
+        onClose();
+      }, 900);
     } finally {
       setLoading(false);
     }
   };
 
+  if (paid) {
+    return (
+      <Modal visible transparent animationType="fade">
+        <View style={styles.overlay}>
+          <View style={[styles.modal, { backgroundColor: theme.card, alignItems: "center", gap: 12, paddingVertical: 32 }]}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: theme.incomeBackground, alignItems: "center", justifyContent: "center" }}>
+              <Feather name="check-circle" size={32} color={theme.income} />
+            </View>
+            <Text style={{ fontSize: 18, fontWeight: "800", color: theme.income }}>
+              {language === "ar" ? "تم الدفع بنجاح" : "Payment Successful"}
+            </Text>
+            <Text style={{ fontSize: 14, color: theme.textSecondary, textAlign: "center" }}>
+              {language === "ar"
+                ? `تم خصم ${formatCurrency(commitment.amount, account.currency, language)} من ${getDisplayName(account, language)}`
+                : `${formatCurrency(commitment.amount, account.currency, language)} deducted from ${getDisplayName(account, language)}`}
+            </Text>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   return (
     <Modal visible transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={[styles.modal, { backgroundColor: theme.card }]}>
-          <Text style={{ fontSize: 19, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-            {t.commitments.payConfirm}
-          </Text>
-          <Text style={{ fontSize: 14, color: theme.textSecondary, marginTop: 4, textAlign: isRTL ? "right" : "left" }}>
-            {t.commitments.payDescription}
-          </Text>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={[styles.modal, { backgroundColor: theme.card }]} onPress={() => {}}>
 
-          <View style={[styles.infoCard, { backgroundColor: theme.cardSecondary }]}>
-            <Row label={language === "ar" ? "الالتزام" : "Commitment"} value={getDisplayName(commitment, language)} theme={theme} isRTL={isRTL} />
-            <Row label={t.common.amount} value={formatCurrency(commitment.amount, account.currency, language)} theme={theme} isRTL={isRTL} valueColor={theme.expense} />
-            <Row label={t.transactions.account} value={getDisplayName(account, language)} theme={theme} isRTL={isRTL} />
-            <Row label={t.commitments.dueDate} value={formatDate(commitment.due_date, language)} theme={theme} isRTL={isRTL} />
+          {/* Header */}
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+            <Text style={{ fontSize: 19, fontWeight: "700", color: theme.text }}>
+              {t.commitments.payConfirm}
+            </Text>
+            <Pressable onPress={onClose} hitSlop={8}>
+              <Feather name="x" size={20} color={theme.textSecondary} />
+            </Pressable>
           </View>
 
+          {/* Status badge */}
+          {(isOverdue || isDueToday) && (
+            <View style={{ backgroundColor: accentColor + "15", borderRadius: 10, padding: 10, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, borderWidth: 1, borderColor: accentColor + "30" }}>
+              <Feather name={isOverdue ? "alert-triangle" : "clock"} size={14} color={accentColor} />
+              <Text style={{ fontSize: 13, color: accentColor, fontWeight: "600", flex: 1 }}>
+                {isOverdue
+                  ? (language === "ar" ? "هذا الالتزام متأخر" : "This commitment is overdue")
+                  : (language === "ar" ? "هذا الالتزام مستحق اليوم" : "This commitment is due today")}
+              </Text>
+            </View>
+          )}
+
+          {/* Info Card */}
+          <View style={[styles.infoCard, { backgroundColor: theme.cardSecondary }]}>
+            <Row
+              label={language === "ar" ? "الالتزام" : "Commitment"}
+              value={getDisplayName(commitment, language)}
+              theme={theme} isRTL={isRTL}
+            />
+            <View style={{ height: 1, backgroundColor: theme.border }} />
+            <Row
+              label={t.common.amount}
+              value={formatCurrency(commitment.amount, account.currency, language)}
+              theme={theme} isRTL={isRTL}
+              valueColor={accentColor}
+              bold
+            />
+            <View style={{ height: 1, backgroundColor: theme.border }} />
+            <Row
+              label={t.transactions.account}
+              value={getDisplayName(account, language)}
+              theme={theme} isRTL={isRTL}
+            />
+            {category && (
+              <Row
+                label={t.categories.title}
+                value={language === "ar" ? category.name_ar || category.name_en : category.name_en || category.name_ar}
+                theme={theme} isRTL={isRTL}
+              />
+            )}
+            <View style={{ height: 1, backgroundColor: theme.border }} />
+            <Row
+              label={t.commitments.dueDate}
+              value={formatDate(commitment.due_date, language)}
+              theme={theme} isRTL={isRTL}
+            />
+            {commitment.recurrence_type !== "none" && (
+              <Row
+                label={language === "ar" ? "التكرار" : "Recurrence"}
+                value={t.commitments.recurrenceTypes[commitment.recurrence_type]}
+                theme={theme} isRTL={isRTL}
+              />
+            )}
+          </View>
+
+          {/* Balance check warning */}
+          {hasInsufficientBalance && (
+            <View style={{ backgroundColor: "#EF444415", borderRadius: 10, padding: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, borderWidth: 1, borderColor: "#EF444430" }}>
+              <Feather name="alert-circle" size={14} color="#EF4444" />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 13, color: "#EF4444", fontWeight: "700" }}>
+                  {t.validation.insufficientBalance}
+                </Text>
+                <Text style={{ fontSize: 12, color: "#EF4444", opacity: 0.8, marginTop: 2 }}>
+                  {language === "ar"
+                    ? `الرصيد المتاح: ${formatCurrency(account.balance, account.currency, language)}`
+                    : `Available: ${formatCurrency(account.balance, account.currency, language)}`}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* Note */}
           <TextInput
             placeholder={language === "ar" ? "ملاحظة (اختياري)" : "Note (optional)"}
             value={note}
@@ -87,14 +203,17 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
               borderRadius: 12,
               padding: 12,
               color: theme.text,
-              borderWidth: 1,
+              borderWidth: 1.5,
               borderColor: theme.inputBorder,
               textAlign: isRTL ? "right" : "left",
+              fontSize: 14,
+              ...Platform.select({ web: { outlineStyle: "none" } } as any),
             }}
             placeholderTextColor={theme.textMuted}
           />
 
-          <View style={{ flexDirection: "row", gap: 12, marginTop: 4 }}>
+          {/* Actions */}
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
             <Pressable
               onPress={onClose}
               style={({ pressed }) => ({
@@ -102,22 +221,54 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
                 padding: 14,
                 borderRadius: 12,
                 alignItems: "center",
-                backgroundColor: pressed ? theme.cardSecondary : theme.cardSecondary,
+                backgroundColor: pressed ? theme.border : theme.cardSecondary,
                 borderWidth: 1,
                 borderColor: theme.border,
               })}
             >
-              <Text style={{ color: theme.text, fontWeight: "600" }}>{t.common.cancel}</Text>
+              <Text style={{ color: theme.text, fontWeight: "600", fontSize: 15 }}>{t.common.cancel}</Text>
             </Pressable>
-            <AppButton
-              title={t.commitments.payNow}
+
+            <Pressable
               onPress={handleConfirm}
-              loading={loading}
-              style={{ flex: 1 }}
-            />
+              disabled={loading || hasInsufficientBalance}
+              style={({ pressed }) => ({
+                flex: 1,
+                padding: 14,
+                borderRadius: 12,
+                alignItems: "center",
+                backgroundColor: hasInsufficientBalance
+                  ? theme.border
+                  : pressed
+                  ? accentColor + "CC"
+                  : accentColor,
+                opacity: loading ? 0.7 : 1,
+              })}
+            >
+              {loading ? (
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                  <Feather name="loader" size={16} color="#fff" />
+                  <Text style={{ color: "#fff", fontWeight: "700", fontSize: 15 }}>
+                    {language === "ar" ? "جارٍ..." : "Processing..."}
+                  </Text>
+                </View>
+              ) : (
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                  <Feather name="check" size={16} color={hasInsufficientBalance ? theme.textMuted : "#fff"} />
+                  <Text style={{ color: hasInsufficientBalance ? theme.textMuted : "#fff", fontWeight: "700", fontSize: 15 }}>
+                    {t.commitments.payNow}
+                  </Text>
+                </View>
+              )}
+            </Pressable>
           </View>
-        </View>
-      </View>
+
+          {/* Description */}
+          <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: "center" }}>
+            {t.commitments.payDescription}
+          </Text>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
@@ -128,17 +279,21 @@ function Row({
   theme,
   isRTL,
   valueColor,
+  bold,
 }: {
   label: string;
   value: string;
   theme: any;
   isRTL: boolean;
   valueColor?: string;
+  bold?: boolean;
 }) {
   return (
-    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between" }}>
+    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
       <Text style={{ fontSize: 13, color: theme.textSecondary }}>{label}</Text>
-      <Text style={{ fontSize: 14, fontWeight: "600", color: valueColor || theme.text }}>{value}</Text>
+      <Text style={{ fontSize: bold ? 16 : 14, fontWeight: bold ? "800" : "600", color: valueColor || theme.text }}>
+        {value}
+      </Text>
     </View>
   );
 }
@@ -146,18 +301,18 @@ function Row({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.65)",
     justifyContent: "center",
     padding: 20,
   },
   modal: {
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 20,
-    gap: 16,
+    gap: 14,
   },
   infoCard: {
     borderRadius: 14,
-    padding: 16,
+    padding: 14,
     gap: 10,
   },
 });

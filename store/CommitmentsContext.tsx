@@ -137,7 +137,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
         (c) =>
           c.account_id === accountId &&
           c.status !== "paid" &&
-          isWithin29Days(c.due_date)
+          (c.status === "overdue" || c.status === "due_today" || isWithin29Days(c.due_date))
       )
       .reduce((sum, c) => sum + c.amount, 0);
   };
