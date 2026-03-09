@@ -91,14 +91,14 @@ export default function MoreTab() {
           label={t.commitments.title}
           subtitle={language === "ar" ? "الالتزامات والفواتير" : "Bills & Commitments"}
           color="#F59E0B"
-          onPress={() => router.push("/commitments/index")}
+          onPress={() => router.push("/commitments")}
         />
         <MenuItem
           icon="pie-chart"
           label={t.budget.title}
           subtitle={language === "ar" ? "ميزانية شهرية" : "Monthly Budgets"}
           color="#8B5CF6"
-          onPress={() => router.push("/budget/index")}
+          onPress={() => router.push("/budget")}
         />
 
         <View style={{ height: 12 }} />
@@ -115,7 +115,7 @@ export default function MoreTab() {
           label={t.categories.title}
           subtitle={language === "ar" ? "تصنيفات المعاملات" : "Transaction Categories"}
           color="#EC4899"
-          onPress={() => router.push("/categories/index")}
+          onPress={() => router.push("/categories")}
         />
         <MenuItem
           icon="shuffle"
@@ -132,7 +132,7 @@ export default function MoreTab() {
           label={t.settings.title}
           subtitle={language === "ar" ? "اللغة، المظهر، والمزيد" : "Language, Theme & More"}
           color={theme.textSecondary}
-          onPress={() => router.push("/settings/index")}
+          onPress={() => router.push("/settings")}
         />
       </ScrollView>
     </View>
