@@ -17,10 +17,12 @@ import { useCommitments } from "@/store/CommitmentsContext";
 import { useSavings } from "@/store/SavingsContext";
 import { TransactionItem } from "@/components/TransactionItem";
 import { SavingsWalletCard } from "@/components/SavingsWalletCard";
+import { QuickAddSheet } from "@/components/QuickAddSheet";
 import { formatCurrency } from "@/utils/currency";
 import { getRemainingDaysInMonth, formatDateShort } from "@/utils/date";
 import { getDisplayName } from "@/utils/display";
 import PayNowModal from "@/components/PayNowModal";
+import type { TransactionType } from "@/types";
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
@@ -34,6 +36,12 @@ export default function DashboardScreen() {
   const { allocatedMoneyForAccount, upcomingCommitments } = useCommitments();
   const { wallets } = useSavings();
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
+  const [quickAdd, setQuickAdd] = useState<{ visible: boolean; type: TransactionType }>({ visible: false, type: "expense" });
+
+  const openQuickAdd = (type: TransactionType) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setQuickAdd({ visible: true, type });
+  };
 
   const activeAccounts = accounts.filter((a) => a.is_active);
 
@@ -244,26 +252,25 @@ export default function DashboardScreen() {
         <View style={{ paddingHorizontal: 20, paddingTop: 22 }}>
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
             <Pressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/(modals)/add-transaction?type=expense");
-              }}
+              testID="quick-add-expense"
+              accessibilityLabel={t.transactions.expense}
+              onPress={() => openQuickAdd("expense")}
               style={{ flex: 1, backgroundColor: theme.expense, borderRadius: 14, paddingVertical: 14, alignItems: "center", gap: 5 }}
             >
               <Feather name="arrow-up" size={18} color="#fff" />
               <Text style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}>{t.transactions.expense}</Text>
             </Pressable>
             <Pressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/(modals)/add-transaction?type=income");
-              }}
+              testID="quick-add-income"
+              accessibilityLabel={t.transactions.income}
+              onPress={() => openQuickAdd("income")}
               style={{ flex: 1, backgroundColor: theme.income, borderRadius: 14, paddingVertical: 14, alignItems: "center", gap: 5 }}
             >
               <Feather name="arrow-down" size={18} color="#fff" />
               <Text style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}>{t.transactions.income}</Text>
             </Pressable>
             <Pressable
+              testID="quick-transfer"
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 router.push("/(modals)/transfer-form");
@@ -406,9 +413,40 @@ export default function DashboardScreen() {
         </View>
       </ScrollView>
 
+      {/* FAB — زر الإضافة السريعة الثابت */}
+      <Pressable
+        testID="fab-add"
+        accessibilityLabel={t.transactions.add}
+        onPress={() => openQuickAdd("expense")}
+        style={{
+          position: "absolute",
+          bottom: insets.bottom + (Platform.OS === "web" ? 34 : 90),
+          right: 20,
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: theme.primary,
+          alignItems: "center",
+          justifyContent: "center",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }}
+      >
+        <Feather name="plus" size={26} color="#fff" />
+      </Pressable>
+
       {payingCommitment && (
         <PayNowModal commitmentId={payingCommitment} onClose={() => setPayingCommitment(null)} />
       )}
+
+      <QuickAddSheet
+        visible={quickAdd.visible}
+        initialType={quickAdd.type}
+        onClose={() => setQuickAdd((s) => ({ ...s, visible: false }))}
+      />
     </View>
   );
 }
