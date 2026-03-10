@@ -10,6 +10,7 @@ import {
   Keyboard,
   Platform,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -240,6 +241,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   if (step === "date") {
     return (
       <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
+        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }}>
           <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: insets.bottom + 24, padding: 20, gap: 16 }}>
             <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginBottom: 4 }} />
@@ -280,26 +282,24 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
             </Pressable>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     );
   }
 
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
-      <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)" }} onPress={() => { Keyboard.dismiss(); onClose(); }}>
-        <Pressable
-          onPress={() => {}}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: theme.card,
-            borderTopLeftRadius: 28,
-            borderTopRightRadius: 28,
-            paddingBottom: insets.bottom + 16,
-          }}
-        >
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }} onPress={() => { Keyboard.dismiss(); onClose(); }}>
+          <Pressable
+            onPress={() => {}}
+            style={{
+              backgroundColor: theme.card,
+              borderTopLeftRadius: 28,
+              borderTopRightRadius: 28,
+              paddingBottom: insets.bottom + 16,
+            }}
+          >
           {/* Handle */}
           <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginTop: 10 }} />
 
@@ -490,8 +490,9 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               </Text>
             </Pressable>
           </View>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
