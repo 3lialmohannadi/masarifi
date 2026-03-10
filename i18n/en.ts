@@ -279,6 +279,13 @@ export const en = {
     allocatedNote: "Allocated money includes commitments within 29 days",
     overdueAlert: "commitments are overdue",
     dueTodayAlert: "commitments are due today",
+    paymentHistory: "Payment History",
+    noPaymentHistory: "No payment history yet",
+    paidOn: "Paid on",
+    commitmentDetails: "Commitment Details",
+    nextDueDate: "Next Due Date",
+    totalPaid: "Total Paid",
+    paymentsCount: "Payments",
   },
   budget: {
     title: "Monthly Budget",

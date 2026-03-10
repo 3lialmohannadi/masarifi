@@ -1,0 +1,425 @@
+import React, { useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  Platform,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useLocalSearchParams, router } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { useApp } from "@/store/AppContext";
+import { useCommitments } from "@/store/CommitmentsContext";
+import { useAccounts } from "@/store/AccountsContext";
+import { useCategories } from "@/store/CategoriesContext";
+import { formatCurrency } from "@/utils/currency";
+import { formatDateShort } from "@/utils/date";
+import { getDisplayName } from "@/utils/display";
+import PayNowModal from "@/components/PayNowModal";
+import type { Commitment } from "@/types";
+
+export default function CommitmentDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const insets = useSafeAreaInsets();
+  const { theme, language, isRTL, t, isDark } = useApp();
+  const { commitments, deleteCommitment } = useCommitments();
+  const { getAccount } = useAccounts();
+  const { getCategory } = useCategories();
+  const [paying, setPaying] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const commitment = commitments.find((c) => c.id === id);
+
+  const paymentHistory = useMemo<Commitment[]>(() => {
+    if (!commitment) return [];
+    const history: Commitment[] = [];
+    let parentId = commitment.parent_commitment_id;
+    while (parentId) {
+      const parent = commitments.find((c) => c.id === parentId);
+      if (!parent) break;
+      history.push(parent);
+      parentId = parent.parent_commitment_id;
+    }
+    return history;
+  }, [commitment, commitments]);
+
+  if (!commitment) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background, alignItems: "center", justifyContent: "center" }}>
+        <Text style={{ color: theme.textMuted }}>{language === "ar" ? "الالتزام غير موجود" : "Commitment not found"}</Text>
+      </View>
+    );
+  }
+
+  const account = getAccount(commitment.account_id);
+  const category = getCategory(commitment.category_id);
+  const currency = account?.currency || "QAR";
+
+  const isOverdue = commitment.status === "overdue";
+  const isDueToday = commitment.status === "due_today";
+  const isPaid = commitment.status === "paid";
+
+  const accentColor = isOverdue
+    ? "#EF4444"
+    : isDueToday
+    ? "#F59E0B"
+    : isPaid
+    ? theme.income
+    : theme.commitment;
+
+  const statusConfig = {
+    upcoming: { icon: "clock" as const, bg: theme.primaryLight, color: theme.primary },
+    due_today: { icon: "alert-circle" as const, bg: "#FEF3C7", color: "#D97706" },
+    overdue: { icon: "alert-triangle" as const, bg: "#FEE2E2", color: "#DC2626" },
+    paid: { icon: "check-circle" as const, bg: theme.incomeBackground, color: theme.income },
+  };
+  const sc = statusConfig[commitment.status] || statusConfig.upcoming;
+
+  const cardShadow = Platform.OS === "web"
+    ? { boxShadow: isDark ? "none" : "0 2px 12px rgba(47,143,131,0.08)" }
+    : isDark ? {} : {
+        shadowColor: "#2F8F83",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+      };
+
+  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
+
+  const totalPaidAmount = paymentHistory.reduce((sum, c) => sum + c.amount, 0);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* ─── Header ─── */}
+        <View
+          style={{
+            paddingTop: topPadding,
+            paddingHorizontal: 20,
+            paddingBottom: 16,
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={8}
+            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+          >
+            <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
+          </Pressable>
+          <Text style={{ flex: 1, fontSize: 20, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+            {getDisplayName(commitment, language)}
+          </Text>
+          <Pressable
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              router.push(`/(modals)/commitment-form?id=${commitment.id}`);
+            }}
+            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+          >
+            <Feather name="edit-2" size={16} color={theme.textSecondary} />
+          </Pressable>
+        </View>
+
+        <View style={{ paddingHorizontal: 20, gap: 16 }}>
+
+          {/* ─── Main Card ─── */}
+          <View
+            style={{
+              backgroundColor: theme.card,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: isOverdue ? "#EF444430" : isDueToday ? "#F59E0B30" : theme.border,
+              overflow: "hidden",
+              ...cardShadow,
+            }}
+          >
+            {/* Top colored strip */}
+            <View style={{ height: 4, backgroundColor: accentColor }} />
+
+            <View style={{ padding: 20, gap: 16 }}>
+              {/* Icon + Status + Amount */}
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 14 }}>
+                <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: accentColor + "18", alignItems: "center", justifyContent: "center" }}>
+                  {category ? (
+                    <Feather name={(category.icon || "calendar") as any} size={26} color={accentColor} />
+                  ) : (
+                    <Feather name={commitment.recurrence_type !== "none" ? "repeat" : "calendar"} size={26} color={accentColor} />
+                  )}
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 28, fontWeight: "800", color: accentColor, textAlign: isRTL ? "right" : "left" }}>
+                    {formatCurrency(commitment.amount, currency, language)}
+                  </Text>
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, marginTop: 4 }}>
+                    <View style={{ backgroundColor: sc.bg, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, flexDirection: "row", alignItems: "center", gap: 5 }}>
+                      <Feather name={sc.icon} size={12} color={sc.color} />
+                      <Text style={{ fontSize: 12, fontWeight: "700", color: sc.color }}>
+                        {t.commitments.status[commitment.status]}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Divider */}
+              <View style={{ height: 1, backgroundColor: theme.border }} />
+
+              {/* Details Grid */}
+              <View style={{ gap: 12 }}>
+                {/* Due Date */}
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                    <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: accentColor + "15", alignItems: "center", justifyContent: "center" }}>
+                      <Feather name="calendar" size={14} color={accentColor} />
+                    </View>
+                    <Text style={{ fontSize: 13, color: theme.textMuted }}>{t.commitments.dueDate}</Text>
+                  </View>
+                  <Text style={{ fontSize: 14, fontWeight: "600", color: isOverdue ? theme.expense : theme.text }}>
+                    {formatDateShort(commitment.due_date, language)}
+                  </Text>
+                </View>
+
+                {/* Account */}
+                {account && (
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                      <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: account.color + "20", alignItems: "center", justifyContent: "center" }}>
+                        <Feather name={(account.icon || "credit-card") as any} size={14} color={account.color} />
+                      </View>
+                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{language === "ar" ? "الحساب" : "Account"}</Text>
+                    </View>
+                    <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text }}>
+                      {getDisplayName(account, language)}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Category */}
+                {category && (
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                      <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: category.color + "20", alignItems: "center", justifyContent: "center" }}>
+                        <Feather name={(category.icon || "tag") as any} size={14} color={category.color} />
+                      </View>
+                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{language === "ar" ? "التصنيف" : "Category"}</Text>
+                    </View>
+                    <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text }}>
+                      {getDisplayName(category, language)}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Recurrence */}
+                {commitment.recurrence_type !== "none" && (
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                      <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: theme.primary + "15", alignItems: "center", justifyContent: "center" }}>
+                        <Feather name="repeat" size={14} color={theme.primary} />
+                      </View>
+                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{t.commitments.recurrence}</Text>
+                    </View>
+                    <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text }}>
+                      {t.commitments.recurrenceTypes[commitment.recurrence_type]}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Note */}
+                {!!commitment.note && (
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                      <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: theme.border, alignItems: "center", justifyContent: "center" }}>
+                        <Feather name="message-square" size={14} color={theme.textMuted} />
+                      </View>
+                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{language === "ar" ? "ملاحظة" : "Note"}</Text>
+                    </View>
+                    <Text style={{ fontSize: 14, color: theme.text, flex: 1, textAlign: isRTL ? "left" : "right" }} numberOfLines={3}>
+                      {commitment.note}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+
+          {/* ─── Stats Row (if recurring) ─── */}
+          {commitment.recurrence_type !== "none" && paymentHistory.length > 0 && (
+            <View
+              style={{
+                backgroundColor: theme.card,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: theme.border,
+                flexDirection: isRTL ? "row-reverse" : "row",
+                overflow: "hidden",
+                ...cardShadow,
+              }}
+            >
+              <View style={{ flex: 1, padding: 16, alignItems: "center", gap: 4 }}>
+                <Text style={{ fontSize: 20, fontWeight: "800", color: theme.primary }}>
+                  {paymentHistory.length}
+                </Text>
+                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: "center" }}>
+                  {t.commitments.paymentsCount}
+                </Text>
+              </View>
+              <View style={{ width: 1, backgroundColor: theme.border, marginVertical: 12 }} />
+              <View style={{ flex: 1, padding: 16, alignItems: "center", gap: 4 }}>
+                <Text style={{ fontSize: 15, fontWeight: "800", color: theme.income }} numberOfLines={1}>
+                  {formatCurrency(totalPaidAmount, currency, language)}
+                </Text>
+                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: "center" }}>
+                  {t.commitments.totalPaid}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* ─── Action Buttons ─── */}
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+            {!isPaid && (
+              <Pressable
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  setPaying(true);
+                }}
+                style={{ flex: 1, backgroundColor: accentColor, borderRadius: 14, paddingVertical: 15, alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 8 }}
+              >
+                <Feather name="check" size={18} color="#fff" />
+                <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>
+                  {t.commitments.payNow}
+                </Text>
+              </Pressable>
+            )}
+            <Pressable
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setConfirmDelete(true);
+              }}
+              style={{
+                width: isPaid ? undefined : 48,
+                flex: isPaid ? 1 : undefined,
+                height: 48,
+                borderRadius: 14,
+                backgroundColor: theme.expenseBackground,
+                borderWidth: 1,
+                borderColor: "#EF444430",
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+                gap: 8,
+              }}
+            >
+              <Feather name="trash-2" size={18} color={theme.expense} />
+              {isPaid && (
+                <Text style={{ color: theme.expense, fontSize: 15, fontWeight: "600" }}>
+                  {t.commitments.delete}
+                </Text>
+              )}
+            </Pressable>
+          </View>
+
+          {/* ─── Confirm Delete ─── */}
+          {confirmDelete && (
+            <View style={{ backgroundColor: theme.expenseBackground, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: "#EF444430", gap: 12 }}>
+              <Text style={{ color: theme.expense, fontWeight: "700", fontSize: 15, textAlign: isRTL ? "right" : "left" }}>
+                {t.commitments.deleteConfirm}
+              </Text>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+                <Pressable
+                  onPress={() => {
+                    deleteCommitment(commitment.id);
+                    router.back();
+                  }}
+                  style={{ flex: 1, backgroundColor: theme.expense, borderRadius: 10, paddingVertical: 11, alignItems: "center" }}
+                >
+                  <Text style={{ color: "#fff", fontWeight: "700" }}>{t.common.delete}</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setConfirmDelete(false)}
+                  style={{ flex: 1, backgroundColor: theme.card, borderRadius: 10, paddingVertical: 11, alignItems: "center", borderWidth: 1, borderColor: theme.border }}
+                >
+                  <Text style={{ color: theme.textSecondary, fontWeight: "600" }}>{t.common.cancel}</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+
+          {/* ─── Payment History ─── */}
+          <View style={{ gap: 12 }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+              <Feather name="clock" size={16} color={theme.textMuted} />
+              <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
+                {t.commitments.paymentHistory}
+              </Text>
+            </View>
+
+            {paymentHistory.length === 0 ? (
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, padding: 20, alignItems: "center", gap: 8 }}>
+                <Feather name="inbox" size={28} color={theme.border} />
+                <Text style={{ color: theme.textMuted, fontSize: 13, textAlign: "center" }}>
+                  {t.commitments.noPaymentHistory}
+                </Text>
+              </View>
+            ) : (
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: "hidden", ...cardShadow }}>
+                {paymentHistory.map((h, index) => (
+                  <View key={h.id}>
+                    {index > 0 && <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: 16 }} />}
+                    <View
+                      style={{
+                        flexDirection: isRTL ? "row-reverse" : "row",
+                        alignItems: "center",
+                        gap: 12,
+                        padding: 14,
+                      }}
+                    >
+                      {/* Timeline dot */}
+                      <View style={{ alignItems: "center", width: 36 }}>
+                        <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.incomeBackground, alignItems: "center", justifyContent: "center" }}>
+                          <Feather name="check" size={16} color={theme.income} />
+                        </View>
+                      </View>
+
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                          {formatCurrency(h.amount, currency, language)}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left", marginTop: 2 }}>
+                          {t.commitments.paidOn} {formatDateShort(h.paid_at || h.due_date, language)}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                          {language === "ar" ? "موعد الاستحقاق:" : "Due:"} {formatDateShort(h.due_date, language)}
+                        </Text>
+                      </View>
+
+                      <View style={{ backgroundColor: theme.incomeBackground, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                        <Text style={{ fontSize: 11, fontWeight: "700", color: theme.income }}>
+                          {t.commitments.status.paid}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
+        </View>
+      </ScrollView>
+
+      {paying && (
+        <PayNowModal commitmentId={commitment.id} onClose={() => setPaying(false)} />
+      )}
+    </View>
+  );
+}

@@ -279,6 +279,13 @@ export const ar = {
     allocatedNote: "الأموال المخصصة تشمل الالتزامات خلال 29 يوم",
     overdueAlert: "التزامات متأخرة",
     dueTodayAlert: "التزامات مستحقة اليوم",
+    paymentHistory: "سجل المدفوعات",
+    noPaymentHistory: "لا يوجد سجل مدفوعات بعد",
+    paidOn: "دُفع في",
+    commitmentDetails: "تفاصيل الالتزام",
+    nextDueDate: "موعد الاستحقاق القادم",
+    totalPaid: "إجمالي المدفوع",
+    paymentsCount: "عدد الدفعات",
   },
   budget: {
     title: "الميزانية الشهرية",

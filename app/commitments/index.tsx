@@ -20,19 +20,28 @@ export default function CommitmentsScreen() {
   const [filter, setFilter] = useState<Filter>("all");
   const [payingId, setPayingId] = useState<string | null>(null);
 
+  const leafCommitments = useMemo(() => {
+    const childParentIds = new Set(
+      commitments
+        .filter((c) => c.parent_commitment_id)
+        .map((c) => c.parent_commitment_id as string)
+    );
+    return commitments.filter((c) => !childParentIds.has(c.id));
+  }, [commitments]);
+
   const filtered = useMemo(() => {
-    if (filter === "all") return commitments;
-    return commitments.filter((c) => c.status === filter);
-  }, [commitments, filter]);
+    if (filter === "all") return leafCommitments;
+    return leafCommitments.filter((c) => c.status === filter);
+  }, [leafCommitments, filter]);
 
-  const overdueCount = commitments.filter((c) => c.status === "overdue").length;
-  const dueTodayCount = commitments.filter((c) => c.status === "due_today").length;
+  const overdueCount = leafCommitments.filter((c) => c.status === "overdue").length;
+  const dueTodayCount = leafCommitments.filter((c) => c.status === "due_today").length;
 
-  const FILTERS: { key: Filter; label: string }[] = [
-    { key: "all", label: t.transactions.filterAll },
+  const FILTERS: { key: Filter; label: string; count?: number }[] = [
+    { key: "all", label: t.transactions.filterAll, count: leafCommitments.length },
     { key: "upcoming", label: t.commitments.status.upcoming },
-    { key: "due_today", label: t.commitments.status.due_today },
-    { key: "overdue", label: t.commitments.status.overdue },
+    { key: "due_today", label: t.commitments.status.due_today, count: dueTodayCount || undefined },
+    { key: "overdue", label: t.commitments.status.overdue, count: overdueCount || undefined },
     { key: "paid", label: t.commitments.status.paid },
   ];
 
@@ -102,16 +111,28 @@ export default function CommitmentsScreen() {
                     <Pressable
                       onPress={() => { Haptics.selectionAsync(); setFilter(item.key); }}
                       style={{
-                        paddingHorizontal: 16,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 5,
+                        paddingHorizontal: 14,
                         paddingVertical: 8,
                         borderRadius: 20,
                         backgroundColor: isActive ? theme.commitment : theme.card,
                         marginRight: 8,
+                        borderWidth: 1,
+                        borderColor: isActive ? theme.commitment : theme.border,
                       }}
                     >
                       <Text style={{ fontSize: 13, fontWeight: "600", color: isActive ? "#fff" : theme.textSecondary }}>
                         {item.label}
                       </Text>
+                      {item.count !== undefined && item.count > 0 && (
+                        <View style={{ backgroundColor: isActive ? "rgba(255,255,255,0.25)" : theme.commitment + "20", borderRadius: 10, paddingHorizontal: 6, paddingVertical: 1 }}>
+                          <Text style={{ fontSize: 10, fontWeight: "700", color: isActive ? "#fff" : theme.commitment }}>
+                            {item.count}
+                          </Text>
+                        </View>
+                      )}
                     </Pressable>
                   );
                 }}
@@ -124,7 +145,7 @@ export default function CommitmentsScreen() {
             <CommitmentItem
               commitment={item}
               onPayNow={() => setPayingId(item.id)}
-              onPress={() => router.push(`/(modals)/commitment-form?id=${item.id}`)}
+              onPress={() => router.push(`/commitments/${item.id}`)}
             />
           </View>
         )}
