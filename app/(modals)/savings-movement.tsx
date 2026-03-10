@@ -58,7 +58,7 @@ export default function SavingsMovementModal() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const allCategories = categories.filter((c) => c.is_active).sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
+  const allCategories = [...categories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
   const selectedWallet = wallets.find((w) => w.id === walletId);
   const selectedAccount = activeAccounts.find((a) => a.id === accountId);
   const selectedCategory = allCategories.find((c) => c.id === categoryId);

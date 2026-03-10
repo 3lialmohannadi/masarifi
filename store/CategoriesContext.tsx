@@ -90,9 +90,7 @@ export function CategoriesProvider({
   const getCategory = (id?: string) => id ? categories.find((c) => c.id === id) : undefined;
 
   const getCategoriesByType = (_type: CategoryType) =>
-    categories
-      .filter((c) => c.is_active)
-      .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
+    [...categories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
 
   const toggleFavorite = (id: string) => {
     const updated = categories.map((c) =>

@@ -42,7 +42,7 @@ export default function CommitmentFormModal() {
   const params = useLocalSearchParams<{ id?: string }>();
 
   const existing = params.id ? commitments.find((c) => c.id === params.id) : undefined;
-  const allCategories = categories.filter((c) => c.is_active).sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
+  const allCategories = [...categories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
   const activeAccounts = accounts.filter((a) => a.is_active);
 
   const [nameAr, setNameAr] = useState(existing?.name_ar || "");

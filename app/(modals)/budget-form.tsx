@@ -24,7 +24,7 @@ export default function BudgetFormModal() {
   const params = useLocalSearchParams<{ id?: string; monthKey?: string }>();
 
   const existing = params.id ? budgets.find((b) => b.id === params.id) : undefined;
-  const expenseCategories = categories.filter((c) => c.type === "expense" && c.is_active);
+  const expenseCategories = [...categories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
 
   const { month: nowMonth, year: nowYear } = getCurrentMonthYear();
 

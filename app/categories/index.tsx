@@ -16,7 +16,7 @@ export default function CategoriesScreen() {
   const { categories, deleteCategory } = useCategories();
 
   const activeCategories = useMemo(
-    () => categories.filter((c) => c.is_active).sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
+    () => [...categories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
     [categories]
   );
 

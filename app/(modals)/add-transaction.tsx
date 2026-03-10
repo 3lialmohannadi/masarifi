@@ -73,9 +73,7 @@ export default function AddTransactionModal() {
 
   const relevantCategories = useMemo(
     () =>
-      categories
-        .filter((c) => c.is_active)
-        .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
+      [...categories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
     [categories]
   );
 
