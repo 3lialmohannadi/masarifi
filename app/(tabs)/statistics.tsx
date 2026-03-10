@@ -12,6 +12,7 @@ import { useSavings } from "@/store/SavingsContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { useMonthPicker, MONTH_NAMES_AR, MONTH_NAMES_EN } from "@/hooks/useMonthPicker";
+import type { Language } from "@/types";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const CHART_WIDTH = Math.min(SCREEN_WIDTH - 64, 340);
@@ -19,7 +20,7 @@ const CHART_WIDTH = Math.min(SCREEN_WIDTH - 64, 340);
 // ─── Donut / Pie Chart ───────────────────────────────────────────────────────
 interface DonutSlice { amount: number; color: string; label: string; }
 function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
-  slices: DonutSlice[]; totalAmount: number; currency: string; language: string; theme: any; isRTL?: boolean;
+  slices: DonutSlice[]; totalAmount: number; currency: string; language: Language; theme: any; isRTL?: boolean;
 }) {
   const R = 70; const r = 44; const cx = 90; const cy = 90; const size = 180;
   const total = slices.reduce((s, d) => s + d.amount, 0);

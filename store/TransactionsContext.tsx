@@ -121,7 +121,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     transactions.filter((t) => t.category_id === categoryId);
 
   const categoryIdsInUse = useMemo(
-    () => [...new Set(transactions.map((t) => t.category_id))],
+    () => [...new Set(transactions.map((t) => t.category_id).filter((id): id is string => !!id))],
     [transactions]
   );
 

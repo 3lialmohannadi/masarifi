@@ -74,7 +74,7 @@ export default function SettingsScreen() {
   const { theme, t, language, setLanguage, colorScheme, setColorScheme, settings, updateSettings, isRTL } = useApp();
   const { accounts } = useAccounts();
   const { transactions } = useTransactions();
-  const { savingsWallets, savingsTransactions } = useSavings();
+  const { wallets: savingsWallets, savingsTransactions } = useSavings();
   const { commitments } = useCommitments();
   const { plans } = usePlans();
   const { budgets } = useBudgets();

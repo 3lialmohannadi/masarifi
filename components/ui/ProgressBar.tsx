@@ -2,11 +2,12 @@ import React from "react";
 import { View } from "react-native";
 import { useApp } from "@/store/AppContext";
 
-interface ProgressBarProps {
+export interface ProgressBarProps {
   progress: number;
   height?: number;
   color?: string;
   backgroundColor?: string;
+  trackColor?: string;
   animated?: boolean;
 }
 
@@ -15,6 +16,7 @@ export function ProgressBar({
   height = 6,
   color,
   backgroundColor,
+  trackColor,
 }: ProgressBarProps) {
   const { theme } = useApp();
   const clampedProgress = Math.min(Math.max(progress, 0), 1);
@@ -30,7 +32,7 @@ export function ProgressBar({
     <View
       style={{
         height,
-        backgroundColor: backgroundColor || theme.border,
+        backgroundColor: trackColor || backgroundColor || theme.border,
         borderRadius: height / 2,
         overflow: "hidden",
       }}
