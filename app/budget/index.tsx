@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { View, Text, FlatList, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -309,7 +310,7 @@ export default function BudgetScreen() {
                       justifyContent: "center",
                     }}
                   >
-                    <Feather name={category.icon as any} size={20} color={category.color} />
+                    <CategoryIcon name={category.icon || "tag"} size={20} color={category.color} />
                   </View>
                 ) : (
                   <View

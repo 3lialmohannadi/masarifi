@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useCategories } from "@/store/CategoriesContext";
@@ -82,7 +83,7 @@ export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItem
         }}
       >
         {category ? (
-          <Feather name={(category.icon || "calendar") as any} size={20} color={iconColor} />
+          <CategoryIcon name={category.icon || "tag"} size={20} color={iconColor} />
         ) : (
           <Feather name={commitment.recurrence_type !== "none" ? "repeat" : "calendar"} size={20} color={iconColor} />
         )}

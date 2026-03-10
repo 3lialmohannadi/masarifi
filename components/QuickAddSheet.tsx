@@ -12,6 +12,7 @@ import {
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
@@ -316,7 +317,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
                     }}
                   >
                     <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: cat.color + "20", alignItems: "center", justifyContent: "center" }}>
-                      <Feather name={cat.icon as any} size={20} color={cat.color} />
+                      <CategoryIcon name={cat.icon} size={20} color={cat.color} />
                     </View>
                     <Text style={{ fontSize: 10, fontWeight: "600", color: isSelected ? cat.color : theme.textSecondary, textAlign: "center" }} numberOfLines={2}>
                       {getDisplayName(cat, language)}
@@ -480,7 +481,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               {selectedCategory ? (
                 <>
                   <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: selectedCategory.color + "20", alignItems: "center", justifyContent: "center" }}>
-                    <Feather name={selectedCategory.icon as any} size={18} color={selectedCategory.color} />
+                    <CategoryIcon name={selectedCategory.icon} size={18} color={selectedCategory.color} />
                   </View>
                   <Text style={{ flex: 1, fontSize: 15, fontWeight: "600", color: selectedCategory.color, textAlign: isRTL ? "right" : "left" }}>
                     {getDisplayName(selectedCategory, language)}
@@ -528,7 +529,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
                 {t.validation.smartSuggestion}: {getDisplayName(smartSuggestion, language)}
               </Text>
               <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: smartSuggestion.color + "20", alignItems: "center", justifyContent: "center" }}>
-                <Feather name={smartSuggestion.icon as any} size={13} color={smartSuggestion.color} />
+                <CategoryIcon name={smartSuggestion.icon} size={13} color={smartSuggestion.color} />
               </View>
             </Pressable>
           )}

@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Pressable, Platform, Dimensions } from "react-n
 import Svg, { Circle, Path, G, Line, Rect, Defs, LinearGradient, Stop, Polyline, Polygon, Text as SvgText } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { useApp } from "@/store/AppContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
@@ -443,7 +444,7 @@ export default function StatisticsTab() {
                         <Text style={{ fontSize: 12, fontWeight: "800", color: catColor }}>#{idx + 1}</Text>
                       </View>
                       <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: catColor + "18", alignItems: "center", justifyContent: "center" }}>
-                        <Feather name={(category?.icon || "tag") as any} size={18} color={catColor} />
+                        <CategoryIcon name={category?.icon || "tag"} size={18} color={catColor} />
                       </View>
                       <View style={{ flex: 1, gap: 5 }}>
                         <Text style={{ fontSize: 13, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>

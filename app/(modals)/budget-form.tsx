@@ -3,6 +3,7 @@ import { View, Text, Pressable, FlatList, Modal, Platform } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -206,7 +207,7 @@ export default function BudgetFormModal() {
             {selectedCategory ? (
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
                 <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: `${selectedCategory.color}20`, alignItems: "center", justifyContent: "center" }}>
-                  <Feather name={selectedCategory.icon as any} size={14} color={selectedCategory.color} />
+                  <CategoryIcon name={selectedCategory.icon || "tag"} size={14} color={selectedCategory.color} />
                 </View>
                 <Text style={{ color: theme.text, fontSize: 15, fontWeight: "500" }}>
                   {getDisplayName(selectedCategory, language)}
@@ -337,7 +338,7 @@ export default function BudgetFormModal() {
                   }}
                 >
                   <View style={{ width: 36, height: 36, borderRadius: 9, backgroundColor: `${item.color}20`, alignItems: "center", justifyContent: "center" }}>
-                    <Feather name={item.icon as any} size={18} color={item.color} />
+                    <CategoryIcon name={item.icon || "tag"} size={18} color={item.color} />
                   </View>
                   <Text style={{ flex: 1, color: theme.text, fontWeight: "500", textAlign: isRTL ? "right" : "left" }}>
                     {getDisplayName(item, language)}

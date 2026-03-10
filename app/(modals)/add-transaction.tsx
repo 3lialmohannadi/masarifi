@@ -12,6 +12,7 @@ import {
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -429,7 +430,7 @@ export default function AddTransactionModal() {
                     justifyContent: "center",
                   }}
                 >
-                  <Feather name={selectedCategory.icon as any} size={15} color={selectedCategory.color} />
+                  <CategoryIcon name={selectedCategory.icon} size={15} color={selectedCategory.color} />
                 </View>
                 <Text style={{ color: theme.text, fontSize: 15, fontWeight: "600", flex: 1 }}>
                   {getDisplayName(selectedCategory, language)}
@@ -569,7 +570,7 @@ export default function AddTransactionModal() {
               {t.validation.smartSuggestion}: {getDisplayName(smartSuggestion, language)}
             </Text>
             <View style={{ width: 30, height: 30, borderRadius: 9, backgroundColor: smartSuggestion.color + "20", alignItems: "center", justifyContent: "center" }}>
-              <Feather name={smartSuggestion.icon as any} size={14} color={smartSuggestion.color} />
+              <CategoryIcon name={smartSuggestion.icon} size={14} color={smartSuggestion.color} />
             </View>
           </Pressable>
         )}
@@ -742,7 +743,7 @@ export default function AddTransactionModal() {
               }}
             >
               <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: `${item.color}22`, alignItems: "center", justifyContent: "center" }}>
-                <Feather name={item.icon as any} size={19} color={item.color} />
+                <CategoryIcon name={item.icon} size={19} color={item.color} />
               </View>
               <Text style={{ flex: 1, color: theme.text, fontWeight: "500", fontSize: 15 }}>
                 {getDisplayName(item, language)}
@@ -839,7 +840,7 @@ export default function AddTransactionModal() {
               >
                 {item.color ? (
                   <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: item.color + "20", alignItems: "center", justifyContent: "center" }}>
-                    <Feather name={(item.icon || "tag") as any} size={14} color={item.color} />
+                    <CategoryIcon name={item.icon || "tag"} size={14} color={item.color} />
                   </View>
                 ) : null}
                 <View style={{ flex: 1 }}>

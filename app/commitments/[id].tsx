@@ -9,6 +9,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useCommitments } from "@/store/CommitmentsContext";
@@ -150,7 +151,7 @@ export default function CommitmentDetailScreen() {
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 14 }}>
                 <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: accentColor + "18", alignItems: "center", justifyContent: "center" }}>
                   {category ? (
-                    <Feather name={(category.icon || "calendar") as any} size={26} color={accentColor} />
+                    <CategoryIcon name={category.icon || "tag"} size={26} color={accentColor} />
                   ) : (
                     <Feather name={commitment.recurrence_type !== "none" ? "repeat" : "calendar"} size={26} color={accentColor} />
                   )}
@@ -208,7 +209,7 @@ export default function CommitmentDetailScreen() {
                   <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
                     <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
                       <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: category.color + "20", alignItems: "center", justifyContent: "center" }}>
-                        <Feather name={(category.icon || "tag") as any} size={14} color={category.color} />
+                        <CategoryIcon name={category.icon || "tag"} size={14} color={category.color} />
                       </View>
                       <Text style={{ fontSize: 13, color: theme.textMuted }}>{language === "ar" ? "التصنيف" : "Category"}</Text>
                     </View>

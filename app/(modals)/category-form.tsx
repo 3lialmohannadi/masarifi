@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Pressable, Alert, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -150,7 +151,7 @@ export default function CategoryFormModal() {
               borderColor: color,
             }}
           >
-            <Feather name={icon as any} size={32} color={color} />
+            <CategoryIcon name={icon} size={32} color={color} />
             <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t.common.icon}</Text>
           </Pressable>
           <Pressable

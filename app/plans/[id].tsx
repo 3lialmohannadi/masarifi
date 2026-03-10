@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { View, Text, FlatList, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -86,7 +87,7 @@ export default function PlanDetailScreen() {
             <View style={{ backgroundColor: color, borderRadius: 20, padding: 20, gap: 16, marginBottom: 4 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
                 <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name={(plan.icon || "target") as any} size={24} color="#fff" />
+                  <CategoryIcon name={plan.icon || "chart-line"} size={24} color="#fff" />
                 </View>
                 <View>
                   <Text style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>{t.plans.budget}</Text>
@@ -169,7 +170,7 @@ export default function PlanDetailScreen() {
                       {/* Row: icon + name + budget */}
                       <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10 }}>
                         <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: pc.color + "20", alignItems: "center", justifyContent: "center" }}>
-                          <Feather name={(pc.icon || "tag") as any} size={18} color={pc.color} />
+                          <CategoryIcon name={pc.icon || "tag"} size={18} color={pc.color} />
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>

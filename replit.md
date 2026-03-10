@@ -21,6 +21,7 @@ Masarifi is a bilingual (Arabic/English) personal finance mobile app built with 
 - Card border radius: `borderRadius: 16` — cards, rows, and modal/form inputs
 - Icon container: `width: 42, height: 42, borderRadius: 13` — colored icon bg circles in NavRows
 - NavRow icon size: `size={20}` — Feather icon inside the 42px container
+- **Category icons: Use `MaterialCommunityIcons` via `<CategoryIcon name={...} size={...} color={...} />` from `@/components/CategoryIcon`. All category, plan, plan-category icons use MCIcons. Account/savings wallet icons remain Feather.**
 - Badge/chip: `borderRadius: 20` — filter pills and status badges use 20 (pill shape)
 - Back button (stack screens): circle `width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border` with chevron `size={18}`
 - Item gap in lists: consistent spacing via `gap: 8` or `marginBottom: 8` between list items

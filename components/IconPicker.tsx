@@ -1,18 +1,383 @@
-import React from "react";
-import { View, Text, ScrollView, Pressable, Modal, StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import React, { useState, useMemo } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  Modal,
+  TextInput,
+  StyleSheet,
+  Platform,
+} from "react-native";
+import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/store/AppContext";
 import * as Haptics from "expo-haptics";
 
-const ICONS = [
-  "home", "briefcase", "credit-card", "dollar-sign", "trending-up", "trending-down",
-  "shopping-cart", "shopping-bag", "coffee", "truck", "zap", "heart", "book", "film",
-  "music", "gift", "star", "target", "globe", "map-pin", "phone", "wifi", "shield",
-  "tool", "scissors", "camera", "image", "clock", "calendar", "flag", "tag", "box",
-  "archive", "file-text", "folder", "printer", "monitor", "cpu", "battery", "bluetooth",
-  "search", "settings", "user", "users", "activity", "award", "anchor", "bar-chart-2",
-  "pie-chart", "layers", "package", "repeat", "refresh-cw", "plus-circle", "minus-circle",
-  "more-horizontal", "feather", "sun", "moon", "cloud", "umbrella", "wind", "droplet",
+type IconGroup = { label: string; icons: string[] };
+
+const ICON_GROUPS: IconGroup[] = [
+  {
+    label: "الأسرة",
+    icons: [
+      "home-heart",
+      "account-group",
+      "human-male-female-child",
+      "baby-face-outline",
+      "human-child",
+      "teddy-bear",
+      "human-male-female",
+      "heart-outline",
+    ],
+  },
+  {
+    label: "المال",
+    icons: [
+      "cash",
+      "cash-multiple",
+      "currency-usd",
+      "wallet",
+      "bank",
+      "credit-card-outline",
+      "coins",
+      "cash-register",
+    ],
+  },
+  {
+    label: "الأعمال",
+    icons: [
+      "briefcase",
+      "office-building",
+      "handshake",
+      "chart-bar",
+      "laptop",
+      "domain",
+      "tie",
+      "clipboard-text",
+    ],
+  },
+  {
+    label: "الادخار",
+    icons: [
+      "piggy-bank",
+      "safe-square-outline",
+      "bank-outline",
+      "treasure-chest",
+      "vault",
+      "lock-outline",
+      "gold",
+      "bank-check",
+    ],
+  },
+  {
+    label: "الطعام",
+    icons: [
+      "food",
+      "food-fork-drink",
+      "coffee",
+      "pizza",
+      "hamburger",
+      "noodles",
+      "pot-steam",
+      "cake",
+    ],
+  },
+  {
+    label: "السفر",
+    icons: [
+      "airplane",
+      "map-marker",
+      "earth",
+      "compass",
+      "beach",
+      "hotel",
+      "suitcase",
+      "passport",
+    ],
+  },
+  {
+    label: "التسوق",
+    icons: [
+      "shopping",
+      "cart",
+      "bag-personal",
+      "tag",
+      "storefront-outline",
+      "shopping-outline",
+      "gift",
+      "percent",
+    ],
+  },
+  {
+    label: "المجوهرات",
+    icons: [
+      "diamond-stone",
+      "ring",
+      "watch",
+      "crown",
+      "necklace",
+      "earrings",
+      "star-four-points",
+      "shimmer",
+    ],
+  },
+  {
+    label: "السيارة",
+    icons: [
+      "car",
+      "car-key",
+      "steering",
+      "car-wash",
+      "car-cog",
+      "car-side",
+      "car-convertible",
+      "car-electric",
+    ],
+  },
+  {
+    label: "الوقود",
+    icons: [
+      "gas-station",
+      "fuel",
+      "ev-station",
+      "oil",
+      "barrel",
+      "pump",
+      "lightning-bolt-circle",
+      "fuel-cell",
+    ],
+  },
+  {
+    label: "الصيانة",
+    icons: [
+      "tools",
+      "wrench",
+      "hammer",
+      "cog",
+      "screwdriver",
+      "home-wrench",
+      "toolbox",
+      "saw-blade",
+    ],
+  },
+  {
+    label: "الفواتير",
+    icons: [
+      "receipt",
+      "file-document",
+      "clipboard-list",
+      "note-text",
+      "format-list-checks",
+      "file-sign",
+      "invoice-text",
+      "file-account",
+    ],
+  },
+  {
+    label: "الماء",
+    icons: [
+      "water",
+      "water-pump",
+      "shower-head",
+      "water-outline",
+      "waves",
+      "water-polo",
+      "swim",
+      "pool",
+    ],
+  },
+  {
+    label: "الكهرباء",
+    icons: [
+      "lightning-bolt",
+      "flash",
+      "power-plug",
+      "lightbulb",
+      "electric-switch",
+      "transmission-tower",
+      "solar-power",
+      "power",
+    ],
+  },
+  {
+    label: "المواصلات",
+    icons: [
+      "bus",
+      "subway-variant",
+      "taxi",
+      "walk",
+      "bike",
+      "train",
+      "ferry",
+      "motorbike",
+    ],
+  },
+  {
+    label: "الاشتراكات",
+    icons: [
+      "repeat",
+      "refresh",
+      "calendar-sync",
+      "rss",
+      "star-circle",
+      "autorenew",
+      "update",
+      "calendar-check",
+    ],
+  },
+  {
+    label: "الحوالات",
+    icons: [
+      "bank-transfer",
+      "send",
+      "arrow-right-circle",
+      "swap-horizontal",
+      "transfer",
+      "arrow-left-right",
+      "bank-transfer-in",
+      "bank-transfer-out",
+    ],
+  },
+  {
+    label: "الاستثمار",
+    icons: [
+      "chart-line",
+      "trending-up",
+      "chart-areaspline",
+      "finance",
+      "gold",
+      "chart-bell-curve-cumulative",
+      "poll",
+      "bitcoin",
+    ],
+  },
+  {
+    label: "أعمال خيرية",
+    icons: [
+      "hand-heart",
+      "charity",
+      "heart",
+      "gift-outline",
+      "hand-peace",
+      "hands-pray",
+      "mosque",
+      "peace",
+    ],
+  },
+  {
+    label: "الألعاب",
+    icons: [
+      "gamepad-variant",
+      "controller-classic",
+      "chess-knight",
+      "cards",
+      "dice-multiple",
+      "trophy",
+      "medal",
+      "puzzle",
+    ],
+  },
+  {
+    label: "الترفيه",
+    icons: [
+      "television-play",
+      "movie-open",
+      "theater",
+      "music",
+      "popcorn",
+      "headphones",
+      "ticket",
+      "instagram",
+    ],
+  },
+  {
+    label: "السكن",
+    icons: [
+      "home",
+      "home-city",
+      "apartment",
+      "floor-plan",
+      "door-closed",
+      "sofa",
+      "bed",
+      "lamp",
+    ],
+  },
+  {
+    label: "الزواج",
+    icons: [
+      "ring",
+      "heart-circle",
+      "diamond",
+      "flower",
+      "cake-variant",
+      "human-male-female",
+      "party-popper",
+      "balloon",
+    ],
+  },
+  {
+    label: "الرياضة",
+    icons: [
+      "dumbbell",
+      "soccer",
+      "run",
+      "swim",
+      "basketball",
+      "tennis",
+      "weightlifter",
+      "yoga",
+    ],
+  },
+  {
+    label: "سوبرماركت",
+    icons: [
+      "store",
+      "cart-variant",
+      "fridge",
+      "food-variant",
+      "basket",
+      "scale",
+      "food-apple",
+      "shopping-search",
+    ],
+  },
+  {
+    label: "عام",
+    icons: [
+      "star",
+      "flag",
+      "bookmark",
+      "information",
+      "check-circle",
+      "plus-circle",
+      "minus-circle",
+      "alert-circle",
+      "settings",
+      "folder",
+      "delete",
+      "pencil",
+      "lock",
+      "lock-open",
+      "eye",
+      "share-variant",
+      "download",
+      "upload",
+      "filter",
+      "magnify",
+      "bell",
+      "clock",
+      "calendar",
+      "account",
+      "map",
+      "pin",
+      "link",
+      "leaf",
+      "flower-outline",
+      "emoticon-happy",
+      "nature",
+    ],
+  },
 ];
 
 interface IconPickerProps {
@@ -23,7 +388,17 @@ interface IconPickerProps {
 }
 
 export function IconPicker({ selectedIcon, onSelect, visible, onClose }: IconPickerProps) {
-  const { theme, t } = useApp();
+  const { theme, t, isRTL } = useApp();
+  const insets = useSafeAreaInsets();
+  const [search, setSearch] = useState("");
+
+  const filteredGroups = useMemo(() => {
+    if (!search.trim()) return ICON_GROUPS;
+    return ICON_GROUPS.map((g) => ({
+      ...g,
+      icons: g.icons.filter((ic) => ic.includes(search.toLowerCase().trim())),
+    })).filter((g) => g.icons.length > 0);
+  }, [search]);
 
   const handleSelect = (icon: string) => {
     Haptics.selectionAsync();
@@ -31,42 +406,137 @@ export function IconPicker({ selectedIcon, onSelect, visible, onClose }: IconPic
     onClose();
   };
 
+  const COLS = 5;
+
+  const groupedRows = useMemo(() => {
+    const result: ({ type: "header"; label: string } | { type: "row"; icons: string[] })[] = [];
+    for (const group of filteredGroups) {
+      result.push({ type: "header", label: group.label });
+      for (let i = 0; i < group.icons.length; i += COLS) {
+        result.push({ type: "row", icons: group.icons.slice(i, i + COLS) });
+      }
+    }
+    return result;
+  }, [filteredGroups]);
+
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View style={styles.overlay}>
-        <View style={[styles.container, { backgroundColor: theme.card }]}>
-          <View style={styles.header}>
-            <Text style={{ fontSize: 17, fontWeight: "600", color: theme.text }}>
-              {t.common.icon}
-            </Text>
-            <Pressable onPress={onClose}>
-              <Feather name="x" size={22} color={theme.textSecondary} />
-            </Pressable>
-          </View>
-          <ScrollView contentContainerStyle={styles.grid}>
-            {ICONS.map((icon) => (
-              <Pressable
-                key={icon}
-                onPress={() => handleSelect(icon)}
-                style={[
-                  styles.iconBtn,
-                  {
-                    backgroundColor:
-                      selectedIcon === icon ? theme.primaryLight : theme.cardSecondary,
-                    borderWidth: selectedIcon === icon ? 2 : 0,
-                    borderColor: theme.primary,
-                  },
-                ]}
-              >
-                <Feather
-                  name={icon as any}
-                  size={22}
-                  color={selectedIcon === icon ? theme.primary : theme.textSecondary}
-                />
-              </Pressable>
-            ))}
-          </ScrollView>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <Pressable style={styles.overlay} onPress={onClose} />
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: theme.card,
+            paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 12,
+          },
+        ]}
+      >
+        {/* Header */}
+        <View style={[styles.header, { borderBottomColor: theme.border }]}>
+          <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
+            {t.common.icon}
+          </Text>
+          <Pressable onPress={onClose} hitSlop={8}>
+            <Feather name="x" size={22} color={theme.textSecondary} />
+          </Pressable>
         </View>
+
+        {/* Search */}
+        <View
+          style={{
+            marginHorizontal: 16,
+            marginBottom: 10,
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "center",
+            backgroundColor: theme.cardSecondary,
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            gap: 8,
+          }}
+        >
+          <Feather name="search" size={16} color={theme.textMuted} />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="بحث..."
+            placeholderTextColor={theme.textMuted}
+            style={{ flex: 1, height: 38, color: theme.text, fontSize: 14 }}
+          />
+          {search.length > 0 && (
+            <Pressable onPress={() => setSearch("")} hitSlop={6}>
+              <Feather name="x" size={14} color={theme.textMuted} />
+            </Pressable>
+          )}
+        </View>
+
+        {/* Icon grid with group headers */}
+        <FlatList
+          data={groupedRows}
+          keyExtractor={(item, i) =>
+            item.type === "header" ? `h-${item.label}` : `r-${i}`
+          }
+          renderItem={({ item }) => {
+            if (item.type === "header") {
+              return (
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: "700",
+                    color: theme.textMuted,
+                    paddingHorizontal: 16,
+                    paddingTop: 14,
+                    paddingBottom: 6,
+                    textAlign: isRTL ? "right" : "left",
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  {item.label}
+                </Text>
+              );
+            }
+            return (
+              <View
+                style={{
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  paddingHorizontal: 12,
+                  gap: 8,
+                  marginBottom: 8,
+                }}
+              >
+                {item.icons.map((icon) => (
+                  <Pressable
+                    key={icon}
+                    onPress={() => handleSelect(icon)}
+                    style={{
+                      flex: 1,
+                      aspectRatio: 1,
+                      maxWidth: 56,
+                      borderRadius: 13,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor:
+                        selectedIcon === icon ? theme.primaryLight : theme.cardSecondary,
+                      borderWidth: selectedIcon === icon ? 2 : 0,
+                      borderColor: theme.primary,
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name={icon as any}
+                      size={24}
+                      color={selectedIcon === icon ? theme.primary : theme.textSecondary}
+                    />
+                  </Pressable>
+                ))}
+                {item.icons.length < COLS &&
+                  Array.from({ length: COLS - item.icons.length }).map((_, k) => (
+                    <View key={`gap-${k}`} style={{ flex: 1 }} />
+                  ))}
+              </View>
+            );
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        />
       </View>
     </Modal>
   );
@@ -75,34 +545,20 @@ export function IconPicker({ selectedIcon, onSelect, visible, onClose }: IconPic
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
   container: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
     paddingTop: 16,
-    maxHeight: "75%",
+    maxHeight: "78%",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingBottom: 16,
-  },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    padding: 16,
-    gap: 10,
-    justifyContent: "center",
-  },
-  iconBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
+    paddingBottom: 12,
+    borderBottomWidth: 1,
   },
 });

@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -96,7 +97,7 @@ export default function PlansScreen() {
               >
                 <View style={{ backgroundColor: planColor, padding: 16, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
                   <View style={{ width: 44, height: 44, borderRadius: 13, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" }}>
-                    <Feather name={(plan.icon || "target") as any} size={22} color="#fff" />
+                    <CategoryIcon name={plan.icon || "chart-line"} size={22} color="#fff" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 16, fontWeight: "700", color: "#fff", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>

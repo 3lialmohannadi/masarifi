@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { useApp } from "@/store/AppContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { getDisplayName } from "@/utils/display";
@@ -59,8 +60,8 @@ export function TransactionItem({ transaction, onPress, showDate = true, flat = 
           justifyContent: "center",
         }}
       >
-        <Feather
-          name={(category?.icon || (isIncome ? "arrow-down-left" : "arrow-up-right")) as any}
+        <CategoryIcon
+          name={category?.icon || (isIncome ? "arrow-bottom-left" : "arrow-top-right")}
           size={20}
           color={catColor}
         />

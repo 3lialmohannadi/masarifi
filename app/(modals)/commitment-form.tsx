@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -322,7 +323,7 @@ export default function CommitmentFormModal() {
           >
             {selectedCategory && (
               <View style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: selectedCategory.color + "20", alignItems: "center", justifyContent: "center" }}>
-                <Feather name={(selectedCategory.icon || "tag") as any} size={15} color={selectedCategory.color} />
+                <CategoryIcon name={selectedCategory.icon || "tag"} size={15} color={selectedCategory.color} />
               </View>
             )}
             <Text style={{ flex: 1, color: selectedCategory ? theme.text : theme.textMuted, fontSize: 15 }}>
@@ -519,7 +520,7 @@ export default function CommitmentFormModal() {
                   }}
                 >
                   <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: item.color + "20", alignItems: "center", justifyContent: "center" }}>
-                    <Feather name={(item.icon || "tag") as any} size={18} color={item.color} />
+                    <CategoryIcon name={item.icon || "tag"} size={18} color={item.color} />
                   </View>
                   <Text style={{ flex: 1, color: theme.text, fontWeight: "500", fontSize: 15 }}>
                     {language === "ar" ? item.name_ar || item.name_en : item.name_en || item.name_ar}

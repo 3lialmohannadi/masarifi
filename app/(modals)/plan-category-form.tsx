@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -198,7 +199,7 @@ export default function PlanCategoryFormModal() {
             onPress={() => setShowIcon(true)}
             style={{ flex: 1, backgroundColor: color + "15", borderRadius: 14, padding: 16, alignItems: "center", gap: 8, borderWidth: 2, borderColor: color }}
           >
-            <Feather name={icon as any} size={32} color={color} />
+            <CategoryIcon name={icon} size={32} color={color} />
             <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t.common.icon}</Text>
           </Pressable>
           <Pressable
