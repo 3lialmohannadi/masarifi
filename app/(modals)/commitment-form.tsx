@@ -33,7 +33,7 @@ function isValidDate(str: string): boolean {
 
 export default function CommitmentFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { commitments, addCommitment, updateCommitment, deleteCommitment } = useCommitments();
   const { accounts } = useAccounts();
   const { getCategoriesByType } = useCategories();
@@ -106,7 +106,10 @@ export default function CommitmentFormModal() {
       } else {
         addCommitment(data);
       }
+      showToast(t.toast.saved);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }
@@ -120,6 +123,7 @@ export default function CommitmentFormModal() {
         style: "destructive",
         onPress: () => {
           if (existing) deleteCommitment(existing.id);
+          showToast(t.toast.deleted, "info");
           router.back();
         },
       },

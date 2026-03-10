@@ -16,7 +16,7 @@ const CATEGORY_TYPES: CategoryType[] = ["income", "expense", "savings", "commitm
 
 export default function CategoryFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { categories, addCategory, updateCategory, deleteCategory } = useCategories();
   const params = useLocalSearchParams<{ id?: string; type?: CategoryType }>();
 
@@ -68,7 +68,10 @@ export default function CategoryFormModal() {
           is_active: true,
         });
       }
+      showToast(t.toast.saved);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }
@@ -91,6 +94,7 @@ export default function CategoryFormModal() {
             Alert.alert(t.categories.cannotDelete, t.categories.cannotDeleteInUse);
             return;
           }
+          showToast(t.toast.deleted, "info");
           router.back();
         },
       },

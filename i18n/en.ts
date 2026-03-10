@@ -361,6 +361,13 @@ export const en = {
     BHD: "Bahraini Dinar",
     OMR: "Omani Riyal",
   },
+  toast: {
+    saved: "Saved successfully",
+    deleted: "Deleted",
+    error: "Something went wrong, try again",
+    transferred: "Transfer complete",
+    deposited: "Deposit successful",
+  },
   validation: {
     nameRequired: "Name is required in at least one language",
     amountRequired: "Amount is required",

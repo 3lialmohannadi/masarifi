@@ -28,7 +28,7 @@ type SourceType = "internal" | "external";
 
 export default function SavingsMovementModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, selectedAccountId, isRTL } = useApp();
+  const { theme, t, language, selectedAccountId, isRTL, showToast } = useApp();
   const { wallets, addSavingsTransaction } = useSavings();
   const { accounts, updateBalance } = useAccounts();
   const { addTransaction } = useTransactions();
@@ -174,7 +174,10 @@ export default function SavingsMovementModal() {
           // No account balance change
         }
       }
+      showToast(t.toast.deposited);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }

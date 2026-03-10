@@ -17,7 +17,7 @@ import { MONTH_NAMES_AR, MONTH_NAMES_EN } from "@/hooks/useMonthPicker";
 
 export default function BudgetFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { budgets, addBudget, updateBudget, deleteBudget } = useBudgets();
   const { categories } = useCategories();
   const params = useLocalSearchParams<{ id?: string; monthKey?: string }>();
@@ -84,7 +84,10 @@ export default function BudgetFormModal() {
       } else {
         addBudget(data);
       }
+      showToast(t.toast.saved);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }
@@ -98,6 +101,7 @@ export default function BudgetFormModal() {
   const confirmDelete = () => {
     if (existing) deleteBudget(existing.id);
     setShowDeleteConfirm(false);
+    showToast(t.toast.deleted, "info");
     router.back();
   };
 

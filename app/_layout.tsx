@@ -14,6 +14,7 @@ import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Toast } from "@/components/Toast";
 import { queryClient } from "@/lib/query-client";
 import { AppProvider, useApp } from "@/store/AppContext";
 import { AccountsProvider } from "@/store/AccountsContext";
@@ -40,6 +41,7 @@ function AppLoadingGate({ children }: { children: React.ReactNode }) {
     <>
       <StatusBar style={isDark ? "light" : "dark"} />
       {children}
+      <Toast />
     </>
   );
 }

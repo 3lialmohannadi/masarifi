@@ -26,7 +26,7 @@ import type { AccountType } from "@/types";
 
 export default function AccountFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { accounts, addAccount, updateAccount, deleteAccount } = useAccounts();
   const params = useLocalSearchParams<{ id?: string }>();
 
@@ -75,7 +75,10 @@ export default function AccountFormModal() {
       } else {
         addAccount(data);
       }
+      showToast(t.toast.saved);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }
@@ -89,6 +92,7 @@ export default function AccountFormModal() {
         style: "destructive",
         onPress: () => {
           if (existing) deleteAccount(existing.id);
+          showToast(t.toast.deleted, "info");
           router.back();
         },
       },
@@ -98,6 +102,7 @@ export default function AccountFormModal() {
   const handleRestore = () => {
     if (existing) {
       updateAccount(existing.id, { is_active: true });
+      showToast(t.toast.saved);
       router.back();
     }
   };

@@ -26,7 +26,7 @@ const PLAN_TYPES: PlanType[] = ["travel", "wedding", "car", "house", "study", "b
 
 export default function PlanFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { plans, addPlan, updatePlan, deletePlan } = usePlans();
   const params = useLocalSearchParams<{ id?: string }>();
 
@@ -82,7 +82,10 @@ export default function PlanFormModal() {
       } else {
         addPlan(data);
       }
+      showToast(t.toast.saved);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }
@@ -96,6 +99,7 @@ export default function PlanFormModal() {
         style: "destructive",
         onPress: () => {
           if (existing) deletePlan(existing.id);
+          showToast(t.toast.deleted, "info");
           router.back();
         },
       },

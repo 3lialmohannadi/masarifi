@@ -1,9 +1,11 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useState,
   useEffect,
   useMemo,
+  useRef,
   ReactNode,
 } from "react";
 import { useColorScheme } from "react-native";
@@ -26,6 +28,14 @@ const DEFAULT_SETTINGS: AppSettings = {
   default_currency: "QAR",
 };
 
+export type ToastType = "success" | "error" | "info";
+
+export interface ToastItem {
+  id: number;
+  message: string;
+  type: ToastType;
+}
+
 interface AppContextValue {
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -42,6 +52,9 @@ interface AppContextValue {
   setSelectedAccountId: (id: string) => void;
   isRTL: boolean;
   isLoaded: boolean;
+  toast: ToastItem | null;
+  showToast: (message: string, type?: ToastType) => void;
+  hideToast: () => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -50,6 +63,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const systemColorScheme = useColorScheme();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [toast, setToast] = useState<ToastItem | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     loadData<AppSettings>(KEYS.SETTINGS).then((saved) => {
@@ -82,6 +97,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setColorScheme = (mode: ThemeMode) => updateSettings({ theme: mode });
   const setSelectedAccountId = (id: string) => updateSettings({ selected_account_id: id });
 
+  const hideToast = useCallback(() => {
+    setToast(null);
+  }, []);
+
+  const showToast = useCallback((message: string, type: ToastType = "success") => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ id: Date.now(), message, type });
+    toastTimer.current = setTimeout(() => {
+      setToast(null);
+    }, 2800);
+  }, []);
+
   const value = useMemo(
     () => ({
       language: settings.language,
@@ -99,8 +126,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setSelectedAccountId,
       isRTL,
       isLoaded,
+      toast,
+      showToast,
+      hideToast,
     }),
-    [settings, theme, isDark, t, isRTL, isLoaded]
+    [settings, theme, isDark, t, isRTL, isLoaded, toast, showToast, hideToast]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

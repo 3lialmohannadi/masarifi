@@ -29,7 +29,7 @@ const CATEGORY_COLORS = [
 
 export default function PlanCategoryFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { plans, planCategories, addPlanCategory, updatePlanCategory, deletePlanCategory, getPlanCategories, getPlanCategorySpent } = usePlans();
   const { transactions } = useTransactions();
   const params = useLocalSearchParams<{ planId?: string; categoryId?: string }>();
@@ -98,7 +98,10 @@ export default function PlanCategoryFormModal() {
       } else {
         addPlanCategory(data);
       }
+      showToast(t.toast.saved);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }
@@ -112,6 +115,7 @@ export default function PlanCategoryFormModal() {
         style: "destructive",
         onPress: () => {
           if (existing) deletePlanCategory(existing.id);
+          showToast(t.toast.deleted, "info");
           router.back();
         },
       },

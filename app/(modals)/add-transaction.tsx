@@ -34,7 +34,7 @@ function isValidDate(str: string): boolean {
 
 export default function AddTransactionModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, selectedAccountId, updateSettings, isRTL, settings } = useApp();
+  const { theme, t, language, selectedAccountId, updateSettings, isRTL, settings, showToast } = useApp();
   const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
   const { accounts, updateBalance } = useAccounts();
   const { categories, getCategoriesByType } = useCategories();
@@ -178,7 +178,10 @@ export default function AddTransactionModal() {
           linked_plan_category_id: linkedPlanCategoryId || undefined,
         });
       }
+      showToast(t.toast.saved);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }
@@ -196,6 +199,7 @@ export default function AddTransactionModal() {
             updateBalance(existingTx.account_id, delta);
             deleteTransaction(existingTx.id);
           }
+          showToast(t.toast.deleted, "info");
           router.back();
         },
       },

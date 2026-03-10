@@ -22,7 +22,7 @@ function isValidDate(str: string): boolean {
 
 export default function SavingWalletFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { wallets, addWallet, updateWallet, deleteWallet } = useSavings();
   const params = useLocalSearchParams<{ id?: string }>();
 
@@ -76,7 +76,10 @@ export default function SavingWalletFormModal() {
       } else {
         addWallet(data);
       }
+      showToast(t.toast.saved);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }
@@ -91,6 +94,7 @@ export default function SavingWalletFormModal() {
         style: "destructive",
         onPress: () => {
           if (existing) deleteWallet(existing.id);
+          showToast(t.toast.deleted, "info");
           router.back();
         },
       },

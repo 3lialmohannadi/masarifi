@@ -22,7 +22,7 @@ function isValidDate(str: string): boolean {
 
 export default function TransferFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, selectedAccountId, isRTL } = useApp();
+  const { theme, t, language, selectedAccountId, isRTL, showToast } = useApp();
   const { accounts, updateBalance } = useAccounts();
   const { addTransfer } = useTransactions();
 
@@ -82,7 +82,10 @@ export default function TransferFormModal() {
       });
       updateBalance(fromId, -sourceAmount);
       updateBalance(toId, destinationAmount);
+      showToast(t.toast.transferred);
       router.back();
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }

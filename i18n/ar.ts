@@ -361,6 +361,13 @@ export const ar = {
     BHD: "دينار بحريني",
     OMR: "ريال عماني",
   },
+  toast: {
+    saved: "تم الحفظ",
+    deleted: "تم الحذف",
+    error: "حدث خطأ، حاول مجدداً",
+    transferred: "تم التحويل بنجاح",
+    deposited: "تم الإيداع بنجاح",
+  },
   validation: {
     nameRequired: "الاسم مطلوب بلغة واحدة على الأقل",
     amountRequired: "المبلغ مطلوب",
