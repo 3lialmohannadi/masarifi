@@ -16,7 +16,7 @@ interface TransferItemProps {
   showDate?: boolean;
 }
 
-export function TransferItem({
+export const TransferItem = React.memo(function TransferItem({
   transfer,
   perspective = "both",
   onPress,
@@ -136,4 +136,4 @@ export function TransferItem({
       </View>
     </Pressable>
   );
-}
+});

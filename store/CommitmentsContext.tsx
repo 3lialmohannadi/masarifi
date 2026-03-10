@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useCallback,
   ReactNode,
 } from "react";
 import type { Commitment, CommitmentStatus, RecurrenceType } from "@/types";
@@ -172,13 +173,13 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     if (paidRecord) apiRequest("PATCH", `/api/commitments/${id}`, paidRecord).catch(console.error);
   };
 
-  const allocatedMoneyForAccount = (accountId: string): number => {
+  const allocatedMoneyForAccount = useCallback((accountId: string): number => {
     return commitments
       .filter((c) => c.account_id === accountId && c.status !== "paid")
       .reduce((sum, c) => sum + c.amount, 0);
-  };
+  }, [commitments]);
 
-  const reservedMoneyForDailyLimit = (accountId: string): number => {
+  const reservedMoneyForDailyLimit = useCallback((accountId: string): number => {
     return commitments
       .filter(
         (c) =>
@@ -187,7 +188,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
           (c.status === "overdue" || c.status === "due_today" || isReservedOn28th(c.due_date))
       )
       .reduce((sum, c) => sum + c.amount, 0);
-  };
+  }, [commitments]);
 
   const refreshStatuses = () => {
     const refreshed = refreshCommitmentStatuses(commitments);
@@ -224,7 +225,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       clearAll,
       isLoaded,
     }),
-    [commitments, isLoaded]
+    [commitments, isLoaded, allocatedMoneyForAccount, reservedMoneyForDailyLimit, upcomingCommitments]
   );
 
   return <CommitmentsContext.Provider value={value}>{children}</CommitmentsContext.Provider>;

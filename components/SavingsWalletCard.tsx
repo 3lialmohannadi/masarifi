@@ -13,7 +13,7 @@ interface SavingsWalletCardProps {
   onPress?: () => void;
 }
 
-export function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
+export const SavingsWalletCard = React.memo(function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
   const { theme, language, t, isRTL, isDark } = useApp();
 
   const isGoal = wallet.type === "goal_savings";
@@ -127,4 +127,4 @@ export function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
       </Pressable>
     </View>
   );
-}
+});

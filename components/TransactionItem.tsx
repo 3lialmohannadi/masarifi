@@ -17,7 +17,7 @@ interface TransactionItemProps {
   flat?: boolean;
 }
 
-export function TransactionItem({ transaction, onPress, showDate = true, flat = false }: TransactionItemProps) {
+export const TransactionItem = React.memo(function TransactionItem({ transaction, onPress, showDate = true, flat = false }: TransactionItemProps) {
   const { theme, language, isRTL, t, isDark } = useApp();
   const { getCategory } = useCategories();
 
@@ -89,4 +89,4 @@ export function TransactionItem({ transaction, onPress, showDate = true, flat = 
       </View>
     </Pressable>
   );
-}
+});

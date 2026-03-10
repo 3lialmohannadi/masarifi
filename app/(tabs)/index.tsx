@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import {
   ScrollView,
   View,
@@ -39,34 +39,44 @@ export default function DashboardScreen() {
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<{ visible: boolean; type: TransactionType }>({ visible: false, type: "expense" });
 
-  const openQuickAdd = (type: TransactionType) => {
+  const openQuickAdd = useCallback((type: TransactionType) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setQuickAdd({ visible: true, type });
-  };
+  }, []);
 
-  const activeAccounts = accounts.filter((a) => a.is_active);
+  const activeAccounts = useMemo(
+    () => accounts.filter((a) => a.is_active),
+    [accounts]
+  );
 
-  const selectedAccount =
-    accounts.find((a) => a.id === selectedAccountId && a.is_active) ||
-    activeAccounts[0] ||
-    null;
+  const selectedAccount = useMemo(
+    () =>
+      accounts.find((a) => a.id === selectedAccountId && a.is_active) ||
+      activeAccounts[0] ||
+      null,
+    [accounts, selectedAccountId, activeAccounts]
+  );
 
   const currency = selectedAccount?.currency || "QAR";
   const totalBalance = selectedAccount?.balance ?? 0;
 
-  const allocatedMoney = selectedAccount
-    ? allocatedMoneyForAccount(selectedAccount.id)
-    : 0;
+  const allocatedMoney = useMemo(
+    () => (selectedAccount ? allocatedMoneyForAccount(selectedAccount.id) : 0),
+    [selectedAccount, allocatedMoneyForAccount]
+  );
 
   const realAvailable = totalBalance - allocatedMoney;
 
-  const remainingDays = getRemainingDaysInMonth();
-  const dailyLimit =
-    settings.daily_limit_mode === "manual"
-      ? settings.manual_daily_limit
-      : remainingDays > 0
-      ? realAvailable / remainingDays
-      : 0;
+  const remainingDays = useMemo(() => getRemainingDaysInMonth(), []);
+  const dailyLimit = useMemo(
+    () =>
+      settings.daily_limit_mode === "manual"
+        ? settings.manual_daily_limit
+        : remainingDays > 0
+        ? realAvailable / remainingDays
+        : 0,
+    [settings.daily_limit_mode, settings.manual_daily_limit, remainingDays, realAvailable]
+  );
 
   const recentTransactions = useMemo(() => {
     const filtered = selectedAccount
@@ -81,20 +91,32 @@ export default function DashboardScreen() {
       .slice(0, 3);
   }, [transactions, selectedAccount]);
 
-  const shownCommitments = upcomingCommitments.slice(0, 3);
-  const shownWallets = wallets.filter((w) => !w.is_archived).slice(0, 3);
+  const shownCommitments = useMemo(
+    () => upcomingCommitments.slice(0, 3),
+    [upcomingCommitments]
+  );
+  const shownWallets = useMemo(
+    () => wallets.filter((w) => !w.is_archived).slice(0, 3),
+    [wallets]
+  );
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
-  const cardShadow = Platform.OS === "web"
-    ? { boxShadow: isDark ? "none" : "0 2px 12px rgba(47,143,131,0.08)" }
-    : isDark ? {} : {
-        shadowColor: "#2F8F83",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
-      };
+  const cardShadow = useMemo(
+    () =>
+      Platform.OS === "web"
+        ? { boxShadow: isDark ? "none" : "0 2px 12px rgba(47,143,131,0.08)" }
+        : isDark
+        ? {}
+        : {
+            shadowColor: "#2F8F83",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            elevation: 3,
+          },
+    [isDark]
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>

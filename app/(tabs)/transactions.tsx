@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -105,7 +105,7 @@ export default function TransactionsTab() {
     return items;
   }, [combined, selectedAccountId]);
 
-  const formatGroupDate = (dateStr: string): string => {
+  const formatGroupDate = useCallback((dateStr: string): string => {
     const today = new Date().toISOString().slice(0, 10);
     const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
     if (dateStr === today) return t.transactions.today;
@@ -113,16 +113,56 @@ export default function TransactionsTab() {
     const d = new Date(dateStr);
     const names = language === "ar" ? MONTH_NAMES_AR : MONTH_NAMES_EN;
     return `${d.getDate()} ${names[d.getMonth()]}`;
-  };
+  }, [t, language]);
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
-  const FILTERS: { key: Filter; label: string; color?: string }[] = [
+  const FILTERS = useMemo<{ key: Filter; label: string; color?: string }[]>(() => [
     { key: "all", label: t.transactions.filterAll },
     { key: "income", label: t.transactions.filterIncome, color: theme.income },
     { key: "expense", label: t.transactions.filterExpense, color: theme.expense },
     { key: "transfer", label: t.transactions.transfer, color: theme.transfer },
-  ];
+  ], [t, theme.income, theme.expense, theme.transfer]);
+
+  const keyExtractor = useCallback((item: ListItem, i: number) => {
+    if (item.type === "header") return `h-${item.date}`;
+    if (item.type === "tx") return `tx-${item.tx.id}`;
+    return `tf-${(item as any).transfer.id}`;
+  }, []);
+
+  const renderItem = useCallback(({ item }: { item: ListItem }) => {
+    if (item.type === "header") {
+      return (
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8, gap: 10 }}>
+          <Text style={{ fontSize: 13, fontWeight: "700", color: theme.textSecondary }}>
+            {formatGroupDate(item.date)}
+          </Text>
+          <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+        </View>
+      );
+    }
+    if (item.type === "transfer") {
+      return (
+        <View style={{ paddingHorizontal: 20 }}>
+          <TransferItem
+            transfer={item.transfer}
+            perspective={item.perspective}
+            showDate={false}
+            onPress={() => router.push(`/(modals)/transfer-detail?id=${item.transfer.id}`)}
+          />
+        </View>
+      );
+    }
+    return (
+      <View style={{ paddingHorizontal: 20 }}>
+        <TransactionItem
+          transaction={item.tx}
+          showDate={false}
+          onPress={() => router.push(`/(modals)/add-transaction?id=${item.tx.id}`)}
+        />
+      </View>
+    );
+  }, [isRTL, theme.textSecondary, theme.border, formatGroupDate]);
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1, backgroundColor: theme.background }}>
@@ -188,44 +228,8 @@ export default function TransactionsTab() {
 
       <FlatList
         data={listData}
-        keyExtractor={(item, i) => {
-          if (item.type === "header") return `h-${item.date}`;
-          if (item.type === "tx") return `tx-${item.tx.id}`;
-          return `tf-${item.transfer.id}`;
-        }}
-        renderItem={({ item }) => {
-          if (item.type === "header") {
-            return (
-              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8, gap: 10 }}>
-                <Text style={{ fontSize: 13, fontWeight: "700", color: theme.textSecondary }}>
-                  {formatGroupDate(item.date)}
-                </Text>
-                <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-              </View>
-            );
-          }
-          if (item.type === "transfer") {
-            return (
-              <View style={{ paddingHorizontal: 20 }}>
-                <TransferItem
-                  transfer={item.transfer}
-                  perspective={item.perspective}
-                  showDate={false}
-                  onPress={() => router.push(`/(modals)/transfer-detail?id=${item.transfer.id}`)}
-                />
-              </View>
-            );
-          }
-          return (
-            <View style={{ paddingHorizontal: 20 }}>
-              <TransactionItem
-                transaction={item.tx}
-                showDate={false}
-                onPress={() => router.push(`/(modals)/add-transaction?id=${item.tx.id}`)}
-              />
-            </View>
-          );
-        }}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110) }}
         ListEmptyComponent={
           !isLoaded ? null : (
