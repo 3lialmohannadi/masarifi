@@ -592,7 +592,7 @@ export default function AddTransactionModal() {
                 <Pressable
                   onPress={(e) => { e.stopPropagation(); setLinkedPlanId(""); setLinkedPlanCategoryId(""); }}
                   hitSlop={8}
-                  style={{ marginRight: 8 }}
+                  style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }}
                 >
                   <Feather name="x" size={14} color={theme.textMuted} />
                 </Pressable>
@@ -621,7 +621,7 @@ export default function AddTransactionModal() {
                 <Pressable
                   onPress={(e) => { e.stopPropagation(); setLinkedPlanCategoryId(""); }}
                   hitSlop={8}
-                  style={{ marginRight: 8 }}
+                  style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }}
                 >
                   <Feather name="x" size={14} color={theme.textMuted} />
                 </Pressable>
