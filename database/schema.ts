@@ -181,19 +181,34 @@ export const transactions = pgTable("transactions", {
   account_id: varchar("account_id", { length: 36 })
     .notNull()
     .references(() => accounts.id, { onDelete: "cascade" }),
-  category_id: varchar("category_id", { length: 36 }),
+  category_id: varchar("category_id", { length: 36 }).references(
+    () => categories.id,
+    { onDelete: "set null" }
+  ),
   type: transactionTypeEnum("type").notNull(),
   amount: numeric("amount", { precision: 15, scale: 3 }).notNull(),
   currency: varchar("currency", { length: 10 }).default("QAR").notNull(),
   date: timestamp("date").notNull(),
   note: text("note").default(""),
-  linked_commitment_id: varchar("linked_commitment_id", { length: 36 }),
-  linked_plan_id: varchar("linked_plan_id", { length: 36 }),
-  linked_plan_category_id: varchar("linked_plan_category_id", { length: 36 }),
-  linked_saving_wallet_id: varchar("linked_saving_wallet_id", { length: 36 }),
+  linked_commitment_id: varchar("linked_commitment_id", { length: 36 }).references(
+    () => commitments.id,
+    { onDelete: "set null" }
+  ),
+  linked_plan_id: varchar("linked_plan_id", { length: 36 }).references(
+    () => plans.id,
+    { onDelete: "set null" }
+  ),
+  linked_plan_category_id: varchar("linked_plan_category_id", { length: 36 }).references(
+    () => planCategories.id,
+    { onDelete: "set null" }
+  ),
+  linked_saving_wallet_id: varchar("linked_saving_wallet_id", { length: 36 }).references(
+    () => savingsWallets.id,
+    { onDelete: "set null" }
+  ),
   linked_transfer_account_id: varchar("linked_transfer_account_id", {
     length: 36,
-  }),
+  }).references(() => accounts.id, { onDelete: "set null" }),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -329,7 +344,10 @@ export const commitments = pgTable("commitments", {
   account_id: varchar("account_id", { length: 36 })
     .notNull()
     .references(() => accounts.id, { onDelete: "restrict" }),
-  category_id: varchar("category_id", { length: 36 }),
+  category_id: varchar("category_id", { length: 36 }).references(
+    () => categories.id,
+    { onDelete: "set null" }
+  ),
   name_ar: text("name_ar").notNull(),
   name_en: text("name_en").notNull(),
   amount: numeric("amount", { precision: 15, scale: 3 }).notNull(),
@@ -354,7 +372,10 @@ export const budgets = pgTable("budgets", {
   user_id: varchar("user_id", { length: 36 }).references(() => users.id, {
     onDelete: "cascade",
   }),
-  category_id: varchar("category_id", { length: 36 }),
+  category_id: varchar("category_id", { length: 36 }).references(
+    () => categories.id,
+    { onDelete: "set null" }
+  ),
   amount: numeric("amount", { precision: 15, scale: 3 }).notNull(),
   month: varchar("month", { length: 7 }).notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),

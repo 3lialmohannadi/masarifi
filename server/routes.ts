@@ -143,8 +143,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Accounts ──────────────────────────────────────────────────────────────
 
   app.get("/api/accounts", async (_req, res) => {
-    const rows = await storage.getAccounts(DEFAULT_USER_ID);
-    res.json(rows.map(normAccount));
+    try {
+      const rows = await storage.getAccounts(DEFAULT_USER_ID);
+      res.json(rows.map(normAccount));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/accounts", async (req, res) => {
@@ -162,6 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...rest } = req.body;
       const row = await storage.updateAccount(req.params.id, rest as any);
+      if (!row) return res.status(404).json({ message: "Account not found" });
       res.json(normAccount(row));
     } catch (e: any) {
       res.status(500).json({ message: e.message });
@@ -180,8 +185,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Categories ────────────────────────────────────────────────────────────
 
   app.get("/api/categories", async (_req, res) => {
-    const rows = await storage.getCategories(DEFAULT_USER_ID);
-    res.json(rows.map(normCategory));
+    try {
+      const rows = await storage.getCategories(DEFAULT_USER_ID);
+      res.json(rows.map(normCategory));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/categories", async (req, res) => {
@@ -199,6 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...rest } = req.body;
       const row = await storage.updateCategory(req.params.id, rest as any);
+      if (!row) return res.status(404).json({ message: "Category not found" });
       res.json(normCategory(row));
     } catch (e: any) {
       res.status(500).json({ message: e.message });
@@ -217,8 +227,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Transactions ──────────────────────────────────────────────────────────
 
   app.get("/api/transactions", async (_req, res) => {
-    const rows = await storage.getTransactions(DEFAULT_USER_ID);
-    res.json(rows.map(normTransaction));
+    try {
+      const rows = await storage.getTransactions(DEFAULT_USER_ID);
+      res.json(rows.map(normTransaction));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/transactions", async (req, res) => {
@@ -237,6 +251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...rest } = req.body;
       const data = { ...rest, ...(rest.date ? { date: toDate(rest.date) } : {}) };
       const row = await storage.updateTransaction(req.params.id, data as any);
+      if (!row) return res.status(404).json({ message: "Transaction not found" });
       res.json(normTransaction(row));
     } catch (e: any) {
       res.status(500).json({ message: e.message });
@@ -255,8 +270,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Transfers ─────────────────────────────────────────────────────────────
 
   app.get("/api/transfers", async (_req, res) => {
-    const rows = await storage.getTransfers(DEFAULT_USER_ID);
-    res.json(rows.map(normTransfer));
+    try {
+      const rows = await storage.getTransfers(DEFAULT_USER_ID);
+      res.json(rows.map(normTransfer));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/transfers", async (req, res) => {
@@ -282,8 +301,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Savings Wallets ───────────────────────────────────────────────────────
 
   app.get("/api/savings-wallets", async (_req, res) => {
-    const rows = await storage.getSavingsWallets(DEFAULT_USER_ID);
-    res.json(rows.map(normSavingsWallet));
+    try {
+      const rows = await storage.getSavingsWallets(DEFAULT_USER_ID);
+      res.json(rows.map(normSavingsWallet));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/savings-wallets", async (req, res) => {
@@ -302,6 +325,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...rest } = req.body;
       const data = { ...rest, ...(rest.target_date !== undefined ? { target_date: toDate(rest.target_date) } : {}) };
       const row = await storage.updateSavingsWallet(req.params.id, data as any);
+      if (!row) return res.status(404).json({ message: "Savings wallet not found" });
       res.json(normSavingsWallet(row));
     } catch (e: any) {
       res.status(500).json({ message: e.message });
@@ -320,9 +344,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Savings Transactions ──────────────────────────────────────────────────
 
   app.get("/api/savings-transactions", async (req, res) => {
-    const walletId = req.query.walletId as string | undefined;
-    const rows = await storage.getSavingsTransactions(walletId);
-    res.json(rows.map(normSavingsTx));
+    try {
+      const walletId = req.query.walletId as string | undefined;
+      const rows = await storage.getSavingsTransactions(walletId);
+      res.json(rows.map(normSavingsTx));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/savings-transactions", async (req, res) => {
@@ -348,8 +376,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Plans ─────────────────────────────────────────────────────────────────
 
   app.get("/api/plans", async (_req, res) => {
-    const rows = await storage.getPlans(DEFAULT_USER_ID);
-    res.json(rows.map(normPlan));
+    try {
+      const rows = await storage.getPlans(DEFAULT_USER_ID);
+      res.json(rows.map(normPlan));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/plans", async (req, res) => {
@@ -376,6 +408,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...(rest.end_date ? { end_date: toDate(rest.end_date) } : {}),
       };
       const row = await storage.updatePlan(req.params.id, data as any);
+      if (!row) return res.status(404).json({ message: "Plan not found" });
       res.json(normPlan(row));
     } catch (e: any) {
       res.status(500).json({ message: e.message });
@@ -394,13 +427,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Plan Categories ───────────────────────────────────────────────────────
 
   app.get("/api/plan-categories", async (req, res) => {
-    const planId = req.query.planId as string | undefined;
-    if (planId) {
-      const rows = await storage.getPlanCategories(planId);
-      res.json(rows.map(normPlanCategory));
-    } else {
-      const rows = await db.select().from(schema.planCategories);
-      res.json(rows.map(normPlanCategory));
+    try {
+      const planId = req.query.planId as string | undefined;
+      if (planId) {
+        const rows = await storage.getPlanCategories(planId);
+        res.json(rows.map(normPlanCategory));
+      } else {
+        const rows = await db.select().from(schema.planCategories);
+        res.json(rows.map(normPlanCategory));
+      }
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
     }
   });
 
@@ -419,6 +456,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id: _id, created_at: _c, ...rest } = req.body;
       const row = await storage.updatePlanCategory(req.params.id, rest as any);
+      if (!row) return res.status(404).json({ message: "Plan category not found" });
       res.json(normPlanCategory(row));
     } catch (e: any) {
       res.status(500).json({ message: e.message });
@@ -437,8 +475,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Commitments ───────────────────────────────────────────────────────────
 
   app.get("/api/commitments", async (_req, res) => {
-    const rows = await storage.getCommitments(DEFAULT_USER_ID);
-    res.json(rows.map(normCommitment));
+    try {
+      const rows = await storage.getCommitments(DEFAULT_USER_ID);
+      res.json(rows.map(normCommitment));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/commitments", async (req, res) => {
@@ -465,6 +507,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...(rest.paid_at !== undefined ? { paid_at: toDate(rest.paid_at) } : {}),
       };
       const row = await storage.updateCommitment(req.params.id, data as any);
+      if (!row) return res.status(404).json({ message: "Commitment not found" });
       res.json(normCommitment(row));
     } catch (e: any) {
       res.status(500).json({ message: e.message });
@@ -483,8 +526,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ── Budgets ───────────────────────────────────────────────────────────────
 
   app.get("/api/budgets", async (_req, res) => {
-    const rows = await storage.getBudgets(DEFAULT_USER_ID);
-    res.json(rows.map(normBudget));
+    try {
+      const rows = await storage.getBudgets(DEFAULT_USER_ID);
+      res.json(rows.map(normBudget));
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
   });
 
   app.post("/api/budgets", async (req, res) => {
@@ -507,6 +554,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...rest } = req.body;
       const row = await storage.updateBudget(req.params.id, rest as any);
+      if (!row) return res.status(404).json({ message: "Budget not found" });
       res.json(normBudget(row));
     } catch (e: any) {
       res.status(500).json({ message: e.message });
