@@ -435,20 +435,29 @@ export default function DashboardScreen() {
           </View>
 
           {/* ─── Upcoming Commitments ─── */}
-          {shownCommitments.length > 0 && (
-            <View style={{ gap: 12 }}>
-              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
-                <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
-                  {t.dashboard.upcomingCommitments}
-                </Text>
-                <Pressable
-                  onPress={() => router.push("/commitments")}
-                  style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}
-                >
-                  <Text style={{ fontSize: 13, color: theme.primary, fontWeight: "600" }}>{t.dashboard.showMore}</Text>
-                  <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={14} color={theme.primary} />
-                </Pressable>
+          <View style={{ gap: 12 }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
+                {t.dashboard.upcomingCommitments}
+              </Text>
+              <Pressable
+                onPress={() => router.push("/commitments")}
+                style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}
+              >
+                <Text style={{ fontSize: 13, color: theme.primary, fontWeight: "600" }}>{t.dashboard.showAll}</Text>
+                <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={14} color={theme.primary} />
+              </Pressable>
+            </View>
+
+            {shownCommitments.length === 0 ? (
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: "hidden", ...cardShadow }}>
+                <EmptyState
+                  icon="calendar"
+                  title={t.dashboard.noCommitments}
+                  subtitle={language === "ar" ? "أضف التزاماتك لتتبع فواتيرك" : "Add commitments to track your bills"}
+                />
               </View>
+            ) : (
               <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: "hidden", ...cardShadow }}>
                 {shownCommitments.map((c, index) => {
                   const isOverdue = c.status === "overdue";
@@ -500,9 +509,25 @@ export default function DashboardScreen() {
                     </View>
                   );
                 })}
+                <Pressable
+                  onPress={() => router.push("/commitments")}
+                  style={({ pressed }) => ({
+                    borderTopWidth: 1,
+                    borderTopColor: theme.border,
+                    paddingVertical: 12,
+                    alignItems: "center",
+                    flexDirection: isRTL ? "row-reverse" : "row",
+                    justifyContent: "center",
+                    gap: 4,
+                    backgroundColor: pressed ? theme.cardSecondary : "transparent",
+                  })}
+                >
+                  <Text style={{ fontSize: 13, color: theme.primary, fontWeight: "600" }}>{t.dashboard.showAll}</Text>
+                  <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={13} color={theme.primary} />
+                </Pressable>
               </View>
-            </View>
-          )}
+            )}
+          </View>
 
           {/* ─── Savings Wallets ─── */}
           {shownWallets.length > 0 && (

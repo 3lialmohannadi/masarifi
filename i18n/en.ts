@@ -58,6 +58,7 @@ export const en = {
     quickAdd: "Add Transaction",
     recentTransactions: "Recent Transactions",
     showMore: "Show More",
+    showAll: "Show All",
     upcomingCommitments: "Upcoming Commitments",
     savingsWallets: "Savings Wallets",
     noTransactions: "No transactions yet",

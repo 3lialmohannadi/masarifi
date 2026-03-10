@@ -58,6 +58,7 @@ export const ar = {
     quickAdd: "إضافة عملية",
     recentTransactions: "آخر العمليات",
     showMore: "إظهار المزيد",
+    showAll: "إظهار الكل",
     upcomingCommitments: "الالتزامات القادمة",
     savingsWallets: "المحافظ الادخارية",
     noTransactions: "لا توجد عمليات",
