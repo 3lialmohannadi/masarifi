@@ -99,7 +99,15 @@ The app supports Arabic (RTL default) and English, with language selection persi
 The application supports key Gulf-region currencies (QAR, SAR, AED, KWD, BHD, OMR) alongside USD, EUR, and GBP, each configured with bilingual names, country flag emojis, proper decimal precision, and display symbols.
 
 ### Backend (Express.js + PostgreSQL)
-The backend is an Express server that serves static Expo web build files and provides a comprehensive REST API for all entities (accounts, categories, transactions, savings, commitments, plans, budgets). It uses Drizzle ORM for PostgreSQL interactions, handles numeric normalization, and manages timestamp fields.
+The backend is an Express server that serves static Expo web build files and provides a comprehensive REST API for all entities (accounts, categories, transactions, savings, commitments, plans, budgets). It uses Drizzle ORM for PostgreSQL interactions with fully-typed `norm*` functions (one per entity) that convert Drizzle rows to API responses. A `toNumber()` helper handles Postgres `numeric` → JS number coercion. All route handlers have try/catch with an `errMsg()` helper for safe error extraction.
+
+### Code Quality Standards
+- **server/routes.ts**: `norm*` functions use Drizzle `$inferSelect` types. `toNumber()` replaces inline ternary coercions. `toIso`/`toIsoOrNull` are documented with JSDoc.
+- **store/CommitmentsContext.tsx**: `MAX_RECURRENCE_STEPS = 730` constant (not a magic number). Status sync uses `Map<id, status>` (not array-index comparison). `allocatedMoneyForAccount` and `reservedMoneyForDailyLimit` are documented with JSDoc.
+- **store/TransactionsContext.tsx**: Variable names use full domain words (`apiTransactions`, `localTransfers`, `transfer`, `newTransfer`). Hydration branches are commented.
+- **store/SavingsContext.tsx**: `addSavingsTransaction` delta logic is documented. Default wallet creation is commented. All hydration branches labeled.
+- **components/Toast.tsx**: `pointerEvents` lives on outer `View` (not `Animated.View`) to prevent React Native Web deprecation warning.
+- **Remaining known warnings**: `props.pointerEvents is deprecated` — emitted by `react-native-screens@4.16.0` and `react-native-web@0.21.2` internals, not by application code. Unfixable without upgrading those libraries.
 
 ## UI Patterns
 

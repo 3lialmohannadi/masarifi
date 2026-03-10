@@ -391,7 +391,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }} onPress={() => { Keyboard.dismiss(); onClose(); }}>
+        <Pressable testID="quickadd-backdrop" style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }} onPress={() => { Keyboard.dismiss(); onClose(); }}>
           <Pressable
             onPress={() => {}}
             style={{
