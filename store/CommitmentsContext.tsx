@@ -20,6 +20,7 @@ interface CommitmentsContextValue {
   getCommitment: (id: string) => Commitment | undefined;
   payCommitment: (id: string) => void;
   allocatedMoneyForAccount: (accountId: string) => number;
+  reservedMoneyForDailyLimit: (accountId: string) => number;
   upcomingCommitments: Commitment[];
   refreshStatuses: () => void;
   isLoaded: boolean;
@@ -172,6 +173,12 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
 
   const allocatedMoneyForAccount = (accountId: string): number => {
     return commitments
+      .filter((c) => c.account_id === accountId && c.status !== "paid")
+      .reduce((sum, c) => sum + c.amount, 0);
+  };
+
+  const reservedMoneyForDailyLimit = (accountId: string): number => {
+    return commitments
       .filter(
         (c) =>
           c.account_id === accountId &&
@@ -206,6 +213,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       getCommitment,
       payCommitment,
       allocatedMoneyForAccount,
+      reservedMoneyForDailyLimit,
       upcomingCommitments,
       refreshStatuses,
       isLoaded,

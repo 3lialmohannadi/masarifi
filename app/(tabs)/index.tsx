@@ -34,7 +34,7 @@ export default function DashboardScreen() {
   } = useApp();
   const { accounts } = useAccounts();
   const { transactions } = useTransactions();
-  const { allocatedMoneyForAccount, upcomingCommitments } = useCommitments();
+  const { allocatedMoneyForAccount, reservedMoneyForDailyLimit, upcomingCommitments } = useCommitments();
   const { wallets } = useSavings();
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<{ visible: boolean; type: TransactionType }>({ visible: false, type: "expense" });
@@ -60,12 +60,16 @@ export default function DashboardScreen() {
 
   const realAvailable = totalBalance - allocatedMoney;
 
+  const dailyReserved = selectedAccount
+    ? reservedMoneyForDailyLimit(selectedAccount.id)
+    : 0;
+
   const remainingDays = getRemainingDaysInMonth();
   const dailyLimit =
     settings.daily_limit_mode === "manual"
       ? settings.manual_daily_limit
       : remainingDays > 0
-      ? realAvailable / remainingDays
+      ? (totalBalance - dailyReserved) / remainingDays
       : 0;
 
   const recentTransactions = useMemo(() => {
