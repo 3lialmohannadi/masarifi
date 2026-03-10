@@ -13,7 +13,9 @@ Masarifi is a bilingual (Arabic/English) personal finance mobile app built with 
 - Text (light): `#1F2A44`, Text (dark): `#E8F2F1`
 - Hero sections: teal `#2F8F83` (light) / dark teal `#132825` (dark) with `borderBottomRadius: 32`
 
-**Card Shadows:** Platform-aware — `boxShadow` on web, native `shadow*` props on iOS/Android (light mode only)
+**Card Shadows:** Platform-aware — `boxShadow` on web, native `shadow*` props on iOS/Android (light mode only). Shadow utility functions (`cardShadow`, `strongShadow`, `subtleShadow`) are exported from `constants/colors.ts`. Use these helpers for new components.
+
+**Tab Screen Bottom Padding:** All 5 tab screens use `paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110)` to clear the tab bar (84px on web, ~83px on iOS, ~56px on Android).
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

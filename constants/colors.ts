@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 const teal = "#2F8F83";
 const tealDark = "#1F6E64";
 const tealLight = "#5BB0A7";
@@ -107,3 +109,48 @@ export default {
     tabIconSelected: teal,
   },
 };
+
+export const cardShadow = (isDark: boolean) =>
+  isDark
+    ? {}
+    : Platform.OS === "web"
+    ? ({ boxShadow: "0 2px 8px rgba(47,143,131,0.08)" } as object)
+    : {
+        shadowColor: "#2F8F83",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 2,
+      };
+
+export const strongShadow = (isDark: boolean) =>
+  isDark
+    ? {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 12,
+        elevation: 8,
+      }
+    : Platform.OS === "web"
+    ? ({ boxShadow: "0 8px 24px rgba(47,143,131,0.22)" } as object)
+    : {
+        shadowColor: "#2F8F83",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.22,
+        shadowRadius: 16,
+        elevation: 8,
+      };
+
+export const subtleShadow = (isDark: boolean) =>
+  isDark
+    ? {}
+    : Platform.OS === "web"
+    ? ({ boxShadow: "0 1px 4px rgba(47,143,131,0.06)" } as object)
+    : {
+        shadowColor: "#2F8F83",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 1,
+      };

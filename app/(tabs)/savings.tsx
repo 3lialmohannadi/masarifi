@@ -36,7 +36,7 @@ export default function SavingsTab() {
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <ScrollView
         contentContainerStyle={{
-          paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 110),
+          paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110),
         }}
         showsVerticalScrollIndicator={false}
       >

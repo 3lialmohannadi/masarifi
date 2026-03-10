@@ -95,7 +95,7 @@ export default function DashboardScreen() {
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <ScrollView
         contentContainerStyle={{
-          paddingBottom: insets.bottom + (Platform.OS === "web" ? 50 : 110),
+          paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110),
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -586,11 +586,9 @@ export default function DashboardScreen() {
           backgroundColor: theme.primary,
           alignItems: "center",
           justifyContent: "center",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
+          ...(Platform.OS === "web"
+            ? { boxShadow: "0 4px 12px rgba(0,0,0,0.30)" }
+            : { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 }),
         }}
       >
         <Feather name="plus" size={26} color="#fff" />

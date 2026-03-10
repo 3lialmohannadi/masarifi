@@ -226,7 +226,7 @@ export default function TransactionsTab() {
             </View>
           );
         }}
-        contentContainerStyle={{ paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 110) }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110) }}
         ListEmptyComponent={
           !isLoaded ? null : (
             <EmptyState

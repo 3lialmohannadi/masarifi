@@ -74,7 +74,7 @@ export default function MoreTab() {
         contentContainerStyle={{
           paddingTop: topPadding,
           paddingHorizontal: 20,
-          paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 110),
+          paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110),
           gap: 4,
         }}
         showsVerticalScrollIndicator={false}

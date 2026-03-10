@@ -221,11 +221,9 @@ export default function AccountDetailScreen() {
             backgroundColor: theme.primary,
             alignItems: "center",
             justifyContent: "center",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 6,
+            ...(Platform.OS === "web"
+              ? { boxShadow: "0 4px 12px rgba(0,0,0,0.28)" }
+              : { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 }),
           }}
         >
           <Feather name="plus" size={24} color="#fff" />

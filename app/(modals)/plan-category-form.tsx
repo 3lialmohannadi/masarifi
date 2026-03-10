@@ -219,10 +219,9 @@ export default function PlanCategoryFormModal() {
                 backgroundColor: c,
                 borderWidth: color === c ? 3 : 0,
                 borderColor: "#fff",
-                shadowColor: c,
-                shadowOpacity: 0.5,
-                shadowRadius: 4,
-                elevation: 3,
+                ...(Platform.OS === "web"
+                  ? { boxShadow: `0 0 6px ${c}88` }
+                  : { shadowColor: c, shadowOpacity: 0.5, shadowRadius: 4, elevation: 3 }),
               }}
             />
           ))}

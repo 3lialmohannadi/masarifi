@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable, Modal, StyleSheet } from "react-native";
+import { View, Text, ScrollView, Pressable, Modal, StyleSheet, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 import * as Haptics from "expo-haptics";
@@ -100,10 +100,10 @@ const styles = StyleSheet.create({
   selected: {
     borderWidth: 3,
     borderColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+    ...Platform.select({
+      ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4 },
+      android: { elevation: 4 },
+      web: { boxShadow: "0 2px 6px rgba(0,0,0,0.30)" },
+    }) as any,
   },
 });
