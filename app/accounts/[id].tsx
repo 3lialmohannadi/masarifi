@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Text, FlatList, Pressable } from "react-native";
+import { View, Text, FlatList, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -117,7 +117,7 @@ export default function AccountDetailScreen() {
         ListHeaderComponent={
           <View style={{ gap: 16 }}>
             {/* Header */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, paddingTop: insets.top + 16, paddingBottom: 4 }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16, paddingBottom: 4 }}>
               <Pressable onPress={() => router.back()}>
                 <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={24} color={theme.text} />
               </Pressable>

@@ -17,8 +17,8 @@ const CHART_WIDTH = Math.min(SCREEN_WIDTH - 64, 340);
 
 // ─── Donut / Pie Chart ───────────────────────────────────────────────────────
 interface DonutSlice { amount: number; color: string; label: string; }
-function DonutChart({ slices, totalAmount, currency, language, theme }: {
-  slices: DonutSlice[]; totalAmount: number; currency: string; language: string; theme: any;
+function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
+  slices: DonutSlice[]; totalAmount: number; currency: string; language: string; theme: any; isRTL?: boolean;
 }) {
   const R = 70; const r = 44; const cx = 90; const cy = 90; const size = 180;
   const total = slices.reduce((s, d) => s + d.amount, 0);
@@ -50,7 +50,7 @@ function DonutChart({ slices, totalAmount, currency, language, theme }: {
   const displayTotal = formattedTotal.length > maxLabelLen ? formattedTotal.slice(0, maxLabelLen) + "…" : formattedTotal;
 
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
       <Svg width={size} height={size}>
         <G>
           {paths.map((p, i) => (
@@ -67,9 +67,9 @@ function DonutChart({ slices, totalAmount, currency, language, theme }: {
       </Svg>
       <View style={{ flex: 1, gap: 7 }}>
         {slices.slice(0, 6).map((s, i) => (
-          <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <View key={i} style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
             <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: s.color }} />
-            <Text style={{ flex: 1, fontSize: 11, color: theme.textSecondary }} numberOfLines={1}>{s.label}</Text>
+            <Text style={{ flex: 1, fontSize: 11, color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>{s.label}</Text>
             <Text style={{ fontSize: 11, fontWeight: "700", color: theme.text }}>
               {Math.round((s.amount / total) * 100)}%
             </Text>
@@ -369,6 +369,7 @@ export default function StatisticsTab() {
                 currency={primaryCurrency}
                 language={language}
                 theme={theme}
+                isRTL={isRTL}
               />
             ) : (
               <View style={{ alignItems: "center", paddingVertical: 28, gap: 8 }}>

@@ -19,7 +19,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export default function SavingsTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL, isDark } = useApp();
+  const { theme, t, language, isRTL, isDark, settings } = useApp();
   const { wallets, totalSavings } = useSavings();
 
   const generalWallets = wallets.filter((w) => w.type === "general_savings" && !w.is_archived);
@@ -29,6 +29,7 @@ export default function SavingsTab() {
   const totalGoalReached = goalWallets.reduce((s, w) => s + w.current_amount, 0);
   const overallGoalProgress = totalGoal > 0 ? totalGoalReached / totalGoal : 0;
 
+  const primaryCurrency = settings.default_currency || "QAR";
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
 
   return (
@@ -65,7 +66,7 @@ export default function SavingsTab() {
           <View style={{ gap: 4 }}>
             <Text style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>{t.savings.totalSavings}</Text>
             <Text style={{ fontSize: 36, fontWeight: "800", color: "#fff", letterSpacing: -1 }}>
-              {formatCurrency(totalSavings, "QAR", language)}
+              {formatCurrency(totalSavings, primaryCurrency, language)}
             </Text>
           </View>
 
@@ -86,10 +87,10 @@ export default function SavingsTab() {
               <ProgressBar progress={overallGoalProgress} color={theme.income} height={5} trackColor="rgba(255,255,255,0.15)" />
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between" }}>
                 <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
-                  {formatCurrency(totalGoalReached, "QAR", language)}
+                  {formatCurrency(totalGoalReached, primaryCurrency, language)}
                 </Text>
                 <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
-                  {formatCurrency(totalGoal, "QAR", language)}
+                  {formatCurrency(totalGoal, primaryCurrency, language)}
                 </Text>
               </View>
             </View>

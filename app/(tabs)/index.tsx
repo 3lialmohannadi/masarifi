@@ -405,6 +405,7 @@ export default function DashboardScreen() {
                     {index > 0 && <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: 16 }} />}
                     <TransactionItem
                       transaction={tx}
+                      flat
                       onPress={() => router.push(`/(modals)/add-transaction?id=${tx.id}`)}
                     />
                   </View>

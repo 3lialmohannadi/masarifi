@@ -256,7 +256,7 @@ export default function AddTransactionModal() {
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
           justifyContent: "space-between",
-          paddingTop: insets.top + 16,
+          paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16,
           paddingHorizontal: 16,
           paddingBottom: 14,
           backgroundColor: theme.card,

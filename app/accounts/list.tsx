@@ -29,7 +29,7 @@ export default function AccountsListScreen() {
       {/* Header */}
       <View
         style={{
-          paddingTop: Platform.OS === "web" ? 67 : insets.top + 16,
+          paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16,
           paddingBottom: 16,
           paddingHorizontal: 16,
           backgroundColor: theme.card,

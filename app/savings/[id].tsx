@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -24,7 +24,8 @@ function isDeposit(type: SavingsMovementType) {
 
 export default function SavingsDetailScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, settings } = useApp();
+  const primaryCurrency = settings.default_currency || "QAR";
   const { wallets, getWalletTransactions } = useSavings();
   const { accounts } = useAccounts();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -59,7 +60,7 @@ export default function SavingsDetailScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, paddingTop: insets.top + 16, paddingBottom: 16 }}>
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16, paddingBottom: 16 }}>
           <Pressable onPress={() => router.back()}>
             <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={24} color={theme.text} />
           </Pressable>
@@ -83,7 +84,7 @@ export default function SavingsDetailScreen() {
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>{t.savings.currentAmount}</Text>
               <Text style={{ fontSize: 30, fontWeight: "800", color: "#fff" }}>
-                {formatCurrency(wallet.current_amount, "QAR", language)}
+                {formatCurrency(wallet.current_amount, primaryCurrency, language)}
               </Text>
             </View>
           </View>
@@ -94,7 +95,7 @@ export default function SavingsDetailScreen() {
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between" }}>
                 <View>
                   <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{t.savings.goal}</Text>
-                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>{formatCurrency(wallet.target_amount, "QAR", language)}</Text>
+                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>{formatCurrency(wallet.target_amount, primaryCurrency, language)}</Text>
                 </View>
                 <View style={{ alignItems: "center" }}>
                   <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{t.statistics.progress}</Text>
@@ -102,7 +103,7 @@ export default function SavingsDetailScreen() {
                 </View>
                 <View style={{ alignItems: "flex-end" }}>
                   <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{t.savings.remaining}</Text>
-                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>{formatCurrency(remaining, "QAR", language)}</Text>
+                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>{formatCurrency(remaining, primaryCurrency, language)}</Text>
                 </View>
               </View>
             </>
@@ -173,7 +174,7 @@ export default function SavingsDetailScreen() {
                     </Text>
                   </View>
                   <Text style={{ fontSize: 16, fontWeight: "700", color: deposit ? theme.income : theme.expense }}>
-                    {deposit ? "+" : "-"}{formatCurrency(mv.amount, "QAR", language)}
+                    {deposit ? "+" : "-"}{formatCurrency(mv.amount, primaryCurrency, language)}
                   </Text>
                 </View>
               );

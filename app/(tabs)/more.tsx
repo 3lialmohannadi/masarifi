@@ -43,7 +43,7 @@ function MenuItem({ icon, label, color, subtitle, onPress }: MenuItemProps) {
           </Text>
         )}
       </View>
-      <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.border} />
+      <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.textMuted} />
     </Pressable>
   );
 }

@@ -13,9 +13,10 @@ interface TransactionItemProps {
   transaction: Transaction;
   onPress?: () => void;
   showDate?: boolean;
+  flat?: boolean;
 }
 
-export function TransactionItem({ transaction, onPress, showDate = true }: TransactionItemProps) {
+export function TransactionItem({ transaction, onPress, showDate = true, flat = false }: TransactionItemProps) {
   const { theme, language, isRTL, t, isDark } = useApp();
   const { getCategory } = useCategories();
 
@@ -38,12 +39,12 @@ export function TransactionItem({ transaction, onPress, showDate = true }: Trans
         gap: 14,
         paddingVertical: 13,
         paddingHorizontal: 16,
-        backgroundColor: pressed ? theme.cardSecondary : theme.card,
-        borderRadius: 16,
-        marginBottom: 8,
-        borderWidth: 1,
+        backgroundColor: pressed ? theme.cardSecondary : flat ? "transparent" : theme.card,
+        borderRadius: flat ? 0 : 16,
+        marginBottom: flat ? 0 : 8,
+        borderWidth: flat ? 0 : 1,
         borderColor: theme.border,
-        ...(isDark ? {} : Platform.OS === "web"
+        ...(flat || isDark ? {} : Platform.OS === "web"
           ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
           : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 }),
       })}
