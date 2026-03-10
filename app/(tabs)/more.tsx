@@ -126,14 +126,6 @@ export default function MoreTab() {
         />
 
         <View style={{ height: 12 }} />
-        <SectionHeader title={t.more.settings} />
-        <MenuItem
-          icon="settings"
-          label={t.settings.title}
-          subtitle={t.more.settingsSubtitle}
-          color={theme.textSecondary}
-          onPress={() => router.push("/settings")}
-        />
       </ScrollView>
     </View>
   );
