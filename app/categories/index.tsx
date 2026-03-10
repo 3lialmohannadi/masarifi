@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, Text, FlatList, Pressable, Platform } from "react-native";
+import { View, Text, FlatList, Pressable, Alert, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -10,17 +10,20 @@ import { getDisplayName } from "@/utils/display";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { CategoryType } from "@/types";
 
-const CATEGORY_TYPE_TABS: CategoryType[] = ["expense", "income", "savings", "commitment", "plan"];
+type FilterType = CategoryType | "all";
+const FILTER_TABS: FilterType[] = ["all", "expense", "income", "savings", "commitment", "plan"];
 
 export default function CategoriesScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL, isDark } = useApp();
-  const { categories } = useCategories();
-  const [activeType, setActiveType] = useState<CategoryType>("expense");
+  const { categories, deleteCategory } = useCategories();
+  const [activeFilter, setActiveFilter] = useState<FilterType>("all");
 
   const filtered = useMemo(() => {
-    return categories.filter((c) => c.type === activeType && c.is_active);
-  }, [categories, activeType]);
+    return categories.filter((c) =>
+      c.is_active && (activeFilter === "all" || c.type === activeFilter)
+    );
+  }, [categories, activeFilter]);
 
   const countByType = useMemo(() => {
     const map: Record<string, number> = {};
@@ -30,14 +33,60 @@ export default function CategoriesScreen() {
     return map;
   }, [categories]);
 
+  const totalCount = useMemo(() => categories.filter((c) => c.is_active).length, [categories]);
+
+  const paddedData = useMemo(() => {
+    const remainder = filtered.length % 3;
+    if (remainder === 0) return filtered as (typeof filtered[0] | null)[];
+    return [...filtered, ...Array(3 - remainder).fill(null)] as (typeof filtered[0] | null)[];
+  }, [filtered]);
+
+  const cardShadow = isDark ? {} : Platform.OS === "web"
+    ? { boxShadow: "0 2px 8px rgba(47,143,131,0.07)" }
+    : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 };
+
+  const handleDelete = (item: (typeof filtered)[0]) => {
+    if (item.is_default) {
+      Alert.alert(t.categories.cannotDelete, t.categories.cannotDeleteDefault);
+      return;
+    }
+    Alert.alert(t.common.areYouSure, t.categories.deleteConfirm, [
+      { text: t.common.cancel, style: "cancel" },
+      {
+        text: t.common.delete,
+        style: "destructive",
+        onPress: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          const success = deleteCategory(item.id);
+          if (!success) {
+            Alert.alert(t.categories.cannotDelete, t.categories.cannotDeleteInUse);
+          }
+        },
+      },
+    ]);
+  };
+
+  const getTabLabel = (tab: FilterType) => {
+    if (tab === "all") return t.common.all;
+    return t.categories.types[tab];
+  };
+
+  const getTabCount = (tab: FilterType) =>
+    tab === "all" ? totalCount : countByType[tab] || 0;
+
   const topPad = Platform.OS === "web" ? insets.top + 51 : insets.top;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <FlatList
-        data={filtered}
-        keyExtractor={(c) => c.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: (Platform.OS === "web" ? 34 : insets.bottom) + 30 }}
+        data={paddedData}
+        keyExtractor={(item, index) => item?.id ?? `spacer-${index}`}
+        numColumns={3}
+        columnWrapperStyle={{ gap: 8, marginTop: 8 }}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingBottom: (Platform.OS === "web" ? 34 : insets.bottom) + 30,
+        }}
         ListHeaderComponent={
           <View style={{ gap: 14 }}>
             {/* Header */}
@@ -53,7 +102,16 @@ export default function CategoriesScreen() {
               <Pressable
                 onPress={() => router.back()}
                 hitSlop={8}
-                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: theme.card,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
               </Pressable>
@@ -72,7 +130,7 @@ export default function CategoriesScreen() {
                 testID="btn-add-category"
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  router.push(`/(modals)/category-form?type=${activeType}`);
+                  router.push(`/(modals)/category-form?type=${activeFilter === "all" ? "expense" : activeFilter}`);
                 }}
                 style={{
                   width: 38,
@@ -87,22 +145,22 @@ export default function CategoriesScreen() {
               </Pressable>
             </View>
 
-            {/* Type Filter Tabs with counts */}
+            {/* Filter Tabs */}
             <View>
               <FlatList
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                data={CATEGORY_TYPE_TABS}
+                data={FILTER_TABS}
                 keyExtractor={(tab) => tab}
                 contentContainerStyle={{ gap: 8 }}
                 renderItem={({ item: tab }) => {
-                  const isActive = activeType === tab;
-                  const count = countByType[tab] || 0;
+                  const isActive = activeFilter === tab;
+                  const count = getTabCount(tab);
                   return (
                     <Pressable
                       onPress={() => {
                         Haptics.selectionAsync();
-                        setActiveType(tab);
+                        setActiveFilter(tab);
                       }}
                       style={{
                         flexDirection: "row",
@@ -123,7 +181,7 @@ export default function CategoriesScreen() {
                           color: isActive ? "#fff" : theme.textSecondary,
                         }}
                       >
-                        {t.categories.types[tab]}
+                        {getTabLabel(tab)}
                       </Text>
                       {count > 0 && (
                         <View
@@ -155,102 +213,137 @@ export default function CategoriesScreen() {
             </View>
           </View>
         }
-        renderItem={({ item }) => (
-          <Pressable
-            testID={`category-item-${item.id}`}
-            onPress={() => router.push(`/(modals)/category-form?id=${item.id}`)}
-            style={({ pressed }) => ({
-              flexDirection: isRTL ? "row-reverse" : "row",
-              alignItems: "center",
-              gap: 12,
-              backgroundColor: pressed ? theme.cardSecondary : theme.card,
-              borderRadius: 16,
-              padding: 16,
-              marginTop: 8,
-              borderWidth: 1,
-              borderColor: theme.border,
-              ...(isDark ? {} : Platform.OS === "web"
-                ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
-                : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
-            })}
-          >
-            {/* Icon */}
+        renderItem={({ item }) => {
+          if (!item) {
+            return <View style={{ flex: 1 }} />;
+          }
+          return (
             <View
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                backgroundColor: item.color + "20",
-                alignItems: "center",
-                justifyContent: "center",
+                flex: 1,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: theme.border,
+                overflow: "hidden",
+                backgroundColor: theme.card,
+                ...cardShadow,
               }}
             >
-              <Feather name={item.icon as any} size={20} color={item.color} />
-            </View>
-
-            {/* Name + meta */}
-            <View style={{ flex: 1, gap: 2 }}>
-              <Text
+              {/* Content area — icon + name (non-interactive) */}
+              <View
                 style={{
-                  fontSize: 15,
-                  fontWeight: "600",
-                  color: theme.text,
-                  textAlign: isRTL ? "right" : "left",
+                  paddingTop: 14,
+                  paddingBottom: 10,
+                  paddingHorizontal: 8,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 7,
+                  minHeight: 88,
                 }}
               >
-                {getDisplayName(item, language)}
-              </Text>
-              {item.is_default && (
                 <View
                   style={{
-                    flexDirection: isRTL ? "row-reverse" : "row",
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    backgroundColor: item.color + "22",
                     alignItems: "center",
-                    gap: 4,
-                    alignSelf: isRTL ? "flex-end" : "flex-start",
+                    justifyContent: "center",
                   }}
                 >
-                  <Feather name="lock" size={10} color={theme.textMuted} />
-                  <Text style={{ fontSize: 11, color: theme.textMuted }}>
-                    {language === "ar" ? "افتراضي" : "Default"}
-                  </Text>
+                  <Feather name={item.icon as any} size={21} color={item.color} />
                 </View>
-              )}
-            </View>
+                <Text
+                  numberOfLines={2}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: "600",
+                    color: theme.text,
+                    textAlign: "center",
+                    lineHeight: 15,
+                    paddingHorizontal: 2,
+                  }}
+                >
+                  {getDisplayName(item, language)}
+                </Text>
+                {item.is_favorite && (
+                  <Feather name="star" size={10} color="#F59E0B" />
+                )}
+              </View>
 
-            {/* Favorite star */}
-            {item.is_favorite && (
-              <Feather name="star" size={15} color="#F59E0B" />
-            )}
-
-            {/* Chevron for all categories */}
-            <Feather
-              name={isRTL ? "chevron-left" : "chevron-right"}
-              size={16}
-              color={theme.textMuted}
-            />
-          </Pressable>
-        )}
-        ItemSeparatorComponent={() => null}
-        ListEmptyComponent={
-          <EmptyState
-            icon="tag"
-            title={t.categories.noCategories}
-            subtitle={t.categories.addFirstCategory}
-            action={
-              <Pressable
-                onPress={() => router.push(`/(modals)/category-form?type=${activeType}`)}
+              {/* Action row — two buttons side by side, clearly separated */}
+              <View
                 style={{
-                  backgroundColor: theme.primary,
-                  paddingHorizontal: 20,
-                  paddingVertical: 10,
-                  borderRadius: 10,
-                  marginTop: 8,
+                  flexDirection: "row",
+                  borderTopWidth: 1,
+                  borderColor: theme.border,
                 }}
               >
-                <Text style={{ color: "#fff", fontWeight: "600" }}>{t.categories.add}</Text>
-              </Pressable>
-            }
-          />
+                {/* Edit button */}
+                <Pressable
+                  testID={`category-item-${item.id}`}
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    router.push(`/(modals)/category-form?id=${item.id}`);
+                  }}
+                  style={({ pressed }) => ({
+                    flex: 1,
+                    paddingVertical: 7,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: pressed ? theme.cardSecondary : "transparent",
+                    borderRightWidth: item.is_default ? 0 : 1,
+                    borderColor: theme.border,
+                  })}
+                >
+                  <Feather name="edit-2" size={12} color={theme.primary} />
+                </Pressable>
+
+                {/* Delete button (non-default only) */}
+                {!item.is_default && (
+                  <Pressable
+                    testID={`btn-delete-category-${item.id}`}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      handleDelete(item);
+                    }}
+                    style={({ pressed }) => ({
+                      flex: 1,
+                      paddingVertical: 7,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: pressed ? theme.expenseBackground : "transparent",
+                    })}
+                  >
+                    <Feather name="trash-2" size={12} color={theme.expense} />
+                  </Pressable>
+                )}
+              </View>
+            </View>
+          );
+        }}
+        ListEmptyComponent={
+          <View style={{ gridColumn: "1 / -1" } as any}>
+            <EmptyState
+              icon="tag"
+              title={t.categories.noCategories}
+              subtitle={t.categories.addFirstCategory}
+              action={
+                <Pressable
+                  onPress={() => router.push(`/(modals)/category-form?type=${activeFilter === "all" ? "expense" : activeFilter}`)}
+                  style={{
+                    backgroundColor: theme.primary,
+                    paddingHorizontal: 20,
+                    paddingVertical: 10,
+                    borderRadius: 10,
+                    marginTop: 8,
+                  }}
+                >
+                  <Text style={{ color: "#fff", fontWeight: "600" }}>{t.categories.add}</Text>
+                </Pressable>
+              }
+            />
+          </View>
         }
         showsVerticalScrollIndicator={false}
       />
