@@ -7,6 +7,7 @@ import {
   TextInput,
   Platform,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -124,7 +125,7 @@ export default function TransactionsTab() {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.background }}>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1, backgroundColor: theme.background }}>
       <View style={{ paddingTop: topPadding, paddingHorizontal: 20, paddingBottom: 12, backgroundColor: theme.background, gap: 12 }}>
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text }}>{t.transactions.title}</Text>
@@ -237,6 +238,6 @@ export default function TransactionsTab() {
         }
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }

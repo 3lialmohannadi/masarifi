@@ -2,7 +2,6 @@ import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   TextInput,
   Modal,
@@ -10,6 +9,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -279,9 +279,10 @@ export default function AddTransactionModal() {
         )}
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollViewCompat
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40, gap: 18 }}
+        bottomOffset={20}
       >
         {/* ── Type Selector ── */}
         <View
@@ -657,7 +658,7 @@ export default function AddTransactionModal() {
             </Text>
           </Pressable>
         )}
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
 
       {/* ── Account Picker ── */}
       <SelectorModal

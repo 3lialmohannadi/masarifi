@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from "react";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   Alert,
   Platform,
@@ -161,10 +161,11 @@ export default function PlanCategoryFormModal() {
         )}
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollViewCompat
         contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 40 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        bottomOffset={20}
       >
         {/* Budget overview */}
         <View style={{ backgroundColor: plan.color + "15", borderRadius: 16, padding: 14, gap: 10, borderWidth: 1, borderColor: plan.color + "30" }}>
@@ -302,7 +303,7 @@ export default function PlanCategoryFormModal() {
             {existing ? t.common.save : t.plans.addCategory}
           </Text>
         </Pressable>
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
 
       <IconPicker selectedIcon={icon} onSelect={setIcon} visible={showIcon} onClose={() => setShowIcon(false)} />
       <ColorPicker selectedColor={color} onSelect={setColor} visible={showColor} onClose={() => setShowColor(false)} />

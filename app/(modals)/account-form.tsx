@@ -9,6 +9,7 @@ import {
   FlatList,
   Platform,
 } from "react-native";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -137,7 +138,7 @@ export default function AccountFormModal() {
         )}
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }}>
+      <KeyboardAwareScrollViewCompat contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }} bottomOffset={20} keyboardShouldPersistTaps="handled">
         {/* Icon & Color Row */}
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
           <Pressable
@@ -254,7 +255,7 @@ export default function AccountFormModal() {
         </View>
 
         <AppButton title={t.common.save} onPress={handleSave} loading={loading} fullWidth size="lg" />
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
 
       <IconPicker selectedIcon={icon} onSelect={setIcon} visible={showIcon} onClose={() => setShowIcon(false)} />
       <ColorPicker selectedColor={color} onSelect={setColor} visible={showColor} onClose={() => setShowColor(false)} />

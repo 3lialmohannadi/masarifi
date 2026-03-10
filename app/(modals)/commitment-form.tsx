@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import {
   View,
   Text,
@@ -160,10 +161,11 @@ export default function CommitmentFormModal() {
         )}
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollViewCompat
         contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 40 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        bottomOffset={20}
       >
         {/* Commitment type indicator */}
         <View
@@ -445,7 +447,7 @@ export default function CommitmentFormModal() {
             {existing ? t.common.save : t.commitments.add}
           </Text>
         </Pressable>
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
 
       {/* Account Selector Modal */}
       <Modal visible={showAccounts} transparent animationType="slide">

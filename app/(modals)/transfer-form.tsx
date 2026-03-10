@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, FlatList, Modal, Platform } from "react-native";
+import { View, Text, Pressable, FlatList, Modal, Platform } from "react-native";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -155,7 +156,7 @@ export default function TransferFormModal() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }}>
+      <KeyboardAwareScrollViewCompat contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }} bottomOffset={20} keyboardShouldPersistTaps="handled">
         {/* From Account */}
         <View style={{ gap: 6 }}>
           <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>{t.transfer.fromAccount}</Text>
@@ -262,7 +263,7 @@ export default function TransferFormModal() {
         />
 
         <AppButton title={t.transfer.confirm} onPress={handleSave} loading={loading} fullWidth size="lg" />
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
 
       <AccountSelectorModal
         visible={showFrom}

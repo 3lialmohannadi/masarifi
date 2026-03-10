@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, FlatList, Modal, Platform } from "react-native";
+import { View, Text, Pressable, FlatList, Modal, Platform } from "react-native";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -129,10 +130,11 @@ export default function BudgetFormModal() {
         )}
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollViewCompat
         contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 34 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        bottomOffset={20}
       >
         {/* Month Picker */}
         <View style={{ gap: 6 }}>
@@ -256,7 +258,7 @@ export default function BudgetFormModal() {
         )}
 
         <AppButton title={t.common.save} onPress={handleSave} loading={loading} fullWidth size="lg" />
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
 
       {/* Delete Confirmation Overlay */}
       {showDeleteConfirm && (

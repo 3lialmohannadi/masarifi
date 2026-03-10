@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, ScrollView, Pressable, Switch, Share, Platform, Image } from "react-native";
+import { View, Text, Pressable, Switch, Share, Platform, Image } from "react-native";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -172,10 +173,11 @@ export default function SettingsScreen() {
         </Text>
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollViewCompat
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40, gap: 6 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        bottomOffset={20}
       >
         {/* ── Language ── */}
         <SectionLabel title={t.settings.language} />
@@ -479,7 +481,7 @@ export default function SettingsScreen() {
             {accounts.filter((a) => a.is_active).length} {language === "ar" ? "حسابات" : "accounts"} · {transactions.length} {language === "ar" ? "عمليات" : "transactions"}
           </Text>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
     </View>
   );
 }

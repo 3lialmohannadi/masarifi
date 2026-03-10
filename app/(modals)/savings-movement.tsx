@@ -1,8 +1,8 @@
 import React, { useState } from "react";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   FlatList,
   Modal,
@@ -207,7 +207,7 @@ export default function SavingsMovementModal() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollViewCompat
         contentContainerStyle={{
           padding: 16,
           paddingBottom: insets.bottom + 40,
@@ -215,6 +215,7 @@ export default function SavingsMovementModal() {
         }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        bottomOffset={20}
       >
         {/* Deposit / Withdraw Toggle */}
         <View
@@ -547,7 +548,7 @@ export default function SavingsMovementModal() {
             {amount && !isNaN(parseFloat(amount)) ? `  ${parseFloat(amount).toFixed(2)}` : ""}
           </Text>
         </Pressable>
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
 
       {/* Wallet Selector Modal */}
       <Modal visible={showWallets} transparent animationType="slide" statusBarTranslucent>
