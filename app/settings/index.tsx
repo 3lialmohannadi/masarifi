@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, ScrollView, Pressable, Switch, Share, Platform } from "react-native";
+import { View, Text, ScrollView, Pressable, Switch, Share, Platform, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -465,14 +465,17 @@ export default function SettingsScreen() {
         </View>
 
         {/* ── App Info ── */}
-        <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, alignItems: "center", gap: 6, borderWidth: 1, borderColor: theme.border, marginTop: 8 }}>
-          <Text style={{ fontSize: 28, fontWeight: "900", color: theme.primary, letterSpacing: -0.5 }}>مصاريفي</Text>
-          <Text style={{ fontSize: 13, color: theme.textSecondary }}>Masarifi</Text>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}>
+        <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, alignItems: "center", gap: 8, borderWidth: 1, borderColor: theme.border, marginTop: 8 }}>
+          <Image
+            source={require("@/assets/logo_transparent.png")}
+            resizeMode="contain"
+            style={{ width: 160, height: 56 }}
+          />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.income }} />
             <Text style={{ fontSize: 11, color: theme.textMuted }}>{t.settings.version} 1.0.0</Text>
           </View>
-          <Text style={{ fontSize: 10, color: theme.textMuted, marginTop: 2 }}>
+          <Text style={{ fontSize: 10, color: theme.textMuted }}>
             {accounts.filter((a) => a.is_active).length} {language === "ar" ? "حسابات" : "accounts"} · {transactions.length} {language === "ar" ? "عمليات" : "transactions"}
           </Text>
         </View>

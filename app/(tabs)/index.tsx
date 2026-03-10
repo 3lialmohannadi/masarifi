@@ -5,6 +5,7 @@ import {
   Text,
   Pressable,
   Platform,
+  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -105,14 +106,11 @@ export default function DashboardScreen() {
         >
           {/* App name row */}
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
-            <View>
-              <Text style={{ color: heroText(0.45), fontSize: 11, fontWeight: "600", letterSpacing: 1 }}>
-                {language === "ar" ? "مصاريفي" : "MASARIFI"}
-              </Text>
-              <Text style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}>
-                {t.tabs.dashboard}
-              </Text>
-            </View>
+            <Image
+              source={require("@/assets/logo_transparent.png")}
+              resizeMode="contain"
+              style={{ width: 110, height: 38 }}
+            />
             <Pressable
               onPress={() => router.push("/settings")}
               style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.1)", alignItems: "center", justifyContent: "center" }}
