@@ -569,8 +569,8 @@ export default function DashboardScreen() {
               </View>
               <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: "hidden", ...cardShadow }}>
                 {shownWallets.map((w, index) => {
-                  const rawProgress = w.target_amount && w.target_amount > 0 ? w.current_amount / w.target_amount : 0;
-                  const progress = Math.min(rawProgress, 1);
+                  const hasGoal = !!(w.target_amount && w.target_amount > 0);
+                  const progress = hasGoal ? Math.min(w.current_amount / w.target_amount!, 1) : 0;
                   const percentage = Math.round(progress * 100);
                   const walletColor = w.color || theme.primary;
                   return (
@@ -581,7 +581,7 @@ export default function DashboardScreen() {
                         style={({ pressed }) => ({
                           padding: 14,
                           backgroundColor: pressed ? theme.cardSecondary : "transparent",
-                          gap: 10,
+                          gap: hasGoal ? 10 : 0,
                         })}
                       >
                         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
@@ -594,24 +594,28 @@ export default function DashboardScreen() {
                             </Text>
                             <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
                               {formatCurrency(w.current_amount, currency, language)}
-                              {w.target_amount ? ` / ${formatCurrency(w.target_amount, currency, language)}` : ""}
+                              {hasGoal ? ` / ${formatCurrency(w.target_amount!, currency, language)}` : ""}
                             </Text>
                           </View>
-                          <Text style={{ fontSize: 13, fontWeight: "700", color: walletColor }}>
-                            {percentage}%
-                          </Text>
+                          {hasGoal && (
+                            <Text style={{ fontSize: 13, fontWeight: "700", color: walletColor }}>
+                              {percentage}%
+                            </Text>
+                          )}
                         </View>
-                        {/* Progress Bar */}
-                        <View style={{ height: 5, backgroundColor: theme.border, borderRadius: 3, overflow: "hidden" }}>
-                          <View
-                            style={{
-                              width: `${percentage}%` as any,
-                              height: "100%",
-                              backgroundColor: walletColor,
-                              borderRadius: 3,
-                            }}
-                          />
-                        </View>
+                        {/* Progress Bar — only for goal-based savings */}
+                        {hasGoal && (
+                          <View style={{ height: 5, backgroundColor: theme.border, borderRadius: 3, overflow: "hidden" }}>
+                            <View
+                              style={{
+                                width: `${percentage}%` as any,
+                                height: "100%",
+                                backgroundColor: walletColor,
+                                borderRadius: 3,
+                              }}
+                            />
+                          </View>
+                        )}
                       </Pressable>
                     </View>
                   );
