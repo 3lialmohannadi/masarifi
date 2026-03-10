@@ -13,6 +13,7 @@ import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import { DatePickerModal } from "@/components/DatePickerModal";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
@@ -81,6 +82,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const [amountError, setAmountError] = useState("");
   const [categoryError, setCategoryError] = useState("");
   const [dateError, setDateError] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const categories = useMemo(
     () =>
@@ -344,50 +346,47 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
 
   if (step === "date") {
     return (
-      <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
-        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }}>
-          <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: insets.bottom + 24, padding: 20, gap: 16 }}>
-            <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginBottom: 4 }} />
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Pressable onPress={() => setStep("main")} hitSlop={10}>
-                <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
-              </Pressable>
-              <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>{t.common.date}</Text>
-              <View style={{ width: 22 }} />
-            </View>
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
-              {[{ label: t.transactions.today, val: today }, { label: t.transactions.yesterday, val: yesterday }].map(({ label, val }) => (
-                <Pressable
-                  key={val}
-                  onPress={() => { setDate(val); setDateError(""); }}
-                  style={{ flex: 1, padding: 14, borderRadius: 14, alignItems: "center", backgroundColor: date === val ? typeColor + "18" : theme.background, borderWidth: 1.5, borderColor: date === val ? typeColor : theme.border }}
-                >
-                  <Text style={{ fontWeight: "700", color: date === val ? typeColor : theme.textSecondary }}>{label}</Text>
+      <>
+        <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
+          <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }}>
+            <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: insets.bottom + 24, padding: 20, gap: 16 }}>
+              <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginBottom: 4 }} />
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
+                <Pressable onPress={() => setStep("main")} hitSlop={10}>
+                  <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
                 </Pressable>
-              ))}
+                <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>{t.common.date}</Text>
+                <View style={{ width: 22 }} />
+              </View>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+                {[{ label: t.transactions.today, val: today }, { label: t.transactions.yesterday, val: yesterday }].map(({ label, val }) => (
+                  <Pressable
+                    key={val}
+                    onPress={() => { setDate(val); setDateError(""); setStep("main"); }}
+                    style={{ flex: 1, padding: 14, borderRadius: 14, alignItems: "center", backgroundColor: date === val ? typeColor + "18" : theme.background, borderWidth: 1.5, borderColor: date === val ? typeColor : theme.border }}
+                  >
+                    <Text style={{ fontWeight: "700", color: date === val ? typeColor : theme.textSecondary }}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Pressable
+                onPress={() => setShowDatePicker(true)}
+                style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, backgroundColor: theme.input, borderRadius: 12, borderWidth: 1.5, borderColor: theme.inputBorder, paddingHorizontal: 14, paddingVertical: 13 }}
+              >
+                <Feather name="calendar" size={16} color={theme.primary} />
+                <Text style={{ flex: 1, fontSize: 15, color: theme.text, textAlign: isRTL ? "right" : "left" }}>{date}</Text>
+                <Feather name="chevron-down" size={14} color={theme.textMuted} />
+              </Pressable>
             </View>
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, backgroundColor: theme.input, borderRadius: 12, borderWidth: 1.5, borderColor: dateError ? "#EF4444" : theme.inputBorder, paddingHorizontal: 14 }}>
-              <Feather name="calendar" size={16} color={theme.textMuted} />
-              <TextInput
-                value={date}
-                onChangeText={(v) => { setDate(v); setDateError(""); }}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor={theme.textMuted}
-                style={{ flex: 1, paddingVertical: 13, color: theme.text, fontSize: 15, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
-              />
-            </View>
-            {!!dateError && <Text style={{ fontSize: 12, color: "#EF4444" }}>{dateError}</Text>}
-            <Pressable
-              onPress={() => { if (isValidDate(date)) { setDateError(""); setStep("main"); } else setDateError(t.validation.dateInvalid); }}
-              style={{ backgroundColor: typeColor, borderRadius: 14, padding: 15, alignItems: "center" }}
-            >
-              <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>{t.common.confirm}</Text>
-            </Pressable>
           </View>
-        </View>
-        </KeyboardAvoidingView>
-      </Modal>
+        </Modal>
+        <DatePickerModal
+          visible={showDatePicker}
+          value={date}
+          onConfirm={(d) => { setDate(d); setDateError(""); setShowDatePicker(false); setStep("main"); }}
+          onClose={() => setShowDatePicker(false)}
+        />
+      </>
     );
   }
 

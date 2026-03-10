@@ -24,6 +24,7 @@ import { useCategories } from "@/store/CategoriesContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
+import { DatePickerModal } from "@/components/DatePickerModal";
 import type { RecurrenceType } from "@/types";
 
 function isValidDate(str: string): boolean {
@@ -58,6 +59,7 @@ export default function CommitmentFormModal() {
   const [note, setNote] = useState(existing?.note || "");
   const [showAccounts, setShowAccounts] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -341,11 +343,8 @@ export default function CommitmentFormModal() {
           <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
             {t.commitments.dueDate} <Text style={{ color: theme.expense }}>*</Text>
           </Text>
-          <TextInput
-            value={dueDate}
-            onChangeText={(v) => { setDueDate(v); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor={theme.textMuted}
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
             style={{
               backgroundColor: theme.input,
               borderRadius: 12,
@@ -353,12 +352,17 @@ export default function CommitmentFormModal() {
               borderColor: errors.date ? "#EF4444" : theme.inputBorder,
               paddingHorizontal: 14,
               paddingVertical: 13,
-              fontSize: 15,
-              color: theme.text,
-              textAlign: isRTL ? "right" : "left",
-              ...Platform.select({ web: { outlineStyle: "none" } } as any),
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              gap: 10,
             }}
-          />
+          >
+            <Feather name="calendar" size={16} color={theme.primary} />
+            <Text style={{ flex: 1, fontSize: 15, color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+              {dueDate}
+            </Text>
+            <Feather name="chevron-down" size={14} color={theme.textMuted} />
+          </Pressable>
           {!!errors.date && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.date}</Text>}
         </View>
 
@@ -532,6 +536,13 @@ export default function CommitmentFormModal() {
           </View>
         </Pressable>
       </Modal>
+
+      <DatePickerModal
+        visible={showDatePicker}
+        value={dueDate}
+        onConfirm={(d) => { setDueDate(d); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
+        onClose={() => setShowDatePicker(false)}
+      />
     </View>
   );
 }

@@ -13,6 +13,7 @@ import { AppInput } from "@/components/ui/AppInput";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
+import { DatePickerModal } from "@/components/DatePickerModal";
 
 function isValidDate(str: string): boolean {
   if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
@@ -40,6 +41,7 @@ export default function TransferFormModal() {
   const [date, setDate] = useState(todayISOString());
   const [showFrom, setShowFrom] = useState(false);
   const [showTo, setShowTo] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -250,13 +252,32 @@ export default function TransferFormModal() {
           </View>
         )}
 
-        <AppInput
-          label={t.common.date}
-          value={date}
-          onChangeText={(v) => { setDate(v); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
-          placeholder="YYYY-MM-DD"
-          error={errors.date}
-        />
+        <View style={{ gap: 6 }}>
+          <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
+            {t.common.date}
+          </Text>
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
+            style={{
+              backgroundColor: theme.input,
+              borderRadius: 12,
+              borderWidth: 1.5,
+              borderColor: errors.date ? "#EF4444" : theme.inputBorder,
+              paddingHorizontal: 14,
+              paddingVertical: 13,
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <Feather name="calendar" size={16} color={theme.primary} />
+            <Text style={{ flex: 1, fontSize: 15, color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+              {date}
+            </Text>
+            <Feather name="chevron-down" size={14} color={theme.textMuted} />
+          </Pressable>
+          {!!errors.date && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.date}</Text>}
+        </View>
 
         <AppInput
           label={`${t.common.note} (${t.common.optional})`}
@@ -283,6 +304,13 @@ export default function TransferFormModal() {
         onSelect={setToId}
         exclude={fromId}
         title={t.transfer.toAccount}
+      />
+
+      <DatePickerModal
+        visible={showDatePicker}
+        value={date}
+        onConfirm={(d) => { setDate(d); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
+        onClose={() => setShowDatePicker(false)}
       />
     </View>
   );

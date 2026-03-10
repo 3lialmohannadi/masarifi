@@ -25,6 +25,7 @@ import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
 import { SMART_SUGGESTIONS } from "@/utils/defaults";
+import { DatePickerModal } from "@/components/DatePickerModal";
 import type { TransactionType, Category } from "@/types";
 
 function isValidDate(str: string): boolean {
@@ -65,6 +66,7 @@ export default function AddTransactionModal() {
   const [showCategories, setShowCategories] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [showPlanCategories, setShowPlanCategories] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -482,8 +484,8 @@ export default function AddTransactionModal() {
             })}
           </View>
 
-          {/* Date text input */}
-          <View
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
             style={{
               backgroundColor: theme.input,
               borderRadius: 12,
@@ -492,28 +494,16 @@ export default function AddTransactionModal() {
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
               paddingHorizontal: 13,
+              paddingVertical: 13,
               gap: 10,
             }}
           >
-            <Feather name="calendar" size={16} color={theme.textMuted} />
-            <TextInput
-              value={date}
-              onChangeText={(v) => {
-                setDate(v);
-                if (errors.date) setErrors((e) => ({ ...e, date: "" }));
-              }}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor={theme.textMuted}
-              style={{
-                flex: 1,
-                paddingVertical: 13,
-                color: theme.text,
-                fontSize: 15,
-                textAlign: isRTL ? "right" : "left",
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
-              }}
-            />
-          </View>
+            <Feather name="calendar" size={16} color={theme.primary} />
+            <Text style={{ flex: 1, fontSize: 15, color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+              {date}
+            </Text>
+            <Feather name="chevron-down" size={14} color={theme.textMuted} />
+          </Pressable>
         </Field>
 
         {/* ── Note ── */}
@@ -859,6 +849,13 @@ export default function AddTransactionModal() {
           />
         </SelectorModal>
       )}
+
+      <DatePickerModal
+        visible={showDatePicker}
+        value={date}
+        onConfirm={(d) => { setDate(d); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
+        onClose={() => setShowDatePicker(false)}
+      />
     </View>
   );
 }
