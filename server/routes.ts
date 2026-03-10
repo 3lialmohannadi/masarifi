@@ -5,6 +5,21 @@ import { db } from "./db";
 import * as schema from "@database/schema";
 import { eq } from "drizzle-orm";
 
+type AccountRow = typeof schema.accounts.$inferSelect;
+type TransactionRow = typeof schema.transactions.$inferSelect;
+type TransferRow = typeof schema.transfers.$inferSelect;
+type SavingsWalletRow = typeof schema.savingsWallets.$inferSelect;
+type SavingsTxRow = typeof schema.savingsTransactions.$inferSelect;
+type PlanRow = typeof schema.plans.$inferSelect;
+type PlanCategoryRow = typeof schema.planCategories.$inferSelect;
+type CommitmentRow = typeof schema.commitments.$inferSelect;
+type BudgetRow = typeof schema.budgets.$inferSelect;
+type CategoryRow = typeof schema.categories.$inferSelect;
+
+function errMsg(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
+
 const DEFAULT_USER_ID = "default-user";
 
 function toIso(d: Date | string | null | undefined): string {
@@ -25,7 +40,7 @@ function toDate(val: string | Date | null | undefined): Date | null {
   return new Date(val);
 }
 
-function normAccount(a: any) {
+function normAccount(a: AccountRow) {
   return {
     ...a,
     balance: typeof a.balance === "string" ? parseFloat(a.balance) : (a.balance ?? 0),
@@ -34,7 +49,7 @@ function normAccount(a: any) {
   };
 }
 
-function normTransaction(t: any) {
+function normTransaction(t: TransactionRow) {
   return {
     ...t,
     amount: typeof t.amount === "string" ? parseFloat(t.amount) : (t.amount ?? 0),
@@ -44,7 +59,7 @@ function normTransaction(t: any) {
   };
 }
 
-function normTransfer(t: any) {
+function normTransfer(t: TransferRow) {
   return {
     ...t,
     source_amount: typeof t.source_amount === "string" ? parseFloat(t.source_amount) : (t.source_amount ?? 0),
@@ -55,7 +70,7 @@ function normTransfer(t: any) {
   };
 }
 
-function normSavingsWallet(w: any) {
+function normSavingsWallet(w: SavingsWalletRow) {
   return {
     ...w,
     current_amount: typeof w.current_amount === "string" ? parseFloat(w.current_amount) : (w.current_amount ?? 0),
@@ -66,7 +81,7 @@ function normSavingsWallet(w: any) {
   };
 }
 
-function normSavingsTx(t: any) {
+function normSavingsTx(t: SavingsTxRow) {
   return {
     ...t,
     amount: typeof t.amount === "string" ? parseFloat(t.amount) : (t.amount ?? 0),
@@ -75,7 +90,7 @@ function normSavingsTx(t: any) {
   };
 }
 
-function normPlan(p: any) {
+function normPlan(p: PlanRow) {
   return {
     ...p,
     total_budget: typeof p.total_budget === "string" ? parseFloat(p.total_budget) : (p.total_budget ?? 0),
@@ -86,7 +101,7 @@ function normPlan(p: any) {
   };
 }
 
-function normPlanCategory(pc: any) {
+function normPlanCategory(pc: PlanCategoryRow) {
   return {
     ...pc,
     budget_amount: typeof pc.budget_amount === "string" ? parseFloat(pc.budget_amount) : (pc.budget_amount ?? 0),
@@ -94,7 +109,7 @@ function normPlanCategory(pc: any) {
   };
 }
 
-function normCommitment(c: any) {
+function normCommitment(c: CommitmentRow) {
   return {
     ...c,
     amount: typeof c.amount === "string" ? parseFloat(c.amount) : (c.amount ?? 0),
@@ -105,7 +120,7 @@ function normCommitment(c: any) {
   };
 }
 
-function normBudget(b: any) {
+function normBudget(b: BudgetRow) {
   return {
     ...b,
     amount: typeof b.amount === "string" ? parseFloat(b.amount) : (b.amount ?? 0),
@@ -114,7 +129,7 @@ function normBudget(b: any) {
   };
 }
 
-function normCategory(c: any) {
+function normCategory(c: CategoryRow) {
   return {
     ...c,
     created_at: toIso(c.created_at),
@@ -146,8 +161,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rows = await storage.getAccounts(DEFAULT_USER_ID);
       res.json(rows.map(normAccount));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -157,8 +172,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...rest, id, user_id: DEFAULT_USER_ID };
       const row = await storage.createAccount(data as any);
       res.json(normAccount(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -168,8 +183,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const row = await storage.updateAccount(req.params.id, rest as any);
       if (!row) return res.status(404).json({ message: "Account not found" });
       res.json(normAccount(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -177,8 +192,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.updateAccount(req.params.id, { is_active: false } as any);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -188,8 +203,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rows = await storage.getCategories(DEFAULT_USER_ID);
       res.json(rows.map(normCategory));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -199,8 +214,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...rest, id, user_id: DEFAULT_USER_ID };
       const row = await storage.createCategory(data as any);
       res.json(normCategory(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -210,8 +225,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const row = await storage.updateCategory(req.params.id, rest as any);
       if (!row) return res.status(404).json({ message: "Category not found" });
       res.json(normCategory(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -219,8 +234,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deleteCategory(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -230,8 +245,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rows = await storage.getTransactions(DEFAULT_USER_ID);
       res.json(rows.map(normTransaction));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -241,8 +256,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...rest, id, user_id: DEFAULT_USER_ID, date: toDate(rest.date) ?? new Date() };
       const row = await storage.createTransaction(data as any);
       res.json(normTransaction(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -253,8 +268,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const row = await storage.updateTransaction(req.params.id, data as any);
       if (!row) return res.status(404).json({ message: "Transaction not found" });
       res.json(normTransaction(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -262,8 +277,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deleteTransaction(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -273,8 +288,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rows = await storage.getTransfers(DEFAULT_USER_ID);
       res.json(rows.map(normTransfer));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -284,8 +299,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...rest, id, user_id: DEFAULT_USER_ID, date: toDate(rest.date) ?? new Date() };
       const row = await storage.createTransfer(data as any);
       res.json(normTransfer(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -293,8 +308,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deleteTransfer(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -304,8 +319,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rows = await storage.getSavingsWallets(DEFAULT_USER_ID);
       res.json(rows.map(normSavingsWallet));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -315,8 +330,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...rest, id, user_id: DEFAULT_USER_ID, target_date: toDate(rest.target_date) };
       const row = await storage.createSavingsWallet(data as any);
       res.json(normSavingsWallet(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -327,8 +342,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const row = await storage.updateSavingsWallet(req.params.id, data as any);
       if (!row) return res.status(404).json({ message: "Savings wallet not found" });
       res.json(normSavingsWallet(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -336,8 +351,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deleteSavingsWallet(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -348,8 +363,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const walletId = req.query.walletId as string | undefined;
       const rows = await storage.getSavingsTransactions(walletId);
       res.json(rows.map(normSavingsTx));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -359,8 +374,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...rest, id, user_id: DEFAULT_USER_ID, date: toDate(rest.date) ?? new Date() };
       const row = await storage.createSavingsTransaction(data as any);
       res.json(normSavingsTx(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -368,8 +383,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deleteSavingsTransaction(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -379,8 +394,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rows = await storage.getPlans(DEFAULT_USER_ID);
       res.json(rows.map(normPlan));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -394,8 +409,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       const row = await storage.createPlan(data as any);
       res.json(normPlan(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -410,8 +425,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const row = await storage.updatePlan(req.params.id, data as any);
       if (!row) return res.status(404).json({ message: "Plan not found" });
       res.json(normPlan(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -419,8 +434,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deletePlan(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -436,8 +451,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const rows = await db.select().from(schema.planCategories);
         res.json(rows.map(normPlanCategory));
       }
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -447,8 +462,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...rest, id };
       const row = await storage.createPlanCategory(data as any);
       res.json(normPlanCategory(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -458,8 +473,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const row = await storage.updatePlanCategory(req.params.id, rest as any);
       if (!row) return res.status(404).json({ message: "Plan category not found" });
       res.json(normPlanCategory(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -467,8 +482,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deletePlanCategory(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -478,8 +493,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rows = await storage.getCommitments(DEFAULT_USER_ID);
       res.json(rows.map(normCommitment));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -493,8 +508,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       const row = await storage.createCommitment(data as any);
       res.json(normCommitment(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -509,8 +524,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const row = await storage.updateCommitment(req.params.id, data as any);
       if (!row) return res.status(404).json({ message: "Commitment not found" });
       res.json(normCommitment(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -518,8 +533,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deleteCommitment(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -529,8 +544,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rows = await storage.getBudgets(DEFAULT_USER_ID);
       res.json(rows.map(normBudget));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -545,8 +560,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...rest, id, user_id: DEFAULT_USER_ID };
       const row = await storage.createBudget(data as any);
       res.json(normBudget(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -556,8 +571,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const row = await storage.updateBudget(req.params.id, rest as any);
       if (!row) return res.status(404).json({ message: "Budget not found" });
       res.json(normBudget(row));
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -565,8 +580,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deleteBudget(req.params.id);
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 
@@ -581,8 +596,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await db.delete(schema.transactions).where(eq(schema.transactions.user_id, DEFAULT_USER_ID));
       await db.delete(schema.accounts).where(eq(schema.accounts.user_id, DEFAULT_USER_ID));
       res.json({ ok: true });
-    } catch (e: any) {
-      res.status(500).json({ message: e.message });
+    } catch (e: unknown) {
+      res.status(500).json({ message: errMsg(e) });
     }
   });
 

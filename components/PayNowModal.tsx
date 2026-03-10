@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { Theme } from "@/theme/colors";
 import {
   Modal,
   View,
@@ -285,7 +286,7 @@ function Row({
 }: {
   label: string;
   value: string;
-  theme: any;
+  theme: Theme;
   isRTL: boolean;
   valueColor?: string;
   bold?: boolean;

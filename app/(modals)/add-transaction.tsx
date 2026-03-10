@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import type { Theme } from "@/theme/colors";
 import {
   View,
   Text,
@@ -778,7 +779,7 @@ export default function AddTransactionModal() {
             data={[
               { id: "", name_ar: "بدون خطة", name_en: "No Plan" },
               ...plans,
-            ] as any[]}
+            ] as { id: string; name_ar: string; name_en: string; color?: string }[]}
             keyExtractor={(p) => p.id || "none"}
             renderItem={({ item }) => (
               <Pressable
@@ -824,7 +825,7 @@ export default function AddTransactionModal() {
             data={[
               { id: "", name_ar: "بدون فئة", name_en: "No Category", color: "", icon: "" },
               ...planCategoriesForPlan,
-            ] as any[]}
+            ] as { id: string; name_ar: string; name_en: string; color?: string; icon?: string; budget_amount?: number }[]}
             keyExtractor={(pc) => pc.id || "none"}
             renderItem={({ item }) => (
               <Pressable
@@ -852,7 +853,7 @@ export default function AddTransactionModal() {
                   <Text style={{ color: item.id ? theme.text : theme.textMuted, fontWeight: "500", fontSize: 15 }}>
                     {item.id ? (language === "ar" ? item.name_ar || item.name_en : item.name_en || item.name_ar) : (language === "ar" ? "بدون فئة" : "No Category")}
                   </Text>
-                  {item.budget_amount > 0 && (
+                  {item.budget_amount != null && item.budget_amount > 0 && (
                     <Text style={{ color: theme.textMuted, fontSize: 12 }}>
                       {language === "ar" ? "الميزانية: " : "Budget: "}{item.budget_amount.toLocaleString("en-US")} {selectedPlan.currency}
                     </Text>
@@ -886,7 +887,7 @@ function SelectorModal({
   visible: boolean;
   onClose: () => void;
   title: string;
-  theme: any;
+  theme: Theme;
   insets: { bottom: number };
   children: React.ReactNode;
 }) {

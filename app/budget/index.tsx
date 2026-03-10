@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import type { Theme } from "@/theme/colors";
 import { View, Text, FlatList, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -494,7 +495,7 @@ function StatColumn({
   label: string;
   value: string;
   color: string;
-  theme: any;
+  theme: Theme;
   isRTL: boolean;
 }) {
   return (
@@ -515,7 +516,7 @@ function MiniStat({
   label: string;
   value: string;
   color: string;
-  theme: any;
+  theme: Theme;
   isRTL: boolean;
 }) {
   return (
