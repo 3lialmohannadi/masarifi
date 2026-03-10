@@ -4,6 +4,8 @@ import { Feather } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { useApp } from "@/store/AppContext";
 import { useCategories } from "@/store/CategoriesContext";
+import { useSavings } from "@/store/SavingsContext";
+import { useAccounts } from "@/store/AccountsContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { formatDateShort } from "@/utils/date";
@@ -20,11 +22,59 @@ interface TransactionItemProps {
 export const TransactionItem = React.memo(function TransactionItem({ transaction, onPress, showDate = true, flat = false }: TransactionItemProps) {
   const { theme, language, isRTL, t, isDark } = useApp();
   const { getCategory } = useCategories();
+  const { getWallet } = useSavings();
+  const { getAccount } = useAccounts();
 
-  const category = getCategory(transaction.category_id);
   const isIncome = transaction.type === "income";
-  const color = isIncome ? theme.income : theme.expense;
-  const catColor = category?.color || color;
+  const amountColor = isIncome ? theme.income : theme.expense;
+
+  const isSavingsLinked = !!transaction.linked_saving_wallet_id;
+  const isTransferLinked = !!transaction.linked_transfer_account_id;
+
+  const linkedWallet = isSavingsLinked ? getWallet(transaction.linked_saving_wallet_id!) : undefined;
+  const linkedAccount = isTransferLinked ? getAccount(transaction.linked_transfer_account_id!) : undefined;
+  const category = !isSavingsLinked && !isTransferLinked ? getCategory(transaction.category_id) : undefined;
+
+  let iconBg: string;
+  let mainLabel: string;
+  let iconNode: React.ReactNode;
+
+  if (isSavingsLinked) {
+    const walletColor = linkedWallet?.color || theme.primary;
+    const walletName = linkedWallet ? getDisplayName(linkedWallet, language) : (language === "ar" ? "محفظة ادخار" : "Savings Wallet");
+    iconBg = walletColor + "18";
+    mainLabel = walletName;
+    iconNode = (
+      <Feather
+        name={(linkedWallet?.icon as any) || "save"}
+        size={20}
+        color={walletColor}
+      />
+    );
+  } else if (isTransferLinked) {
+    const accountColor = linkedAccount?.color || theme.primary;
+    const accountName = linkedAccount ? getDisplayName(linkedAccount, language) : (language === "ar" ? "حساب" : "Account");
+    iconBg = accountColor + "18";
+    mainLabel = accountName;
+    iconNode = (
+      <Feather
+        name="repeat"
+        size={20}
+        color={accountColor}
+      />
+    );
+  } else {
+    const catColor = category?.color || amountColor;
+    iconBg = `${catColor}18`;
+    mainLabel = getDisplayName(category, language) || (isIncome ? t.transactions.income : t.transactions.expense);
+    iconNode = (
+      <CategoryIcon
+        name={category?.icon || (isIncome ? "arrow-bottom-left" : "arrow-top-right")}
+        size={20}
+        color={catColor}
+      />
+    );
+  }
 
   const handlePress = () => {
     Haptics.selectionAsync();
@@ -55,23 +105,19 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
           width: 46,
           height: 46,
           borderRadius: 14,
-          backgroundColor: `${catColor}18`,
+          backgroundColor: iconBg,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <CategoryIcon
-          name={category?.icon || (isIncome ? "arrow-bottom-left" : "arrow-top-right")}
-          size={20}
-          color={catColor}
-        />
+        {iconNode}
       </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Text
           style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}
           numberOfLines={1}
         >
-          {getDisplayName(category, language) || (isIncome ? t.transactions.income : t.transactions.expense)}
+          {mainLabel}
         </Text>
         {(showDate || transaction.note) && (
           <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
@@ -82,7 +128,7 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
         )}
       </View>
       <View style={{ alignItems: "flex-end", gap: 2 }}>
-        <Text style={{ fontSize: 16, fontWeight: "700", color }}>
+        <Text style={{ fontSize: 16, fontWeight: "700", color: amountColor }}>
           {isIncome ? "+" : "-"}
           {formatCurrency(transaction.amount, transaction.currency, language)}
         </Text>
