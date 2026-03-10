@@ -59,6 +59,7 @@ export default function CommitmentFormModal() {
   const [note, setNote] = useState(existing?.note || "");
   const [showAccounts, setShowAccounts] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
+  const [catSearch, setCatSearch] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -495,45 +496,59 @@ export default function CommitmentFormModal() {
       </Modal>
 
       {/* Category Selector Modal */}
-      <Modal visible={showCategories} transparent animationType="slide">
-        <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }} onPress={() => setShowCategories(false)}>
-          <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "65%", paddingVertical: 8, paddingBottom: insets.bottom + 8 }}>
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center", padding: 16 }}>
+      <Modal visible={showCategories} transparent animationType="slide" statusBarTranslucent>
+        <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }} onPress={() => { setShowCategories(false); setCatSearch(""); }}>
+          <Pressable onPress={() => {}} style={{ backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: "72%", paddingTop: 12, paddingBottom: insets.bottom + 16 }}>
+            <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginBottom: 8 }} />
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}>
               <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
-                {language === "ar" ? "اختر فئة الالتزام" : "Select Commitment Category"}
+                {language === "ar" ? "اختر التصنيف" : "Select Category"}
               </Text>
-              <Pressable onPress={() => setShowCategories(false)} hitSlop={8}>
+              <Pressable onPress={() => { setShowCategories(false); setCatSearch(""); }} hitSlop={8}>
                 <Feather name="x" size={22} color={theme.textSecondary} />
               </Pressable>
             </View>
-            <FlatList
-              data={allCategories}
-              keyExtractor={(c) => c.id}
-              renderItem={({ item }) => (
-                <Pressable
-                  onPress={() => { Haptics.selectionAsync(); setCategoryId(item.id); setShowCategories(false); }}
-                  style={{
-                    flexDirection: isRTL ? "row-reverse" : "row",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: 14,
-                    backgroundColor: item.id === categoryId ? item.color + "15" : "transparent",
-                    borderRadius: 12,
-                    marginHorizontal: 8,
-                    marginVertical: 2,
-                  }}
-                >
-                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: item.color + "20", alignItems: "center", justifyContent: "center" }}>
-                    <CategoryIcon name={item.icon || "tag"} size={18} color={item.color} />
-                  </View>
-                  <Text style={{ flex: 1, color: theme.text, fontWeight: "500", fontSize: 15 }}>
-                    {language === "ar" ? item.name_ar || item.name_en : item.name_en || item.name_ar}
-                  </Text>
-                  {item.id === categoryId && <Feather name="check" size={16} color={item.color} />}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, marginHorizontal: 16, marginTop: 12, marginBottom: 4, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12 }}>
+              <Feather name="search" size={15} color={theme.textMuted} />
+              <TextInput
+                value={catSearch}
+                onChangeText={setCatSearch}
+                placeholder={language === "ar" ? "بحث..." : "Search..."}
+                placeholderTextColor={theme.textMuted}
+                style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
+              />
+              {catSearch.length > 0 && (
+                <Pressable onPress={() => setCatSearch("")} hitSlop={6}>
+                  <Feather name="x" size={15} color={theme.textMuted} />
                 </Pressable>
               )}
+            </View>
+            <FlatList
+              data={catSearch.trim() ? allCategories.filter((c) => c.name_ar.includes(catSearch) || c.name_en.toLowerCase().includes(catSearch.toLowerCase())) : allCategories}
+              keyExtractor={(c) => c.id}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item }) => (
+                <Pressable
+                  onPress={() => { Haptics.selectionAsync(); setCategoryId(item.id); setShowCategories(false); setCatSearch(""); }}
+                  style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, padding: 14, backgroundColor: item.id === categoryId ? theme.primary + "15" : "transparent", borderRadius: 12, marginHorizontal: 8, marginVertical: 2 }}
+                >
+                  <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: item.color + "22", alignItems: "center", justifyContent: "center" }}>
+                    <CategoryIcon name={item.icon || "tag"} size={19} color={item.color} />
+                  </View>
+                  <Text style={{ flex: 1, color: theme.text, fontWeight: "500", fontSize: 15, textAlign: isRTL ? "right" : "left" }}>
+                    {language === "ar" ? item.name_ar || item.name_en : item.name_en || item.name_ar}
+                  </Text>
+                  {item.is_favorite && <Feather name="star" size={14} color="#F59E0B" />}
+                  {item.id === categoryId && <Feather name="check" size={18} color={theme.primary} />}
+                </Pressable>
+              )}
+              ListEmptyComponent={
+                <Text style={{ color: theme.textMuted, textAlign: "center", padding: 20 }}>
+                  {t.categories.noCategories}
+                </Text>
+              }
             />
-          </View>
+          </Pressable>
         </Pressable>
       </Modal>
 

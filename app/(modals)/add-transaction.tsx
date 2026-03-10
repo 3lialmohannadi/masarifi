@@ -64,6 +64,7 @@ export default function AddTransactionModal() {
 
   const [showAccounts, setShowAccounts] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
+  const [catSearch, setCatSearch] = useState("");
   const [showPlans, setShowPlans] = useState(false);
   const [showPlanCategories, setShowPlanCategories] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -706,19 +707,35 @@ export default function AddTransactionModal() {
       {/* ── Category Picker ── */}
       <SelectorModal
         visible={showCategories}
-        onClose={() => setShowCategories(false)}
+        onClose={() => { setShowCategories(false); setCatSearch(""); }}
         title={t.transactions.selectCategory}
         theme={theme}
         insets={insets}
       >
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, marginHorizontal: 12, marginTop: 8, marginBottom: 4, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12 }}>
+          <Feather name="search" size={15} color={theme.textMuted} />
+          <TextInput
+            value={catSearch}
+            onChangeText={setCatSearch}
+            placeholder={language === "ar" ? "بحث..." : "Search..."}
+            placeholderTextColor={theme.textMuted}
+            style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
+          />
+          {catSearch.length > 0 && (
+            <Pressable onPress={() => setCatSearch("")} hitSlop={6}>
+              <Feather name="x" size={15} color={theme.textMuted} />
+            </Pressable>
+          )}
+        </View>
         <FlatList
-          data={relevantCategories}
+          data={catSearch.trim() ? relevantCategories.filter((c) => c.name_ar.includes(catSearch) || c.name_en.toLowerCase().includes(catSearch.toLowerCase())) : relevantCategories}
           keyExtractor={(c) => c.id}
           renderItem={({ item }) => (
             <Pressable
               onPress={() => {
                 setCategoryId(item.id);
                 setShowCategories(false);
+                setCatSearch("");
                 if (errors.category) setErrors((e) => ({ ...e, category: "" }));
               }}
               style={{
