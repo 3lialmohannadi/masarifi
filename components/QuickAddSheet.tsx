@@ -5,7 +5,6 @@ import {
   Modal,
   Pressable,
   TextInput,
-  ScrollView,
   FlatList,
   Keyboard,
   Platform,
@@ -75,7 +74,8 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const [categoryId, setCategoryId] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(todayISOString());
-  const [step, setStep] = useState<"main" | "account" | "date">("main");
+  const [step, setStep] = useState<"main" | "account" | "date" | "category">("main");
+  const [catSearch, setCatSearch] = useState("");
   const [saving, setSaving] = useState(false);
   const [amountError, setAmountError] = useState("");
   const [categoryError, setCategoryError] = useState("");
@@ -238,6 +238,115 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     );
   }
 
+  if (step === "category") {
+    const filteredCats = catSearch.trim()
+      ? categories.filter((c) =>
+          getDisplayName(c, language).toLowerCase().includes(catSearch.toLowerCase()) ||
+          c.name_ar.includes(catSearch) ||
+          c.name_en.toLowerCase().includes(catSearch.toLowerCase())
+        )
+      : categories;
+
+    return (
+      <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }}>
+          <View
+            style={{
+              backgroundColor: theme.card,
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              paddingBottom: insets.bottom + 16,
+              maxHeight: "82%",
+            }}
+          >
+            {/* Handle */}
+            <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginTop: 10, marginBottom: 4 }} />
+
+            {/* Header */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+              <Pressable onPress={() => { setStep("main"); setCatSearch(""); }} hitSlop={10}>
+                <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
+              </Pressable>
+              <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>{t.transactions.selectCategory}</Text>
+              <View style={{ width: 22 }} />
+            </View>
+
+            {/* Search */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, marginHorizontal: 16, marginTop: 12, marginBottom: 4, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12 }}>
+              <Feather name="search" size={15} color={theme.textMuted} />
+              <TextInput
+                value={catSearch}
+                onChangeText={setCatSearch}
+                placeholder={language === "ar" ? "بحث..." : "Search..."}
+                placeholderTextColor={theme.textMuted}
+                style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
+              />
+              {catSearch.length > 0 && (
+                <Pressable onPress={() => setCatSearch("")} hitSlop={6}>
+                  <Feather name="x" size={15} color={theme.textMuted} />
+                </Pressable>
+              )}
+            </View>
+
+            {/* Category Grid */}
+            <FlatList
+              data={filteredCats}
+              numColumns={4}
+              keyExtractor={(c) => c.id}
+              contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 8, paddingBottom: 8 }}
+              columnWrapperStyle={{ gap: 8, marginBottom: 8 }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item: cat }) => {
+                const isSelected = cat.id === categoryId;
+                return (
+                  <Pressable
+                    key={cat.id}
+                    onPress={() => {
+                      Haptics.selectionAsync();
+                      setCategoryId(cat.id);
+                      setCategoryError("");
+                      setStep("main");
+                      setCatSearch("");
+                    }}
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      gap: 5,
+                      paddingVertical: 10,
+                      paddingHorizontal: 4,
+                      borderRadius: 14,
+                      backgroundColor: isSelected ? cat.color + "20" : "transparent",
+                      borderWidth: 1.5,
+                      borderColor: isSelected ? cat.color : "transparent",
+                    }}
+                  >
+                    <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: cat.color + "20", alignItems: "center", justifyContent: "center" }}>
+                      <Feather name={cat.icon as any} size={20} color={cat.color} />
+                    </View>
+                    <Text style={{ fontSize: 10, fontWeight: "600", color: isSelected ? cat.color : theme.textSecondary, textAlign: "center" }} numberOfLines={2}>
+                      {getDisplayName(cat, language)}
+                    </Text>
+                    {isSelected && (
+                      <View style={{ position: "absolute", top: 6, right: isRTL ? "auto" : 6, left: isRTL ? 6 : "auto", width: 16, height: 16, borderRadius: 8, backgroundColor: cat.color, alignItems: "center", justifyContent: "center" }}>
+                        <Feather name="check" size={10} color="#fff" />
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              }}
+              ListEmptyComponent={
+                <View style={{ padding: 20, alignItems: "center" }}>
+                  <Text style={{ color: theme.textMuted, fontSize: 13 }}>{t.categories.noCategories}</Text>
+                </View>
+              }
+            />
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   if (step === "date") {
     return (
       <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
@@ -354,49 +463,48 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
             )}
           </View>
 
-          {/* Category Grid */}
+          {/* Category Selector Button */}
           <View style={{ paddingHorizontal: 16, marginBottom: 6 }}>
             {!!categoryError && (
-              <Text style={{ fontSize: 12, color: "#EF4444", marginBottom: 4, textAlign: isRTL ? "right" : "left" }}>{categoryError}</Text>
+              <Text style={{ fontSize: 12, color: "#EF4444", marginBottom: 6, textAlign: isRTL ? "right" : "left" }}>{categoryError}</Text>
             )}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
-              {categories.map((cat) => {
-                const isSelected = cat.id === categoryId;
-                return (
-                  <Pressable
-                    key={cat.id}
-                    testID={`cat-chip-${cat.id}`}
-                    onPress={() => { Haptics.selectionAsync(); setCategoryId(cat.id); setCategoryError(""); }}
-                    style={{
-                      alignItems: "center",
-                      gap: 5,
-                      paddingHorizontal: 10,
-                      paddingVertical: 8,
-                      borderRadius: 14,
-                      backgroundColor: isSelected ? cat.color + "25" : theme.background,
-                      borderWidth: 1.5,
-                      borderColor: isSelected ? cat.color : theme.border,
-                      minWidth: 66,
-                    }}
-                  >
-                    <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: cat.color + "22", alignItems: "center", justifyContent: "center" }}>
-                      <Feather name={cat.icon as any} size={17} color={cat.color} />
-                    </View>
-                    {cat.is_favorite && !isSelected && (
-                      <View style={{ position: "absolute", top: 4, right: isRTL ? "auto" : 4, left: isRTL ? 4 : "auto" }}>
-                        <Feather name="star" size={8} color="#F59E0B" />
-                      </View>
-                    )}
-                    <Text style={{ fontSize: 10, fontWeight: "600", color: isSelected ? cat.color : theme.textSecondary, textAlign: "center" }} numberOfLines={1}>
-                      {getDisplayName(cat, language)}
-                    </Text>
-                  </Pressable>
-                );
+            <Pressable
+              testID="cat-selector-btn"
+              onPress={() => { Haptics.selectionAsync(); setStep("category"); }}
+              style={({ pressed }) => ({
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 10,
+                backgroundColor: pressed ? theme.cardSecondary : theme.background,
+                borderRadius: 14,
+                borderWidth: 1.5,
+                borderColor: categoryError ? "#EF4444" : selectedCategory ? selectedCategory.color + "80" : theme.border,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
               })}
-              {categories.length === 0 && (
-                <Text style={{ color: theme.textMuted, fontSize: 13, padding: 8 }}>{t.categories.noCategories}</Text>
+            >
+              {selectedCategory ? (
+                <>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: selectedCategory.color + "20", alignItems: "center", justifyContent: "center" }}>
+                    <Feather name={selectedCategory.icon as any} size={18} color={selectedCategory.color} />
+                  </View>
+                  <Text style={{ flex: 1, fontSize: 15, fontWeight: "600", color: selectedCategory.color, textAlign: isRTL ? "right" : "left" }}>
+                    {getDisplayName(selectedCategory, language)}
+                  </Text>
+                  <Feather name="chevron-down" size={16} color={selectedCategory.color} />
+                </>
+              ) : (
+                <>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.border + "60", alignItems: "center", justifyContent: "center" }}>
+                    <Feather name="tag" size={18} color={theme.textMuted} />
+                  </View>
+                  <Text style={{ flex: 1, fontSize: 15, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                    {t.transactions.selectCategory}
+                  </Text>
+                  <Feather name="chevron-down" size={16} color={theme.textMuted} />
+                </>
               )}
-            </ScrollView>
+            </Pressable>
           </View>
 
           {/* Smart Suggestion Banner */}
