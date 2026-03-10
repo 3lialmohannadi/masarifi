@@ -22,78 +22,107 @@ function errMsg(e: unknown): string {
 
 const DEFAULT_USER_ID = "default-user";
 
+/**
+ * Converts a Postgres `numeric` column value (returned as a string by pg driver)
+ * or an existing JS number to a proper JS number.
+ * Falls back to `fallback` (default 0) when the value is null/undefined/NaN.
+ */
+function toNumber(value: string | number | null | undefined, fallback = 0): number {
+  if (value == null) return fallback;
+  if (typeof value === "number") return isNaN(value) ? fallback : value;
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? fallback : parsed;
+}
+
+/**
+ * Converts a Date object or ISO string to an ISO string.
+ * Falls back to the current timestamp when the value is null/undefined —
+ * this ensures required timestamp fields (created_at, updated_at) always
+ * have a valid value even if the DB row is missing them.
+ */
 function toIso(d: Date | string | null | undefined): string {
   if (!d) return new Date().toISOString();
   if (d instanceof Date) return d.toISOString();
   return d;
 }
 
+/**
+ * Like toIso, but returns null for missing values instead of falling back to now.
+ * Used for optional timestamp fields (e.g. paid_at, target_date).
+ */
 function toIsoOrNull(d: Date | string | null | undefined): string | null {
   if (!d) return null;
   if (d instanceof Date) return d.toISOString();
   return d;
 }
 
+/** Parses a date string or Date object into a Date, returning null if the value is empty. */
 function toDate(val: string | Date | null | undefined): Date | null {
   if (!val) return null;
   if (val instanceof Date) return val;
   return new Date(val);
 }
 
+/** Normalises an accounts DB row for the API response. */
 function normAccount(a: AccountRow) {
   return {
     ...a,
-    balance: typeof a.balance === "string" ? parseFloat(a.balance) : (a.balance ?? 0),
+    balance: toNumber(a.balance),
     created_at: toIso(a.created_at),
     updated_at: toIso(a.updated_at),
   };
 }
 
+/** Normalises a transactions DB row for the API response. */
 function normTransaction(t: TransactionRow) {
   return {
     ...t,
-    amount: typeof t.amount === "string" ? parseFloat(t.amount) : (t.amount ?? 0),
+    amount: toNumber(t.amount),
     date: toIso(t.date),
     created_at: toIso(t.created_at),
     updated_at: toIso(t.updated_at),
   };
 }
 
+/** Normalises a transfers DB row for the API response. */
 function normTransfer(t: TransferRow) {
   return {
     ...t,
-    source_amount: typeof t.source_amount === "string" ? parseFloat(t.source_amount) : (t.source_amount ?? 0),
-    destination_amount: typeof t.destination_amount === "string" ? parseFloat(t.destination_amount) : (t.destination_amount ?? 0),
-    exchange_rate: typeof t.exchange_rate === "string" ? parseFloat(t.exchange_rate) : (t.exchange_rate ?? 1),
+    source_amount: toNumber(t.source_amount),
+    destination_amount: toNumber(t.destination_amount),
+    exchange_rate: toNumber(t.exchange_rate, 1),
     date: toIso(t.date),
     created_at: toIso(t.created_at),
   };
 }
 
+/** Normalises a savings_wallets DB row for the API response. */
 function normSavingsWallet(w: SavingsWalletRow) {
   return {
     ...w,
-    current_amount: typeof w.current_amount === "string" ? parseFloat(w.current_amount) : (w.current_amount ?? 0),
-    target_amount: w.target_amount != null ? (typeof w.target_amount === "string" ? parseFloat(w.target_amount) : w.target_amount) : undefined,
+    current_amount: toNumber(w.current_amount),
+    target_amount: w.target_amount != null ? toNumber(w.target_amount) : undefined,
     target_date: toIsoOrNull(w.target_date),
     created_at: toIso(w.created_at),
     updated_at: toIso(w.updated_at),
   };
 }
 
+/** Normalises a savings_transactions DB row for the API response. */
 function normSavingsTx(t: SavingsTxRow) {
   return {
     ...t,
-    amount: typeof t.amount === "string" ? parseFloat(t.amount) : (t.amount ?? 0),
+    amount: toNumber(t.amount),
     date: toIso(t.date),
     created_at: toIso(t.created_at),
   };
 }
 
+/** Normalises a plans DB row for the API response. */
 function normPlan(p: PlanRow) {
   return {
     ...p,
-    total_budget: typeof p.total_budget === "string" ? parseFloat(p.total_budget) : (p.total_budget ?? 0),
+    total_budget: toNumber(p.total_budget),
     start_date: toIso(p.start_date),
     end_date: toIso(p.end_date),
     created_at: toIso(p.created_at),
@@ -101,18 +130,20 @@ function normPlan(p: PlanRow) {
   };
 }
 
+/** Normalises a plan_categories DB row for the API response. */
 function normPlanCategory(pc: PlanCategoryRow) {
   return {
     ...pc,
-    budget_amount: typeof pc.budget_amount === "string" ? parseFloat(pc.budget_amount) : (pc.budget_amount ?? 0),
+    budget_amount: toNumber(pc.budget_amount),
     created_at: toIso(pc.created_at),
   };
 }
 
+/** Normalises a commitments DB row for the API response. */
 function normCommitment(c: CommitmentRow) {
   return {
     ...c,
-    amount: typeof c.amount === "string" ? parseFloat(c.amount) : (c.amount ?? 0),
+    amount: toNumber(c.amount),
     due_date: toIso(c.due_date),
     paid_at: toIsoOrNull(c.paid_at),
     created_at: toIso(c.created_at),
@@ -120,15 +151,17 @@ function normCommitment(c: CommitmentRow) {
   };
 }
 
+/** Normalises a budgets DB row for the API response. */
 function normBudget(b: BudgetRow) {
   return {
     ...b,
-    amount: typeof b.amount === "string" ? parseFloat(b.amount) : (b.amount ?? 0),
+    amount: toNumber(b.amount),
     created_at: toIso(b.created_at),
     updated_at: toIso(b.updated_at),
   };
 }
 
+/** Normalises a categories DB row for the API response. */
 function normCategory(c: CategoryRow) {
   return {
     ...c,
@@ -137,6 +170,11 @@ function normCategory(c: CategoryRow) {
   };
 }
 
+/**
+ * Bootstraps a single default user record on first run.
+ * This app is single-tenant (offline-first / personal use), so there is no
+ * authentication — all data belongs to this one pre-seeded user.
+ */
 async function ensureDefaultUser() {
   try {
     const existing = await storage.getUser(DEFAULT_USER_ID);

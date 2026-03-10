@@ -46,13 +46,24 @@ function advanceOneStep(dateStr: string, recurrenceType: RecurrenceType): string
   }
 }
 
+/**
+ * Safety cap for advancing a recurring commitment forward in time.
+ * 730 steps ≈ 2 years of daily recurrence — guards against malformed
+ * dates or degenerate inputs causing an infinite loop.
+ */
+const MAX_RECURRENCE_STEPS = 730;
+
+/**
+ * Advances a recurring commitment's due date one step at a time until
+ * it lands on a future (or today) date. Returns the next valid due date.
+ */
 function getNextFutureDueDate(dueDate: string, recurrenceType: RecurrenceType): string {
   let next = dueDate;
-  let iterations = 0;
+  let steps = 0;
   do {
     next = advanceOneStep(next, recurrenceType);
-    iterations++;
-  } while (isPastDate(next) && !isToday(next) && iterations < 730);
+    steps++;
+  } while (isPastDate(next) && !isToday(next) && steps < MAX_RECURRENCE_STEPS);
   return next;
 }
 
@@ -74,26 +85,32 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       .then((res) => res.json())
       .then(async (apiData: Commitment[]) => {
         if (apiData && apiData.length > 0) {
+          // Re-derive statuses in case time passed since the last server write
           const refreshed = refreshCommitmentStatuses(apiData);
           setCommitments(refreshed);
           saveData(KEYS.COMMITMENTS, refreshed);
+
+          // Sync back any commitments whose status changed after the refresh
+          const apiStatusById = new Map(apiData.map((c) => [c.id, c.status]));
           refreshed
-            .filter((c, i) => c.status !== apiData[i]?.status)
+            .filter((c) => c.status !== apiStatusById.get(c.id))
             .forEach((c) =>
               apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {})
             );
         } else {
+          // API returned empty — push local cache to the server
           const local = await loadData<Commitment[]>(KEYS.COMMITMENTS);
           if (local && local.length > 0) {
             const refreshed = refreshCommitmentStatuses(local);
             setCommitments(refreshed);
-            refreshed.forEach((item) =>
-              apiRequest("POST", "/api/commitments", item).catch(() => {})
+            refreshed.forEach((commitment) =>
+              apiRequest("POST", "/api/commitments", commitment).catch(() => {})
             );
           }
         }
       })
       .catch(() => {
+        // Network unavailable — fall back to local cache
         loadData<Commitment[]>(KEYS.COMMITMENTS).then((saved) => {
           const refreshed = refreshCommitmentStatuses(saved || []);
           setCommitments(refreshed);
@@ -173,12 +190,23 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     if (paidRecord) apiRequest("PATCH", `/api/commitments/${id}`, paidRecord).catch(console.error);
   };
 
+  /**
+   * Returns the total amount reserved for unpaid commitments on the given account.
+   * Subtracted from the account balance to compute the "available" funds shown
+   * on the dashboard. Includes ALL non-paid commitments (upcoming, due today, overdue).
+   */
   const allocatedMoneyForAccount = useCallback((accountId: string): number => {
     return commitments
       .filter((c) => c.account_id === accountId && c.status !== "paid")
       .reduce((sum, c) => sum + c.amount, 0);
   }, [commitments]);
 
+  /**
+   * Returns committed money that must be excluded from the daily spending limit.
+   * Stricter than allocatedMoneyForAccount — only includes urgent items:
+   * - Overdue or due today (must be paid immediately)
+   * - Upcoming commitments reserved early via the 28th-day rule (see isReservedOn28th)
+   */
   const reservedMoneyForDailyLimit = useCallback((accountId: string): number => {
     return commitments
       .filter(
@@ -193,8 +221,11 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
   const refreshStatuses = () => {
     const refreshed = refreshCommitmentStatuses(commitments);
     persist(refreshed);
+
+    // Sync only the commitments whose status actually changed (compare by ID, not index)
+    const previousStatusById = new Map(commitments.map((c) => [c.id, c.status]));
     refreshed
-      .filter((c, i) => c.status !== commitments[i]?.status)
+      .filter((c) => c.status !== previousStatusById.get(c.id))
       .forEach((c) => apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(console.error));
   };
 
