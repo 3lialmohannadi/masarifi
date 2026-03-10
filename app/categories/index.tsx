@@ -14,7 +14,7 @@ const CATEGORY_TYPE_TABS: CategoryType[] = ["expense", "income", "savings", "com
 
 export default function CategoriesScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, isDark } = useApp();
   const { categories } = useCategories();
   const [activeType, setActiveType] = useState<CategoryType>("expense");
 
@@ -160,11 +160,14 @@ export default function CategoriesScreen() {
               alignItems: "center",
               gap: 12,
               backgroundColor: pressed ? theme.cardSecondary : theme.card,
-              borderRadius: 14,
-              padding: 14,
+              borderRadius: 16,
+              padding: 16,
               marginTop: 8,
               borderWidth: 1,
               borderColor: theme.border,
+              ...(isDark ? {} : Platform.OS === "web"
+                ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
+                : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
             })}
           >
             {/* Icon */}

@@ -20,7 +20,7 @@ type BudgetWithSpent = Budget & { spent: number };
 
 export default function BudgetScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL, settings } = useApp();
+  const { theme, t, language, isRTL, settings, isDark } = useApp();
   const { budgets } = useBudgets();
   const { transactions } = useTransactions();
   const { getCategory } = useCategories();
@@ -168,11 +168,14 @@ export default function BudgetScreen() {
               <View
                 style={{
                   backgroundColor: theme.card,
-                  borderRadius: 18,
+                  borderRadius: 16,
                   padding: 16,
                   gap: 12,
-                  borderWidth: isOverall ? 1 : 0,
-                  borderColor: isOverall ? theme.expense + "40" : "transparent",
+                  borderWidth: 1,
+                  borderColor: isOverall ? theme.expense + "40" : theme.border,
+                  ...(isDark ? {} : Platform.OS === "web"
+                    ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
+                    : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
                 }}
               >
                 {/* Stats row: 3 columns */}
@@ -276,12 +279,15 @@ export default function BudgetScreen() {
               }}
               style={({ pressed }) => ({
                 backgroundColor: pressed ? theme.cardSecondary : theme.card,
-                borderRadius: 18,
+                borderRadius: 16,
                 padding: 16,
                 gap: 12,
                 marginTop: 10,
-                borderWidth: isOver ? 1 : 0,
-                borderColor: isOver ? theme.expense + "50" : "transparent",
+                borderWidth: 1,
+                borderColor: isOver ? theme.expense + "50" : theme.border,
+                ...(isDark ? {} : Platform.OS === "web"
+                  ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
+                  : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
               })}
             >
               {/* Top row: icon + name + % badge */}

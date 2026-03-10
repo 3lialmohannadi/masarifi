@@ -59,7 +59,7 @@ export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItem
         flexDirection: isRTL ? "row-reverse" : "row",
         alignItems: "center",
         gap: 12,
-        padding: 14,
+        padding: 16,
         borderRadius: 16,
         backgroundColor: pressed ? theme.cardSecondary : theme.card,
         marginBottom: 6,

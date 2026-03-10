@@ -38,7 +38,7 @@ function SectionLabel({ title }: { title: string }) {
 function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
   icon: string; iconColor: string; label: string; subtitle?: string; onPress: () => void; testID?: string;
 }) {
-  const { theme, isRTL } = useApp();
+  const { theme, isRTL, isDark } = useApp();
   return (
     <Pressable
       testID={testID}
@@ -52,6 +52,9 @@ function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
         borderRadius: 14,
         borderWidth: 1,
         borderColor: theme.border,
+        ...(isDark ? {} : Platform.OS === "web"
+          ? { boxShadow: "0 2px 8px rgba(47,143,131,0.07)" }
+          : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }),
       })}
     >
       <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: iconColor + "18", alignItems: "center", justifyContent: "center" }}>

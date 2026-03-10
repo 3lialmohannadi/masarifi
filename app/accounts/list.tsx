@@ -12,7 +12,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function AccountsListScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, isDark } = useApp();
   const { accounts } = useAccounts();
 
   const activeAccounts = accounts.filter((a) => a.is_active);
@@ -96,10 +96,17 @@ export default function AccountsListScreen() {
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
               gap: 12,
-              borderLeftWidth: isRTL ? 0 : 4,
-              borderRightWidth: isRTL ? 4 : 0,
-              borderLeftColor: isRTL ? undefined : item.color,
-              borderRightColor: isRTL ? item.color : undefined,
+              borderLeftWidth: isRTL ? 1 : 4,
+              borderRightWidth: isRTL ? 4 : 1,
+              borderTopWidth: 1,
+              borderBottomWidth: 1,
+              borderLeftColor: isRTL ? theme.border : item.color,
+              borderRightColor: isRTL ? item.color : theme.border,
+              borderTopColor: theme.border,
+              borderBottomColor: theme.border,
+              ...(isDark ? {} : Platform.OS === "web"
+                ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
+                : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
             })}
           >
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: item.color + "20", alignItems: "center", justifyContent: "center" }}>
@@ -139,6 +146,8 @@ export default function AccountsListScreen() {
                     alignItems: "center",
                     gap: 12,
                     opacity: 0.5,
+                    borderWidth: 1,
+                    borderColor: theme.border,
                   }}
                 >
                   <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: item.color + "15", alignItems: "center", justifyContent: "center" }}>

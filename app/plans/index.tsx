@@ -21,7 +21,7 @@ import { formatDateShort } from "@/utils/date";
 
 export default function PlansScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL } = useApp();
+  const { theme, t, language, isRTL, isDark } = useApp();
   const { plans, getPlanSpent } = usePlans();
   const { transactions } = useTransactions();
 
@@ -84,8 +84,13 @@ export default function PlansScreen() {
                 onPress={() => router.push(`/plans/${plan.id}`)}
                 style={({ pressed }) => ({
                   backgroundColor: pressed ? theme.cardSecondary : theme.card,
-                  borderRadius: 20,
+                  borderRadius: 16,
                   overflow: "hidden",
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  ...(isDark ? {} : Platform.OS === "web"
+                    ? { boxShadow: "0 2px 10px rgba(47,143,131,0.10)" }
+                    : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 10, elevation: 3 }),
                 })}
               >
                 <View style={{ backgroundColor: planColor, padding: 16, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>

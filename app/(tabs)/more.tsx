@@ -15,7 +15,7 @@ interface MenuItemProps {
 }
 
 function MenuItem({ icon, label, color, subtitle, onPress }: MenuItemProps) {
-  const { theme, isRTL } = useApp();
+  const { theme, isRTL, isDark } = useApp();
   return (
     <Pressable
       onPress={() => { Haptics.selectionAsync(); onPress(); }}
@@ -28,6 +28,11 @@ function MenuItem({ icon, label, color, subtitle, onPress }: MenuItemProps) {
         backgroundColor: pressed ? theme.cardSecondary : theme.card,
         borderRadius: 16,
         marginBottom: 6,
+        borderWidth: 1,
+        borderColor: theme.border,
+        ...(isDark ? {} : Platform.OS === "web"
+          ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
+          : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
       })}
     >
       <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: color + "18", alignItems: "center", justifyContent: "center" }}>

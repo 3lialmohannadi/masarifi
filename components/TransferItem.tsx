@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
@@ -22,7 +22,7 @@ export function TransferItem({
   onPress,
   showDate = true,
 }: TransferItemProps) {
-  const { theme, language, isRTL, t } = useApp();
+  const { theme, language, isRTL, t, isDark } = useApp();
   const { getAccount } = useAccounts();
 
   const sourceAccount = getAccount(transfer.source_account_id);
@@ -74,6 +74,11 @@ export function TransferItem({
         backgroundColor: pressed ? theme.cardSecondary : theme.card,
         borderRadius: 16,
         marginBottom: 8,
+        borderWidth: 1,
+        borderColor: theme.border,
+        ...(isDark ? {} : Platform.OS === "web"
+          ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
+          : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
       })}
     >
       <View
