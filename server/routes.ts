@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "node:http";
 import { storage } from "./storage";
 import { db } from "./db";
-import * as schema from "@shared/schema";
+import * as schema from "@database/schema";
 import { eq } from "drizzle-orm";
 
 const DEFAULT_USER_ID = "default-user";

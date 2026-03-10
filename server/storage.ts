@@ -1,6 +1,6 @@
 import { eq, and, desc, asc } from "drizzle-orm";
 import { db } from "./db";
-import * as schema from "@shared/schema";
+import * as schema from "@database/schema";
 import type {
   User,
   InsertUser,
@@ -25,7 +25,7 @@ import type {
   Budget,
   InsertBudget,
   Settings,
-} from "@shared/schema";
+} from "@database/schema";
 
 // ─── Interface ────────────────────────────────────────────────────────────────
 

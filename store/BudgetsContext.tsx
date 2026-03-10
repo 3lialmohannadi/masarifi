@@ -10,7 +10,7 @@ import type { Budget } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { getMonthKey } from "@/utils/date";
-import { apiRequest } from "@/lib/query-client";
+import { apiRequest } from "@/services/api";
 
 interface BudgetsContextValue {
   budgets: Budget[];

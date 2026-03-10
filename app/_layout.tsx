@@ -15,7 +15,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toast } from "@/components/Toast";
-import { queryClient } from "@/lib/query-client";
+import { queryClient } from "@/services/api";
 import { AppProvider, useApp } from "@/store/AppContext";
 import { AccountsProvider } from "@/store/AccountsContext";
 import { TransactionsProvider } from "@/store/TransactionsContext";

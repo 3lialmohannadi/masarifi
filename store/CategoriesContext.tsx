@@ -9,7 +9,7 @@ import React, {
 import type { Category, CategoryType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
-import { apiRequest } from "@/lib/query-client";
+import { apiRequest } from "@/services/api";
 
 interface CategoriesContextValue {
   categories: Category[];

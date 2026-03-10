@@ -154,7 +154,7 @@ export default function SettingsScreen() {
   const handleReset = useCallback(async () => {
     setResetting(true);
     try {
-      const { apiRequest } = await import("@/lib/query-client");
+      const { apiRequest } = await import("@/services/api");
       await apiRequest("POST", "/api/reset");
       clearAccounts();
       clearTransactions();

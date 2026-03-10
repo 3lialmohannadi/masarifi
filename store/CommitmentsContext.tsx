@@ -10,7 +10,7 @@ import type { Commitment, CommitmentStatus, RecurrenceType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { isReservedOn28th, isPastDate, isToday, addMonths, addWeeks, addDays, addYears } from "@/utils/date";
-import { apiRequest } from "@/lib/query-client";
+import { apiRequest } from "@/services/api";
 
 interface CommitmentsContextValue {
   commitments: Commitment[];

@@ -13,7 +13,7 @@ Masarifi is a bilingual (Arabic/English) personal finance mobile app built with 
 - Text (light): `#1F2A44`, Text (dark): `#E8F2F1`
 - Hero sections: teal `#2F8F83` (light) / dark teal `#132825` (dark) with `borderBottomRadius: 32`
 
-**Card Shadows:** Platform-aware — `boxShadow` on web, native `shadow*` props on iOS/Android (light mode only). Shadow utility functions (`cardShadow`, `strongShadow`, `subtleShadow`) are exported from `constants/colors.ts`. Use these helpers for new components.
+**Card Shadows:** Platform-aware — `boxShadow` on web, native `shadow*` props on iOS/Android (light mode only). Shadow utility functions (`cardShadow`, `strongShadow`, `subtleShadow`) are exported from `theme/colors.ts`. Use these helpers for new components.
 
 **Design Tokens (strictly enforced across all screens):**
 - Screen title: `fontSize: 22, fontWeight: "800"` — applies to ALL screens (tab and stack)
@@ -28,6 +28,56 @@ Masarifi is a bilingual (Arabic/English) personal finance mobile app built with 
 
 **Tab Screen Bottom Padding:** All 5 tab screens use `paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110)` to clear the tab bar (84px on web, ~83px on iOS, ~56px on Android).
 **Stack Screen Bottom Padding:** `paddingBottom: insets.bottom + 30`
+
+## Project Structure
+```
+app/                  Expo Router screens (file-based routing)
+  (tabs)/             Bottom tab screens (Home, Transactions, Savings, Statistics, More)
+  (modals)/           Modal forms (account, transaction, commitment, plan, budget, etc.)
+  accounts/           Account detail & list screens
+  budget/             Budget screen
+  categories/         Categories management screen
+  commitments/        Commitments list & detail screens
+  plans/              Plans list & detail screens
+  savings/            Savings wallet detail screen
+  settings/           Settings screen
+assets/               Images, icons, splash screens
+components/           Shared UI components
+  ui/                 Base UI primitives (AppButton, AppInput, Badge, EmptyState, ProgressBar, ThemedText, ThemedView)
+database/             PostgreSQL schema (Drizzle ORM)
+  schema.ts           All table definitions and relations
+hooks/                Custom React hooks (useDebounce, useMonthPicker)
+i18n/                 Translations (ar.ts, en.ts, index.ts)
+navigation/           Route constants (routes.ts)
+server/               Express backend
+  db.ts               Database connection
+  routes.ts           All REST API endpoints
+  storage.ts          Database access layer
+  templates/          Landing page HTML
+services/             API service layer
+  api.ts              React Query client, apiRequest, getApiUrl
+store/                React Context providers (one per domain)
+  AppContext.tsx       Theme, language, settings
+  AccountsContext.tsx
+  TransactionsContext.tsx
+  CommitmentsContext.tsx
+  SavingsContext.tsx
+  PlansContext.tsx
+  BudgetsContext.tsx
+  CategoriesContext.tsx
+theme/                Design system
+  colors.ts           LightTheme, DarkTheme, shadow utilities, type Theme
+types/                TypeScript type definitions
+  index.ts            All shared types
+utils/                Utility functions
+  currency.ts         CURRENCIES list, formatCurrency, getCurrencyInfo
+  date.ts             Date helpers, isReservedOn28th, formatDate
+  defaults.ts         Default data generators
+  display.ts          Display/label helpers
+  id.ts               generateId, now
+  storage.ts          AsyncStorage helpers with KEYS
+  translate.ts        MyMemory auto-translation
+```
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

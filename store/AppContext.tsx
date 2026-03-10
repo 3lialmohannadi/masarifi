@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import { useColorScheme } from "react-native";
 import type { Language, ThemeMode, DailyLimitMode, AppSettings } from "@/types";
-import { LightTheme, DarkTheme, type Theme } from "@/constants/colors";
+import { LightTheme, DarkTheme, type Theme } from "@/theme/colors";
 import { getTranslations, type TranslationKeys } from "@/i18n";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 

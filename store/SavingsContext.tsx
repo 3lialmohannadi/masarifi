@@ -10,7 +10,7 @@ import type { SavingsWallet, SavingsTransaction } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { createDefaultSavingsWallet } from "@/utils/defaults";
-import { apiRequest } from "@/lib/query-client";
+import { apiRequest } from "@/services/api";
 
 interface SavingsContextValue {
   wallets: SavingsWallet[];
