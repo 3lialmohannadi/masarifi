@@ -1,38 +1,506 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { eq, and, desc, asc } from "drizzle-orm";
+import { db } from "./db";
+import * as schema from "@shared/schema";
+import type {
+  User,
+  InsertUser,
+  Account,
+  InsertAccount,
+  Category,
+  InsertCategory,
+  Transaction,
+  InsertTransaction,
+  Transfer,
+  InsertTransfer,
+  SavingsWallet,
+  InsertSavingsWallet,
+  SavingsTransaction,
+  InsertSavingsTransaction,
+  Plan,
+  InsertPlan,
+  PlanCategory,
+  InsertPlanCategory,
+  Commitment,
+  InsertCommitment,
+  Budget,
+  InsertBudget,
+  Settings,
+} from "@shared/schema";
 
-// modify the interface with any CRUD methods
-// you might need
+// ─── Interface ────────────────────────────────────────────────────────────────
 
 export interface IStorage {
+  // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+
+  // Settings
+  getSettings(userId?: string): Promise<Settings | undefined>;
+  upsertSettings(data: Partial<Settings>): Promise<Settings>;
+
+  // Accounts
+  getAccounts(userId?: string): Promise<Account[]>;
+  getAccount(id: string): Promise<Account | undefined>;
+  createAccount(data: InsertAccount): Promise<Account>;
+  updateAccount(id: string, data: Partial<Account>): Promise<Account>;
+  deleteAccount(id: string): Promise<void>;
+
+  // Categories
+  getCategories(userId?: string): Promise<Category[]>;
+  getCategory(id: string): Promise<Category | undefined>;
+  createCategory(data: InsertCategory): Promise<Category>;
+  updateCategory(id: string, data: Partial<Category>): Promise<Category>;
+  deleteCategory(id: string): Promise<void>;
+
+  // Transactions
+  getTransactions(userId?: string): Promise<Transaction[]>;
+  getTransaction(id: string): Promise<Transaction | undefined>;
+  createTransaction(data: InsertTransaction): Promise<Transaction>;
+  updateTransaction(id: string, data: Partial<Transaction>): Promise<Transaction>;
+  deleteTransaction(id: string): Promise<void>;
+
+  // Transfers
+  getTransfers(userId?: string): Promise<Transfer[]>;
+  getTransfer(id: string): Promise<Transfer | undefined>;
+  createTransfer(data: InsertTransfer): Promise<Transfer>;
+  updateTransfer(id: string, data: Partial<Transfer>): Promise<Transfer>;
+  deleteTransfer(id: string): Promise<void>;
+
+  // Savings Wallets
+  getSavingsWallets(userId?: string): Promise<SavingsWallet[]>;
+  getSavingsWallet(id: string): Promise<SavingsWallet | undefined>;
+  createSavingsWallet(data: InsertSavingsWallet): Promise<SavingsWallet>;
+  updateSavingsWallet(id: string, data: Partial<SavingsWallet>): Promise<SavingsWallet>;
+  deleteSavingsWallet(id: string): Promise<void>;
+
+  // Savings Transactions
+  getSavingsTransactions(walletId?: string): Promise<SavingsTransaction[]>;
+  getSavingsTransaction(id: string): Promise<SavingsTransaction | undefined>;
+  createSavingsTransaction(data: InsertSavingsTransaction): Promise<SavingsTransaction>;
+  updateSavingsTransaction(id: string, data: Partial<SavingsTransaction>): Promise<SavingsTransaction>;
+  deleteSavingsTransaction(id: string): Promise<void>;
+
+  // Plans
+  getPlans(userId?: string): Promise<Plan[]>;
+  getPlan(id: string): Promise<Plan | undefined>;
+  createPlan(data: InsertPlan): Promise<Plan>;
+  updatePlan(id: string, data: Partial<Plan>): Promise<Plan>;
+  deletePlan(id: string): Promise<void>;
+
+  // Plan Categories
+  getPlanCategories(planId: string): Promise<PlanCategory[]>;
+  getPlanCategory(id: string): Promise<PlanCategory | undefined>;
+  createPlanCategory(data: InsertPlanCategory): Promise<PlanCategory>;
+  updatePlanCategory(id: string, data: Partial<PlanCategory>): Promise<PlanCategory>;
+  deletePlanCategory(id: string): Promise<void>;
+
+  // Commitments
+  getCommitments(userId?: string): Promise<Commitment[]>;
+  getCommitment(id: string): Promise<Commitment | undefined>;
+  createCommitment(data: InsertCommitment): Promise<Commitment>;
+  updateCommitment(id: string, data: Partial<Commitment>): Promise<Commitment>;
+  deleteCommitment(id: string): Promise<void>;
+
+  // Budgets
+  getBudgets(userId?: string): Promise<Budget[]>;
+  getBudget(id: string): Promise<Budget | undefined>;
+  getBudgetByCategoryAndMonth(categoryId: string, month: string): Promise<Budget | undefined>;
+  createBudget(data: InsertBudget): Promise<Budget>;
+  updateBudget(id: string, data: Partial<Budget>): Promise<Budget>;
+  deleteBudget(id: string): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+// ─── Database Storage ─────────────────────────────────────────────────────────
 
-  constructor() {
-    this.users = new Map();
-  }
+export class DatabaseStorage implements IStorage {
+
+  // ── Users ──────────────────────────────────────────────────────────────────
 
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [row] = await db.select().from(schema.users).where(eq(schema.users.id, id));
+    return row;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [row] = await db.select().from(schema.users).where(eq(schema.users.username, username));
+    return row;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async createUser(data: InsertUser): Promise<User> {
+    const [row] = await db.insert(schema.users).values(data).returning();
+    return row;
+  }
+
+  // ── Settings ───────────────────────────────────────────────────────────────
+
+  async getSettings(userId?: string): Promise<Settings | undefined> {
+    if (userId) {
+      const [row] = await db.select().from(schema.settings).where(eq(schema.settings.user_id, userId));
+      return row;
+    }
+    const [row] = await db.select().from(schema.settings).where(eq(schema.settings.id, 1));
+    return row;
+  }
+
+  async upsertSettings(data: Partial<Settings>): Promise<Settings> {
+    const existing = await this.getSettings(data.user_id ?? undefined);
+    if (existing) {
+      const [updated] = await db
+        .update(schema.settings)
+        .set({ ...data, updated_at: new Date() })
+        .where(eq(schema.settings.id, existing.id))
+        .returning();
+      return updated;
+    }
+    const [created] = await db.insert(schema.settings).values(data as Settings).returning();
+    return created;
+  }
+
+  // ── Accounts ───────────────────────────────────────────────────────────────
+
+  async getAccounts(userId?: string): Promise<Account[]> {
+    if (userId) {
+      return db.select().from(schema.accounts)
+        .where(eq(schema.accounts.user_id, userId))
+        .orderBy(asc(schema.accounts.created_at));
+    }
+    return db.select().from(schema.accounts).orderBy(asc(schema.accounts.created_at));
+  }
+
+  async getAccount(id: string): Promise<Account | undefined> {
+    const [row] = await db.select().from(schema.accounts).where(eq(schema.accounts.id, id));
+    return row;
+  }
+
+  async createAccount(data: InsertAccount): Promise<Account> {
+    const [row] = await db.insert(schema.accounts).values(data).returning();
+    return row;
+  }
+
+  async updateAccount(id: string, data: Partial<Account>): Promise<Account> {
+    const [row] = await db
+      .update(schema.accounts)
+      .set({ ...data, updated_at: new Date() })
+      .where(eq(schema.accounts.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteAccount(id: string): Promise<void> {
+    await db.delete(schema.accounts).where(eq(schema.accounts.id, id));
+  }
+
+  // ── Categories ─────────────────────────────────────────────────────────────
+
+  async getCategories(userId?: string): Promise<Category[]> {
+    if (userId) {
+      return db.select().from(schema.categories)
+        .where(eq(schema.categories.user_id, userId))
+        .orderBy(asc(schema.categories.created_at));
+    }
+    return db.select().from(schema.categories).orderBy(asc(schema.categories.created_at));
+  }
+
+  async getCategory(id: string): Promise<Category | undefined> {
+    const [row] = await db.select().from(schema.categories).where(eq(schema.categories.id, id));
+    return row;
+  }
+
+  async createCategory(data: InsertCategory): Promise<Category> {
+    const [row] = await db.insert(schema.categories).values(data).returning();
+    return row;
+  }
+
+  async updateCategory(id: string, data: Partial<Category>): Promise<Category> {
+    const [row] = await db
+      .update(schema.categories)
+      .set({ ...data, updated_at: new Date() })
+      .where(eq(schema.categories.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    await db.delete(schema.categories).where(eq(schema.categories.id, id));
+  }
+
+  // ── Transactions ───────────────────────────────────────────────────────────
+
+  async getTransactions(userId?: string): Promise<Transaction[]> {
+    if (userId) {
+      return db.select().from(schema.transactions)
+        .where(eq(schema.transactions.user_id, userId))
+        .orderBy(desc(schema.transactions.date));
+    }
+    return db.select().from(schema.transactions).orderBy(desc(schema.transactions.date));
+  }
+
+  async getTransaction(id: string): Promise<Transaction | undefined> {
+    const [row] = await db.select().from(schema.transactions).where(eq(schema.transactions.id, id));
+    return row;
+  }
+
+  async createTransaction(data: InsertTransaction): Promise<Transaction> {
+    const [row] = await db.insert(schema.transactions).values(data).returning();
+    return row;
+  }
+
+  async updateTransaction(id: string, data: Partial<Transaction>): Promise<Transaction> {
+    const [row] = await db
+      .update(schema.transactions)
+      .set({ ...data, updated_at: new Date() })
+      .where(eq(schema.transactions.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteTransaction(id: string): Promise<void> {
+    await db.delete(schema.transactions).where(eq(schema.transactions.id, id));
+  }
+
+  // ── Transfers ──────────────────────────────────────────────────────────────
+
+  async getTransfers(userId?: string): Promise<Transfer[]> {
+    if (userId) {
+      return db.select().from(schema.transfers)
+        .where(eq(schema.transfers.user_id, userId))
+        .orderBy(desc(schema.transfers.date));
+    }
+    return db.select().from(schema.transfers).orderBy(desc(schema.transfers.date));
+  }
+
+  async getTransfer(id: string): Promise<Transfer | undefined> {
+    const [row] = await db.select().from(schema.transfers).where(eq(schema.transfers.id, id));
+    return row;
+  }
+
+  async createTransfer(data: InsertTransfer): Promise<Transfer> {
+    const [row] = await db.insert(schema.transfers).values(data).returning();
+    return row;
+  }
+
+  async updateTransfer(id: string, data: Partial<Transfer>): Promise<Transfer> {
+    const [row] = await db
+      .update(schema.transfers)
+      .set(data)
+      .where(eq(schema.transfers.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteTransfer(id: string): Promise<void> {
+    await db.delete(schema.transfers).where(eq(schema.transfers.id, id));
+  }
+
+  // ── Savings Wallets ────────────────────────────────────────────────────────
+
+  async getSavingsWallets(userId?: string): Promise<SavingsWallet[]> {
+    if (userId) {
+      return db.select().from(schema.savingsWallets)
+        .where(eq(schema.savingsWallets.user_id, userId))
+        .orderBy(asc(schema.savingsWallets.created_at));
+    }
+    return db.select().from(schema.savingsWallets).orderBy(asc(schema.savingsWallets.created_at));
+  }
+
+  async getSavingsWallet(id: string): Promise<SavingsWallet | undefined> {
+    const [row] = await db.select().from(schema.savingsWallets).where(eq(schema.savingsWallets.id, id));
+    return row;
+  }
+
+  async createSavingsWallet(data: InsertSavingsWallet): Promise<SavingsWallet> {
+    const [row] = await db.insert(schema.savingsWallets).values(data).returning();
+    return row;
+  }
+
+  async updateSavingsWallet(id: string, data: Partial<SavingsWallet>): Promise<SavingsWallet> {
+    const [row] = await db
+      .update(schema.savingsWallets)
+      .set({ ...data, updated_at: new Date() })
+      .where(eq(schema.savingsWallets.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteSavingsWallet(id: string): Promise<void> {
+    await db.delete(schema.savingsWallets).where(eq(schema.savingsWallets.id, id));
+  }
+
+  // ── Savings Transactions ───────────────────────────────────────────────────
+
+  async getSavingsTransactions(walletId?: string): Promise<SavingsTransaction[]> {
+    if (walletId) {
+      return db.select().from(schema.savingsTransactions)
+        .where(eq(schema.savingsTransactions.wallet_id, walletId))
+        .orderBy(desc(schema.savingsTransactions.date));
+    }
+    return db.select().from(schema.savingsTransactions).orderBy(desc(schema.savingsTransactions.date));
+  }
+
+  async getSavingsTransaction(id: string): Promise<SavingsTransaction | undefined> {
+    const [row] = await db.select().from(schema.savingsTransactions).where(eq(schema.savingsTransactions.id, id));
+    return row;
+  }
+
+  async createSavingsTransaction(data: InsertSavingsTransaction): Promise<SavingsTransaction> {
+    const [row] = await db.insert(schema.savingsTransactions).values(data).returning();
+    return row;
+  }
+
+  async updateSavingsTransaction(id: string, data: Partial<SavingsTransaction>): Promise<SavingsTransaction> {
+    const [row] = await db
+      .update(schema.savingsTransactions)
+      .set(data)
+      .where(eq(schema.savingsTransactions.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteSavingsTransaction(id: string): Promise<void> {
+    await db.delete(schema.savingsTransactions).where(eq(schema.savingsTransactions.id, id));
+  }
+
+  // ── Plans ──────────────────────────────────────────────────────────────────
+
+  async getPlans(userId?: string): Promise<Plan[]> {
+    if (userId) {
+      return db.select().from(schema.plans)
+        .where(eq(schema.plans.user_id, userId))
+        .orderBy(asc(schema.plans.created_at));
+    }
+    return db.select().from(schema.plans).orderBy(asc(schema.plans.created_at));
+  }
+
+  async getPlan(id: string): Promise<Plan | undefined> {
+    const [row] = await db.select().from(schema.plans).where(eq(schema.plans.id, id));
+    return row;
+  }
+
+  async createPlan(data: InsertPlan): Promise<Plan> {
+    const [row] = await db.insert(schema.plans).values(data).returning();
+    return row;
+  }
+
+  async updatePlan(id: string, data: Partial<Plan>): Promise<Plan> {
+    const [row] = await db
+      .update(schema.plans)
+      .set({ ...data, updated_at: new Date() })
+      .where(eq(schema.plans.id, id))
+      .returning();
+    return row;
+  }
+
+  async deletePlan(id: string): Promise<void> {
+    await db.delete(schema.plans).where(eq(schema.plans.id, id));
+  }
+
+  // ── Plan Categories ────────────────────────────────────────────────────────
+
+  async getPlanCategories(planId: string): Promise<PlanCategory[]> {
+    return db.select().from(schema.planCategories)
+      .where(eq(schema.planCategories.plan_id, planId))
+      .orderBy(asc(schema.planCategories.created_at));
+  }
+
+  async getPlanCategory(id: string): Promise<PlanCategory | undefined> {
+    const [row] = await db.select().from(schema.planCategories).where(eq(schema.planCategories.id, id));
+    return row;
+  }
+
+  async createPlanCategory(data: InsertPlanCategory): Promise<PlanCategory> {
+    const [row] = await db.insert(schema.planCategories).values(data).returning();
+    return row;
+  }
+
+  async updatePlanCategory(id: string, data: Partial<PlanCategory>): Promise<PlanCategory> {
+    const [row] = await db
+      .update(schema.planCategories)
+      .set(data)
+      .where(eq(schema.planCategories.id, id))
+      .returning();
+    return row;
+  }
+
+  async deletePlanCategory(id: string): Promise<void> {
+    await db.delete(schema.planCategories).where(eq(schema.planCategories.id, id));
+  }
+
+  // ── Commitments ────────────────────────────────────────────────────────────
+
+  async getCommitments(userId?: string): Promise<Commitment[]> {
+    if (userId) {
+      return db.select().from(schema.commitments)
+        .where(eq(schema.commitments.user_id, userId))
+        .orderBy(asc(schema.commitments.due_date));
+    }
+    return db.select().from(schema.commitments).orderBy(asc(schema.commitments.due_date));
+  }
+
+  async getCommitment(id: string): Promise<Commitment | undefined> {
+    const [row] = await db.select().from(schema.commitments).where(eq(schema.commitments.id, id));
+    return row;
+  }
+
+  async createCommitment(data: InsertCommitment): Promise<Commitment> {
+    const [row] = await db.insert(schema.commitments).values(data).returning();
+    return row;
+  }
+
+  async updateCommitment(id: string, data: Partial<Commitment>): Promise<Commitment> {
+    const [row] = await db
+      .update(schema.commitments)
+      .set({ ...data, updated_at: new Date() })
+      .where(eq(schema.commitments.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteCommitment(id: string): Promise<void> {
+    await db.delete(schema.commitments).where(eq(schema.commitments.id, id));
+  }
+
+  // ── Budgets ────────────────────────────────────────────────────────────────
+
+  async getBudgets(userId?: string): Promise<Budget[]> {
+    if (userId) {
+      return db.select().from(schema.budgets)
+        .where(eq(schema.budgets.user_id, userId))
+        .orderBy(desc(schema.budgets.month));
+    }
+    return db.select().from(schema.budgets).orderBy(desc(schema.budgets.month));
+  }
+
+  async getBudget(id: string): Promise<Budget | undefined> {
+    const [row] = await db.select().from(schema.budgets).where(eq(schema.budgets.id, id));
+    return row;
+  }
+
+  async getBudgetByCategoryAndMonth(categoryId: string, month: string): Promise<Budget | undefined> {
+    const [row] = await db
+      .select()
+      .from(schema.budgets)
+      .where(and(eq(schema.budgets.category_id, categoryId), eq(schema.budgets.month, month)));
+    return row;
+  }
+
+  async createBudget(data: InsertBudget): Promise<Budget> {
+    const [row] = await db.insert(schema.budgets).values(data).returning();
+    return row;
+  }
+
+  async updateBudget(id: string, data: Partial<Budget>): Promise<Budget> {
+    const [row] = await db
+      .update(schema.budgets)
+      .set({ ...data, updated_at: new Date() })
+      .where(eq(schema.budgets.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteBudget(id: string): Promise<void> {
+    await db.delete(schema.budgets).where(eq(schema.budgets.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
