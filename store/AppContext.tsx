@@ -41,8 +41,6 @@ interface AppContextValue {
   setLanguage: (lang: Language) => void;
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => void;
-  colorScheme: ThemeMode;
-  setColorScheme: (mode: ThemeMode) => void;
   theme: Theme;
   isDark: boolean;
   t: TranslationKeys;
@@ -94,7 +92,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = (lang: Language) => updateSettings({ language: lang });
   const setThemeMode = (mode: ThemeMode) => updateSettings({ theme: mode });
-  const setColorScheme = (mode: ThemeMode) => updateSettings({ theme: mode });
   const setSelectedAccountId = (id: string) => updateSettings({ selected_account_id: id });
 
   const hideToast = useCallback(() => {
@@ -115,8 +112,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setLanguage,
       themeMode: settings.theme,
       setThemeMode,
-      colorScheme: settings.theme,
-      setColorScheme,
       theme,
       isDark,
       t,

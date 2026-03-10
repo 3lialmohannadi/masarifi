@@ -10,6 +10,7 @@ import type { Category, CategoryType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { apiRequest } from "@/services/api";
+import { useTransactions } from "@/store/TransactionsContext";
 
 interface CategoriesContextValue {
   categories: Category[];
@@ -24,13 +25,8 @@ interface CategoriesContextValue {
 
 const CategoriesContext = createContext<CategoriesContextValue | null>(null);
 
-export function CategoriesProvider({
-  children,
-  transactionCategoryIds,
-}: {
-  children: ReactNode;
-  transactionCategoryIds: string[];
-}) {
+export function CategoriesProvider({ children }: { children: ReactNode }) {
+  const { categoryIdsInUse } = useTransactions();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -81,7 +77,7 @@ export function CategoriesProvider({
   };
 
   const deleteCategory = (id: string): boolean => {
-    if (transactionCategoryIds.includes(id)) return false;
+    if (categoryIdsInUse.includes(id)) return false;
     persist(categories.filter((c) => c.id !== id));
     apiRequest("DELETE", `/api/categories/${id}`).catch(console.error);
     return true;
@@ -112,7 +108,7 @@ export function CategoriesProvider({
       toggleFavorite,
       isLoaded,
     }),
-    [categories, transactionCategoryIds, isLoaded]
+    [categories, categoryIdsInUse, isLoaded]
   );
 
   return <CategoriesContext.Provider value={value}>{children}</CategoriesContext.Provider>;

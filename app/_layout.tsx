@@ -52,47 +52,20 @@ function Providers({ children }: { children: React.ReactNode }) {
       <AppLoadingGate>
         <AccountsProvider>
           <TransactionsProvider>
-            <InnerProviders>{children}</InnerProviders>
+            <CategoriesProvider>
+              <SavingsProvider>
+                <CommitmentsProvider>
+                  <PlansProvider>
+                    <BudgetsProvider>{children}</BudgetsProvider>
+                  </PlansProvider>
+                </CommitmentsProvider>
+              </SavingsProvider>
+            </CategoriesProvider>
           </TransactionsProvider>
         </AccountsProvider>
       </AppLoadingGate>
     </AppProvider>
   );
-}
-
-function InnerProviders({ children }: { children: React.ReactNode }) {
-  const [txCategoryIds, setTxCategoryIds] = React.useState<string[]>([]);
-
-  return (
-    <TransactionsCategoryBridge onCategoryIds={setTxCategoryIds}>
-      <CategoriesProvider transactionCategoryIds={txCategoryIds}>
-        <SavingsProvider>
-          <CommitmentsProvider>
-            <PlansProvider>
-              <BudgetsProvider>{children}</BudgetsProvider>
-            </PlansProvider>
-          </CommitmentsProvider>
-        </SavingsProvider>
-      </CategoriesProvider>
-    </TransactionsCategoryBridge>
-  );
-}
-
-function TransactionsCategoryBridge({
-  children,
-  onCategoryIds,
-}: {
-  children: React.ReactNode;
-  onCategoryIds: (ids: string[]) => void;
-}) {
-  const { useTransactions } = require("@/store/TransactionsContext");
-  const { categoryIdsInUse } = useTransactions();
-
-  React.useEffect(() => {
-    onCategoryIds(categoryIdsInUse);
-  }, [categoryIdsInUse]);
-
-  return <>{children}</>;
 }
 
 function RootLayoutNav() {

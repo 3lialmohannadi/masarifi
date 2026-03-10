@@ -105,14 +105,14 @@ export default function AddTransactionModal() {
   );
   const selectedPlanCategory = planCategoriesForPlan.find((pc) => pc.id === linkedPlanCategoryId);
 
-  // Pre-select last used category for new transactions
-  const [typeInitialized, setTypeInitialized] = React.useState(false);
+  // Pre-select last used category for new transactions (one-time init)
+  const categoryInitialized = React.useRef(false);
   React.useEffect(() => {
-    if (existingTx || typeInitialized) return;
+    if (existingTx || categoryInitialized.current) return;
     const key = settings.last_used_category_id;
     const found = key ? relevantCategories.find((c) => c.id === key) : null;
     if (found) setCategoryId(found.id);
-    setTypeInitialized(true);
+    categoryInitialized.current = true;
   }, [relevantCategories]);
 
   const validate = (): boolean => {

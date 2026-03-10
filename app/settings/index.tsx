@@ -71,7 +71,7 @@ function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, setLanguage, colorScheme, setColorScheme, settings, updateSettings, isRTL } = useApp();
+  const { theme, t, language, setLanguage, themeMode, setThemeMode, settings, updateSettings, isRTL } = useApp();
   const { accounts, clearAll: clearAccounts } = useAccounts();
   const { transactions, clearAll: clearTransactions } = useTransactions();
   const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
@@ -244,16 +244,16 @@ export default function SettingsScreen() {
             <Pressable
               key={opt.key}
               testID={`theme-${opt.key}`}
-              onPress={() => { Haptics.selectionAsync(); setColorScheme(opt.key); }}
+              onPress={() => { Haptics.selectionAsync(); setThemeMode(opt.key); }}
               style={{
                 flex: 1, paddingVertical: 16, borderRadius: 16, alignItems: "center", gap: 5,
-                backgroundColor: colorScheme === opt.key ? theme.primary : theme.card,
+                backgroundColor: themeMode === opt.key ? theme.primary : theme.card,
                 borderWidth: 2,
-                borderColor: colorScheme === opt.key ? theme.primary : theme.border,
+                borderColor: themeMode === opt.key ? theme.primary : theme.border,
               }}
             >
-              <Feather name={opt.icon as any} size={22} color={colorScheme === opt.key ? "#fff" : theme.textSecondary} />
-              <Text style={{ fontSize: 12, fontWeight: "600", color: colorScheme === opt.key ? "#fff" : theme.text }}>
+              <Feather name={opt.icon as any} size={22} color={themeMode === opt.key ? "#fff" : theme.textSecondary} />
+              <Text style={{ fontSize: 12, fontWeight: "600", color: themeMode === opt.key ? "#fff" : theme.text }}>
                 {opt.label}
               </Text>
             </Pressable>
