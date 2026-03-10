@@ -33,10 +33,3 @@ export function formatCurrency(amount: number, currencyCode: string, language: L
   }
   return isNegative ? `-${symbol}${formatted}` : `${symbol}${formatted}`;
 }
-
-export function formatAmount(amount: number, language: Language = "en"): string {
-  return Math.abs(amount).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}

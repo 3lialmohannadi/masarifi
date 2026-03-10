@@ -54,13 +54,6 @@ export function getRemainingDaysInMonth(): number {
   return lastDay.getDate() - today.getDate();
 }
 
-export function isWithin29Days(dateStr: string): boolean {
-  const date = new Date(dateStr);
-  const today = new Date();
-  const diff = (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-  return diff >= 0 && diff <= 29;
-}
-
 export function isReservedOn28th(dueDate: string): boolean {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -133,20 +126,6 @@ export function addYears(dateStr: string, years: number): string {
   const date = new Date(dateStr);
   date.setFullYear(date.getFullYear() + years);
   return date.toISOString().split("T")[0];
-}
-
-export function getMonthName(monthKey: string, language: Language = "en"): string {
-  const [year, month] = monthKey.split("-");
-  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-  if (language === "ar") {
-    return `${MONTHS_AR_LONG[date.getMonth()]} ${date.getFullYear()}`;
-  }
-  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-}
-
-export function monthKeyToMonthYear(monthKey: string): { month: number; year: number } {
-  const [year, month] = monthKey.split("-");
-  return { month: parseInt(month), year: parseInt(year) };
 }
 
 export function monthYearToMonthKey(month: number, year: number): string {

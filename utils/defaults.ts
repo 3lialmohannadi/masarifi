@@ -1,45 +1,5 @@
-import type { Category, SavingsWallet } from "@/types";
+import type { SavingsWallet } from "@/types";
 import { now } from "./id";
-
-function def(
-  id: string,
-  name_ar: string,
-  name_en: string,
-  icon: string,
-  color: string,
-  type: Category["type"],
-  is_favorite = false
-): Category {
-  return {
-    id,
-    name_ar,
-    name_en,
-    icon,
-    color,
-    type,
-    is_default: true,
-    is_active: true,
-    is_favorite,
-    created_at: now(),
-    updated_at: now(),
-  };
-}
-
-export const DEFAULT_CATEGORIES: Category[] = [];
-
-export function createDefaultCategories(): Category[] {
-  return DEFAULT_CATEGORIES.map((c) => ({ ...c, created_at: now(), updated_at: now() }));
-}
-
-export function mergeDefaultCategories(saved: Category[]): { merged: Category[]; added: number } {
-  const existingIds = new Set(saved.map((c) => c.id));
-  const missing = DEFAULT_CATEGORIES.filter((d) => !existingIds.has(d.id)).map((d) => ({
-    ...d,
-    created_at: now(),
-    updated_at: now(),
-  }));
-  return { merged: [...saved, ...missing], added: missing.length };
-}
 
 export function createDefaultSavingsWallet(): SavingsWallet {
   return {
