@@ -73,8 +73,12 @@ export default function DashboardScreen() {
       ? transactions.filter((tx) => tx.account_id === selectedAccount.id)
       : transactions;
     return [...filtered]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 3);
+      .sort((a, b) => {
+        const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
+        if (dateDiff !== 0) return dateDiff;
+        return b.id > a.id ? 1 : -1;
+      })
+      .slice(0, 5);
   }, [transactions, selectedAccount]);
 
   const shownCommitments = upcomingCommitments.slice(0, 3);
