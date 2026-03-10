@@ -1,14 +1,19 @@
 import type { Language } from "@/types";
 
+function toLatinDigits(str: string): string {
+  return str.replace(/[٠١٢٣٤٥٦٧٨٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+}
+
 export function formatDate(dateStr: string, language: Language = "en"): string {
   try {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr;
-    return date.toLocaleDateString(language === "ar" ? "ar-QA-u-nu-latn" : "en-US", {
+    const result = date.toLocaleDateString(language === "ar" ? "ar-SA" : "en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
+    return language === "ar" ? toLatinDigits(result) : result;
   } catch {
     return dateStr;
   }
@@ -18,10 +23,11 @@ export function formatDateShort(dateStr: string, language: Language = "en"): str
   try {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr;
-    return date.toLocaleDateString(language === "ar" ? "ar-QA-u-nu-latn" : "en-US", {
+    const result = date.toLocaleDateString(language === "ar" ? "ar-SA" : "en-US", {
       month: "short",
       day: "numeric",
     });
+    return language === "ar" ? toLatinDigits(result) : result;
   } catch {
     return dateStr;
   }
@@ -103,10 +109,11 @@ export function addYears(dateStr: string, years: number): string {
 export function getMonthName(monthKey: string, language: Language = "en"): string {
   const [year, month] = monthKey.split("-");
   const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-  return date.toLocaleDateString(language === "ar" ? "ar-QA-u-nu-latn" : "en-US", {
+  const result = date.toLocaleDateString(language === "ar" ? "ar-SA" : "en-US", {
     month: "long",
     year: "numeric",
   });
+  return language === "ar" ? toLatinDigits(result) : result;
 }
 
 export function monthKeyToMonthYear(monthKey: string): { month: number; year: number } {
