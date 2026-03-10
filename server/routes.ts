@@ -526,7 +526,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await db.delete(schema.budgets).where(eq(schema.budgets.user_id, DEFAULT_USER_ID));
       await db.delete(schema.commitments).where(eq(schema.commitments.user_id, DEFAULT_USER_ID));
-      await db.delete(schema.planCategories).where(eq(schema.planCategories.user_id, DEFAULT_USER_ID));
       await db.delete(schema.plans).where(eq(schema.plans.user_id, DEFAULT_USER_ID));
       await db.delete(schema.savingsTransactions).where(eq(schema.savingsTransactions.user_id, DEFAULT_USER_ID));
       await db.delete(schema.savingsWallets).where(eq(schema.savingsWallets.user_id, DEFAULT_USER_ID));
