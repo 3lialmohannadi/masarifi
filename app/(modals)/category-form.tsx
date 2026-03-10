@@ -97,7 +97,7 @@ export default function CategoryFormModal() {
     ]);
   };
 
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const topPad = Platform.OS === "web" ? insets.top + 51 : insets.top;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>

@@ -291,9 +291,9 @@ export default function StatisticsTab() {
 
           {/* Net Savings */}
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "rgba(255,255,255,0.07)", borderRadius: 16, padding: 16 }}>
-            <View>
+            <View style={{ flex: 1, marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }}>
               <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{t.statistics.netSavings}</Text>
-              <Text style={{ fontSize: 28, fontWeight: "800", color: netSavings >= 0 ? "#22C55E" : "#EF4444", marginTop: 2 }}>
+              <Text style={{ fontSize: 26, fontWeight: "800", color: netSavings >= 0 ? "#22C55E" : "#EF4444", marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>
                 {netSavings >= 0 ? "+" : ""}{formatCurrency(netSavings, primaryCurrency, language)}
               </Text>
             </View>

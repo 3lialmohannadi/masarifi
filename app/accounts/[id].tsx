@@ -213,7 +213,8 @@ export default function AccountDetailScreen() {
           style={{
             position: "absolute",
             bottom: insets.bottom + 24,
-            right: 20,
+            right: isRTL ? undefined : 20,
+            left: isRTL ? 20 : undefined,
             width: 54,
             height: 54,
             borderRadius: 27,

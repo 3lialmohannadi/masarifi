@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, Alert, Switch } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert, Switch, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -103,7 +103,7 @@ export default function SavingWalletFormModal() {
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
           justifyContent: "space-between",
-          paddingTop: insets.top + 16,
+          paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16),
           paddingHorizontal: 16,
           paddingBottom: 12,
           backgroundColor: theme.card,

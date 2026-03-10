@@ -286,7 +286,7 @@ export default function AddTransactionModal() {
         {/* ── Type Selector ── */}
         <View
           style={{
-            flexDirection: "row",
+            flexDirection: isRTL ? "row-reverse" : "row",
             backgroundColor: theme.card,
             borderRadius: 14,
             padding: 4,
