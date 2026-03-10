@@ -218,7 +218,7 @@ export default function SavingsMovementModal() {
         }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        bottomOffset={20}
+        bottomOffset={60}
       >
         {/* Deposit / Withdraw Toggle */}
         <View

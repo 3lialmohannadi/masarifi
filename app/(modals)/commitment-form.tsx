@@ -169,7 +169,7 @@ export default function CommitmentFormModal() {
         contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 40 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        bottomOffset={20}
+        bottomOffset={60}
       >
         {/* Commitment type indicator */}
         <View

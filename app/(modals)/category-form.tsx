@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, Alert, Platform } from "react-native";
+import { View, Text, Pressable, Alert, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -10,6 +10,7 @@ import { AppButton } from "@/components/ui/AppButton";
 import { BilingualNameInput } from "@/components/BilingualNameInput";
 import { IconPicker } from "@/components/IconPicker";
 import { ColorPicker } from "@/components/ColorPicker";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import type { CategoryType } from "@/types";
 
 const CATEGORY_TYPES: CategoryType[] = ["income", "expense", "savings", "commitment", "plan"];
@@ -134,13 +135,15 @@ export default function CategoryFormModal() {
         )}
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollViewCompat
         contentContainerStyle={{
           padding: 16,
           gap: 16,
           paddingBottom: (Platform.OS === "web" ? 34 : insets.bottom) + 30,
         }}
         showsVerticalScrollIndicator={false}
+        bottomOffset={60}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Default category info banner */}
         {isDefault && (
@@ -354,7 +357,7 @@ export default function CategoryFormModal() {
           fullWidth
           size="lg"
         />
-      </ScrollView>
+      </KeyboardAwareScrollViewCompat>
 
       <IconPicker
         selectedIcon={icon}

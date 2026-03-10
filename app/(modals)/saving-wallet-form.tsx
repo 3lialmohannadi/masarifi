@@ -131,7 +131,7 @@ export default function SavingWalletFormModal() {
         )}
       </View>
 
-      <KeyboardAwareScrollViewCompat contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }} bottomOffset={20} keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollViewCompat contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }} bottomOffset={60} keyboardShouldPersistTaps="handled">
         {/* Icon & Color Row */}
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
           <Pressable

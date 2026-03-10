@@ -159,7 +159,7 @@ export default function TransferFormModal() {
         <View style={{ width: 24 }} />
       </View>
 
-      <KeyboardAwareScrollViewCompat contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }} bottomOffset={20} keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollViewCompat contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }} bottomOffset={60} keyboardShouldPersistTaps="handled">
         {/* From Account */}
         <View style={{ gap: 6 }}>
           <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>{t.transfer.fromAccount}</Text>

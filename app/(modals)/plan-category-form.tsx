@@ -169,7 +169,7 @@ export default function PlanCategoryFormModal() {
         contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 40 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        bottomOffset={20}
+        bottomOffset={60}
       >
         {/* Budget overview */}
         <View style={{ backgroundColor: plan.color + "15", borderRadius: 16, padding: 14, gap: 10, borderWidth: 1, borderColor: plan.color + "30" }}>

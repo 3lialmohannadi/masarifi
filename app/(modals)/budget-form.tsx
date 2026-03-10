@@ -138,7 +138,7 @@ export default function BudgetFormModal() {
         contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 34 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        bottomOffset={20}
+        bottomOffset={60}
       >
         {/* Month Picker */}
         <View style={{ gap: 6 }}>

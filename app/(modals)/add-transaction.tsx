@@ -286,7 +286,7 @@ export default function AddTransactionModal() {
       <KeyboardAwareScrollViewCompat
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40, gap: 18 }}
-        bottomOffset={20}
+        bottomOffset={60}
       >
         {/* ── Type Selector ── */}
         <View
