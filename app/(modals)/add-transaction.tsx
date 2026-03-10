@@ -70,7 +70,7 @@ export default function AddTransactionModal() {
   const relevantCategories = useMemo(
     () =>
       categories
-        .filter((c) => (c.type === "income" || c.type === "expense") && c.is_active)
+        .filter((c) => c.is_active)
         .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
     [categories]
   );
@@ -103,14 +103,11 @@ export default function AddTransactionModal() {
   );
   const selectedPlanCategory = planCategoriesForPlan.find((pc) => pc.id === linkedPlanCategoryId);
 
-  // Pre-select last used category per type for new transactions
+  // Pre-select last used category for new transactions
   const [typeInitialized, setTypeInitialized] = React.useState(false);
   React.useEffect(() => {
     if (existingTx || typeInitialized) return;
-    const key =
-      type === "expense"
-        ? settings.last_used_expense_category_id
-        : settings.last_used_income_category_id;
+    const key = settings.last_used_category_id;
     const found = key ? relevantCategories.find((c) => c.id === key) : null;
     if (found) setCategoryId(found.id);
     setTypeInitialized(true);
@@ -163,12 +160,7 @@ export default function AddTransactionModal() {
       } else {
         const delta = type === "income" ? amountNum : -amountNum;
         updateBalance(accountId, delta);
-        updateSettings({
-          last_used_category_id: categoryId,
-          ...(type === "expense"
-            ? { last_used_expense_category_id: categoryId }
-            : { last_used_income_category_id: categoryId }),
-        });
+        if (categoryId) updateSettings({ last_used_category_id: categoryId });
         addTransaction({
           type,
           amount: amountNum,

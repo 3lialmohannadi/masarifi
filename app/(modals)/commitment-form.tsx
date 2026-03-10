@@ -36,11 +36,11 @@ export default function CommitmentFormModal() {
   const { theme, t, language, isRTL, showToast } = useApp();
   const { commitments, addCommitment, updateCommitment, deleteCommitment } = useCommitments();
   const { accounts } = useAccounts();
-  const { getCategoriesByType } = useCategories();
+  const { categories } = useCategories();
   const params = useLocalSearchParams<{ id?: string }>();
 
   const existing = params.id ? commitments.find((c) => c.id === params.id) : undefined;
-  const commitmentCategories = getCategoriesByType("commitment");
+  const allCategories = categories.filter((c) => c.is_active).sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
   const activeAccounts = accounts.filter((a) => a.is_active);
 
   const [nameAr, setNameAr] = useState(existing?.name_ar || "");
@@ -49,9 +49,7 @@ export default function CommitmentFormModal() {
   const [accountId, setAccountId] = useState(
     existing?.account_id || activeAccounts.find((a) => a.is_active)?.id || ""
   );
-  const [categoryId, setCategoryId] = useState(
-    existing?.category_id || commitmentCategories[0]?.id || ""
-  );
+  const [categoryId, setCategoryId] = useState(existing?.category_id || "");
   const [dueDate, setDueDate] = useState(existing?.due_date || todayISOString());
   const [recurrence, setRecurrence] = useState<RecurrenceType>(
     existing?.recurrence_type || "monthly"
@@ -95,7 +93,7 @@ export default function CommitmentFormModal() {
         name_en: nameEn,
         amount: parseFloat(amount),
         account_id: accountId,
-        category_id: categoryId || commitmentCategories[0]?.id || "",
+        category_id: categoryId || allCategories[0]?.id || "",
         due_date: dueDate,
         recurrence_type: recurrence,
         is_manual: recurrence === "none",
@@ -131,7 +129,7 @@ export default function CommitmentFormModal() {
   };
 
   const selectedAccount = activeAccounts.find((a) => a.id === accountId);
-  const selectedCategory = commitmentCategories.find((c) => c.id === categoryId);
+  const selectedCategory = allCategories.find((c) => c.id === categoryId);
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
   return (
@@ -504,7 +502,7 @@ export default function CommitmentFormModal() {
               </Pressable>
             </View>
             <FlatList
-              data={commitmentCategories}
+              data={allCategories}
               keyExtractor={(c) => c.id}
               renderItem={({ item }) => (
                 <Pressable

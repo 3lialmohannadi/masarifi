@@ -84,7 +84,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const categories = useMemo(
     () =>
       allCategories
-        .filter((c) => (c.type === "income" || c.type === "expense") && c.is_active)
+        .filter((c) => c.is_active)
         .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
     [allCategories]
   );
@@ -118,14 +118,11 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
 
   useEffect(() => {
     if (!visible) return;
-    const key =
-      type === "expense"
-        ? settings.last_used_expense_category_id
-        : settings.last_used_income_category_id;
+    const key = settings.last_used_category_id;
     const found = key ? categories.find((c) => c.id === key) : null;
     setCategoryId(found?.id || "");
     setCategoryError("");
-  }, [type, visible, categories]);
+  }, [visible, categories]);
 
   const handleSave = () => {
     Keyboard.dismiss();
@@ -176,12 +173,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
       note,
     });
 
-    // Save last used category per type
-    if (type === "expense") {
-      updateSettings({ last_used_expense_category_id: categoryId });
-    } else {
-      updateSettings({ last_used_income_category_id: categoryId });
-    }
+    if (categoryId) updateSettings({ last_used_category_id: categoryId });
 
     setSaving(false);
     onClose();

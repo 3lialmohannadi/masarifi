@@ -32,7 +32,7 @@ export default function SavingsMovementModal() {
   const { wallets, addSavingsTransaction } = useSavings();
   const { accounts, updateBalance } = useAccounts();
   const { addTransaction } = useTransactions();
-  const { getCategoriesByType } = useCategories();
+  const { categories } = useCategories();
   const params = useLocalSearchParams<{ walletId?: string; type?: string }>();
 
   const activeAccounts = accounts.filter((a) => a.is_active);
@@ -54,7 +54,7 @@ export default function SavingsMovementModal() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const savingsCategories = getCategoriesByType("savings");
+  const allCategories = categories.filter((c) => c.is_active).sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
   const selectedWallet = wallets.find((w) => w.id === walletId);
   const selectedAccount = activeAccounts.find((a) => a.id === accountId);
 
@@ -96,7 +96,7 @@ export default function SavingsMovementModal() {
       const today = todayISOString();
       const walletName = selectedWallet ? getDisplayName(selectedWallet, language) : "";
       const currency = selectedAccount?.currency || "QAR";
-      const savingsCat = savingsCategories[0];
+      const linkCategoryId = allCategories[0]?.id || "";
 
       if (isDeposit) {
         if (sourceType === "internal") {
@@ -111,18 +111,16 @@ export default function SavingsMovementModal() {
           });
           updateBalance(accountId, -amountNum);
           // Record as expense on the account (money moved to savings)
-          if (savingsCat) {
-            addTransaction({
-              account_id: accountId,
-              category_id: savingsCat.id,
-              type: "expense",
-              amount: amountNum,
-              currency,
-              date: today,
-              note: note || (language === "ar" ? `إيداع ← ${walletName}` : `Deposit → ${walletName}`),
-              linked_saving_wallet_id: walletId,
-            });
-          }
+          addTransaction({
+            account_id: accountId,
+            category_id: linkCategoryId,
+            type: "expense",
+            amount: amountNum,
+            currency,
+            date: today,
+            note: note || (language === "ar" ? `إيداع ← ${walletName}` : `Deposit → ${walletName}`),
+            linked_saving_wallet_id: walletId,
+          });
         } else {
           // Deposit from external source → add to wallet only, no account change
           addSavingsTransaction({
@@ -149,18 +147,16 @@ export default function SavingsMovementModal() {
           });
           updateBalance(accountId, amountNum);
           // Record as income on the account (money returned from savings)
-          if (savingsCat) {
-            addTransaction({
-              account_id: accountId,
-              category_id: savingsCat.id,
-              type: "income",
-              amount: amountNum,
-              currency,
-              date: today,
-              note: note || (language === "ar" ? `سحب ← ${walletName}` : `Withdraw ← ${walletName}`),
-              linked_saving_wallet_id: walletId,
-            });
-          }
+          addTransaction({
+            account_id: accountId,
+            category_id: linkCategoryId,
+            type: "income",
+            amount: amountNum,
+            currency,
+            date: today,
+            note: note || (language === "ar" ? `سحب ← ${walletName}` : `Withdraw ← ${walletName}`),
+            linked_saving_wallet_id: walletId,
+          });
         } else {
           // External withdrawal → deduct from wallet only, no account change
           addSavingsTransaction({

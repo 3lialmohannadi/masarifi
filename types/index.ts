@@ -18,7 +18,8 @@ export type CategoryType =
   | "expense"
   | "savings"
   | "commitment"
-  | "plan";
+  | "plan"
+  | "general";
 
 export type CommitmentStatus =
   | "upcoming"
@@ -83,7 +84,7 @@ export interface Category {
 export interface Transaction {
   id: string;
   account_id: string;
-  category_id: string;
+  category_id?: string;
   type: TransactionType;
   amount: number;
   currency: string;
@@ -171,7 +172,7 @@ export interface Commitment {
   name_en: string;
   amount: number;
   account_id: string;
-  category_id: string;
+  category_id?: string;
   due_date: string;
   recurrence_type: RecurrenceType;
   status: CommitmentStatus;
@@ -185,7 +186,7 @@ export interface Commitment {
 
 export interface Budget {
   id: string;
-  category_id: string;
+  category_id?: string;
   amount: number;
   month: string;
   created_at: string;
@@ -199,8 +200,8 @@ export interface AppSettings {
   manual_daily_limit: number;
   selected_account_id: string;
   last_used_category_id: string;
-  last_used_expense_category_id: string;
-  last_used_income_category_id: string;
+  last_used_expense_category_id?: string;
+  last_used_income_category_id?: string;
   onboarded: boolean;
   notification_enabled: boolean;
   default_currency: string;

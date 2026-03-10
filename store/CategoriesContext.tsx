@@ -9,7 +9,6 @@ import React, {
 import type { Category, CategoryType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
-import { createDefaultCategories, mergeDefaultCategories } from "@/utils/defaults";
 import { apiRequest } from "@/lib/query-client";
 
 interface CategoriesContextValue {
@@ -17,7 +16,7 @@ interface CategoriesContextValue {
   addCategory: (cat: Omit<Category, "id" | "created_at" | "updated_at">) => Category;
   updateCategory: (id: string, updates: Partial<Category>) => void;
   deleteCategory: (id: string) => boolean;
-  getCategory: (id: string) => Category | undefined;
+  getCategory: (id?: string) => Category | undefined;
   getCategoriesByType: (type: CategoryType) => Category[];
   toggleFavorite: (id: string) => void;
   isLoaded: boolean;
@@ -38,47 +37,18 @@ export function CategoriesProvider({
   useEffect(() => {
     apiRequest("GET", "/api/categories")
       .then((res) => res.json())
-      .then(async (apiData: Category[]) => {
+      .then((apiData: Category[]) => {
         if (apiData && apiData.length > 0) {
-          const { merged, added } = mergeDefaultCategories(apiData);
-          setCategories(merged);
-          saveData(KEYS.CATEGORIES, merged);
-          if (added > 0) {
-            const newCats = merged.filter(
-              (c) => !apiData.find((a) => a.id === c.id)
-            );
-            newCats.forEach((cat) =>
-              apiRequest("POST", "/api/categories", cat).catch(() => {})
-            );
-          }
+          setCategories(apiData);
+          saveData(KEYS.CATEGORIES, apiData);
         } else {
-          const local = await loadData<Category[]>(KEYS.CATEGORIES);
-          if (local && local.length > 0) {
-            const { merged } = mergeDefaultCategories(local);
-            setCategories(merged);
-            merged.forEach((cat) =>
-              apiRequest("POST", "/api/categories", cat).catch(() => {})
-            );
-          } else {
-            const defaults = createDefaultCategories();
-            setCategories(defaults);
-            saveData(KEYS.CATEGORIES, defaults);
-            defaults.forEach((cat) =>
-              apiRequest("POST", "/api/categories", cat).catch(() => {})
-            );
-          }
+          setCategories([]);
+          saveData(KEYS.CATEGORIES, []);
         }
       })
       .catch(() => {
         loadData<Category[]>(KEYS.CATEGORIES).then((saved) => {
-          if (saved && saved.length > 0) {
-            const { merged } = mergeDefaultCategories(saved);
-            setCategories(merged);
-          } else {
-            const defaults = createDefaultCategories();
-            setCategories(defaults);
-            saveData(KEYS.CATEGORIES, defaults);
-          }
+          setCategories(saved && saved.length > 0 ? saved : []);
         });
       })
       .finally(() => setIsLoaded(true));
@@ -112,18 +82,16 @@ export function CategoriesProvider({
 
   const deleteCategory = (id: string): boolean => {
     if (transactionCategoryIds.includes(id)) return false;
-    const cat = categories.find((c) => c.id === id);
-    if (cat?.is_default) return false;
     persist(categories.filter((c) => c.id !== id));
     apiRequest("DELETE", `/api/categories/${id}`).catch(console.error);
     return true;
   };
 
-  const getCategory = (id: string) => categories.find((c) => c.id === id);
+  const getCategory = (id?: string) => id ? categories.find((c) => c.id === id) : undefined;
 
-  const getCategoriesByType = (type: CategoryType) =>
+  const getCategoriesByType = (_type: CategoryType) =>
     categories
-      .filter((c) => c.type === type && c.is_active)
+      .filter((c) => c.is_active)
       .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
 
   const toggleFavorite = (id: string) => {

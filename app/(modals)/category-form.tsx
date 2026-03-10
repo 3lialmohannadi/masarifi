@@ -11,22 +11,17 @@ import { BilingualNameInput } from "@/components/BilingualNameInput";
 import { IconPicker } from "@/components/IconPicker";
 import { ColorPicker } from "@/components/ColorPicker";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
-import type { CategoryType } from "@/types";
-
-const CATEGORY_TYPES: CategoryType[] = ["income", "expense", "savings", "commitment", "plan"];
 
 export default function CategoryFormModal() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL, showToast } = useApp();
   const { categories, addCategory, updateCategory, deleteCategory } = useCategories();
-  const params = useLocalSearchParams<{ id?: string; type?: CategoryType }>();
+  const params = useLocalSearchParams<{ id?: string }>();
 
   const existing = params.id ? categories.find((c) => c.id === params.id) : undefined;
-  const initialType = (params.type as CategoryType) || existing?.type || "expense";
 
   const [nameAr, setNameAr] = useState(existing?.name_ar || "");
   const [nameEn, setNameEn] = useState(existing?.name_en || "");
-  const [catType, setCatType] = useState<CategoryType>(initialType);
   const [icon, setIcon] = useState(existing?.icon || "tag");
   const [color, setColor] = useState(existing?.color || "#2F8F83");
   const [isFavorite, setIsFavorite] = useState(existing?.is_favorite || false);
@@ -34,8 +29,6 @@ export default function CategoryFormModal() {
   const [showColor, setShowColor] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const isDefault = existing?.is_default ?? false;
 
   const validate = () => {
     const err: Record<string, string> = {};
@@ -61,7 +54,7 @@ export default function CategoryFormModal() {
         addCategory({
           name_ar: nameAr,
           name_en: nameEn,
-          type: catType,
+          type: "general",
           icon,
           color,
           is_favorite: isFavorite,
@@ -80,10 +73,6 @@ export default function CategoryFormModal() {
 
   const handleDelete = () => {
     if (!existing) return;
-    if (isDefault) {
-      Alert.alert(t.categories.cannotDelete, t.categories.cannotDeleteDefault);
-      return;
-    }
     Alert.alert(t.common.areYouSure, t.categories.deleteConfirm, [
       { text: t.common.cancel, style: "cancel" },
       {
@@ -126,7 +115,7 @@ export default function CategoryFormModal() {
         <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
           {existing ? t.categories.edit : t.categories.add}
         </Text>
-        {existing && !isDefault ? (
+        {existing ? (
           <Pressable onPress={handleDelete} hitSlop={8} testID="btn-delete-category">
             <Feather name="trash-2" size={20} color={theme.expense} />
           </Pressable>
@@ -145,36 +134,6 @@ export default function CategoryFormModal() {
         bottomOffset={60}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Default category info banner */}
-        {isDefault && (
-          <View
-            style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
-              alignItems: "center",
-              gap: 10,
-              backgroundColor: theme.primaryLight,
-              borderRadius: 12,
-              padding: 12,
-              borderWidth: 1,
-              borderColor: theme.primary + "40",
-            }}
-          >
-            <Feather name="info" size={16} color={theme.primary} />
-            <Text
-              style={{
-                flex: 1,
-                fontSize: 13,
-                color: theme.primary,
-                textAlign: isRTL ? "right" : "left",
-              }}
-            >
-              {language === "ar"
-                ? "يمكنك تخصيص الأيقونة واللون والاسم. لا يمكن حذف التصنيفات الافتراضية."
-                : "You can customize the icon, color, and name. Default categories cannot be deleted."}
-            </Text>
-          </View>
-        )}
-
         {/* Icon & Color Row */}
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
           <Pressable
@@ -220,86 +179,6 @@ export default function CategoryFormModal() {
           onChangeEn={setNameEn}
           errorAr={errors.name}
         />
-
-        {/* Type selector — only for new categories */}
-        {!existing && (
-          <View style={{ gap: 6 }}>
-            <Text
-              style={{
-                fontSize: 13,
-                fontWeight: "500",
-                color: theme.textSecondary,
-                textAlign: isRTL ? "right" : "left",
-              }}
-            >
-              {t.common.type}
-            </Text>
-            <View
-              style={{
-                flexDirection: isRTL ? "row-reverse" : "row",
-                flexWrap: "wrap",
-                gap: 8,
-              }}
-            >
-              {CATEGORY_TYPES.map((ct) => (
-                <Pressable
-                  key={ct}
-                  onPress={() => setCatType(ct)}
-                  style={{
-                    paddingHorizontal: 14,
-                    paddingVertical: 8,
-                    borderRadius: 20,
-                    backgroundColor: catType === ct ? theme.primary : theme.card,
-                    borderWidth: 1,
-                    borderColor: catType === ct ? theme.primary : theme.border,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      fontWeight: "600",
-                      color: catType === ct ? "#fff" : theme.text,
-                    }}
-                  >
-                    {t.categories.types[ct]}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* For existing: show type as read-only badge */}
-        {existing && (
-          <View
-            style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
-              alignItems: "center",
-              gap: 8,
-              backgroundColor: theme.card,
-              borderRadius: 12,
-              padding: 12,
-              borderWidth: 1,
-              borderColor: theme.border,
-            }}
-          >
-            <Text style={{ fontSize: 13, color: theme.textSecondary }}>
-              {t.common.type}
-            </Text>
-            <View
-              style={{
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-                borderRadius: 10,
-                backgroundColor: theme.primary + "20",
-              }}
-            >
-              <Text style={{ fontSize: 13, fontWeight: "600", color: theme.primary }}>
-                {t.categories.types[existing.type]}
-              </Text>
-            </View>
-          </View>
-        )}
 
         {/* Favorite Toggle */}
         <Pressable

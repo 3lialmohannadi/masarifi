@@ -213,9 +213,10 @@ export default function StatisticsTab() {
   // Category spending for pie chart + top list
   const categorySpending = useMemo(() => {
     const spending: Record<string, { amount: number; category: ReturnType<typeof getCategory> }> = {};
-    monthTxs.filter((tx) => tx.type === "expense").forEach((tx) => {
-      if (!spending[tx.category_id]) spending[tx.category_id] = { amount: 0, category: getCategory(tx.category_id) };
-      spending[tx.category_id].amount += tx.amount;
+    monthTxs.filter((tx) => tx.type === "expense" && tx.category_id).forEach((tx) => {
+      const catId = tx.category_id!;
+      if (!spending[catId]) spending[catId] = { amount: 0, category: getCategory(catId) };
+      spending[catId].amount += tx.amount;
     });
     return Object.entries(spending)
       .map(([id, data]) => ({ id, ...data }))

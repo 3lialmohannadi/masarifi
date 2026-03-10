@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { View, Text, FlatList, Pressable, Alert, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -8,48 +8,28 @@ import { useApp } from "@/store/AppContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { getDisplayName } from "@/utils/display";
 import { EmptyState } from "@/components/ui/EmptyState";
-import type { CategoryType } from "@/types";
-
-type FilterType = CategoryType | "all";
-const FILTER_TABS: FilterType[] = ["all", "expense", "income", "savings", "commitment", "plan"];
 
 export default function CategoriesScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL, isDark } = useApp();
   const { categories, deleteCategory } = useCategories();
-  const [activeFilter, setActiveFilter] = useState<FilterType>("all");
 
-  const filtered = useMemo(() => {
-    return categories.filter((c) =>
-      c.is_active && (activeFilter === "all" || c.type === activeFilter)
-    );
-  }, [categories, activeFilter]);
-
-  const countByType = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const c of categories) {
-      if (c.is_active) map[c.type] = (map[c.type] || 0) + 1;
-    }
-    return map;
-  }, [categories]);
-
-  const totalCount = useMemo(() => categories.filter((c) => c.is_active).length, [categories]);
+  const activeCategories = useMemo(
+    () => categories.filter((c) => c.is_active).sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
+    [categories]
+  );
 
   const paddedData = useMemo(() => {
-    const remainder = filtered.length % 3;
-    if (remainder === 0) return filtered as (typeof filtered[0] | null)[];
-    return [...filtered, ...Array(3 - remainder).fill(null)] as (typeof filtered[0] | null)[];
-  }, [filtered]);
+    const remainder = activeCategories.length % 3;
+    if (remainder === 0) return activeCategories as (typeof activeCategories[0] | null)[];
+    return [...activeCategories, ...Array(3 - remainder).fill(null)] as (typeof activeCategories[0] | null)[];
+  }, [activeCategories]);
 
   const cardShadow = isDark ? {} : Platform.OS === "web"
     ? { boxShadow: "0 2px 8px rgba(47,143,131,0.07)" }
     : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 };
 
-  const handleDelete = (item: (typeof filtered)[0]) => {
-    if (item.is_default) {
-      Alert.alert(t.categories.cannotDelete, t.categories.cannotDeleteDefault);
-      return;
-    }
+  const handleDelete = (item: typeof activeCategories[0]) => {
     Alert.alert(t.common.areYouSure, t.categories.deleteConfirm, [
       { text: t.common.cancel, style: "cancel" },
       {
@@ -65,14 +45,6 @@ export default function CategoriesScreen() {
       },
     ]);
   };
-
-  const getTabLabel = (tab: FilterType) => {
-    if (tab === "all") return t.common.all;
-    return t.categories.types[tab];
-  };
-
-  const getTabCount = (tab: FilterType) =>
-    tab === "all" ? totalCount : countByType[tab] || 0;
 
   const topPad = Platform.OS === "web" ? insets.top + 51 : insets.top;
 
@@ -96,7 +68,7 @@ export default function CategoriesScreen() {
                 alignItems: "center",
                 gap: 12,
                 paddingTop: topPad + 16,
-                paddingBottom: 4,
+                paddingBottom: 8,
               }}
             >
               <Pressable
@@ -130,7 +102,7 @@ export default function CategoriesScreen() {
                 testID="btn-add-category"
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  router.push(`/(modals)/category-form?type=${activeFilter === "all" ? "expense" : activeFilter}`);
+                  router.push(`/(modals)/category-form`);
                 }}
                 style={{
                   width: 38,
@@ -145,72 +117,25 @@ export default function CategoriesScreen() {
               </Pressable>
             </View>
 
-            {/* Filter Tabs */}
-            <View>
-              <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                data={FILTER_TABS}
-                keyExtractor={(tab) => tab}
-                contentContainerStyle={{ gap: 8 }}
-                renderItem={({ item: tab }) => {
-                  const isActive = activeFilter === tab;
-                  const count = getTabCount(tab);
-                  return (
-                    <Pressable
-                      onPress={() => {
-                        Haptics.selectionAsync();
-                        setActiveFilter(tab);
-                      }}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 6,
-                        paddingHorizontal: 14,
-                        paddingVertical: 8,
-                        borderRadius: 20,
-                        backgroundColor: isActive ? theme.primary : theme.card,
-                        borderWidth: 1,
-                        borderColor: isActive ? theme.primary : theme.border,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 13,
-                          fontWeight: "600",
-                          color: isActive ? "#fff" : theme.textSecondary,
-                        }}
-                      >
-                        {getTabLabel(tab)}
-                      </Text>
-                      {count > 0 && (
-                        <View
-                          style={{
-                            minWidth: 18,
-                            height: 18,
-                            borderRadius: 9,
-                            backgroundColor: isActive ? "rgba(255,255,255,0.25)" : theme.cardSecondary,
-                            alignItems: "center",
-                            justifyContent: "center",
-                            paddingHorizontal: 4,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 11,
-                              fontWeight: "700",
-                              color: isActive ? "#fff" : theme.textSecondary,
-                            }}
-                          >
-                            {count}
-                          </Text>
-                        </View>
-                      )}
-                    </Pressable>
-                  );
-                }}
-              />
-            </View>
+            {/* Count badge */}
+            {activeCategories.length > 0 && (
+              <View style={{
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 6,
+              }}>
+                <View style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: 10,
+                  backgroundColor: theme.primaryLight,
+                }}>
+                  <Text style={{ fontSize: 13, fontWeight: "600", color: theme.primary }}>
+                    {activeCategories.length} {language === "ar" ? "تصنيف" : "categories"}
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
         }
         renderItem={({ item }) => {
@@ -229,7 +154,7 @@ export default function CategoriesScreen() {
                 ...cardShadow,
               }}
             >
-              {/* Content area — icon + name (non-interactive) */}
+              {/* Content area */}
               <View
                 style={{
                   paddingTop: 14,
@@ -271,7 +196,7 @@ export default function CategoriesScreen() {
                 )}
               </View>
 
-              {/* Action row — two buttons side by side, clearly separated */}
+              {/* Action row */}
               <View
                 style={{
                   flexDirection: "row",
@@ -292,32 +217,30 @@ export default function CategoriesScreen() {
                     alignItems: "center",
                     justifyContent: "center",
                     backgroundColor: pressed ? theme.cardSecondary : "transparent",
-                    borderRightWidth: item.is_default ? 0 : 1,
+                    borderRightWidth: 1,
                     borderColor: theme.border,
                   })}
                 >
                   <Feather name="edit-2" size={12} color={theme.primary} />
                 </Pressable>
 
-                {/* Delete button (non-default only) */}
-                {!item.is_default && (
-                  <Pressable
-                    testID={`btn-delete-category-${item.id}`}
-                    onPress={() => {
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      handleDelete(item);
-                    }}
-                    style={({ pressed }) => ({
-                      flex: 1,
-                      paddingVertical: 7,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: pressed ? theme.expenseBackground : "transparent",
-                    })}
-                  >
-                    <Feather name="trash-2" size={12} color={theme.expense} />
-                  </Pressable>
-                )}
+                {/* Delete button */}
+                <Pressable
+                  testID={`btn-delete-category-${item.id}`}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    handleDelete(item);
+                  }}
+                  style={({ pressed }) => ({
+                    flex: 1,
+                    paddingVertical: 7,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: pressed ? theme.expenseBackground : "transparent",
+                  })}
+                >
+                  <Feather name="trash-2" size={12} color={theme.expense} />
+                </Pressable>
               </View>
             </View>
           );
@@ -330,7 +253,7 @@ export default function CategoriesScreen() {
               subtitle={t.categories.addFirstCategory}
               action={
                 <Pressable
-                  onPress={() => router.push(`/(modals)/category-form?type=${activeFilter === "all" ? "expense" : activeFilter}`)}
+                  onPress={() => router.push(`/(modals)/category-form`)}
                   style={{
                     backgroundColor: theme.primary,
                     paddingHorizontal: 20,

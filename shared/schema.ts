@@ -30,6 +30,7 @@ export const categoryTypeEnum = pgEnum("category_type", [
   "savings",
   "commitment",
   "plan",
+  "general",
 ]);
 
 export const transactionTypeEnum = pgEnum("transaction_type", [
@@ -180,9 +181,7 @@ export const transactions = pgTable("transactions", {
   account_id: varchar("account_id", { length: 36 })
     .notNull()
     .references(() => accounts.id, { onDelete: "cascade" }),
-  category_id: varchar("category_id", { length: 36 })
-    .notNull()
-    .references(() => categories.id, { onDelete: "restrict" }),
+  category_id: varchar("category_id", { length: 36 }),
   type: transactionTypeEnum("type").notNull(),
   amount: numeric("amount", { precision: 15, scale: 3 }).notNull(),
   currency: varchar("currency", { length: 10 }).default("QAR").notNull(),
@@ -330,9 +329,7 @@ export const commitments = pgTable("commitments", {
   account_id: varchar("account_id", { length: 36 })
     .notNull()
     .references(() => accounts.id, { onDelete: "restrict" }),
-  category_id: varchar("category_id", { length: 36 })
-    .notNull()
-    .references(() => categories.id, { onDelete: "restrict" }),
+  category_id: varchar("category_id", { length: 36 }),
   name_ar: text("name_ar").notNull(),
   name_en: text("name_en").notNull(),
   amount: numeric("amount", { precision: 15, scale: 3 }).notNull(),
@@ -357,9 +354,7 @@ export const budgets = pgTable("budgets", {
   user_id: varchar("user_id", { length: 36 }).references(() => users.id, {
     onDelete: "cascade",
   }),
-  category_id: varchar("category_id", { length: 36 })
-    .notNull()
-    .references(() => categories.id, { onDelete: "cascade" }),
+  category_id: varchar("category_id", { length: 36 }),
   amount: numeric("amount", { precision: 15, scale: 3 }).notNull(),
   month: varchar("month", { length: 7 }).notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),
