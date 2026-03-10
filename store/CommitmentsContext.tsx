@@ -9,7 +9,7 @@ import React, {
 import type { Commitment, CommitmentStatus, RecurrenceType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
-import { isWithin29Days, isPastDate, isToday, addMonths, addWeeks, addDays, addYears } from "@/utils/date";
+import { isReservedOn28th, isPastDate, isToday, addMonths, addWeeks, addDays, addYears } from "@/utils/date";
 import { apiRequest } from "@/lib/query-client";
 
 interface CommitmentsContextValue {
@@ -176,7 +176,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
         (c) =>
           c.account_id === accountId &&
           c.status !== "paid" &&
-          (c.status === "overdue" || c.status === "due_today" || isWithin29Days(c.due_date))
+          (c.status === "overdue" || c.status === "due_today" || isReservedOn28th(c.due_date))
       )
       .reduce((sum, c) => sum + c.amount, 0);
   };

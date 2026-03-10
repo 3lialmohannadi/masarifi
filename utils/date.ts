@@ -61,6 +61,24 @@ export function isWithin29Days(dateStr: string): boolean {
   return diff >= 0 && diff <= 29;
 }
 
+export function isReservedOn28th(dueDate: string): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const due = new Date(dueDate);
+  due.setHours(23, 59, 59, 999);
+
+  const dueMonth = due.getMonth();
+  const dueYear = due.getFullYear();
+
+  const prevMonth = dueMonth === 0 ? 11 : dueMonth - 1;
+  const prevYear = dueMonth === 0 ? dueYear - 1 : dueYear;
+  const reservationStart = new Date(prevYear, prevMonth, 28);
+  reservationStart.setHours(0, 0, 0, 0);
+
+  return today >= reservationStart && today <= due;
+}
+
 export function isPastDate(dateStr: string): boolean {
   const date = new Date(dateStr);
   const today = new Date();
