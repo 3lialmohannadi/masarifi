@@ -37,7 +37,7 @@ export default function AddTransactionModal() {
   const { theme, t, language, selectedAccountId, updateSettings, isRTL, settings, showToast } = useApp();
   const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
   const { accounts, updateBalance } = useAccounts();
-  const { categories, getCategoriesByType } = useCategories();
+  const { categories } = useCategories();
   const { plans, getPlanCategories } = usePlans();
   const params = useLocalSearchParams<{ id?: string; type?: string; accountId?: string }>();
 
@@ -68,8 +68,11 @@ export default function AddTransactionModal() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const relevantCategories = useMemo(
-    () => getCategoriesByType(type === "income" ? "income" : "expense"),
-    [type, categories]
+    () =>
+      categories
+        .filter((c) => (c.type === "income" || c.type === "expense") && c.is_active)
+        .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
+    [categories]
   );
 
   const smartSuggestion = useMemo<Category | null>(() => {

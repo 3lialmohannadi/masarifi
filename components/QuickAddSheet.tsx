@@ -58,7 +58,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const { theme, language, isRTL, t, selectedAccountId, settings, updateSettings } = useApp();
   const { accounts, updateBalance } = useAccounts();
   const { addTransaction } = useTransactions();
-  const { getCategoriesByType } = useCategories();
+  const { categories: allCategories } = useCategories();
 
   const amountRef = useRef<TextInput>(null);
 
@@ -82,8 +82,11 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const [dateError, setDateError] = useState("");
 
   const categories = useMemo(
-    () => getCategoriesByType(type === "income" ? "income" : "expense"),
-    [type, getCategoriesByType]
+    () =>
+      allCategories
+        .filter((c) => (c.type === "income" || c.type === "expense") && c.is_active)
+        .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
+    [allCategories]
   );
 
   const selectedAccount = activeAccounts.find((a) => a.id === accountId);
@@ -119,11 +122,10 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
       type === "expense"
         ? settings.last_used_expense_category_id
         : settings.last_used_income_category_id;
-    const cats = getCategoriesByType(type === "income" ? "income" : "expense");
-    const found = key ? cats.find((c) => c.id === key) : null;
+    const found = key ? categories.find((c) => c.id === key) : null;
     setCategoryId(found?.id || "");
     setCategoryError("");
-  }, [type, visible]);
+  }, [type, visible, categories]);
 
   const handleSave = () => {
     Keyboard.dismiss();
