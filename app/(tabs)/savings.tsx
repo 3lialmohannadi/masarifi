@@ -121,6 +121,7 @@ export default function SavingsTab() {
               <EmptyState
                 icon="target"
                 title={t.savings.noWallets}
+                subtitle={t.savings.addFirstWallet}
                 action={
                   <Pressable
                     onPress={() => router.push("/(modals)/saving-wallet-form")}

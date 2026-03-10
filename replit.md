@@ -50,6 +50,24 @@ The application supports key Gulf-region currencies (QAR, SAR, AED, KWD, BHD, OM
 ### Backend (Express.js + PostgreSQL)
 The backend is an Express server that serves static Expo web build files and provides a comprehensive REST API for all entities (accounts, categories, transactions, savings, commitments, plans, budgets). It uses Drizzle ORM for PostgreSQL interactions, handles numeric normalization, and manages timestamp fields.
 
+## UI Patterns
+
+### Empty States
+All screens use the `EmptyState` component (`components/ui/EmptyState.tsx`) when there is no data to display. Every empty state includes:
+- **Icon**: Feather icon in a 64×64 circle with `theme.cardSecondary` background
+- **Title**: Primary message (e.g. "لا توجد عمليات" / "No transactions yet")
+- **Subtitle**: Helpful guidance text explaining what the user can do
+- **Action** (optional): A pressable button to create the first item
+
+Screens with empty states: Transactions, Transfers, Commitments, Budget, Plans, Savings (wallets + movements), Accounts, Categories, and the Home screen recent-transactions section.
+
+### Toast Notifications
+All modal forms show toast feedback via the `Toast` component (`components/Toast.tsx`):
+- **Success** (green): After saving any record
+- **Info** (blue): After deleting any record
+- **Error** (red): When an unexpected error occurs
+Usage: `const { showToast } = useApp()` → `showToast(t.toast.saved)` / `showToast(t.toast.error, "error")`
+
 ## External Dependencies
 - **PostgreSQL**: Primary database for all application data.
 - **Drizzle ORM**: Used for interacting with the PostgreSQL database from the Express backend.

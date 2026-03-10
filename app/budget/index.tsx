@@ -461,11 +461,7 @@ export default function BudgetScreen() {
           <EmptyState
             icon="pie-chart"
             title={t.budget.noBudgets}
-            subtitle={
-              language === "ar"
-                ? "أضف ميزانية لكل تصنيف لتتبع إنفاقك"
-                : "Add a budget per category to track your spending"
-            }
+            subtitle={t.budget.addFirstBudget}
             action={
               <Pressable
                 onPress={() => router.push(`/(modals)/budget-form?monthKey=${monthKey}`)}

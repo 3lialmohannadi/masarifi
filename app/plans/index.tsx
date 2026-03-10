@@ -61,6 +61,7 @@ export default function PlansScreen() {
           <EmptyState
             icon="target"
             title={t.plans.noPlans}
+            subtitle={t.plans.addFirstPlan}
             action={
               <Pressable
                 onPress={() => router.push("/(modals)/plan-form")}

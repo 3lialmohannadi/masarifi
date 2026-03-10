@@ -232,7 +232,7 @@ export default function TransactionsTab() {
             <EmptyState
               icon="repeat"
               title={filter === "transfer" ? t.transfer.noTransfers : t.transactions.noTransactions}
-              subtitle={filter !== "transfer" ? t.transactions.addFirst : undefined}
+              subtitle={filter === "transfer" ? t.transfer.addFirstTransfer : t.transactions.addFirst}
             />
           )
         }

@@ -263,7 +263,7 @@ export default function PlanDetailScreen() {
         renderItem={({ item }) => (
           <TransactionItem transaction={item} onPress={() => router.push(`/(modals)/add-transaction?id=${item.id}`)} />
         )}
-        ListEmptyComponent={<EmptyState icon="repeat" title={t.transactions.noTransactions} />}
+        ListEmptyComponent={<EmptyState icon="repeat" title={t.transactions.noTransactions} subtitle={t.transactions.addFirst} />}
         showsVerticalScrollIndicator={false}
       />
     </View>

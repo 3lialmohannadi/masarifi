@@ -132,6 +132,7 @@ export default function CommitmentsScreen() {
           <EmptyState
             icon="calendar"
             title={t.commitments.noCommitments}
+            subtitle={t.commitments.addFirstCommitment}
             action={
               <Pressable
                 onPress={() => router.push("/(modals)/commitment-form")}

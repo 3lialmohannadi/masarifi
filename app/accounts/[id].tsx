@@ -203,7 +203,7 @@ export default function AccountDetailScreen() {
             />
           );
         }}
-        ListEmptyComponent={<EmptyState icon="repeat" title={t.transactions.noTransactions} />}
+        ListEmptyComponent={<EmptyState icon="repeat" title={t.transactions.noTransactions} subtitle={t.transactions.addFirst} />}
         showsVerticalScrollIndicator={false}
       />
 

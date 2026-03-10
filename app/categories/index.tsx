@@ -235,6 +235,7 @@ export default function CategoriesScreen() {
           <EmptyState
             icon="tag"
             title={t.categories.noCategories}
+            subtitle={t.categories.addFirstCategory}
             action={
               <Pressable
                 onPress={() => router.push(`/(modals)/category-form?type=${activeType}`)}

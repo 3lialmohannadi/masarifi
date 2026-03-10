@@ -172,6 +172,7 @@ export default function AccountsListScreen() {
           <EmptyState
             icon="credit-card"
             title={t.accounts.noAccounts}
+            subtitle={t.accounts.addFirst}
             action={
               <Pressable
                 onPress={() => router.push("/(modals)/account-form")}

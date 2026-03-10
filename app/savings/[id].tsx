@@ -8,6 +8,7 @@ import { useApp } from "@/store/AppContext";
 import { useSavings } from "@/store/SavingsContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { formatDateShort, getDaysRemaining } from "@/utils/date";
@@ -140,12 +141,11 @@ export default function SavingsDetailScreen() {
           {t.savings.movements}
         </Text>
         {sortedMovements.length === 0 ? (
-          <View style={{ backgroundColor: theme.card, borderRadius: 14, padding: 24, alignItems: "center" }}>
-            <Feather name="inbox" size={28} color={theme.textMuted} />
-            <Text style={{ fontSize: 14, color: theme.textMuted, marginTop: 8 }}>
-              {language === "ar" ? "لا توجد حركات" : "No movements yet"}
-            </Text>
-          </View>
+          <EmptyState
+            icon="inbox"
+            title={t.savings.noMovements}
+            subtitle={t.savings.addFirstMovement}
+          />
         ) : (
           <View style={{ gap: 8 }}>
             {sortedMovements.map((mv) => {

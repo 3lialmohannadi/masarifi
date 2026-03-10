@@ -17,6 +17,7 @@ import { useTransactions } from "@/store/TransactionsContext";
 import { useCommitments } from "@/store/CommitmentsContext";
 import { useSavings } from "@/store/SavingsContext";
 import { TransactionItem } from "@/components/TransactionItem";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { QuickAddSheet } from "@/components/QuickAddSheet";
 import { formatCurrency } from "@/utils/currency";
 import { getRemainingDaysInMonth, formatDateShort } from "@/utils/date";
@@ -394,9 +395,12 @@ export default function DashboardScreen() {
             </View>
 
             {recentTransactions.length === 0 ? (
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 28, alignItems: "center", gap: 8, borderWidth: 1, borderColor: theme.border }}>
-                <Feather name="inbox" size={26} color={theme.textMuted} />
-                <Text style={{ color: theme.textMuted, fontSize: 14 }}>{t.dashboard.noTransactions}</Text>
+              <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: "hidden", ...cardShadow }}>
+                <EmptyState
+                  icon="inbox"
+                  title={t.transactions.noTransactions}
+                  subtitle={t.transactions.addFirst}
+                />
               </View>
             ) : (
               <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: "hidden", ...cardShadow }}>
