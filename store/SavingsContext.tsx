@@ -10,6 +10,7 @@ import type { SavingsWallet, SavingsTransaction } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { createDefaultSavingsWallet } from "@/utils/defaults";
+import { apiRequest } from "@/lib/query-client";
 
 interface SavingsContextValue {
   wallets: SavingsWallet[];
@@ -33,17 +34,39 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     Promise.all([
-      loadData<SavingsWallet[]>(KEYS.SAVINGS_WALLETS),
-      loadData<SavingsTransaction[]>(KEYS.SAVINGS_TRANSACTIONS),
-    ]).then(([ws, ts]) => {
-      if (ws && ws.length > 0) {
-        setWallets(ws);
+      apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).catch(() => null),
+      apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
+    ]).then(async ([apiWallets, apiTxs]) => {
+      if (apiWallets && apiWallets.length > 0) {
+        setWallets(apiWallets);
+        saveData(KEYS.SAVINGS_WALLETS, apiWallets);
       } else {
-        const defaultWallet = createDefaultSavingsWallet();
-        setWallets([defaultWallet]);
-        saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
+        const local = await loadData<SavingsWallet[]>(KEYS.SAVINGS_WALLETS);
+        if (local && local.length > 0) {
+          setWallets(local);
+          local.forEach((item) =>
+            apiRequest("POST", "/api/savings-wallets", item).catch(() => {})
+          );
+        } else {
+          const defaultWallet = createDefaultSavingsWallet();
+          setWallets([defaultWallet]);
+          saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
+          apiRequest("POST", "/api/savings-wallets", defaultWallet).catch(() => {});
+        }
       }
-      setSavingsTransactions(ts || []);
+
+      if (apiTxs && apiTxs.length > 0) {
+        setSavingsTransactions(apiTxs);
+        saveData(KEYS.SAVINGS_TRANSACTIONS, apiTxs);
+      } else {
+        const local = await loadData<SavingsTransaction[]>(KEYS.SAVINGS_TRANSACTIONS);
+        if (local && local.length > 0) {
+          setSavingsTransactions(local);
+          local.forEach((item) =>
+            apiRequest("POST", "/api/savings-transactions", item).catch(() => {})
+          );
+        }
+      }
       setIsLoaded(true);
     });
   }, []);
@@ -58,7 +81,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     saveData(KEYS.SAVINGS_TRANSACTIONS, data);
   };
 
-  const addWallet = (w: Omit<SavingsWallet, "id" | "created_at" | "updated_at">) => {
+  const addWallet = (w: Omit<SavingsWallet, "id" | "created_at" | "updated_at">): SavingsWallet => {
     const newWallet: SavingsWallet = {
       ...w,
       id: generateId(),
@@ -66,13 +89,17 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persistWallets([...wallets, newWallet]);
+    apiRequest("POST", "/api/savings-wallets", newWallet).catch(console.error);
     return newWallet;
   };
 
   const updateWallet = (id: string, updates: Partial<SavingsWallet>) => {
-    persistWallets(
-      wallets.map((w) => (w.id === id ? { ...w, ...updates, updated_at: now() } : w))
+    const updated = wallets.map((w) =>
+      w.id === id ? { ...w, ...updates, updated_at: now() } : w
     );
+    persistWallets(updated);
+    const record = updated.find((w) => w.id === id);
+    if (record) apiRequest("PATCH", `/api/savings-wallets/${id}`, record).catch(console.error);
   };
 
   const deleteWallet = (id: string) => {
@@ -80,23 +107,29 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     if (wallet?.is_default) return;
     persistWallets(wallets.filter((w) => w.id !== id));
     persistTransactions(savingsTransactions.filter((t) => t.wallet_id !== id));
+    apiRequest("DELETE", `/api/savings-wallets/${id}`).catch(console.error);
   };
 
   const getWallet = (id: string) => wallets.find((w) => w.id === id);
 
-  const addSavingsTransaction = (tx: Omit<SavingsTransaction, "id" | "created_at">) => {
+  const addSavingsTransaction = (tx: Omit<SavingsTransaction, "id" | "created_at">): SavingsTransaction => {
     const newTx: SavingsTransaction = { ...tx, id: generateId(), created_at: now() };
     persistTransactions([...savingsTransactions, newTx]);
 
     const delta =
       tx.type === "deposit_internal" || tx.type === "deposit_external" ? tx.amount : -tx.amount;
-    persistWallets(
-      wallets.map((w) =>
-        w.id === tx.wallet_id
-          ? { ...w, current_amount: Math.max(0, w.current_amount + delta), updated_at: now() }
-          : w
-      )
+    const updatedWallets = wallets.map((w) =>
+      w.id === tx.wallet_id
+        ? { ...w, current_amount: Math.max(0, w.current_amount + delta), updated_at: now() }
+        : w
     );
+    persistWallets(updatedWallets);
+
+    apiRequest("POST", "/api/savings-transactions", newTx).catch(console.error);
+    const updatedWallet = updatedWallets.find((w) => w.id === tx.wallet_id);
+    if (updatedWallet) {
+      apiRequest("PATCH", `/api/savings-wallets/${tx.wallet_id}`, updatedWallet).catch(console.error);
+    }
     return newTx;
   };
 

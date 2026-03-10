@@ -9,6 +9,7 @@ import React, {
 import type { Transaction, Transfer } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
+import { apiRequest } from "@/lib/query-client";
 
 interface TransactionsContextValue {
   transactions: Transaction[];
@@ -33,11 +34,34 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     Promise.all([
-      loadData<Transaction[]>(KEYS.TRANSACTIONS),
-      loadData<Transfer[]>(KEYS.TRANSFERS),
-    ]).then(([tx, tf]) => {
-      setTransactions(tx || []);
-      setTransfers(tf || []);
+      apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
+      apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
+    ]).then(async ([apiTx, apiTf]) => {
+      if (apiTx && apiTx.length > 0) {
+        setTransactions(apiTx);
+        saveData(KEYS.TRANSACTIONS, apiTx);
+      } else {
+        const local = await loadData<Transaction[]>(KEYS.TRANSACTIONS);
+        if (local && local.length > 0) {
+          setTransactions(local);
+          local.forEach((item) =>
+            apiRequest("POST", "/api/transactions", item).catch(() => {})
+          );
+        }
+      }
+
+      if (apiTf && apiTf.length > 0) {
+        setTransfers(apiTf);
+        saveData(KEYS.TRANSFERS, apiTf);
+      } else {
+        const local = await loadData<Transfer[]>(KEYS.TRANSFERS);
+        if (local && local.length > 0) {
+          setTransfers(local);
+          local.forEach((item) =>
+            apiRequest("POST", "/api/transfers", item).catch(() => {})
+          );
+        }
+      }
       setIsLoaded(true);
     });
   }, []);
@@ -52,7 +76,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     saveData(KEYS.TRANSFERS, data);
   };
 
-  const addTransaction = (tx: Omit<Transaction, "id" | "created_at" | "updated_at">) => {
+  const addTransaction = (tx: Omit<Transaction, "id" | "created_at" | "updated_at">): Transaction => {
     const newTx: Transaction = {
       ...tx,
       id: generateId(),
@@ -60,27 +84,34 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persistTx([...transactions, newTx]);
+    apiRequest("POST", "/api/transactions", newTx).catch(console.error);
     return newTx;
   };
 
   const updateTransaction = (id: string, updates: Partial<Transaction>) => {
-    persistTx(
-      transactions.map((t) => (t.id === id ? { ...t, ...updates, updated_at: now() } : t))
+    const updated = transactions.map((t) =>
+      t.id === id ? { ...t, ...updates, updated_at: now() } : t
     );
+    persistTx(updated);
+    const record = updated.find((t) => t.id === id);
+    if (record) apiRequest("PATCH", `/api/transactions/${id}`, record).catch(console.error);
   };
 
   const deleteTransaction = (id: string) => {
     persistTx(transactions.filter((t) => t.id !== id));
+    apiRequest("DELETE", `/api/transactions/${id}`).catch(console.error);
   };
 
-  const addTransfer = (tf: Omit<Transfer, "id" | "created_at">) => {
+  const addTransfer = (tf: Omit<Transfer, "id" | "created_at">): Transfer => {
     const newTf: Transfer = { ...tf, id: generateId(), created_at: now() };
     persistTf([...transfers, newTf]);
+    apiRequest("POST", "/api/transfers", newTf).catch(console.error);
     return newTf;
   };
 
   const deleteTransfer = (id: string) => {
     persistTf(transfers.filter((t) => t.id !== id));
+    apiRequest("DELETE", `/api/transfers/${id}`).catch(console.error);
   };
 
   const getTransactionsByAccount = (accountId: string) =>

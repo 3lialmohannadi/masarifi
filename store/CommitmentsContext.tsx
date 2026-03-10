@@ -10,6 +10,7 @@ import type { Commitment, CommitmentStatus, RecurrenceType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { isWithin29Days, isPastDate, isToday, addMonths, addWeeks, addDays, addYears } from "@/utils/date";
+import { apiRequest } from "@/lib/query-client";
 
 interface CommitmentsContextValue {
   commitments: Commitment[];
@@ -42,13 +43,6 @@ function advanceOneStep(dateStr: string, recurrenceType: RecurrenceType): string
   }
 }
 
-/**
- * Returns the next due date that is in the future (today or later).
- * If the commitment was overdue for many periods, it advances through all
- * past occurrences and returns the first upcoming one — preserving the
- * original billing cycle (e.g. always the 1st of the month).
- * Safety cap: max 730 iterations (2 years of daily).
- */
 function getNextFutureDueDate(dueDate: string, recurrenceType: RecurrenceType): string {
   let next = dueDate;
   let iterations = 0;
@@ -73,14 +67,36 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    loadData<Commitment[]>(KEYS.COMMITMENTS).then((saved) => {
-      const refreshed = refreshCommitmentStatuses(saved || []);
-      setCommitments(refreshed);
-      if (saved && refreshed.some((c, i) => c.status !== (saved[i]?.status))) {
-        saveData(KEYS.COMMITMENTS, refreshed);
-      }
-      setIsLoaded(true);
-    });
+    apiRequest("GET", "/api/commitments")
+      .then((res) => res.json())
+      .then(async (apiData: Commitment[]) => {
+        if (apiData && apiData.length > 0) {
+          const refreshed = refreshCommitmentStatuses(apiData);
+          setCommitments(refreshed);
+          saveData(KEYS.COMMITMENTS, refreshed);
+          refreshed
+            .filter((c, i) => c.status !== apiData[i]?.status)
+            .forEach((c) =>
+              apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {})
+            );
+        } else {
+          const local = await loadData<Commitment[]>(KEYS.COMMITMENTS);
+          if (local && local.length > 0) {
+            const refreshed = refreshCommitmentStatuses(local);
+            setCommitments(refreshed);
+            refreshed.forEach((item) =>
+              apiRequest("POST", "/api/commitments", item).catch(() => {})
+            );
+          }
+        }
+      })
+      .catch(() => {
+        loadData<Commitment[]>(KEYS.COMMITMENTS).then((saved) => {
+          const refreshed = refreshCommitmentStatuses(saved || []);
+          setCommitments(refreshed);
+        });
+      })
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const persist = (data: Commitment[]) => {
@@ -88,7 +104,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     saveData(KEYS.COMMITMENTS, data);
   };
 
-  const addCommitment = (c: Omit<Commitment, "id" | "created_at" | "updated_at" | "status">) => {
+  const addCommitment = (c: Omit<Commitment, "id" | "created_at" | "updated_at" | "status">): Commitment => {
     const status = deriveStatus(c.due_date);
     const newC: Commitment = {
       ...c,
@@ -98,26 +114,29 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persist([...commitments, newC]);
+    apiRequest("POST", "/api/commitments", newC).catch(console.error);
     return newC;
   };
 
   const updateCommitment = (id: string, updates: Partial<Omit<Commitment, "status">>) => {
-    persist(
-      commitments.map((c) =>
-        c.id === id
-          ? {
-              ...c,
-              ...updates,
-              status: c.status === "paid" ? "paid" : deriveStatus(updates.due_date || c.due_date),
-              updated_at: now(),
-            }
-          : c
-      )
+    const updated = commitments.map((c) =>
+      c.id === id
+        ? {
+            ...c,
+            ...updates,
+            status: c.status === "paid" ? ("paid" as CommitmentStatus) : deriveStatus((updates.due_date as string) || c.due_date),
+            updated_at: now(),
+          }
+        : c
     );
+    persist(updated);
+    const record = updated.find((c) => c.id === id);
+    if (record) apiRequest("PATCH", `/api/commitments/${id}`, record).catch(console.error);
   };
 
   const deleteCommitment = (id: string) => {
     persist(commitments.filter((c) => c.id !== id));
+    apiRequest("DELETE", `/api/commitments/${id}`).catch(console.error);
   };
 
   const getCommitment = (id: string) => commitments.find((c) => c.id === id);
@@ -143,9 +162,12 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
         updated_at: now(),
       };
       updated = [...updated, newCommitment];
+      apiRequest("POST", "/api/commitments", newCommitment).catch(console.error);
     }
 
     persist(updated);
+    const paidRecord = updated.find((c) => c.id === id);
+    if (paidRecord) apiRequest("PATCH", `/api/commitments/${id}`, paidRecord).catch(console.error);
   };
 
   const allocatedMoneyForAccount = (accountId: string): number => {
@@ -162,6 +184,9 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
   const refreshStatuses = () => {
     const refreshed = refreshCommitmentStatuses(commitments);
     persist(refreshed);
+    refreshed
+      .filter((c, i) => c.status !== commitments[i]?.status)
+      .forEach((c) => apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(console.error));
   };
 
   const upcomingCommitments = useMemo(

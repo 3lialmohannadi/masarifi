@@ -9,6 +9,7 @@ import React, {
 import type { Plan, PlanCategory } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
+import { apiRequest } from "@/lib/query-client";
 
 interface PlansContextValue {
   plans: Plan[];
@@ -35,11 +36,34 @@ export function PlansProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     Promise.all([
-      loadData<Plan[]>(KEYS.PLANS),
-      loadData<PlanCategory[]>(KEYS.PLAN_CATEGORIES),
-    ]).then(([ps, pcs]) => {
-      setPlans(ps || []);
-      setPlanCategories(pcs || []);
+      apiRequest("GET", "/api/plans").then((r) => r.json()).catch(() => null),
+      apiRequest("GET", "/api/plan-categories").then((r) => r.json()).catch(() => null),
+    ]).then(async ([apiPlans, apiPCs]) => {
+      if (apiPlans && apiPlans.length > 0) {
+        setPlans(apiPlans);
+        saveData(KEYS.PLANS, apiPlans);
+      } else {
+        const local = await loadData<Plan[]>(KEYS.PLANS);
+        if (local && local.length > 0) {
+          setPlans(local);
+          local.forEach((item) =>
+            apiRequest("POST", "/api/plans", item).catch(() => {})
+          );
+        }
+      }
+
+      if (apiPCs && apiPCs.length > 0) {
+        setPlanCategories(apiPCs);
+        saveData(KEYS.PLAN_CATEGORIES, apiPCs);
+      } else {
+        const local = await loadData<PlanCategory[]>(KEYS.PLAN_CATEGORIES);
+        if (local && local.length > 0) {
+          setPlanCategories(local);
+          local.forEach((item) =>
+            apiRequest("POST", "/api/plan-categories", item).catch(() => {})
+          );
+        }
+      }
       setIsLoaded(true);
     });
   }, []);
@@ -54,7 +78,7 @@ export function PlansProvider({ children }: { children: ReactNode }) {
     saveData(KEYS.PLAN_CATEGORIES, data);
   };
 
-  const addPlan = (p: Omit<Plan, "id" | "created_at" | "updated_at">) => {
+  const addPlan = (p: Omit<Plan, "id" | "created_at" | "updated_at">): Plan => {
     const newPlan: Plan = {
       ...p,
       id: generateId(),
@@ -62,32 +86,46 @@ export function PlansProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persistPlans([...plans, newPlan]);
+    apiRequest("POST", "/api/plans", newPlan).catch(console.error);
     return newPlan;
   };
 
   const updatePlan = (id: string, updates: Partial<Plan>) => {
-    persistPlans(plans.map((p) => (p.id === id ? { ...p, ...updates, updated_at: now() } : p)));
+    const updated = plans.map((p) =>
+      p.id === id ? { ...p, ...updates, updated_at: now() } : p
+    );
+    persistPlans(updated);
+    const record = updated.find((p) => p.id === id);
+    if (record) apiRequest("PATCH", `/api/plans/${id}`, record).catch(console.error);
   };
 
   const deletePlan = (id: string) => {
     persistPlans(plans.filter((p) => p.id !== id));
     persistPlanCategories(planCategories.filter((pc) => pc.plan_id !== id));
+    apiRequest("DELETE", `/api/plans/${id}`).catch(console.error);
   };
 
   const getPlan = (id: string) => plans.find((p) => p.id === id);
 
-  const addPlanCategory = (pc: Omit<PlanCategory, "id" | "created_at">) => {
+  const addPlanCategory = (pc: Omit<PlanCategory, "id" | "created_at">): PlanCategory => {
     const newPC: PlanCategory = { ...pc, id: generateId(), created_at: now() };
     persistPlanCategories([...planCategories, newPC]);
+    apiRequest("POST", "/api/plan-categories", newPC).catch(console.error);
     return newPC;
   };
 
   const updatePlanCategory = (id: string, updates: Partial<PlanCategory>) => {
-    persistPlanCategories(planCategories.map((pc) => (pc.id === id ? { ...pc, ...updates } : pc)));
+    const updated = planCategories.map((pc) =>
+      pc.id === id ? { ...pc, ...updates } : pc
+    );
+    persistPlanCategories(updated);
+    const record = updated.find((pc) => pc.id === id);
+    if (record) apiRequest("PATCH", `/api/plan-categories/${id}`, record).catch(console.error);
   };
 
   const deletePlanCategory = (id: string) => {
     persistPlanCategories(planCategories.filter((pc) => pc.id !== id));
+    apiRequest("DELETE", `/api/plan-categories/${id}`).catch(console.error);
   };
 
   const getPlanCategories = (planId: string) =>

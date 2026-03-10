@@ -10,6 +10,7 @@ import type { Category, CategoryType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { createDefaultCategories, mergeDefaultCategories } from "@/utils/defaults";
+import { apiRequest } from "@/lib/query-client";
 
 interface CategoriesContextValue {
   categories: Category[];
@@ -35,18 +36,52 @@ export function CategoriesProvider({
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    loadData<Category[]>(KEYS.CATEGORIES).then((saved) => {
-      if (saved && saved.length > 0) {
-        const { merged, added } = mergeDefaultCategories(saved);
-        setCategories(merged);
-        if (added > 0) saveData(KEYS.CATEGORIES, merged);
-      } else {
-        const defaults = createDefaultCategories();
-        setCategories(defaults);
-        saveData(KEYS.CATEGORIES, defaults);
-      }
-      setIsLoaded(true);
-    });
+    apiRequest("GET", "/api/categories")
+      .then((res) => res.json())
+      .then(async (apiData: Category[]) => {
+        if (apiData && apiData.length > 0) {
+          const { merged, added } = mergeDefaultCategories(apiData);
+          setCategories(merged);
+          saveData(KEYS.CATEGORIES, merged);
+          if (added > 0) {
+            const newCats = merged.filter(
+              (c) => !apiData.find((a) => a.id === c.id)
+            );
+            newCats.forEach((cat) =>
+              apiRequest("POST", "/api/categories", cat).catch(() => {})
+            );
+          }
+        } else {
+          const local = await loadData<Category[]>(KEYS.CATEGORIES);
+          if (local && local.length > 0) {
+            const { merged } = mergeDefaultCategories(local);
+            setCategories(merged);
+            merged.forEach((cat) =>
+              apiRequest("POST", "/api/categories", cat).catch(() => {})
+            );
+          } else {
+            const defaults = createDefaultCategories();
+            setCategories(defaults);
+            saveData(KEYS.CATEGORIES, defaults);
+            defaults.forEach((cat) =>
+              apiRequest("POST", "/api/categories", cat).catch(() => {})
+            );
+          }
+        }
+      })
+      .catch(() => {
+        loadData<Category[]>(KEYS.CATEGORIES).then((saved) => {
+          if (saved && saved.length > 0) {
+            const { merged } = mergeDefaultCategories(saved);
+            setCategories(merged);
+          } else {
+            const defaults = createDefaultCategories();
+            setCategories(defaults);
+            saveData(KEYS.CATEGORIES, defaults);
+          }
+        });
+      })
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const persist = (data: Category[]) => {
@@ -54,7 +89,7 @@ export function CategoriesProvider({
     saveData(KEYS.CATEGORIES, data);
   };
 
-  const addCategory = (cat: Omit<Category, "id" | "created_at" | "updated_at">) => {
+  const addCategory = (cat: Omit<Category, "id" | "created_at" | "updated_at">): Category => {
     const newCat: Category = {
       ...cat,
       id: generateId(),
@@ -62,18 +97,25 @@ export function CategoriesProvider({
       updated_at: now(),
     };
     persist([...categories, newCat]);
+    apiRequest("POST", "/api/categories", newCat).catch(console.error);
     return newCat;
   };
 
   const updateCategory = (id: string, updates: Partial<Category>) => {
-    persist(categories.map((c) => (c.id === id ? { ...c, ...updates, updated_at: now() } : c)));
+    const updated = categories.map((c) =>
+      c.id === id ? { ...c, ...updates, updated_at: now() } : c
+    );
+    persist(updated);
+    const record = updated.find((c) => c.id === id);
+    if (record) apiRequest("PATCH", `/api/categories/${id}`, record).catch(console.error);
   };
 
-  const deleteCategory = (id: string) => {
+  const deleteCategory = (id: string): boolean => {
     if (transactionCategoryIds.includes(id)) return false;
     const cat = categories.find((c) => c.id === id);
     if (cat?.is_default) return false;
     persist(categories.filter((c) => c.id !== id));
+    apiRequest("DELETE", `/api/categories/${id}`).catch(console.error);
     return true;
   };
 
@@ -85,11 +127,12 @@ export function CategoriesProvider({
       .sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
 
   const toggleFavorite = (id: string) => {
-    persist(
-      categories.map((c) =>
-        c.id === id ? { ...c, is_favorite: !c.is_favorite, updated_at: now() } : c
-      )
+    const updated = categories.map((c) =>
+      c.id === id ? { ...c, is_favorite: !c.is_favorite, updated_at: now() } : c
     );
+    persist(updated);
+    const record = updated.find((c) => c.id === id);
+    if (record) apiRequest("PATCH", `/api/categories/${id}`, record).catch(console.error);
   };
 
   const value = useMemo(

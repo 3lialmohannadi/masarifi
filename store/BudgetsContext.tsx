@@ -10,6 +10,7 @@ import type { Budget } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { getMonthKey } from "@/utils/date";
+import { apiRequest } from "@/lib/query-client";
 
 interface BudgetsContextValue {
   budgets: Budget[];
@@ -28,10 +29,28 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    loadData<Budget[]>(KEYS.BUDGETS).then((saved) => {
-      setBudgets(saved || []);
-      setIsLoaded(true);
-    });
+    apiRequest("GET", "/api/budgets")
+      .then((res) => res.json())
+      .then(async (apiData: Budget[]) => {
+        if (apiData && apiData.length > 0) {
+          setBudgets(apiData);
+          saveData(KEYS.BUDGETS, apiData);
+        } else {
+          const local = await loadData<Budget[]>(KEYS.BUDGETS);
+          if (local && local.length > 0) {
+            setBudgets(local);
+            local.forEach((item) =>
+              apiRequest("POST", "/api/budgets", item).catch(() => {})
+            );
+          }
+        }
+      })
+      .catch(() => {
+        loadData<Budget[]>(KEYS.BUDGETS).then((saved) => {
+          setBudgets(saved || []);
+        });
+      })
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const persist = (data: Budget[]) => {
@@ -39,7 +58,7 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
     saveData(KEYS.BUDGETS, data);
   };
 
-  const addBudget = (b: Omit<Budget, "id" | "created_at" | "updated_at">) => {
+  const addBudget = (b: Omit<Budget, "id" | "created_at" | "updated_at">): Budget => {
     const existing = budgets.find(
       (existing) => existing.category_id === b.category_id && existing.month === b.month
     );
@@ -48,6 +67,7 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
         budget.id === existing.id ? { ...budget, amount: b.amount, updated_at: now() } : budget
       );
       persist(updated);
+      apiRequest("PATCH", `/api/budgets/${existing.id}`, { amount: b.amount }).catch(console.error);
       return { ...existing, amount: b.amount };
     }
     const newBudget: Budget = {
@@ -57,15 +77,21 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persist([...budgets, newBudget]);
+    apiRequest("POST", "/api/budgets", newBudget).catch(console.error);
     return newBudget;
   };
 
   const updateBudget = (id: string, updates: Partial<Budget>) => {
-    persist(budgets.map((b) => (b.id === id ? { ...b, ...updates, updated_at: now() } : b)));
+    const updated = budgets.map((b) =>
+      b.id === id ? { ...b, ...updates, updated_at: now() } : b
+    );
+    persist(updated);
+    apiRequest("PATCH", `/api/budgets/${id}`, updates).catch(console.error);
   };
 
   const deleteBudget = (id: string) => {
     persist(budgets.filter((b) => b.id !== id));
+    apiRequest("DELETE", `/api/budgets/${id}`).catch(console.error);
   };
 
   const getBudgetForCategory = (categoryId: string, month?: string) => {

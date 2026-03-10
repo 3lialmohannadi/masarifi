@@ -9,6 +9,7 @@ import React, {
 import type { Account } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
+import { apiRequest } from "@/lib/query-client";
 
 interface AccountsContextValue {
   accounts: Account[];
@@ -27,10 +28,29 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    loadData<Account[]>(KEYS.ACCOUNTS).then((saved) => {
-      setAccounts(saved || []);
-      setIsLoaded(true);
-    });
+    apiRequest("GET", "/api/accounts")
+      .then((res) => res.json())
+      .then((apiData: Account[]) => {
+        if (apiData && apiData.length > 0) {
+          setAccounts(apiData);
+          saveData(KEYS.ACCOUNTS, apiData);
+        } else {
+          loadData<Account[]>(KEYS.ACCOUNTS).then((local) => {
+            if (local && local.length > 0) {
+              setAccounts(local);
+              local.forEach((item) =>
+                apiRequest("POST", "/api/accounts", item).catch(() => {})
+              );
+            }
+          });
+        }
+      })
+      .catch(() => {
+        loadData<Account[]>(KEYS.ACCOUNTS).then((local) => {
+          setAccounts(local || []);
+        });
+      })
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const persist = (data: Account[]) => {
@@ -38,7 +58,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
     saveData(KEYS.ACCOUNTS, data);
   };
 
-  const addAccount = (account: Omit<Account, "id" | "created_at" | "updated_at">) => {
+  const addAccount = (account: Omit<Account, "id" | "created_at" | "updated_at">): Account => {
     const newAccount: Account = {
       ...account,
       id: generateId(),
@@ -46,25 +66,36 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persist([...accounts, newAccount]);
+    apiRequest("POST", "/api/accounts", newAccount).catch(console.error);
     return newAccount;
   };
 
   const updateAccount = (id: string, updates: Partial<Account>) => {
-    persist(accounts.map((a) => (a.id === id ? { ...a, ...updates, updated_at: now() } : a)));
+    const updated = accounts.map((a) =>
+      a.id === id ? { ...a, ...updates, updated_at: now() } : a
+    );
+    persist(updated);
+    const record = updated.find((a) => a.id === id);
+    if (record) apiRequest("PATCH", `/api/accounts/${id}`, record).catch(console.error);
   };
 
   const deleteAccount = (id: string) => {
-    persist(accounts.map((a) => (a.id === id ? { ...a, is_active: false, updated_at: now() } : a)));
+    const updated = accounts.map((a) =>
+      a.id === id ? { ...a, is_active: false, updated_at: now() } : a
+    );
+    persist(updated);
+    apiRequest("DELETE", `/api/accounts/${id}`).catch(console.error);
   };
 
   const getAccount = (id: string) => accounts.find((a) => a.id === id);
 
   const updateBalance = (id: string, delta: number) => {
-    persist(
-      accounts.map((a) =>
-        a.id === id ? { ...a, balance: a.balance + delta, updated_at: now() } : a
-      )
+    const updated = accounts.map((a) =>
+      a.id === id ? { ...a, balance: a.balance + delta, updated_at: now() } : a
     );
+    persist(updated);
+    const record = updated.find((a) => a.id === id);
+    if (record) apiRequest("PATCH", `/api/accounts/${id}`, record).catch(console.error);
   };
 
   const value = useMemo(
