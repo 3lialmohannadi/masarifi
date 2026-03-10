@@ -84,7 +84,7 @@ export default function MoreTab() {
           label={t.plans.title}
           subtitle={t.more.plansSubtitle}
           color={theme.plan}
-          onPress={() => router.push("/(tabs)/plans")}
+          onPress={() => router.push("/plans")}
         />
         <MenuItem
           icon="calendar"

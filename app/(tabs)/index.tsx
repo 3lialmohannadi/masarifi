@@ -114,7 +114,7 @@ export default function DashboardScreen() {
               </Text>
             </View>
             <Pressable
-              onPress={() => router.push("/settings/index")}
+              onPress={() => router.push("/settings")}
               style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.1)", alignItems: "center", justifyContent: "center" }}
             >
               <Feather name="settings" size={18} color={heroText(0.8)} />
@@ -326,7 +326,7 @@ export default function DashboardScreen() {
                   {t.dashboard.upcomingCommitments}
                 </Text>
                 <Pressable
-                  onPress={() => router.push("/commitments/index")}
+                  onPress={() => router.push("/commitments")}
                   style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}
                 >
                   <Text style={{ fontSize: 13, color: theme.primary, fontWeight: "600" }}>{t.dashboard.showMore}</Text>

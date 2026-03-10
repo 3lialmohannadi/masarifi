@@ -144,10 +144,10 @@ function RootLayoutNav() {
       <Stack.Screen name="accounts/list" options={{ headerShown: false }} />
       <Stack.Screen name="accounts/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="savings/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="plans/index" options={{ headerShown: false }} />
       <Stack.Screen name="plans/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="commitments/index" options={{ headerShown: false }} />
       <Stack.Screen name="budget/index" options={{ headerShown: false }} />
-      <Stack.Screen name="statistics/index" options={{ headerShown: false }} />
       <Stack.Screen name="settings/index" options={{ headerShown: false }} />
       <Stack.Screen name="categories/index" options={{ headerShown: false }} />
     </Stack>

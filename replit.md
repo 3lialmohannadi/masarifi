@@ -34,8 +34,7 @@ workspace/
 │   │   ├── index.tsx             # Dashboard
 │   │   ├── transactions.tsx      # Transactions list
 │   │   ├── savings.tsx           # Savings wallets
-│   │   ├── statistics.tsx        # Statistics & analytics
-│   │   ├── plans.tsx             # Financial plans (hidden tab, accessible via More)
+│   │   ├── statistics.tsx        # Statistics & analytics (SVG charts)
 │   │   ├── more.tsx              # More menu (links to all sub-screens)
 │   │   └── _layout.tsx           # Tab bar layout (NativeTabs / ClassicTabs)
 │   ├── (modals)/                 # Modal form screens
@@ -52,12 +51,13 @@ workspace/
 │   │   ├── list.tsx              # Accounts list screen
 │   │   └── [id].tsx              # Account detail & transaction history
 │   ├── savings/[id].tsx          # Savings wallet detail
-│   ├── plans/[id].tsx            # Plan detail & linked transactions
+│   ├── plans/
+│   │   ├── index.tsx             # Plans list (standalone screen, back button, accessible via More)
+│   │   └── [id].tsx              # Plan detail & linked transactions
 │   ├── commitments/index.tsx     # Commitments list with filters
 │   ├── budget/index.tsx          # Monthly budgets with month picker
 │   ├── categories/index.tsx      # Categories management
 │   ├── settings/index.tsx        # App settings
-│   ├── statistics/index.tsx      # Standalone statistics screen (legacy)
 │   ├── _layout.tsx               # Root Stack layout + all Providers
 │   ├── +not-found.tsx            # Themed 404 screen
 │   └── +native-intent.tsx        # Native intent redirects

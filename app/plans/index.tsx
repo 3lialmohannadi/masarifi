@@ -19,7 +19,7 @@ import { formatCurrency } from "@/utils/currency";
 import { getDisplayName } from "@/utils/display";
 import { formatDateShort } from "@/utils/date";
 
-export default function PlansTab() {
+export default function PlansScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL } = useApp();
   const { plans, getPlanSpent } = usePlans();
@@ -33,13 +33,22 @@ export default function PlansTab() {
         contentContainerStyle={{
           paddingTop: topPadding,
           paddingHorizontal: 20,
-          paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 110),
+          paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 32),
           gap: 16,
         }}
         showsVerticalScrollIndicator={false}
       >
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text }}>{t.plans.title}</Text>
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10 }}>
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={8}
+              style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: theme.border }}
+            >
+              <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
+            </Pressable>
+            <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text }}>{t.plans.title}</Text>
+          </View>
           <Pressable
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); router.push("/(modals)/plan-form"); }}
             style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: theme.plan + "20", alignItems: "center", justifyContent: "center" }}

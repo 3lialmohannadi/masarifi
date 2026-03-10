@@ -104,12 +104,6 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="plans"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
         name="more"
         options={{
           title: t.tabs.more,
