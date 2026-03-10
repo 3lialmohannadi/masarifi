@@ -34,7 +34,7 @@ export default function DashboardScreen() {
   } = useApp();
   const { accounts } = useAccounts();
   const { transactions } = useTransactions();
-  const { allocatedMoneyForAccount, reservedMoneyForDailyLimit, upcomingCommitments } = useCommitments();
+  const { allocatedMoneyForAccount, upcomingCommitments } = useCommitments();
   const { wallets } = useSavings();
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<{ visible: boolean; type: TransactionType }>({ visible: false, type: "expense" });
@@ -60,16 +60,12 @@ export default function DashboardScreen() {
 
   const realAvailable = totalBalance - allocatedMoney;
 
-  const dailyReserved = selectedAccount
-    ? reservedMoneyForDailyLimit(selectedAccount.id)
-    : 0;
-
   const remainingDays = getRemainingDaysInMonth();
   const dailyLimit =
     settings.daily_limit_mode === "manual"
       ? settings.manual_daily_limit
       : remainingDays > 0
-      ? (totalBalance - dailyReserved) / remainingDays
+      ? realAvailable / remainingDays
       : 0;
 
   const recentTransactions = useMemo(() => {
@@ -82,7 +78,7 @@ export default function DashboardScreen() {
         if (dateDiff !== 0) return dateDiff;
         return b.id > a.id ? 1 : -1;
       })
-      .slice(0, 5);
+      .slice(0, 3);
   }, [transactions, selectedAccount]);
 
   const shownCommitments = upcomingCommitments.slice(0, 3);
@@ -273,14 +269,14 @@ export default function DashboardScreen() {
 
               {/* Real Available */}
               <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 10, alignItems: "center", gap: 8 }}>
-                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${theme.income}18`, alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="check-circle" size={15} color={theme.income} />
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${realAvailable < 0 ? "#EF4444" : theme.income}18`, alignItems: "center", justifyContent: "center" }}>
+                  <Feather name={realAvailable < 0 ? "alert-circle" : "check-circle"} size={15} color={realAvailable < 0 ? "#EF4444" : theme.income} />
                 </View>
                 <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: "center", fontWeight: "500" }}>
                   {t.dashboard.realAvailable}
                 </Text>
-                <Text style={{ fontSize: 12, fontWeight: "700", color: theme.income, textAlign: "center" }} numberOfLines={1}>
-                  {formatCurrency(Math.max(0, realAvailable), currency, language)}
+                <Text style={{ fontSize: 12, fontWeight: "700", color: realAvailable < 0 ? "#EF4444" : theme.income, textAlign: "center" }} numberOfLines={1}>
+                  {formatCurrency(realAvailable, currency, language)}
                 </Text>
               </View>
             </View>

@@ -23,14 +23,15 @@ export function getCurrencyDecimals(code: string): number {
 export function formatCurrency(amount: number, currencyCode: string, language: Language = "en"): string {
   const decimals = getCurrencyDecimals(currencyCode);
   const symbol = getCurrencySymbol(currencyCode);
+  const isNegative = amount < 0;
   const formatted = Math.abs(amount).toLocaleString("en-US", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
   if (language === "ar") {
-    return `${formatted} ${symbol}`;
+    return isNegative ? `- ${formatted} ${symbol}` : `${formatted} ${symbol}`;
   }
-  return `${symbol}${formatted}`;
+  return isNegative ? `-${symbol}${formatted}` : `${symbol}${formatted}`;
 }
 
 export function formatAmount(amount: number, language: Language = "en"): string {
