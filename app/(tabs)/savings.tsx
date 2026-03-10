@@ -42,12 +42,12 @@ export default function SavingsTab() {
         {/* Hero */}
         <View
           style={{
-            backgroundColor: isDark ? "#0D1B35" : "#1E3A5F",
+            backgroundColor: isDark ? "#132825" : theme.primary,
             paddingTop: topPadding,
             paddingHorizontal: 20,
             paddingBottom: 28,
-            borderBottomLeftRadius: 30,
-            borderBottomRightRadius: 30,
+            borderBottomLeftRadius: 32,
+            borderBottomRightRadius: 32,
             gap: 20,
           }}
         >
@@ -79,11 +79,11 @@ export default function SavingsTab() {
                     {t.savings.goals}
                   </Text>
                 </View>
-                <Text style={{ fontSize: 13, fontWeight: "700", color: "#10B981" }}>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: theme.income }}>
                   {Math.round(overallGoalProgress * 100)}%
                 </Text>
               </View>
-              <ProgressBar progress={overallGoalProgress} color="#10B981" height={5} trackColor="rgba(255,255,255,0.15)" />
+              <ProgressBar progress={overallGoalProgress} color={theme.income} height={5} trackColor="rgba(255,255,255,0.15)" />
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between" }}>
                 <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
                   {formatCurrency(totalGoalReached, "QAR", language)}

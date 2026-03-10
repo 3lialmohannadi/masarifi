@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 import { useCategories } from "@/store/CategoriesContext";
@@ -16,7 +16,7 @@ interface TransactionItemProps {
 }
 
 export function TransactionItem({ transaction, onPress, showDate = true }: TransactionItemProps) {
-  const { theme, language, isRTL, t } = useApp();
+  const { theme, language, isRTL, t, isDark } = useApp();
   const { getCategory } = useCategories();
 
   const category = getCategory(transaction.category_id);
@@ -41,6 +41,11 @@ export function TransactionItem({ transaction, onPress, showDate = true }: Trans
         backgroundColor: pressed ? theme.cardSecondary : theme.card,
         borderRadius: 16,
         marginBottom: 8,
+        borderWidth: 1,
+        borderColor: theme.border,
+        ...(isDark ? {} : Platform.OS === "web"
+          ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
+          : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 }),
       })}
     >
       <View

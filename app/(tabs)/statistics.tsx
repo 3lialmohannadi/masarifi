@@ -266,12 +266,12 @@ export default function StatisticsTab() {
       >
         {/* ── Hero Header ── */}
         <View style={{
-          backgroundColor: isDark ? "#0D1B35" : "#1A1040",
+          backgroundColor: isDark ? "#132825" : theme.primary,
           paddingTop: topPadding,
           paddingHorizontal: 20,
           paddingBottom: 28,
-          borderBottomLeftRadius: 30,
-          borderBottomRightRadius: 30,
+          borderBottomLeftRadius: 32,
+          borderBottomRightRadius: 32,
           gap: 16,
         }}>
           <Text style={{ fontSize: 22, fontWeight: "800", color: "#fff" }}>{t.statistics.title}</Text>
@@ -336,7 +336,7 @@ export default function StatisticsTab() {
               {[
                 { label: t.statistics.income, value: totalIncome, color: "#22C55E", icon: "arrow-down-left" },
                 { label: t.statistics.expense, value: totalExpense, color: "#EF4444", icon: "arrow-up-right" },
-                { label: t.statistics.savings, value: monthSavingsDeposited, color: "#10B981", icon: "archive" },
+                { label: t.statistics.savings, value: monthSavingsDeposited, color: theme.primary, icon: "archive" },
                 { label: t.statistics.remaining, value: monthRemaining, color: monthRemaining >= 0 ? "#3B82F6" : "#F59E0B", icon: monthRemaining >= 0 ? "pocket" : "alert-circle" },
               ].map((item) => (
                 <View key={item.label} style={{ flex: 1, minWidth: "44%", backgroundColor: item.color + "12", borderRadius: 14, padding: 13, gap: 5, borderWidth: 1, borderColor: item.color + "25" }}>

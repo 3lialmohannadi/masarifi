@@ -35,7 +35,7 @@ export default function AccountFormModal() {
   const [type, setType] = useState<AccountType>(existing?.type || "current");
   const [balance, setBalance] = useState(existing ? String(existing.balance) : "0");
   const [currency, setCurrency] = useState(existing?.currency || "QAR");
-  const [color, setColor] = useState(existing?.color || "#10B981");
+  const [color, setColor] = useState(existing?.color || "#2F8F83");
   const [icon, setIcon] = useState(existing?.icon || "credit-card");
   const [showIcon, setShowIcon] = useState(false);
   const [showColor, setShowColor] = useState(false);

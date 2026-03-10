@@ -30,9 +30,9 @@ function AppLoadingGate({ children }: { children: React.ReactNode }) {
   const { isLoaded, isDark } = useApp();
   if (!isLoaded) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#0F172A", alignItems: "center", justifyContent: "center" }}>
+      <View style={{ flex: 1, backgroundColor: "#0F1E1C", alignItems: "center", justifyContent: "center" }}>
         <StatusBar style="light" />
-        <ActivityIndicator size="large" color="#10B981" />
+        <ActivityIndicator size="large" color="#2F8F83" />
       </View>
     );
   }

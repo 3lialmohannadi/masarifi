@@ -1,15 +1,12 @@
-const emerald = "#10B981";
-const emeraldDark = "#059669";
-const emeraldLight = "#34D399";
-const navy = "#0A1628";
-const navyMid = "#111827";
-const navyCard = "#1A2540";
-const navyBorder = "#253355";
+const teal = "#2F8F83";
+const tealDark = "#1F6E64";
+const tealLight = "#5BB0A7";
 
 export const AppColors = {
-  emerald,
-  emeraldDark,
-  emeraldLight,
+  primary: teal,
+  primaryDark: tealDark,
+  primaryLight: tealLight,
+  secondary: "#A7C7C3",
   income: "#22C55E",
   expense: "#EF4444",
   savings: "#3B82F6",
@@ -23,7 +20,7 @@ export const AppColors = {
     QAR: "#8B5CF6",
     USD: "#22C55E",
     EUR: "#3B82F6",
-    SAR: "#10B981",
+    SAR: "#2F8F83",
     AED: "#F59E0B",
     GBP: "#EC4899",
     KWD: "#06B6D4",
@@ -33,24 +30,25 @@ export const AppColors = {
 };
 
 export const LightTheme = {
-  background: "#F8FAFC",
-  backgroundSecondary: "#EFF6FF",
+  background: "#F4F7F7",
+  backgroundSecondary: "#EBF2F1",
   card: "#FFFFFF",
-  cardSecondary: "#F1F5F9",
-  border: "#E2E8F0",
-  borderLight: "#F1F5F9",
-  text: "#0F172A",
-  textSecondary: "#475569",
-  textMuted: "#94A3B8",
-  primary: emerald,
-  primaryDark: emeraldDark,
-  primaryLight: "#DCFCE7",
+  cardSecondary: "#F0F5F4",
+  border: "#D4E4E2",
+  borderLight: "#E8F0EF",
+  text: "#1F2A44",
+  textSecondary: "#6B7280",
+  textMuted: "#9CA3AF",
+  primary: teal,
+  primaryDark: tealDark,
+  primaryLight: "#E0F0EE",
+  secondary: "#A7C7C3",
   tabBar: "#FFFFFF",
   header: "#FFFFFF",
-  input: "#F8FAFC",
-  inputBorder: "#E2E8F0",
-  shadow: "#000000",
-  overlay: "rgba(0,0,0,0.5)",
+  input: "#F4F7F7",
+  inputBorder: "#D4E4E2",
+  shadow: "#2F8F83",
+  overlay: "rgba(0,0,0,0.4)",
   income: "#22C55E",
   expense: "#EF4444",
   incomeBackground: "#F0FDF4",
@@ -62,22 +60,23 @@ export const LightTheme = {
 };
 
 export const DarkTheme = {
-  background: navy,
-  backgroundSecondary: "#0D1A2E",
-  card: navyCard,
-  cardSecondary: navyMid,
-  border: navyBorder,
-  borderLight: "#1E2D4A",
-  text: "#F1F5F9",
-  textSecondary: "#94A3B8",
-  textMuted: "#475569",
-  primary: emerald,
-  primaryDark: emeraldDark,
-  primaryLight: "#064E3B",
-  tabBar: navyMid,
-  header: navyMid,
-  input: navyMid,
-  inputBorder: navyBorder,
+  background: "#0F1E1C",
+  backgroundSecondary: "#122220",
+  card: "#1A2E2B",
+  cardSecondary: "#1F3530",
+  border: "#2A4440",
+  borderLight: "#233634",
+  text: "#E8F2F1",
+  textSecondary: "#A7C7C3",
+  textMuted: "#6B8E8B",
+  primary: teal,
+  primaryDark: tealDark,
+  primaryLight: "#0D2E2B",
+  secondary: "#A7C7C3",
+  tabBar: "#1A2E2B",
+  header: "#1A2E2B",
+  input: "#1A2E2B",
+  inputBorder: "#2A4440",
   shadow: "#000000",
   overlay: "rgba(0,0,0,0.7)",
   income: "#22C55E",
@@ -94,17 +93,17 @@ export type Theme = typeof LightTheme;
 
 export default {
   light: {
-    text: "#0F172A",
-    background: "#F8FAFC",
-    tint: emerald,
-    tabIconDefault: "#94A3B8",
-    tabIconSelected: emerald,
+    text: "#1F2A44",
+    background: "#F4F7F7",
+    tint: teal,
+    tabIconDefault: "#9CA3AF",
+    tabIconSelected: teal,
   },
   dark: {
-    text: "#F1F5F9",
-    background: navy,
-    tint: emerald,
-    tabIconDefault: "#475569",
-    tabIconSelected: emerald,
+    text: "#E8F2F1",
+    background: "#0F1E1C",
+    tint: teal,
+    tabIconDefault: "#6B8E8B",
+    tabIconSelected: teal,
   },
 };

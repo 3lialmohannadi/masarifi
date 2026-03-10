@@ -406,21 +406,21 @@ export default function SettingsScreen() {
             gap: 14,
             padding: 14,
             borderRadius: 14,
-            backgroundColor: exportDone ? "#10B98115" : pressed ? theme.cardSecondary : theme.card,
+            backgroundColor: exportDone ? theme.incomeBackground : pressed ? theme.cardSecondary : theme.card,
             borderWidth: 1,
-            borderColor: exportDone ? "#10B981" : theme.border,
+            borderColor: exportDone ? theme.income : theme.border,
             marginBottom: 8,
           })}
         >
-          <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: exportDone ? "#10B98120" : "#3B82F618", alignItems: "center", justifyContent: "center" }}>
+          <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: exportDone ? theme.incomeBackground : "#3B82F618", alignItems: "center", justifyContent: "center" }}>
             <Feather
               name={exportDone ? "check-circle" : exporting ? "loader" : "download"}
               size={18}
-              color={exportDone ? "#10B981" : "#3B82F6"}
+              color={exportDone ? theme.income : "#3B82F6"}
             />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 15, fontWeight: "600", color: exportDone ? "#10B981" : theme.text, textAlign: isRTL ? "right" : "left" }}>
+            <Text style={{ fontSize: 15, fontWeight: "600", color: exportDone ? theme.income : theme.text, textAlign: isRTL ? "right" : "left" }}>
               {exportDone ? t.settings.exportSuccess : t.settings.export}
             </Text>
             <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
@@ -469,7 +469,7 @@ export default function SettingsScreen() {
           <Text style={{ fontSize: 28, fontWeight: "900", color: theme.primary, letterSpacing: -0.5 }}>مصاريفي</Text>
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>Masarifi</Text>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}>
-            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "#10B981" }} />
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.income }} />
             <Text style={{ fontSize: 11, color: theme.textMuted }}>{t.settings.version} 1.0.0</Text>
           </View>
           <Text style={{ fontSize: 10, color: theme.textMuted, marginTop: 2 }}>

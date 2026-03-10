@@ -94,12 +94,12 @@ export default function DashboardScreen() {
         {/* ─── Hero ─── */}
         <View
           style={{
-            backgroundColor: isDark ? "#0D1B35" : "#0A1628",
+            backgroundColor: isDark ? "#132825" : theme.primary,
             paddingTop: topPadding,
             paddingHorizontal: 20,
             paddingBottom: 30,
-            borderBottomLeftRadius: 30,
-            borderBottomRightRadius: 30,
+            borderBottomLeftRadius: 32,
+            borderBottomRightRadius: 32,
             gap: 20,
           }}
         >
@@ -150,7 +150,7 @@ export default function DashboardScreen() {
                     }}
                   >
                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: acc.color }} />
-                    <Text style={{ fontSize: 13, fontWeight: "600", color: isSelected ? "#0A1628" : heroText(0.85) }}>
+                    <Text style={{ fontSize: 13, fontWeight: "600", color: isSelected ? theme.primary : heroText(0.85) }}>
                       {getDisplayName(acc, language)}
                     </Text>
                   </Pressable>
@@ -198,21 +198,21 @@ export default function DashboardScreen() {
             <View
               style={{
                 flex: 1,
-                backgroundColor: "rgba(16,185,129,0.12)",
+                backgroundColor: "rgba(34,197,94,0.12)",
                 borderRadius: 14,
                 padding: 14,
                 gap: 6,
                 borderWidth: 1,
-                borderColor: "rgba(16,185,129,0.2)",
+                borderColor: "rgba(34,197,94,0.2)",
               }}
             >
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                <Feather name="check-circle" size={12} color="#10B981" />
-                <Text style={{ fontSize: 11, color: "#10B981", fontWeight: "600" }}>
+                <Feather name="check-circle" size={12} color={theme.income} />
+                <Text style={{ fontSize: 11, color: theme.income, fontWeight: "600" }}>
                   {t.dashboard.realAvailable}
                 </Text>
               </View>
-              <Text style={{ fontSize: 17, fontWeight: "700", color: "#10B981" }} numberOfLines={1}>
+              <Text style={{ fontSize: 17, fontWeight: "700", color: theme.income }} numberOfLines={1}>
                 {formatCurrency(Math.max(0, realAvailable), currency, language)}
               </Text>
             </View>
@@ -240,7 +240,7 @@ export default function DashboardScreen() {
               </View>
             </View>
             <View style={{ alignItems: isRTL ? "flex-start" : "flex-end" }}>
-              <Text style={{ fontSize: 18, fontWeight: "700", color: "#10B981" }}>
+              <Text style={{ fontSize: 18, fontWeight: "700", color: theme.income }}>
                 {formatCurrency(Math.max(0, dailyLimit), currency, language)}
               </Text>
               <Text style={{ fontSize: 10, color: heroText(0.4) }}>/ {t.dashboard.day}</Text>

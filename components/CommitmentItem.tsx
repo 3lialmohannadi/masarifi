@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
@@ -17,7 +17,7 @@ interface CommitmentItemProps {
 }
 
 export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItemProps) {
-  const { theme, language, t, isRTL } = useApp();
+  const { theme, language, t, isRTL, isDark } = useApp();
   const { getAccount } = useAccounts();
   const { getCategory } = useCategories();
 
@@ -65,6 +65,9 @@ export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItem
         marginBottom: 6,
         borderWidth: 1,
         borderColor: isOverdue ? "#EF444430" : isDueToday ? "#F59E0B30" : theme.border,
+        ...(isDark ? {} : Platform.OS === "web"
+          ? { boxShadow: "0 2px 8px rgba(47,143,131,0.07)" }
+          : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }),
       })}
     >
       {/* Icon */}

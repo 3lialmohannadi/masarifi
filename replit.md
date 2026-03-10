@@ -3,6 +3,18 @@
 ## Overview
 Masarifi is a bilingual (Arabic/English) personal finance mobile app built with React Native and Expo, targeting users in the Gulf region. It offers comprehensive money management features including accounts, transactions, transfers, savings with goal tracking, recurring commitments, financial plans, monthly budgets, and detailed statistics. The app supports multiple Gulf currencies and provides a holistic view of personal finances. The vision is to empower users with robust tools for financial planning and tracking, leveraging local market understanding and advanced mobile technology.
 
+## Design System
+**Color Palette (Teal FinTech):**
+- Primary: `#2F8F83` (teal)
+- Background (light): `#F4F7F7`
+- Background (dark): `#0F1E1C`
+- Card (light): `#FFFFFF` with `#D4E4E2` border + subtle teal shadow
+- Card (dark): `#1A2E2B` with `#2A4440` border
+- Text (light): `#1F2A44`, Text (dark): `#E8F2F1`
+- Hero sections: teal `#2F8F83` (light) / dark teal `#132825` (dark) with `borderBottomRadius: 32`
+
+**Card Shadows:** Platform-aware — `boxShadow` on web, native `shadow*` props on iOS/Android (light mode only)
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 

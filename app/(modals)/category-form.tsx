@@ -27,7 +27,7 @@ export default function CategoryFormModal() {
   const [nameEn, setNameEn] = useState(existing?.name_en || "");
   const [catType, setCatType] = useState<CategoryType>(initialType);
   const [icon, setIcon] = useState(existing?.icon || "tag");
-  const [color, setColor] = useState(existing?.color || "#10B981");
+  const [color, setColor] = useState(existing?.color || "#2F8F83");
   const [isFavorite, setIsFavorite] = useState(existing?.is_favorite || false);
   const [showIcon, setShowIcon] = useState(false);
   const [showColor, setShowColor] = useState(false);
