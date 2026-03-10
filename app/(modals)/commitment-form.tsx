@@ -3,7 +3,6 @@ import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollV
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   Alert,
   Modal,
@@ -25,8 +24,6 @@ import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
 import { DatePickerModal } from "@/components/DatePickerModal";
-import type { RecurrenceType } from "@/types";
-
 function isValidDate(str: string): boolean {
   if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
   const d = new Date(str);
@@ -53,9 +50,6 @@ export default function CommitmentFormModal() {
   );
   const [categoryId, setCategoryId] = useState(existing?.category_id || "");
   const [dueDate, setDueDate] = useState(existing?.due_date || todayISOString());
-  const [recurrence, setRecurrence] = useState<RecurrenceType>(
-    existing?.recurrence_type || "monthly"
-  );
   const [note, setNote] = useState(existing?.note || "");
   const [showAccounts, setShowAccounts] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
@@ -63,14 +57,6 @@ export default function CommitmentFormModal() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const RECURRENCE_TYPES: { key: RecurrenceType; labelKey: string }[] = [
-    { key: "none", labelKey: "none" },
-    { key: "daily", labelKey: "daily" },
-    { key: "weekly", labelKey: "weekly" },
-    { key: "monthly", labelKey: "monthly" },
-    { key: "yearly", labelKey: "yearly" },
-  ];
 
   const validate = () => {
     const err: Record<string, string> = {};
@@ -99,8 +85,8 @@ export default function CommitmentFormModal() {
         account_id: accountId,
         category_id: categoryId || allCategories[0]?.id || "",
         due_date: dueDate,
-        recurrence_type: recurrence,
-        is_manual: recurrence === "none",
+        recurrence_type: "none" as const,
+        is_manual: true,
         note: note || "",
       };
       if (existing) {
@@ -173,31 +159,6 @@ export default function CommitmentFormModal() {
         showsVerticalScrollIndicator={false}
         bottomOffset={60}
       >
-        {/* Commitment type indicator */}
-        <View
-          style={{
-            backgroundColor: recurrence === "none" ? theme.warningBackground : theme.commitment + "15",
-            borderRadius: 12,
-            padding: 12,
-            flexDirection: isRTL ? "row-reverse" : "row",
-            alignItems: "center",
-            gap: 10,
-            borderWidth: 1,
-            borderColor: recurrence === "none" ? theme.warningBorder : theme.commitment + "40",
-          }}
-        >
-          <Feather
-            name={recurrence === "none" ? "calendar" : "repeat"}
-            size={16}
-            color={recurrence === "none" ? theme.warningText : theme.commitment}
-          />
-          <Text style={{ fontSize: 13, color: recurrence === "none" ? theme.warningText : theme.commitment, fontWeight: "600" }}>
-            {recurrence === "none"
-              ? (language === "ar" ? "التزام يدوي (مرة واحدة)" : "Manual Commitment (One-time)")
-              : (language === "ar" ? "التزام متكرر" : "Recurring Commitment")}
-          </Text>
-        </View>
-
         {/* Name */}
         <View style={{ gap: 6 }}>
           <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
@@ -365,44 +326,6 @@ export default function CommitmentFormModal() {
             <Feather name="chevron-down" size={14} color={theme.textMuted} />
           </Pressable>
           {!!errors.date && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.date}</Text>}
-        </View>
-
-        {/* Recurrence */}
-        <View style={{ gap: 8 }}>
-          <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-            {t.commitments.recurrence}
-          </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              {RECURRENCE_TYPES.map(({ key }) => (
-                <Pressable
-                  key={key}
-                  onPress={() => {
-                    Haptics.selectionAsync();
-                    setRecurrence(key);
-                  }}
-                  style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 9,
-                    borderRadius: 20,
-                    backgroundColor: recurrence === key ? theme.commitment : theme.card,
-                    borderWidth: 1.5,
-                    borderColor: recurrence === key ? theme.commitment : theme.border,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  {key !== "none" && (
-                    <Feather name="repeat" size={12} color={recurrence === key ? "#fff" : theme.textSecondary} />
-                  )}
-                  <Text style={{ fontSize: 13, fontWeight: "600", color: recurrence === key ? "#fff" : theme.text }}>
-                    {t.commitments.recurrenceTypes[key]}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </ScrollView>
         </View>
 
         {/* Note */}

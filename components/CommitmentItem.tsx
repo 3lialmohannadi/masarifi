@@ -85,7 +85,7 @@ export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItem
         {category ? (
           <CategoryIcon name={category.icon || "tag"} size={20} color={iconColor} />
         ) : (
-          <Feather name={commitment.recurrence_type !== "none" ? "repeat" : "calendar"} size={20} color={iconColor} />
+          <Feather name="calendar" size={20} color={iconColor} />
         )}
       </View>
 
@@ -103,14 +103,6 @@ export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItem
               · {getDisplayName(account, language)}
             </Text>
           )}
-          {commitment.recurrence_type !== "none" && (
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
-              <Feather name="repeat" size={10} color={theme.textMuted} />
-              <Text style={{ fontSize: 11, color: theme.textMuted }}>
-                {t.commitments.recurrenceTypes[commitment.recurrence_type]}
-              </Text>
-            </View>
-          )}
         </View>
         {/* Status badge */}
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
@@ -120,13 +112,6 @@ export function CommitmentItem({ commitment, onPayNow, onPress }: CommitmentItem
               {t.commitments.status[commitment.status]}
             </Text>
           </View>
-          {commitment.is_manual && (
-            <View style={{ backgroundColor: theme.card, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: theme.border }}>
-              <Text style={{ fontSize: 10, color: theme.textMuted }}>
-                {language === "ar" ? "يدوي" : "Manual"}
-              </Text>
-            </View>
-          )}
         </View>
       </View>
 

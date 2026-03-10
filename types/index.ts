@@ -174,11 +174,14 @@ export interface Commitment {
   account_id: string;
   category_id?: string;
   due_date: string;
-  recurrence_type: RecurrenceType;
+  /** Kept for DB backward-compatibility — always "none" for all new commitments. */
+  recurrence_type?: RecurrenceType;
   status: CommitmentStatus;
+  /** Always true — every commitment is manual (no auto-generation). */
   is_manual: boolean;
   paid_at?: string;
   note: string;
+  /** Kept for DB backward-compatibility — unused in the app. */
   parent_commitment_id?: string;
   created_at: string;
   updated_at: string;

@@ -1,7 +1,7 @@
 # Masarifi - Personal Finance App
 
 ## Overview
-Masarifi is a bilingual (Arabic/English) personal finance mobile app built with React Native and Expo, targeting users in the Gulf region. It offers comprehensive money management features including accounts, transactions, transfers, savings with goal tracking, recurring commitments, financial plans, monthly budgets, and detailed statistics. The app supports multiple Gulf currencies and provides a holistic view of personal finances. The vision is to empower users with robust tools for financial planning and tracking, leveraging local market understanding and advanced mobile technology.
+Masarifi is a bilingual (Arabic/English) personal finance mobile app built with React Native and Expo, targeting users in the Gulf region. It offers comprehensive money management features including accounts, transactions, transfers, savings with goal tracking, manual commitments (one-time bills/dues), financial plans, monthly budgets, and detailed statistics. The app supports multiple Gulf currencies and provides a holistic view of personal finances. The vision is to empower users with robust tools for financial planning and tracking, leveraging local market understanding and advanced mobile technology.
 
 ## Design System
 **Color Palette (Teal FinTech):**

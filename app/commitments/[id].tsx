@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -19,7 +19,6 @@ import { formatCurrency } from "@/utils/currency";
 import { formatDateShort } from "@/utils/date";
 import { getDisplayName } from "@/utils/display";
 import PayNowModal from "@/components/PayNowModal";
-import type { Commitment } from "@/types";
 
 export default function CommitmentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -32,19 +31,6 @@ export default function CommitmentDetailScreen() {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const commitment = commitments.find((c) => c.id === id);
-
-  const paymentHistory = useMemo<Commitment[]>(() => {
-    if (!commitment) return [];
-    const history: Commitment[] = [];
-    let parentId = commitment.parent_commitment_id;
-    while (parentId) {
-      const parent = commitments.find((c) => c.id === parentId);
-      if (!parent) break;
-      history.push(parent);
-      parentId = parent.parent_commitment_id;
-    }
-    return history;
-  }, [commitment, commitments]);
 
   if (!commitment) {
     return (
@@ -89,8 +75,6 @@ export default function CommitmentDetailScreen() {
       };
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
-
-  const totalPaidAmount = paymentHistory.reduce((sum, c) => sum + c.amount, 0);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -153,7 +137,7 @@ export default function CommitmentDetailScreen() {
                   {category ? (
                     <CategoryIcon name={category.icon || "tag"} size={26} color={accentColor} />
                   ) : (
-                    <Feather name={commitment.recurrence_type !== "none" ? "repeat" : "calendar"} size={26} color={accentColor} />
+                    <Feather name="calendar" size={26} color={accentColor} />
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
@@ -219,21 +203,6 @@ export default function CommitmentDetailScreen() {
                   </View>
                 )}
 
-                {/* Recurrence */}
-                {commitment.recurrence_type !== "none" && (
-                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
-                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
-                      <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: theme.primary + "15", alignItems: "center", justifyContent: "center" }}>
-                        <Feather name="repeat" size={14} color={theme.primary} />
-                      </View>
-                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{t.commitments.recurrence}</Text>
-                    </View>
-                    <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text }}>
-                      {t.commitments.recurrenceTypes[commitment.recurrence_type]}
-                    </Text>
-                  </View>
-                )}
-
                 {/* Note */}
                 {!!commitment.note && (
                   <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
@@ -251,39 +220,6 @@ export default function CommitmentDetailScreen() {
               </View>
             </View>
           </View>
-
-          {/* ─── Stats Row (if recurring) ─── */}
-          {commitment.recurrence_type !== "none" && paymentHistory.length > 0 && (
-            <View
-              style={{
-                backgroundColor: theme.card,
-                borderRadius: 16,
-                borderWidth: 1,
-                borderColor: theme.border,
-                flexDirection: isRTL ? "row-reverse" : "row",
-                overflow: "hidden",
-                ...cardShadow,
-              }}
-            >
-              <View style={{ flex: 1, padding: 16, alignItems: "center", gap: 4 }}>
-                <Text style={{ fontSize: 20, fontWeight: "800", color: theme.primary }}>
-                  {paymentHistory.length}
-                </Text>
-                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: "center" }}>
-                  {t.commitments.paymentsCount}
-                </Text>
-              </View>
-              <View style={{ width: 1, backgroundColor: theme.border, marginVertical: 12 }} />
-              <View style={{ flex: 1, padding: 16, alignItems: "center", gap: 4 }}>
-                <Text style={{ fontSize: 15, fontWeight: "800", color: theme.income }} numberOfLines={1}>
-                  {formatCurrency(totalPaidAmount, currency, language)}
-                </Text>
-                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: "center" }}>
-                  {t.commitments.totalPaid}
-                </Text>
-              </View>
-            </View>
-          )}
 
           {/* ─── Action Buttons ─── */}
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
@@ -354,66 +290,6 @@ export default function CommitmentDetailScreen() {
               </View>
             </View>
           )}
-
-          {/* ─── Payment History ─── */}
-          <View style={{ gap: 12 }}>
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
-              <Feather name="clock" size={16} color={theme.textMuted} />
-              <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
-                {t.commitments.paymentHistory}
-              </Text>
-            </View>
-
-            {paymentHistory.length === 0 ? (
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, padding: 20, alignItems: "center", gap: 8 }}>
-                <Feather name="inbox" size={28} color={theme.border} />
-                <Text style={{ color: theme.textMuted, fontSize: 13, textAlign: "center" }}>
-                  {t.commitments.noPaymentHistory}
-                </Text>
-              </View>
-            ) : (
-              <View style={{ backgroundColor: theme.card, borderRadius: 16, borderWidth: 1, borderColor: theme.border, overflow: "hidden", ...cardShadow }}>
-                {paymentHistory.map((h, index) => (
-                  <View key={h.id}>
-                    {index > 0 && <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: 16 }} />}
-                    <View
-                      style={{
-                        flexDirection: isRTL ? "row-reverse" : "row",
-                        alignItems: "center",
-                        gap: 12,
-                        padding: 14,
-                      }}
-                    >
-                      {/* Timeline dot */}
-                      <View style={{ alignItems: "center", width: 36 }}>
-                        <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.incomeBackground, alignItems: "center", justifyContent: "center" }}>
-                          <Feather name="check" size={16} color={theme.income} />
-                        </View>
-                      </View>
-
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-                          {formatCurrency(h.amount, currency, language)}
-                        </Text>
-                        <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left", marginTop: 2 }}>
-                          {t.commitments.paidOn} {formatDateShort(h.paid_at || h.due_date, language)}
-                        </Text>
-                        <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                          {language === "ar" ? "موعد الاستحقاق:" : "Due:"} {formatDateShort(h.due_date, language)}
-                        </Text>
-                      </View>
-
-                      <View style={{ backgroundColor: theme.incomeBackground, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                        <Text style={{ fontSize: 11, fontWeight: "700", color: theme.income }}>
-                          {t.commitments.status.paid}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
 
         </View>
       </ScrollView>

@@ -508,7 +508,7 @@ export default function DashboardScreen() {
                         })}
                       >
                         <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: accentColor + "18", alignItems: "center", justifyContent: "center" }}>
-                          <Feather name={c.recurrence_type !== "none" ? "repeat" : "calendar"} size={17} color={accentColor} />
+                          <Feather name="calendar" size={17} color={accentColor} />
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
@@ -516,9 +516,6 @@ export default function DashboardScreen() {
                           </Text>
                           <Text style={{ fontSize: 12, color: isOverdue ? theme.expense : theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
                             {formatDateShort(c.due_date, language)}
-                            {c.recurrence_type !== "none" && (
-                              <Text style={{ color: theme.textMuted }}> · {t.commitments.recurrenceTypes[c.recurrence_type]}</Text>
-                            )}
                           </Text>
                         </View>
                         <View style={{ alignItems: isRTL ? "flex-start" : "flex-end", gap: 4 }}>

@@ -20,25 +20,16 @@ export default function CommitmentsScreen() {
   const [filter, setFilter] = useState<Filter>("all");
   const [payingId, setPayingId] = useState<string | null>(null);
 
-  const leafCommitments = useMemo(() => {
-    const childParentIds = new Set(
-      commitments
-        .filter((c) => c.parent_commitment_id)
-        .map((c) => c.parent_commitment_id as string)
-    );
-    return commitments.filter((c) => !childParentIds.has(c.id));
-  }, [commitments]);
-
   const filtered = useMemo(() => {
-    if (filter === "all") return leafCommitments;
-    return leafCommitments.filter((c) => c.status === filter);
-  }, [leafCommitments, filter]);
+    if (filter === "all") return commitments;
+    return commitments.filter((c) => c.status === filter);
+  }, [commitments, filter]);
 
-  const overdueCount = leafCommitments.filter((c) => c.status === "overdue").length;
-  const dueTodayCount = leafCommitments.filter((c) => c.status === "due_today").length;
+  const overdueCount = commitments.filter((c) => c.status === "overdue").length;
+  const dueTodayCount = commitments.filter((c) => c.status === "due_today").length;
 
   const FILTERS: { key: Filter; label: string; count?: number }[] = [
-    { key: "all", label: t.transactions.filterAll, count: leafCommitments.length },
+    { key: "all", label: t.transactions.filterAll, count: commitments.length },
     { key: "upcoming", label: t.commitments.status.upcoming },
     { key: "due_today", label: t.commitments.status.due_today, count: dueTodayCount || undefined },
     { key: "overdue", label: t.commitments.status.overdue, count: overdueCount || undefined },

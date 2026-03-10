@@ -170,13 +170,6 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
               value={formatDate(commitment.due_date, language)}
               theme={theme} isRTL={isRTL}
             />
-            {commitment.recurrence_type !== "none" && (
-              <Row
-                label={language === "ar" ? "التكرار" : "Recurrence"}
-                value={t.commitments.recurrenceTypes[commitment.recurrence_type]}
-                theme={theme} isRTL={isRTL}
-              />
-            )}
           </View>
 
           {/* Balance check warning */}

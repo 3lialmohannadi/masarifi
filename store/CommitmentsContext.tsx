@@ -7,10 +7,10 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import type { Commitment, CommitmentStatus, RecurrenceType } from "@/types";
+import type { Commitment, CommitmentStatus } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
-import { isReservedOn28th, isPastDate, isToday, addMonths, addWeeks, addDays, addYears } from "@/utils/date";
+import { isReservedOn28th, isPastDate, isToday } from "@/utils/date";
 import { apiRequest } from "@/services/api";
 
 interface CommitmentsContextValue {
@@ -34,37 +34,6 @@ export function deriveStatus(dueDate: string): CommitmentStatus {
   if (isToday(dueDate)) return "due_today";
   if (isPastDate(dueDate)) return "overdue";
   return "upcoming";
-}
-
-function advanceOneStep(dateStr: string, recurrenceType: RecurrenceType): string {
-  switch (recurrenceType) {
-    case "daily":   return addDays(dateStr, 1);
-    case "weekly":  return addWeeks(dateStr, 1);
-    case "monthly": return addMonths(dateStr, 1);
-    case "yearly":  return addYears(dateStr, 1);
-    default:        return dateStr;
-  }
-}
-
-/**
- * Safety cap for advancing a recurring commitment forward in time.
- * 730 steps ≈ 2 years of daily recurrence — guards against malformed
- * dates or degenerate inputs causing an infinite loop.
- */
-const MAX_RECURRENCE_STEPS = 730;
-
-/**
- * Advances a recurring commitment's due date one step at a time until
- * it lands on a future (or today) date. Returns the next valid due date.
- */
-function getNextFutureDueDate(dueDate: string, recurrenceType: RecurrenceType): string {
-  let next = dueDate;
-  let steps = 0;
-  do {
-    next = advanceOneStep(next, recurrenceType);
-    steps++;
-  } while (isPastDate(next) && !isToday(next) && steps < MAX_RECURRENCE_STEPS);
-  return next;
 }
 
 function refreshCommitmentStatuses(list: Commitment[]): Commitment[] {
@@ -162,29 +131,9 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
   const getCommitment = (id: string) => commitments.find((c) => c.id === id);
 
   const payCommitment = (id: string) => {
-    const commitment = commitments.find((c) => c.id === id);
-    if (!commitment) return;
-
-    let updated = commitments.map((c) =>
+    const updated = commitments.map((c) =>
       c.id === id ? { ...c, status: "paid" as CommitmentStatus, paid_at: now(), updated_at: now() } : c
     );
-
-    if (commitment.recurrence_type !== "none") {
-      const nextDueDate = getNextFutureDueDate(commitment.due_date, commitment.recurrence_type);
-      const newCommitment: Commitment = {
-        ...commitment,
-        id: generateId(),
-        due_date: nextDueDate,
-        status: deriveStatus(nextDueDate),
-        paid_at: undefined,
-        parent_commitment_id: commitment.id,
-        created_at: now(),
-        updated_at: now(),
-      };
-      updated = [...updated, newCommitment];
-      apiRequest("POST", "/api/commitments", newCommitment).catch(console.error);
-    }
-
     persist(updated);
     const paidRecord = updated.find((c) => c.id === id);
     if (paidRecord) apiRequest("PATCH", `/api/commitments/${id}`, paidRecord).catch(console.error);
