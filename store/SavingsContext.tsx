@@ -22,6 +22,7 @@ interface SavingsContextValue {
   addSavingsTransaction: (tx: Omit<SavingsTransaction, "id" | "created_at">) => SavingsTransaction;
   getWalletTransactions: (walletId: string) => SavingsTransaction[];
   totalSavings: number;
+  clearAll: () => void;
   isLoaded: boolean;
 }
 
@@ -141,6 +142,11 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     [wallets]
   );
 
+  const clearAll = () => {
+    persistWallets([]);
+    persistTransactions([]);
+  };
+
   const value = useMemo(
     () => ({
       wallets,
@@ -152,6 +158,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
       addSavingsTransaction,
       getWalletTransactions,
       totalSavings,
+      clearAll,
       isLoaded,
     }),
     [wallets, savingsTransactions, totalSavings, isLoaded]

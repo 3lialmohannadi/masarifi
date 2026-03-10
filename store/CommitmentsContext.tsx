@@ -23,6 +23,7 @@ interface CommitmentsContextValue {
   reservedMoneyForDailyLimit: (accountId: string) => number;
   upcomingCommitments: Commitment[];
   refreshStatuses: () => void;
+  clearAll: () => void;
   isLoaded: boolean;
 }
 
@@ -204,6 +205,10 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     [commitments]
   );
 
+  const clearAll = () => {
+    persist([]);
+  };
+
   const value = useMemo(
     () => ({
       commitments,
@@ -216,6 +221,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       reservedMoneyForDailyLimit,
       upcomingCommitments,
       refreshStatuses,
+      clearAll,
       isLoaded,
     }),
     [commitments, isLoaded]

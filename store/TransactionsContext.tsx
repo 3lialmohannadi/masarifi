@@ -22,6 +22,7 @@ interface TransactionsContextValue {
   getTransactionsByAccount: (accountId: string) => Transaction[];
   getTransactionsByCategory: (categoryId: string) => Transaction[];
   categoryIdsInUse: string[];
+  clearAll: () => void;
   isLoaded: boolean;
 }
 
@@ -125,6 +126,11 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     [transactions]
   );
 
+  const clearAll = () => {
+    persistTx([]);
+    persistTf([]);
+  };
+
   const value = useMemo(
     () => ({
       transactions,
@@ -137,6 +143,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       getTransactionsByAccount,
       getTransactionsByCategory,
       categoryIdsInUse,
+      clearAll,
       isLoaded,
     }),
     [transactions, transfers, isLoaded]

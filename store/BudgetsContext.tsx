@@ -19,6 +19,7 @@ interface BudgetsContextValue {
   deleteBudget: (id: string) => void;
   getBudgetForCategory: (categoryId: string, month?: string) => Budget | undefined;
   getCurrentMonthBudgets: () => Budget[];
+  clearAll: () => void;
   isLoaded: boolean;
 }
 
@@ -104,6 +105,10 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
     return budgets.filter((b) => b.month === currentMonth);
   };
 
+  const clearAll = () => {
+    persist([]);
+  };
+
   const value = useMemo(
     () => ({
       budgets,
@@ -112,6 +117,7 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
       deleteBudget,
       getBudgetForCategory,
       getCurrentMonthBudgets,
+      clearAll,
       isLoaded,
     }),
     [budgets, isLoaded]

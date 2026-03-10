@@ -522,6 +522,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/reset", async (req, res) => {
+    try {
+      await db.delete(schema.budgets).where(eq(schema.budgets.user_id, DEFAULT_USER_ID));
+      await db.delete(schema.commitments).where(eq(schema.commitments.user_id, DEFAULT_USER_ID));
+      await db.delete(schema.planCategories).where(eq(schema.planCategories.user_id, DEFAULT_USER_ID));
+      await db.delete(schema.plans).where(eq(schema.plans.user_id, DEFAULT_USER_ID));
+      await db.delete(schema.savingsTransactions).where(eq(schema.savingsTransactions.user_id, DEFAULT_USER_ID));
+      await db.delete(schema.savingsWallets).where(eq(schema.savingsWallets.user_id, DEFAULT_USER_ID));
+      await db.delete(schema.transfers).where(eq(schema.transfers.user_id, DEFAULT_USER_ID));
+      await db.delete(schema.transactions).where(eq(schema.transactions.user_id, DEFAULT_USER_ID));
+      await db.delete(schema.accounts).where(eq(schema.accounts.user_id, DEFAULT_USER_ID));
+      res.json({ ok: true });
+    } catch (e: any) {
+      res.status(500).json({ message: e.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

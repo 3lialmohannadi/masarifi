@@ -18,6 +18,7 @@ interface AccountsContextValue {
   deleteAccount: (id: string) => void;
   getAccount: (id: string) => Account | undefined;
   updateBalance: (id: string, delta: number) => void;
+  clearAll: () => void;
   isLoaded: boolean;
 }
 
@@ -98,8 +99,12 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
     if (record) apiRequest("PATCH", `/api/accounts/${id}`, record).catch(console.error);
   };
 
+  const clearAll = () => {
+    persist([]);
+  };
+
   const value = useMemo(
-    () => ({ accounts, addAccount, updateAccount, deleteAccount, getAccount, updateBalance, isLoaded }),
+    () => ({ accounts, addAccount, updateAccount, deleteAccount, getAccount, updateBalance, clearAll, isLoaded }),
     [accounts, isLoaded]
   );
 

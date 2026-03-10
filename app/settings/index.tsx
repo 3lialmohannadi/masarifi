@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, Pressable, Switch, Share, Platform, Image } from "react-native";
+import { View, Text, Pressable, Switch, Share, Platform, Image, Modal, ActivityIndicator } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -72,17 +72,20 @@ function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, setLanguage, colorScheme, setColorScheme, settings, updateSettings, isRTL } = useApp();
-  const { accounts } = useAccounts();
-  const { transactions } = useTransactions();
-  const { wallets: savingsWallets, savingsTransactions } = useSavings();
-  const { commitments } = useCommitments();
-  const { plans } = usePlans();
-  const { budgets } = useBudgets();
+  const { accounts, clearAll: clearAccounts } = useAccounts();
+  const { transactions, clearAll: clearTransactions } = useTransactions();
+  const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
+  const { commitments, clearAll: clearCommitments } = useCommitments();
+  const { plans, clearAll: clearPlans } = usePlans();
+  const { budgets, clearAll: clearBudgets } = useBudgets();
 
   const [manualDailyLimit, setManualDailyLimit] = useState(String(settings.manual_daily_limit || ""));
   const [exporting, setExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
   const [showCurrencies, setShowCurrencies] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
 
   const LANG_OPTIONS = [
     { code: "ar" as const, label: "العربية", flag: "🇶🇦" },
@@ -147,6 +150,28 @@ export default function SettingsScreen() {
       setExporting(false);
     }
   }, [accounts, transactions, savingsWallets, savingsTransactions, commitments, plans, budgets, settings]);
+
+  const handleReset = useCallback(async () => {
+    setResetting(true);
+    try {
+      const { apiRequest } = await import("@/lib/query-client");
+      await apiRequest("POST", "/api/reset");
+      clearAccounts();
+      clearTransactions();
+      clearSavings();
+      clearCommitments();
+      clearPlans();
+      clearBudgets();
+      setShowResetConfirm(false);
+      setResetDone(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setTimeout(() => setResetDone(false), 3000);
+    } catch (_e) {
+      setShowResetConfirm(false);
+    } finally {
+      setResetting(false);
+    }
+  }, [clearAccounts, clearTransactions, clearSavings, clearCommitments, clearPlans, clearBudgets]);
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
@@ -437,6 +462,44 @@ export default function SettingsScreen() {
           {!exportDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.border} />}
         </Pressable>
 
+        {/* ── Danger Zone ── */}
+        <SectionLabel title={t.settings.danger} />
+        <Pressable
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            setShowResetConfirm(true);
+          }}
+          disabled={resetting}
+          style={({ pressed }) => ({
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "center",
+            gap: 14,
+            padding: 14,
+            borderRadius: 16,
+            backgroundColor: resetDone ? "#EF444415" : pressed ? "#EF444410" : theme.card,
+            borderWidth: 1.5,
+            borderColor: resetDone ? "#EF4444" : "#EF444440",
+            marginBottom: 8,
+          })}
+        >
+          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#EF444420", alignItems: "center", justifyContent: "center" }}>
+            <Feather
+              name={resetDone ? "check-circle" : "trash-2"}
+              size={18}
+              color="#EF4444"
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 15, fontWeight: "600", color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>
+              {resetDone ? t.settings.resetSuccess : t.settings.reset}
+            </Text>
+            <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+              {t.settings.resetDesc}
+            </Text>
+          </View>
+          {!resetDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color="#EF444460" />}
+        </Pressable>
+
         {/* ── Notifications ── */}
         <SectionLabel title={t.settings.notifications} />
         <View style={{
@@ -487,6 +550,84 @@ export default function SettingsScreen() {
           </Text>
         </View>
       </KeyboardAwareScrollViewCompat>
+
+      {/* ── Reset Confirmation Modal ── */}
+      <Modal visible={showResetConfirm} transparent animationType="fade">
+        <Pressable
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.65)", justifyContent: "center", padding: 24 }}
+          onPress={() => !resetting && setShowResetConfirm(false)}
+        >
+          <Pressable
+            style={{
+              backgroundColor: theme.card,
+              borderRadius: 22,
+              padding: 24,
+              gap: 16,
+              borderWidth: 1.5,
+              borderColor: "#EF444440",
+            }}
+            onPress={() => {}}
+          >
+            {/* Icon */}
+            <View style={{ alignItems: "center", gap: 8 }}>
+              <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: "#EF444420", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="alert-triangle" size={30} color="#EF4444" />
+              </View>
+              <Text style={{ fontSize: 20, fontWeight: "800", color: "#EF4444", textAlign: "center" }}>
+                {t.settings.resetConfirmTitle}
+              </Text>
+            </View>
+
+            {/* Message */}
+            <View style={{ backgroundColor: "#EF444410", borderRadius: 12, padding: 14, borderWidth: 1, borderColor: "#EF444425" }}>
+              <Text style={{ fontSize: 14, color: theme.text, textAlign: isRTL ? "right" : "left", lineHeight: 22 }}>
+                {t.settings.resetConfirmMessage}
+              </Text>
+            </View>
+
+            {/* Buttons */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+              <Pressable
+                onPress={() => setShowResetConfirm(false)}
+                disabled={resetting}
+                style={({ pressed }) => ({
+                  flex: 1,
+                  padding: 14,
+                  borderRadius: 12,
+                  alignItems: "center",
+                  backgroundColor: pressed ? theme.cardSecondary : theme.cardSecondary,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                })}
+              >
+                <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text }}>
+                  {language === "ar" ? "إلغاء" : "Cancel"}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleReset}
+                disabled={resetting}
+                style={({ pressed }) => ({
+                  flex: 1,
+                  padding: 14,
+                  borderRadius: 12,
+                  alignItems: "center",
+                  backgroundColor: resetting ? "#EF444460" : pressed ? "#DC2626" : "#EF4444",
+                })}
+              >
+                {resetting ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>
+                    {t.settings.resetConfirm}
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
