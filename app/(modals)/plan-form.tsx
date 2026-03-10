@@ -15,6 +15,12 @@ import { CURRENCIES } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
 import type { PlanType } from "@/types";
 
+function isValidDate(str: string): boolean {
+  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+  const d = new Date(str);
+  return !isNaN(d.getTime());
+}
+
 const PLAN_TYPES: PlanType[] = ["travel", "wedding", "car", "house", "study", "business", "event", "medical", "other"];
 
 export default function PlanFormModal() {
@@ -46,6 +52,9 @@ export default function PlanFormModal() {
     if (!nameAr.trim() && !nameEn.trim()) err.name = t.validation.nameRequired;
     if (!budget || parseFloat(budget) <= 0) err.budget = t.validation.budgetRequired;
     if (!currency) err.currency = t.validation.currencyRequired;
+    if (!startDate) err.startDate = t.validation.dateRequired;
+    else if (!isValidDate(startDate)) err.startDate = t.validation.dateInvalid;
+    if (endDate && !isValidDate(endDate)) err.endDate = t.validation.dateInvalid;
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -163,8 +172,20 @@ export default function PlanFormModal() {
 
         <AppInput label={`${t.common.description} (${t.common.optional})`} value={description} onChangeText={setDescription} multiline placeholder={language === "ar" ? "وصف الخطة..." : "Plan description..."} />
 
-        <AppInput label={t.plans.startDate} value={startDate} onChangeText={setStartDate} placeholder="YYYY-MM-DD" />
-        <AppInput label={`${t.plans.endDate} (${t.common.optional})`} value={endDate} onChangeText={setEndDate} placeholder="YYYY-MM-DD" />
+        <AppInput
+          label={t.plans.startDate}
+          value={startDate}
+          onChangeText={(v) => { setStartDate(v); if (errors.startDate) setErrors((e) => ({ ...e, startDate: "" })); }}
+          placeholder="YYYY-MM-DD"
+          error={errors.startDate}
+        />
+        <AppInput
+          label={`${t.plans.endDate} (${t.common.optional})`}
+          value={endDate}
+          onChangeText={(v) => { setEndDate(v); if (errors.endDate) setErrors((e) => ({ ...e, endDate: "" })); }}
+          placeholder="YYYY-MM-DD"
+          error={errors.endDate}
+        />
 
         <AppInput label={t.plans.budget} value={budget} onChangeText={setBudget} keyboardType="decimal-pad" placeholder="0.00" error={errors.budget} />
 

@@ -23,6 +23,12 @@ import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
 import type { RecurrenceType } from "@/types";
 
+function isValidDate(str: string): boolean {
+  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+  const d = new Date(str);
+  return !isNaN(d.getTime());
+}
+
 export default function CommitmentFormModal() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL } = useApp();
@@ -67,8 +73,9 @@ export default function CommitmentFormModal() {
     if (!nameAr.trim() && !nameEn.trim()) err.name = t.validation.nameRequired;
     if (!amount || parseFloat(amount) <= 0) err.amount = t.validation.amountPositive;
     if (!accountId) err.account = t.validation.accountRequired;
+    if (!categoryId) err.category = t.validation.categoryRequired;
     if (!dueDate) err.date = t.validation.dateRequired;
-    if (!categoryId) err.category = language === "ar" ? "اختر فئة" : "Select a category";
+    else if (!isValidDate(dueDate)) err.date = t.validation.dateInvalid;
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -330,7 +337,7 @@ export default function CommitmentFormModal() {
           </Text>
           <TextInput
             value={dueDate}
-            onChangeText={setDueDate}
+            onChangeText={(v) => { setDueDate(v); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
             placeholder="YYYY-MM-DD"
             placeholderTextColor={theme.textMuted}
             style={{

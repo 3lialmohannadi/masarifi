@@ -13,6 +13,12 @@ import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
 
+function isValidDate(str: string): boolean {
+  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+  const d = new Date(str);
+  return !isNaN(d.getTime());
+}
+
 export default function TransferFormModal() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, selectedAccountId, isRTL } = useApp();
@@ -53,6 +59,8 @@ export default function TransferFormModal() {
     if (!sameCurrency && (parseFloat(exchangeRate) <= 0 || isNaN(parseFloat(exchangeRate)))) {
       err.exchangeRate = t.validation.amountPositive;
     }
+    if (!date) err.date = t.validation.dateRequired;
+    else if (!isValidDate(date)) err.date = t.validation.dateInvalid;
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -238,7 +246,13 @@ export default function TransferFormModal() {
           </View>
         )}
 
-        <AppInput label={t.common.date} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" />
+        <AppInput
+          label={t.common.date}
+          value={date}
+          onChangeText={(v) => { setDate(v); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
+          placeholder="YYYY-MM-DD"
+          error={errors.date}
+        />
 
         <AppInput
           label={`${t.common.note} (${t.common.optional})`}
