@@ -8,6 +8,7 @@ import {
   Modal,
   Platform,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -532,11 +533,15 @@ export default function SavingsMovementModal() {
             marginTop: 4,
           }}
         >
-          <Feather
-            name={isDeposit ? "arrow-down-circle" : "arrow-up-circle"}
-            size={18}
-            color="#fff"
-          />
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Feather
+              name={isDeposit ? "arrow-down-circle" : "arrow-up-circle"}
+              size={18}
+              color="#fff"
+            />
+          )}
           <Text style={{ color: "#fff", fontSize: 17, fontWeight: "800" }}>
             {isDeposit ? t.savings.deposit : t.savings.withdraw}
             {amount && !isNaN(parseFloat(amount)) ? `  ${parseFloat(amount).toFixed(2)}` : ""}

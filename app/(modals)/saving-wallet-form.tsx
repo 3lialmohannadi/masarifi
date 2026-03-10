@@ -13,6 +13,12 @@ import { IconPicker } from "@/components/IconPicker";
 import { ColorPicker } from "@/components/ColorPicker";
 import type { SavingsWalletType } from "@/types";
 
+function isValidDate(str: string): boolean {
+  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+  const d = new Date(str);
+  return !isNaN(d.getTime());
+}
+
 export default function SavingWalletFormModal() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL } = useApp();
@@ -41,6 +47,7 @@ export default function SavingWalletFormModal() {
     if (walletType === "goal_savings" && (!targetAmount || parseFloat(targetAmount) <= 0)) {
       err.targetAmount = t.validation.targetAmountRequired;
     }
+    if (targetDate && !isValidDate(targetDate)) err.targetDate = t.validation.dateInvalid;
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -186,8 +193,9 @@ export default function SavingWalletFormModal() {
             <AppInput
               label={`${t.savings.targetDate} (${t.common.optional})`}
               value={targetDate}
-              onChangeText={setTargetDate}
+              onChangeText={(v) => { setTargetDate(v); if (errors.targetDate) setErrors((e) => ({ ...e, targetDate: "" })); }}
               placeholder="YYYY-MM-DD"
+              error={errors.targetDate}
             />
           </>
         )}

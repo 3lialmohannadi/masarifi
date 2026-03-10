@@ -9,6 +9,7 @@ import {
   FlatList,
   Platform,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -432,10 +433,14 @@ export default function CommitmentFormModal() {
             borderRadius: 16,
             paddingVertical: 16,
             alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 8,
             opacity: loading ? 0.7 : 1,
             marginTop: 4,
           }}
         >
+          {loading && <ActivityIndicator size="small" color="#fff" />}
           <Text style={{ color: "#fff", fontSize: 17, fontWeight: "800" }}>
             {existing ? t.common.save : t.commitments.add}
           </Text>
