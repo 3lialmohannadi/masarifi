@@ -853,7 +853,7 @@ export default function AddTransactionModal() {
                   </Text>
                   {item.budget_amount > 0 && (
                     <Text style={{ color: theme.textMuted, fontSize: 12 }}>
-                      {language === "ar" ? "الميزانية: " : "Budget: "}{item.budget_amount.toLocaleString()} {selectedPlan.currency}
+                      {language === "ar" ? "الميزانية: " : "Budget: "}{item.budget_amount.toLocaleString("en-US")} {selectedPlan.currency}
                     </Text>
                   )}
                 </View>

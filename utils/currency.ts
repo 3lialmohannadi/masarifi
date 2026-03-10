@@ -23,7 +23,7 @@ export function getCurrencyDecimals(code: string): number {
 export function formatCurrency(amount: number, currencyCode: string, language: Language = "en"): string {
   const decimals = getCurrencyDecimals(currencyCode);
   const symbol = getCurrencySymbol(currencyCode);
-  const formatted = Math.abs(amount).toLocaleString(language === "ar" ? "ar-QA" : "en-US", {
+  const formatted = Math.abs(amount).toLocaleString(language === "ar" ? "ar-QA-u-nu-latn" : "en-US", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
@@ -34,7 +34,7 @@ export function formatCurrency(amount: number, currencyCode: string, language: L
 }
 
 export function formatAmount(amount: number, language: Language = "en"): string {
-  return Math.abs(amount).toLocaleString(language === "ar" ? "ar-QA" : "en-US", {
+  return Math.abs(amount).toLocaleString(language === "ar" ? "ar-QA-u-nu-latn" : "en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
