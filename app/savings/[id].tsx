@@ -43,13 +43,13 @@ export default function SavingsDetailScreen() {
     );
   }
 
-  const progress =
-    wallet.type === "goal_savings" && wallet.target_amount
-      ? wallet.current_amount / wallet.target_amount
-      : 0;
+  const hasGoal = wallet.type === "goal_savings" && !!wallet.target_amount && Number(wallet.target_amount) > 0;
+  const progress = hasGoal
+    ? Math.min(wallet.current_amount / Number(wallet.target_amount!), 1)
+    : 0;
 
   const daysLeft = wallet.target_date ? getDaysRemaining(wallet.target_date) : null;
-  const remaining = wallet.target_amount ? wallet.target_amount - wallet.current_amount : 0;
+  const remaining = hasGoal ? Math.max(0, Number(wallet.target_amount!) - wallet.current_amount) : 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -90,13 +90,13 @@ export default function SavingsDetailScreen() {
             </View>
           </View>
 
-          {wallet.type === "goal_savings" && wallet.target_amount && (
+          {hasGoal && (
             <>
               <ProgressBar progress={progress} color="rgba(255,255,255,0.4)" height={8} trackColor="rgba(255,255,255,0.2)" />
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between" }}>
                 <View>
                   <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{t.savings.goal}</Text>
-                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>{formatCurrency(wallet.target_amount, primaryCurrency, language)}</Text>
+                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>{formatCurrency(Number(wallet.target_amount!), primaryCurrency, language)}</Text>
                 </View>
                 <View style={{ alignItems: "center" }}>
                   <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{t.statistics.progress}</Text>

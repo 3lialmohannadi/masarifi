@@ -17,13 +17,13 @@ export function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
   const { theme, language, t, isRTL, isDark } = useApp();
 
   const isGoal = wallet.type === "goal_savings";
-  const progress =
-    isGoal && wallet.target_amount && wallet.target_amount > 0
-      ? Math.min(wallet.current_amount / wallet.target_amount, 1)
-      : 0;
+  const hasGoal = isGoal && !!wallet.target_amount && Number(wallet.target_amount) > 0;
+  const progress = hasGoal
+    ? Math.min(wallet.current_amount / Number(wallet.target_amount!), 1)
+    : 0;
   const daysLeft = wallet.target_date ? getDaysRemaining(wallet.target_date) : null;
-  const remaining = wallet.target_amount
-    ? Math.max(0, wallet.target_amount - wallet.current_amount)
+  const remaining = hasGoal
+    ? Math.max(0, Number(wallet.target_amount!) - wallet.current_amount)
     : 0;
 
   const shadowStyle = isDark ? {} : Platform.OS === "web"
@@ -64,15 +64,15 @@ export function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
               <Text style={{ fontSize: 18, fontWeight: "800", color: "#fff" }}>
                 {formatCurrency(wallet.current_amount, "QAR", language)}
               </Text>
-              {isGoal && wallet.target_amount && (
+              {hasGoal && (
                 <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>
-                  / {formatCurrency(wallet.target_amount, "QAR", language)}
+                  / {formatCurrency(Number(wallet.target_amount!), "QAR", language)}
                 </Text>
               )}
             </View>
           </View>
 
-          {isGoal && wallet.target_amount && wallet.target_amount > 0 && (
+          {hasGoal && (
             <View style={{ marginTop: 12 }}>
               <ProgressBar
                 progress={progress}
@@ -85,7 +85,7 @@ export function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
         </View>
 
         {/* Bottom info strip */}
-        {isGoal && wallet.target_amount && wallet.target_amount > 0 ? (
+        {hasGoal ? (
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 10 }}>
             <View style={{ flex: 1, alignItems: "center", gap: 2 }}>
               <Text style={{ fontSize: 16, fontWeight: "800", color: wallet.color }}>
@@ -113,7 +113,7 @@ export function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
               <Text style={{ fontSize: 10, color: theme.textMuted }}>{t.savings.remaining}</Text>
             </View>
           </View>
-        ) : !isGoal ? (
+        ) : (
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingVertical: 10 }}>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
               <Feather name="shield" size={13} color={theme.textMuted} />
@@ -123,7 +123,7 @@ export function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
             </View>
             <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={14} color={theme.primary} />
           </View>
-        ) : null}
+        )}
       </Pressable>
     </View>
   );

@@ -24,10 +24,11 @@ export default function SavingsTab() {
 
   const generalWallets = wallets.filter((w) => w.type === "general_savings" && !w.is_archived);
   const goalWallets = wallets.filter((w) => w.type === "goal_savings" && !w.is_archived);
+  const goalWalletsWithTargets = goalWallets.filter((w) => !!w.target_amount && Number(w.target_amount) > 0);
 
-  const totalGoal = goalWallets.reduce((s, w) => s + (w.target_amount || 0), 0);
-  const totalGoalReached = goalWallets.reduce((s, w) => s + w.current_amount, 0);
-  const overallGoalProgress = totalGoal > 0 ? totalGoalReached / totalGoal : 0;
+  const totalGoal = goalWalletsWithTargets.reduce((s, w) => s + Number(w.target_amount!), 0);
+  const totalGoalReached = goalWalletsWithTargets.reduce((s, w) => s + w.current_amount, 0);
+  const overallGoalProgress = totalGoal > 0 ? Math.min(totalGoalReached / totalGoal, 1) : 0;
 
   const primaryCurrency = settings.default_currency || "QAR";
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
@@ -71,7 +72,7 @@ export default function SavingsTab() {
           </View>
 
           {/* Goal Progress */}
-          {goalWallets.length > 0 && totalGoal > 0 && (
+          {goalWalletsWithTargets.length > 0 && totalGoal > 0 && (
             <View style={{ backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 14, padding: 14, gap: 10 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
