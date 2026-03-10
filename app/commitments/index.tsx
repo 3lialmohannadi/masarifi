@@ -41,15 +41,19 @@ export default function CommitmentsScreen() {
       <FlatList
         data={filtered}
         keyExtractor={(c) => c.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 30 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 30 }}
         ListHeaderComponent={
           <View style={{ gap: 14 }}>
             {/* Header */}
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16, paddingBottom: 4 }}>
-              <Pressable onPress={() => router.back()}>
-                <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={24} color={theme.text} />
+              <Pressable
+                onPress={() => router.back()}
+                hitSlop={8}
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+              >
+                <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
               </Pressable>
-              <Text style={{ flex: 1, fontSize: 20, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+              <Text style={{ flex: 1, fontSize: 22, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
                 {t.commitments.title}
               </Text>
               <Pressable

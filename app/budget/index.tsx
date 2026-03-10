@@ -69,7 +69,7 @@ export default function BudgetScreen() {
       <FlatList
         data={budgetsWithSpending}
         keyExtractor={(b) => b.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 34 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 34 }}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={{ gap: 14 }}>
@@ -83,18 +83,18 @@ export default function BudgetScreen() {
                 paddingBottom: 4,
               }}
             >
-              <Pressable onPress={() => router.back()} hitSlop={8}>
-                <Feather
-                  name={isRTL ? "chevron-right" : "chevron-left"}
-                  size={24}
-                  color={theme.text}
-                />
+              <Pressable
+                onPress={() => router.back()}
+                hitSlop={8}
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+              >
+                <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
               </Pressable>
               <Text
                 style={{
                   flex: 1,
-                  fontSize: 20,
-                  fontWeight: "700",
+                  fontSize: 22,
+                  fontWeight: "800",
                   color: theme.text,
                   textAlign: isRTL ? "right" : "left",
                 }}

@@ -49,7 +49,7 @@ function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
         gap: 14,
         padding: 14,
         backgroundColor: pressed ? theme.cardSecondary : theme.card,
-        borderRadius: 14,
+        borderRadius: 16,
         borderWidth: 1,
         borderColor: theme.border,
         ...(isDark ? {} : Platform.OS === "web"
@@ -57,8 +57,8 @@ function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
           : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }),
       })}
     >
-      <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: iconColor + "18", alignItems: "center", justifyContent: "center" }}>
-        <Feather name={icon as any} size={18} color={iconColor} />
+      <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: iconColor + "18", alignItems: "center", justifyContent: "center" }}>
+        <Feather name={icon as any} size={20} color={iconColor} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>{label}</Text>
@@ -162,22 +162,24 @@ export default function SettingsScreen() {
         alignItems: "center",
         gap: 12,
         paddingTop: topPadding,
-        paddingBottom: 14,
-        paddingHorizontal: 16,
-        backgroundColor: theme.card,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.border,
+        paddingBottom: 12,
+        paddingHorizontal: 20,
+        backgroundColor: theme.background,
       }}>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={24} color={theme.text} />
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
         </Pressable>
-        <Text style={{ flex: 1, fontSize: 20, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {t.settings.title}
         </Text>
       </View>
 
       <KeyboardAwareScrollViewCompat
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40, gap: 6 }}
+        contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 40, gap: 6 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
@@ -191,7 +193,7 @@ export default function SettingsScreen() {
               testID={`lang-${opt.code}`}
               onPress={() => { Haptics.selectionAsync(); setLanguage(opt.code); }}
               style={{
-                flex: 1, paddingVertical: 16, borderRadius: 14, alignItems: "center", gap: 6,
+                flex: 1, paddingVertical: 16, borderRadius: 16, alignItems: "center", gap: 6,
                 backgroundColor: language === opt.code ? theme.primary : theme.card,
                 borderWidth: 2,
                 borderColor: language === opt.code ? theme.primary : theme.border,
@@ -219,7 +221,7 @@ export default function SettingsScreen() {
               testID={`theme-${opt.key}`}
               onPress={() => { Haptics.selectionAsync(); setColorScheme(opt.key); }}
               style={{
-                flex: 1, paddingVertical: 16, borderRadius: 14, alignItems: "center", gap: 5,
+                flex: 1, paddingVertical: 16, borderRadius: 16, alignItems: "center", gap: 5,
                 backgroundColor: colorScheme === opt.key ? theme.primary : theme.card,
                 borderWidth: 2,
                 borderColor: colorScheme === opt.key ? theme.primary : theme.border,
@@ -248,14 +250,14 @@ export default function SettingsScreen() {
                   alignItems: "center",
                   gap: 14,
                   padding: 14,
-                  borderRadius: 14,
+                  borderRadius: 16,
                   backgroundColor: active ? theme.primaryLight : theme.card,
                   borderWidth: 2,
                   borderColor: active ? theme.primary : theme.border,
                 }}
               >
-                <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: active ? theme.primary + "25" : theme.border + "50", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name={opt.icon as any} size={18} color={active ? theme.primary : theme.textSecondary} />
+                <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: active ? theme.primary + "25" : theme.border + "50", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name={opt.icon as any} size={20} color={active ? theme.primary : theme.textSecondary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>{opt.label}</Text>
@@ -328,14 +330,14 @@ export default function SettingsScreen() {
             alignItems: "center",
             gap: 14,
             padding: 14,
-            borderRadius: 14,
+            borderRadius: 16,
             backgroundColor: theme.card,
             borderWidth: 1,
             borderColor: showCurrencies ? theme.primary : theme.border,
             marginBottom: showCurrencies ? 0 : 8,
           }}
         >
-          <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
             <Text style={{ fontSize: 20 }}>{selectedCurrencyObj.flag}</Text>
           </View>
           <View style={{ flex: 1 }}>
@@ -352,7 +354,7 @@ export default function SettingsScreen() {
         {showCurrencies && (
           <View style={{
             backgroundColor: theme.card,
-            borderRadius: 14,
+            borderRadius: 16,
             borderWidth: 1,
             borderColor: theme.primary,
             borderTopWidth: 0,
@@ -410,14 +412,14 @@ export default function SettingsScreen() {
             alignItems: "center",
             gap: 14,
             padding: 14,
-            borderRadius: 14,
+            borderRadius: 16,
             backgroundColor: exportDone ? theme.incomeBackground : pressed ? theme.cardSecondary : theme.card,
             borderWidth: 1,
             borderColor: exportDone ? theme.income : theme.border,
             marginBottom: 8,
           })}
         >
-          <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: exportDone ? theme.incomeBackground : "#3B82F618", alignItems: "center", justifyContent: "center" }}>
+          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: exportDone ? theme.incomeBackground : "#3B82F618", alignItems: "center", justifyContent: "center" }}>
             <Feather
               name={exportDone ? "check-circle" : exporting ? "loader" : "download"}
               size={18}
@@ -442,15 +444,15 @@ export default function SettingsScreen() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: 14,
-          borderRadius: 14,
+          borderRadius: 16,
           backgroundColor: theme.card,
           borderWidth: 1,
           borderColor: theme.border,
           marginBottom: 8,
         }}>
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, flex: 1 }}>
-            <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
-              <Feather name="bell" size={18} color="#F59E0B" />
+            <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+              <Feather name="bell" size={20} color="#F59E0B" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>

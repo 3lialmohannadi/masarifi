@@ -206,7 +206,7 @@ export default function TransactionsTab() {
           }
           if (item.type === "transfer") {
             return (
-              <View style={{ paddingHorizontal: 16 }}>
+              <View style={{ paddingHorizontal: 20 }}>
                 <TransferItem
                   transfer={item.transfer}
                   perspective={item.perspective}
@@ -217,7 +217,7 @@ export default function TransactionsTab() {
             );
           }
           return (
-            <View style={{ paddingHorizontal: 16 }}>
+            <View style={{ paddingHorizontal: 20 }}>
               <TransactionItem
                 transaction={item.tx}
                 showDate={false}

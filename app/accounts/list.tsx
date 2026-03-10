@@ -30,20 +30,22 @@ export default function AccountsListScreen() {
       <View
         style={{
           paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16,
-          paddingBottom: 16,
-          paddingHorizontal: 16,
-          backgroundColor: theme.card,
-          borderBottomWidth: 1,
-          borderBottomColor: theme.border,
+          paddingBottom: 12,
+          paddingHorizontal: 20,
+          backgroundColor: theme.background,
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
           gap: 12,
         }}
       >
-        <Pressable onPress={() => router.back()}>
-          <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={24} color={theme.text} />
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
         </Pressable>
-        <Text style={{ flex: 1, fontSize: 20, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {t.accounts.title}
         </Text>
         <Pressable
@@ -60,7 +62,7 @@ export default function AccountsListScreen() {
       <FlatList
         data={activeAccounts}
         keyExtractor={(a) => a.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 30, gap: 10 }}
+        contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 30, gap: 10 }}
         ListHeaderComponent={
           activeAccounts.length > 0 ? (
             <View style={{ backgroundColor: theme.primary, borderRadius: 18, padding: 20, marginBottom: 6, gap: 8 }}>
