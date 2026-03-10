@@ -37,39 +37,46 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     Promise.all([
       apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).catch(() => null),
       apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
-    ]).then(async ([apiWallets, apiTxs]) => {
-      if (apiWallets && apiWallets.length > 0) {
-        setWallets(apiWallets);
-        saveData(KEYS.SAVINGS_WALLETS, apiWallets);
-      } else {
-        const local = await loadData<SavingsWallet[]>(KEYS.SAVINGS_WALLETS);
-        if (local && local.length > 0) {
-          setWallets(local);
-          local.forEach((item) =>
-            apiRequest("POST", "/api/savings-wallets", item).catch(() => {})
-          );
+    ])
+      .then(async ([apiWallets, apiTxs]) => {
+        if (apiWallets && apiWallets.length > 0) {
+          setWallets(apiWallets);
+          saveData(KEYS.SAVINGS_WALLETS, apiWallets);
         } else {
-          const defaultWallet = createDefaultSavingsWallet();
-          setWallets([defaultWallet]);
-          saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
-          apiRequest("POST", "/api/savings-wallets", defaultWallet).catch(() => {});
+          const local = await loadData<SavingsWallet[]>(KEYS.SAVINGS_WALLETS);
+          if (local && local.length > 0) {
+            setWallets(local);
+            local.forEach((item) =>
+              apiRequest("POST", "/api/savings-wallets", item).catch(() => {})
+            );
+          } else {
+            const defaultWallet = createDefaultSavingsWallet();
+            setWallets([defaultWallet]);
+            saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
+            apiRequest("POST", "/api/savings-wallets", defaultWallet).catch(() => {});
+          }
         }
-      }
 
-      if (apiTxs && apiTxs.length > 0) {
-        setSavingsTransactions(apiTxs);
-        saveData(KEYS.SAVINGS_TRANSACTIONS, apiTxs);
-      } else {
-        const local = await loadData<SavingsTransaction[]>(KEYS.SAVINGS_TRANSACTIONS);
-        if (local && local.length > 0) {
-          setSavingsTransactions(local);
-          local.forEach((item) =>
-            apiRequest("POST", "/api/savings-transactions", item).catch(() => {})
-          );
+        if (apiTxs && apiTxs.length > 0) {
+          setSavingsTransactions(apiTxs);
+          saveData(KEYS.SAVINGS_TRANSACTIONS, apiTxs);
+        } else {
+          const local = await loadData<SavingsTransaction[]>(KEYS.SAVINGS_TRANSACTIONS);
+          if (local && local.length > 0) {
+            setSavingsTransactions(local);
+            local.forEach((item) =>
+              apiRequest("POST", "/api/savings-transactions", item).catch(() => {})
+            );
+          }
         }
-      }
-      setIsLoaded(true);
-    });
+      })
+      .catch(async () => {
+        const localWallets = await loadData<SavingsWallet[]>(KEYS.SAVINGS_WALLETS);
+        setWallets(localWallets && localWallets.length > 0 ? localWallets : [createDefaultSavingsWallet()]);
+        const localTxs = await loadData<SavingsTransaction[]>(KEYS.SAVINGS_TRANSACTIONS);
+        setSavingsTransactions(localTxs || []);
+      })
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const persistWallets = (data: SavingsWallet[]) => {

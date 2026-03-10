@@ -65,12 +65,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    loadData<AppSettings>(KEYS.SETTINGS).then((saved) => {
-      if (saved) {
-        setSettings({ ...DEFAULT_SETTINGS, ...saved });
-      }
-      setIsLoaded(true);
-    });
+    loadData<AppSettings>(KEYS.SETTINGS)
+      .then((saved) => {
+        if (saved) {
+          setSettings({ ...DEFAULT_SETTINGS, ...saved });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const isDark = useMemo(() => {

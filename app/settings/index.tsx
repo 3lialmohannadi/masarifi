@@ -71,7 +71,7 @@ function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, setLanguage, themeMode, setThemeMode, settings, updateSettings, isRTL } = useApp();
+  const { theme, t, language, setLanguage, themeMode, setThemeMode, settings, updateSettings, isRTL, showToast } = useApp();
   const { accounts, clearAll: clearAccounts } = useAccounts();
   const { transactions, clearAll: clearTransactions } = useTransactions();
   const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
@@ -145,11 +145,12 @@ export default function SettingsScreen() {
       setExportDone(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setTimeout(() => setExportDone(false), 3000);
-    } catch (_e) {
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setExporting(false);
     }
-  }, [accounts, transactions, savingsWallets, savingsTransactions, commitments, plans, budgets, settings]);
+  }, [accounts, transactions, savingsWallets, savingsTransactions, commitments, plans, budgets, settings, showToast, t.toast.error]);
 
   const handleReset = useCallback(async () => {
     setResetting(true);
@@ -166,12 +167,13 @@ export default function SettingsScreen() {
       setResetDone(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setTimeout(() => setResetDone(false), 3000);
-    } catch (_e) {
+    } catch {
       setShowResetConfirm(false);
+      showToast(t.toast.error, "error");
     } finally {
       setResetting(false);
     }
-  }, [clearAccounts, clearTransactions, clearSavings, clearCommitments, clearPlans, clearBudgets]);
+  }, [clearAccounts, clearTransactions, clearSavings, clearCommitments, clearPlans, clearBudgets, showToast, t.toast.error]);
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 

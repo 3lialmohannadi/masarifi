@@ -25,7 +25,7 @@ interface PayNowModalProps {
 }
 
 export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps) {
-  const { theme, language, t, isRTL } = useApp();
+  const { theme, language, t, isRTL, showToast } = useApp();
   const { getCommitment, payCommitment } = useCommitments();
   const { addTransaction } = useTransactions();
   const { getAccount, updateBalance } = useAccounts();
@@ -79,6 +79,8 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
       setTimeout(() => {
         onClose();
       }, 900);
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }

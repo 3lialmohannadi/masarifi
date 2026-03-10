@@ -39,34 +39,41 @@ export function PlansProvider({ children }: { children: ReactNode }) {
     Promise.all([
       apiRequest("GET", "/api/plans").then((r) => r.json()).catch(() => null),
       apiRequest("GET", "/api/plan-categories").then((r) => r.json()).catch(() => null),
-    ]).then(async ([apiPlans, apiPCs]) => {
-      if (apiPlans && apiPlans.length > 0) {
-        setPlans(apiPlans);
-        saveData(KEYS.PLANS, apiPlans);
-      } else {
-        const local = await loadData<Plan[]>(KEYS.PLANS);
-        if (local && local.length > 0) {
-          setPlans(local);
-          local.forEach((item) =>
-            apiRequest("POST", "/api/plans", item).catch(() => {})
-          );
+    ])
+      .then(async ([apiPlans, apiPCs]) => {
+        if (apiPlans && apiPlans.length > 0) {
+          setPlans(apiPlans);
+          saveData(KEYS.PLANS, apiPlans);
+        } else {
+          const local = await loadData<Plan[]>(KEYS.PLANS);
+          if (local && local.length > 0) {
+            setPlans(local);
+            local.forEach((item) =>
+              apiRequest("POST", "/api/plans", item).catch(() => {})
+            );
+          }
         }
-      }
 
-      if (apiPCs && apiPCs.length > 0) {
-        setPlanCategories(apiPCs);
-        saveData(KEYS.PLAN_CATEGORIES, apiPCs);
-      } else {
-        const local = await loadData<PlanCategory[]>(KEYS.PLAN_CATEGORIES);
-        if (local && local.length > 0) {
-          setPlanCategories(local);
-          local.forEach((item) =>
-            apiRequest("POST", "/api/plan-categories", item).catch(() => {})
-          );
+        if (apiPCs && apiPCs.length > 0) {
+          setPlanCategories(apiPCs);
+          saveData(KEYS.PLAN_CATEGORIES, apiPCs);
+        } else {
+          const local = await loadData<PlanCategory[]>(KEYS.PLAN_CATEGORIES);
+          if (local && local.length > 0) {
+            setPlanCategories(local);
+            local.forEach((item) =>
+              apiRequest("POST", "/api/plan-categories", item).catch(() => {})
+            );
+          }
         }
-      }
-      setIsLoaded(true);
-    });
+      })
+      .catch(async () => {
+        const localPlans = await loadData<Plan[]>(KEYS.PLANS);
+        setPlans(localPlans || []);
+        const localPCs = await loadData<PlanCategory[]>(KEYS.PLAN_CATEGORIES);
+        setPlanCategories(localPCs || []);
+      })
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const persistPlans = (data: Plan[]) => {

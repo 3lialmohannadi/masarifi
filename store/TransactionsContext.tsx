@@ -37,34 +37,41 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     Promise.all([
       apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
       apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
-    ]).then(async ([apiTx, apiTf]) => {
-      if (apiTx && apiTx.length > 0) {
-        setTransactions(apiTx);
-        saveData(KEYS.TRANSACTIONS, apiTx);
-      } else {
-        const local = await loadData<Transaction[]>(KEYS.TRANSACTIONS);
-        if (local && local.length > 0) {
-          setTransactions(local);
-          local.forEach((item) =>
-            apiRequest("POST", "/api/transactions", item).catch(() => {})
-          );
+    ])
+      .then(async ([apiTx, apiTf]) => {
+        if (apiTx && apiTx.length > 0) {
+          setTransactions(apiTx);
+          saveData(KEYS.TRANSACTIONS, apiTx);
+        } else {
+          const local = await loadData<Transaction[]>(KEYS.TRANSACTIONS);
+          if (local && local.length > 0) {
+            setTransactions(local);
+            local.forEach((item) =>
+              apiRequest("POST", "/api/transactions", item).catch(() => {})
+            );
+          }
         }
-      }
 
-      if (apiTf && apiTf.length > 0) {
-        setTransfers(apiTf);
-        saveData(KEYS.TRANSFERS, apiTf);
-      } else {
-        const local = await loadData<Transfer[]>(KEYS.TRANSFERS);
-        if (local && local.length > 0) {
-          setTransfers(local);
-          local.forEach((item) =>
-            apiRequest("POST", "/api/transfers", item).catch(() => {})
-          );
+        if (apiTf && apiTf.length > 0) {
+          setTransfers(apiTf);
+          saveData(KEYS.TRANSFERS, apiTf);
+        } else {
+          const local = await loadData<Transfer[]>(KEYS.TRANSFERS);
+          if (local && local.length > 0) {
+            setTransfers(local);
+            local.forEach((item) =>
+              apiRequest("POST", "/api/transfers", item).catch(() => {})
+            );
+          }
         }
-      }
-      setIsLoaded(true);
-    });
+      })
+      .catch(async () => {
+        const localTx = await loadData<Transaction[]>(KEYS.TRANSACTIONS);
+        setTransactions(localTx || []);
+        const localTf = await loadData<Transfer[]>(KEYS.TRANSFERS);
+        setTransfers(localTf || []);
+      })
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const persistTx = (data: Transaction[]) => {
