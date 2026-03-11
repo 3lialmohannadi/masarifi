@@ -47,10 +47,15 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
           apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
         ]).then(([apiWallets, apiTxs]) => {
           if (Array.isArray(apiWallets)) {
-            const serverIds = new Set(apiWallets.map((w) => w.id));
-            localWallets.filter((w) => !serverIds.has(w.id)).forEach((w) =>
-              apiRequest("POST", "/api/savings-wallets", w).catch(() => {})
-            );
+            const serverMap = new Map(apiWallets.map((w) => [w.id, w]));
+            localWallets.forEach((w) => {
+              const onServer = serverMap.get(w.id);
+              if (!onServer) {
+                apiRequest("POST", "/api/savings-wallets", w).catch(() => {});
+              } else if (onServer.updated_at !== w.updated_at) {
+                apiRequest("PATCH", `/api/savings-wallets/${w.id}`, w).catch(() => {});
+              }
+            });
           }
           if (Array.isArray(apiTxs)) {
             const serverIds = new Set(apiTxs.map((t) => t.id));

@@ -38,10 +38,15 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
           .then((r) => r.json())
           .then((apiData: Account[]) => {
             if (Array.isArray(apiData)) {
-              const serverIds = new Set(apiData.map((a) => a.id));
-              local.filter((a) => !serverIds.has(a.id)).forEach((a) =>
-                apiRequest("POST", "/api/accounts", a).catch(() => {})
-              );
+              const serverMap = new Map(apiData.map((a) => [a.id, a]));
+              local.forEach((a) => {
+                const onServer = serverMap.get(a.id);
+                if (!onServer) {
+                  apiRequest("POST", "/api/accounts", a).catch(() => {});
+                } else if (onServer.updated_at !== a.updated_at) {
+                  apiRequest("PATCH", `/api/accounts/${a.id}`, a).catch(() => {});
+                }
+              });
             }
           })
           .catch(() => {});

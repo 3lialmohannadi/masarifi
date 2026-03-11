@@ -60,10 +60,15 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
           .then((r) => r.json())
           .then((apiData: Commitment[]) => {
             if (Array.isArray(apiData)) {
-              const serverIds = new Set(apiData.map((c) => c.id));
-              refreshed.filter((c) => !serverIds.has(c.id)).forEach((c) =>
-                apiRequest("POST", "/api/commitments", c).catch(() => {})
-              );
+              const serverMap = new Map(apiData.map((c) => [c.id, c]));
+              refreshed.forEach((c) => {
+                const onServer = serverMap.get(c.id);
+                if (!onServer) {
+                  apiRequest("POST", "/api/commitments", c).catch(() => {});
+                } else if (onServer.updated_at !== c.updated_at) {
+                  apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {});
+                }
+              });
             }
           })
           .catch(() => {});

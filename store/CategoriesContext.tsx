@@ -39,10 +39,15 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
           .then((r) => r.json())
           .then((apiData: Category[]) => {
             if (Array.isArray(apiData)) {
-              const serverIds = new Set(apiData.map((c) => c.id));
-              local.filter((c) => !serverIds.has(c.id)).forEach((c) =>
-                apiRequest("POST", "/api/categories", c).catch(() => {})
-              );
+              const serverMap = new Map(apiData.map((c) => [c.id, c]));
+              local.forEach((c) => {
+                const onServer = serverMap.get(c.id);
+                if (!onServer) {
+                  apiRequest("POST", "/api/categories", c).catch(() => {});
+                } else if (onServer.updated_at !== c.updated_at) {
+                  apiRequest("PATCH", `/api/categories/${c.id}`, c).catch(() => {});
+                }
+              });
             }
           })
           .catch(() => {});

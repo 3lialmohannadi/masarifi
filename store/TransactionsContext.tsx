@@ -47,10 +47,15 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
           apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
         ]).then(([apiTx, apiTf]) => {
           if (Array.isArray(apiTx)) {
-            const serverIds = new Set(apiTx.map((t) => t.id));
-            localTx.filter((t) => !serverIds.has(t.id)).forEach((t) =>
-              apiRequest("POST", "/api/transactions", t).catch(() => {})
-            );
+            const serverMap = new Map(apiTx.map((t) => [t.id, t]));
+            localTx.forEach((t) => {
+              const onServer = serverMap.get(t.id);
+              if (!onServer) {
+                apiRequest("POST", "/api/transactions", t).catch(() => {});
+              } else if (onServer.updated_at !== t.updated_at) {
+                apiRequest("PATCH", `/api/transactions/${t.id}`, t).catch(() => {});
+              }
+            });
           }
           if (Array.isArray(apiTf)) {
             const serverIds = new Set(apiTf.map((t) => t.id));
