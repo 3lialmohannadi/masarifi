@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0A1628"
+      "backgroundColor": "#B2DDD8"
     },
     "ios": {
       "supportsTablet": false,
@@ -20,9 +20,8 @@
     "android": {
       "package": "com.masarifi.app",
       "adaptiveIcon": {
-        "backgroundColor": "#0A1628",
+        "backgroundColor": "#B2DDD8",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       }
     },
