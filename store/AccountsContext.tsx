@@ -31,26 +31,32 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function hydrate() {
       const local = await loadData<Account[]>(KEYS.ACCOUNTS) || [];
-      setAccounts(local);
-      setIsLoaded(true);
-      try {
-        const res = await apiRequest("GET", "/api/accounts");
-        const apiData: Account[] = await res.json();
-        if (Array.isArray(apiData)) {
-          const localIds = new Set(local.map((a) => a.id));
-          const serverIds = new Set(apiData.map((a) => a.id));
-          const serverOnly = apiData.filter((a) => !localIds.has(a.id));
-          if (serverOnly.length > 0) {
-            const merged = [...local, ...serverOnly];
-            setAccounts(merged);
-            saveData(KEYS.ACCOUNTS, merged);
+      if (local.length > 0) {
+        setAccounts(local);
+        setIsLoaded(true);
+        apiRequest("GET", "/api/accounts")
+          .then((r) => r.json())
+          .then((apiData: Account[]) => {
+            if (Array.isArray(apiData)) {
+              const serverIds = new Set(apiData.map((a) => a.id));
+              local.filter((a) => !serverIds.has(a.id)).forEach((a) =>
+                apiRequest("POST", "/api/accounts", a).catch(() => {})
+              );
+            }
+          })
+          .catch(() => {});
+      } else {
+        try {
+          const res = await apiRequest("GET", "/api/accounts");
+          const apiData: Account[] = await res.json();
+          if (Array.isArray(apiData) && apiData.length > 0) {
+            setAccounts(apiData);
+            saveData(KEYS.ACCOUNTS, apiData);
           }
-          local.filter((a) => !serverIds.has(a.id)).forEach((a) =>
-            apiRequest("POST", "/api/accounts", a).catch(() => {})
-          );
+        } catch {
+          // server unavailable — start with empty state
         }
-      } catch {
-        // server unavailable — local data already shown
+        setIsLoaded(true);
       }
     }
     hydrate();

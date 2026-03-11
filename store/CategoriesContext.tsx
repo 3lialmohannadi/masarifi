@@ -32,26 +32,32 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function hydrate() {
       const local = await loadData<Category[]>(KEYS.CATEGORIES) || [];
-      setCategories(local);
-      setIsLoaded(true);
-      try {
-        const res = await apiRequest("GET", "/api/categories");
-        const apiData: Category[] = await res.json();
-        if (Array.isArray(apiData)) {
-          const localIds = new Set(local.map((c) => c.id));
-          const serverIds = new Set(apiData.map((c) => c.id));
-          const serverOnly = apiData.filter((c) => !localIds.has(c.id));
-          if (serverOnly.length > 0) {
-            const merged = [...local, ...serverOnly];
-            setCategories(merged);
-            saveData(KEYS.CATEGORIES, merged);
+      if (local.length > 0) {
+        setCategories(local);
+        setIsLoaded(true);
+        apiRequest("GET", "/api/categories")
+          .then((r) => r.json())
+          .then((apiData: Category[]) => {
+            if (Array.isArray(apiData)) {
+              const serverIds = new Set(apiData.map((c) => c.id));
+              local.filter((c) => !serverIds.has(c.id)).forEach((c) =>
+                apiRequest("POST", "/api/categories", c).catch(() => {})
+              );
+            }
+          })
+          .catch(() => {});
+      } else {
+        try {
+          const res = await apiRequest("GET", "/api/categories");
+          const apiData: Category[] = await res.json();
+          if (Array.isArray(apiData) && apiData.length > 0) {
+            setCategories(apiData);
+            saveData(KEYS.CATEGORIES, apiData);
           }
-          local.filter((c) => !serverIds.has(c.id)).forEach((c) =>
-            apiRequest("POST", "/api/categories", c).catch(() => {})
-          );
+        } catch {
+          // server unavailable — start with empty state
         }
-      } catch {
-        // server unavailable — local data already shown
+        setIsLoaded(true);
       }
     }
     hydrate();

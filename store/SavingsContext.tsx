@@ -37,57 +37,53 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     async function hydrate() {
       const localWallets = await loadData<SavingsWallet[]>(KEYS.SAVINGS_WALLETS) || [];
       const localTxs = await loadData<SavingsTransaction[]>(KEYS.SAVINGS_TRANSACTIONS) || [];
-      setWallets(localWallets);
-      setSavingsTransactions(localTxs);
-      setIsLoaded(true);
-      try {
-        const [apiWallets, apiTxs] = await Promise.all([
+      const hasLocal = localWallets.length > 0;
+      if (hasLocal) {
+        setWallets(localWallets);
+        setSavingsTransactions(localTxs);
+        setIsLoaded(true);
+        Promise.all([
           apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).catch(() => null),
           apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
-        ]);
-        if (Array.isArray(apiWallets)) {
-          const localIds = new Set(localWallets.map((w) => w.id));
-          const serverIds = new Set(apiWallets.map((w) => w.id));
-          const serverOnly = apiWallets.filter((w) => !localIds.has(w.id));
-          const merged = serverOnly.length > 0 ? [...localWallets, ...serverOnly] : localWallets;
-          if (merged.length === 0) {
-            const defaultWallet = createDefaultSavingsWallet();
-            setWallets([defaultWallet]);
-            saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
-            apiRequest("POST", "/api/savings-wallets", defaultWallet).catch(() => {});
-          } else {
-            if (serverOnly.length > 0) {
-              setWallets(merged);
-              saveData(KEYS.SAVINGS_WALLETS, merged);
-            }
+        ]).then(([apiWallets, apiTxs]) => {
+          if (Array.isArray(apiWallets)) {
+            const serverIds = new Set(apiWallets.map((w) => w.id));
             localWallets.filter((w) => !serverIds.has(w.id)).forEach((w) =>
               apiRequest("POST", "/api/savings-wallets", w).catch(() => {})
             );
           }
-        } else if (localWallets.length === 0) {
-          const defaultWallet = createDefaultSavingsWallet();
-          setWallets([defaultWallet]);
-          saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
-        }
-        if (Array.isArray(apiTxs)) {
-          const localIds = new Set(localTxs.map((t) => t.id));
-          const serverIds = new Set(apiTxs.map((t) => t.id));
-          const serverOnly = apiTxs.filter((t) => !localIds.has(t.id));
-          if (serverOnly.length > 0) {
-            const merged = [...localTxs, ...serverOnly];
-            setSavingsTransactions(merged);
-            saveData(KEYS.SAVINGS_TRANSACTIONS, merged);
+          if (Array.isArray(apiTxs)) {
+            const serverIds = new Set(apiTxs.map((t) => t.id));
+            localTxs.filter((t) => !serverIds.has(t.id)).forEach((t) =>
+              apiRequest("POST", "/api/savings-transactions", t).catch(() => {})
+            );
           }
-          localTxs.filter((t) => !serverIds.has(t.id)).forEach((t) =>
-            apiRequest("POST", "/api/savings-transactions", t).catch(() => {})
-          );
-        }
-      } catch {
-        if (localWallets.length === 0) {
+        }).catch(() => {});
+      } else {
+        try {
+          const [apiWallets, apiTxs] = await Promise.all([
+            apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).catch(() => null),
+            apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
+          ]);
+          if (Array.isArray(apiWallets) && apiWallets.length > 0) {
+            setWallets(apiWallets);
+            saveData(KEYS.SAVINGS_WALLETS, apiWallets);
+          } else {
+            const defaultWallet = createDefaultSavingsWallet();
+            setWallets([defaultWallet]);
+            saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
+            apiRequest("POST", "/api/savings-wallets", defaultWallet).catch(() => {});
+          }
+          if (Array.isArray(apiTxs) && apiTxs.length > 0) {
+            setSavingsTransactions(apiTxs);
+            saveData(KEYS.SAVINGS_TRANSACTIONS, apiTxs);
+          }
+        } catch {
           const defaultWallet = createDefaultSavingsWallet();
           setWallets([defaultWallet]);
           saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
         }
+        setIsLoaded(true);
       }
     }
     hydrate();

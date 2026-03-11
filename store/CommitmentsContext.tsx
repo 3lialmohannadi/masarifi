@@ -52,30 +52,34 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function hydrate() {
       const local = await loadData<Commitment[]>(KEYS.COMMITMENTS) || [];
-      const refreshedLocal = refreshCommitmentStatuses(local);
-      setCommitments(refreshedLocal);
-      setIsLoaded(true);
-      try {
-        const res = await apiRequest("GET", "/api/commitments");
-        const apiData: Commitment[] = await res.json();
-        if (Array.isArray(apiData)) {
-          const localIds = new Set(refreshedLocal.map((c) => c.id));
-          const serverIds = new Set(apiData.map((c) => c.id));
-          const serverOnly = refreshCommitmentStatuses(apiData.filter((c) => !localIds.has(c.id)));
-          if (serverOnly.length > 0) {
-            const merged = [...refreshedLocal, ...serverOnly];
-            setCommitments(merged);
-            saveData(KEYS.COMMITMENTS, merged);
-            serverOnly.forEach((c) =>
-              apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {})
-            );
+      if (local.length > 0) {
+        const refreshed = refreshCommitmentStatuses(local);
+        setCommitments(refreshed);
+        setIsLoaded(true);
+        apiRequest("GET", "/api/commitments")
+          .then((r) => r.json())
+          .then((apiData: Commitment[]) => {
+            if (Array.isArray(apiData)) {
+              const serverIds = new Set(apiData.map((c) => c.id));
+              refreshed.filter((c) => !serverIds.has(c.id)).forEach((c) =>
+                apiRequest("POST", "/api/commitments", c).catch(() => {})
+              );
+            }
+          })
+          .catch(() => {});
+      } else {
+        try {
+          const res = await apiRequest("GET", "/api/commitments");
+          const apiData: Commitment[] = await res.json();
+          if (Array.isArray(apiData) && apiData.length > 0) {
+            const refreshed = refreshCommitmentStatuses(apiData);
+            setCommitments(refreshed);
+            saveData(KEYS.COMMITMENTS, refreshed);
           }
-          refreshedLocal.filter((c) => !serverIds.has(c.id)).forEach((c) =>
-            apiRequest("POST", "/api/commitments", c).catch(() => {})
-          );
+        } catch {
+          // server unavailable — start with empty state
         }
-      } catch {
-        // server unavailable — local data already shown
+        setIsLoaded(true);
       }
     }
     hydrate();

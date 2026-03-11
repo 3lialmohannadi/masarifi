@@ -37,42 +37,46 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     async function hydrate() {
       const localTx = await loadData<Transaction[]>(KEYS.TRANSACTIONS) || [];
       const localTf = await loadData<Transfer[]>(KEYS.TRANSFERS) || [];
-      setTransactions(localTx);
-      setTransfers(localTf);
-      setIsLoaded(true);
-      try {
-        const [apiTransactions, apiTransfers] = await Promise.all([
+      const hasLocal = localTx.length > 0 || localTf.length > 0;
+      if (hasLocal) {
+        setTransactions(localTx);
+        setTransfers(localTf);
+        setIsLoaded(true);
+        Promise.all([
           apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
           apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
-        ]);
-        if (Array.isArray(apiTransactions)) {
-          const localIds = new Set(localTx.map((t) => t.id));
-          const serverIds = new Set(apiTransactions.map((t) => t.id));
-          const serverOnly = apiTransactions.filter((t) => !localIds.has(t.id));
-          if (serverOnly.length > 0) {
-            const merged = [...localTx, ...serverOnly];
-            setTransactions(merged);
-            saveData(KEYS.TRANSACTIONS, merged);
+        ]).then(([apiTx, apiTf]) => {
+          if (Array.isArray(apiTx)) {
+            const serverIds = new Set(apiTx.map((t) => t.id));
+            localTx.filter((t) => !serverIds.has(t.id)).forEach((t) =>
+              apiRequest("POST", "/api/transactions", t).catch(() => {})
+            );
           }
-          localTx.filter((t) => !serverIds.has(t.id)).forEach((t) =>
-            apiRequest("POST", "/api/transactions", t).catch(() => {})
-          );
-        }
-        if (Array.isArray(apiTransfers)) {
-          const localIds = new Set(localTf.map((t) => t.id));
-          const serverIds = new Set(apiTransfers.map((t) => t.id));
-          const serverOnly = apiTransfers.filter((t) => !localIds.has(t.id));
-          if (serverOnly.length > 0) {
-            const merged = [...localTf, ...serverOnly];
-            setTransfers(merged);
-            saveData(KEYS.TRANSFERS, merged);
+          if (Array.isArray(apiTf)) {
+            const serverIds = new Set(apiTf.map((t) => t.id));
+            localTf.filter((t) => !serverIds.has(t.id)).forEach((t) =>
+              apiRequest("POST", "/api/transfers", t).catch(() => {})
+            );
           }
-          localTf.filter((t) => !serverIds.has(t.id)).forEach((t) =>
-            apiRequest("POST", "/api/transfers", t).catch(() => {})
-          );
+        }).catch(() => {});
+      } else {
+        try {
+          const [apiTx, apiTf] = await Promise.all([
+            apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
+            apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
+          ]);
+          if (Array.isArray(apiTx) && apiTx.length > 0) {
+            setTransactions(apiTx);
+            saveData(KEYS.TRANSACTIONS, apiTx);
+          }
+          if (Array.isArray(apiTf) && apiTf.length > 0) {
+            setTransfers(apiTf);
+            saveData(KEYS.TRANSFERS, apiTf);
+          }
+        } catch {
+          // server unavailable — start with empty state
         }
-      } catch {
-        // server unavailable — local data already shown
+        setIsLoaded(true);
       }
     }
     hydrate();
