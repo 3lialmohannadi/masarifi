@@ -10,7 +10,7 @@ export function createDefaultSavingsWallet(): SavingsWallet {
     type: "general_savings",
     current_amount: 0,
     color: "#3B82F6",
-    icon: "dollar-sign",
+    icon: "piggy-bank",
     is_default: true,
     is_archived: false,
     created_at: now(),

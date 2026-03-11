@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -80,7 +80,7 @@ export default function SavingsDetailScreen() {
         <View style={{ backgroundColor: wallet.color, borderRadius: 20, padding: 22, gap: 16, marginBottom: 20 }}>
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
             <View style={{ width: 52, height: 52, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" }}>
-              <Feather name={wallet.icon as any} size={26} color="#fff" />
+              <MaterialCommunityIcons name={wallet.icon as any} size={26} color="#fff" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>{t.savings.currentAmount}</Text>

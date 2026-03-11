@@ -8,10 +8,7 @@ export const KEYS = {
   TRANSFERS: "@masarifi/transfers",
   SAVINGS_WALLETS: "@masarifi/savings_wallets",
   SAVINGS_TRANSACTIONS: "@masarifi/savings_transactions",
-  PLANS: "@masarifi/plans",
-  PLAN_CATEGORIES: "@masarifi/plan_categories",
   COMMITMENTS: "@masarifi/commitments",
-  BUDGETS: "@masarifi/budgets",
 } as const;
 
 export type StorageKey = typeof KEYS[keyof typeof KEYS];

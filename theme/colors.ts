@@ -13,7 +13,6 @@ export const AppColors = {
   expense: "#EF4444",
   savings: "#3B82F6",
   commitment: "#F59E0B",
-  plan: "#8B5CF6",
   transfer: "#06B6D4",
   warning: "#F59E0B",
   error: "#EF4444",

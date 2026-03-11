@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Pressable, Alert, Switch, Platform } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -138,7 +138,7 @@ export default function SavingWalletFormModal() {
             onPress={() => setShowIcon(true)}
             style={{ flex: 1, backgroundColor: color + "20", borderRadius: 14, padding: 16, alignItems: "center", gap: 8, borderWidth: 2, borderColor: color }}
           >
-            <Feather name={icon as any} size={32} color={color} />
+            <MaterialCommunityIcons name={icon as any} size={32} color={color} />
             <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t.common.icon}</Text>
           </Pressable>
           <Pressable

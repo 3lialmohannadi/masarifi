@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -586,7 +586,7 @@ export default function DashboardScreen() {
                       >
                         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
                           <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: walletColor + "18", alignItems: "center", justifyContent: "center" }}>
-                            <Feather name={(w.icon || "target") as any} size={17} color={walletColor} />
+                            <MaterialCommunityIcons name={(w.icon || "piggy-bank") as any} size={17} color={walletColor} />
                           </View>
                           <View style={{ flex: 1 }}>
                             <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>

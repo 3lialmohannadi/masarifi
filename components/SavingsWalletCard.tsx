@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Pressable, Platform } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
@@ -44,7 +44,7 @@ export const SavingsWalletCard = React.memo(function SavingsWalletCard({ wallet,
         <View style={{ backgroundColor: wallet.color, padding: 16 }}>
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
             <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.22)", alignItems: "center", justifyContent: "center" }}>
-              <Feather name={wallet.icon as any} size={20} color="#fff" />
+              <MaterialCommunityIcons name={wallet.icon as any} size={20} color="#fff" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 14, fontWeight: "700", color: "#fff", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>

@@ -1,0 +1,389 @@
+I have recently changed, removed, and adjusted several features in the app.
+I now want you to perform a full re-audit of the entire application to make sure everything is still working correctly after those changes.
+
+Do not add new features.
+Do not redesign the app.
+Do not change the database structure unless necessary to fix broken dependencies.
+
+Your task is to:
+	•	review the whole app
+	•	detect anything broken, outdated, unused, or still dependent on removed features
+	•	fix the issues safely
+	•	verify the app still works correctly end-to-end
+
+⸻
+
+1. General Goal
+
+Perform a complete re-check of the app after recent feature changes and removals.
+
+I want you to verify that:
+	•	removed features are fully removed from logic, UI, and calculations
+	•	changed features still work correctly
+	•	no screen is broken
+	•	no button points to deleted functionality
+	•	no calculation still depends on removed logic
+	•	no old code still affects current behavior
+
+If you find anything broken, inconsistent, outdated, or partially removed:
+	•	fix it
+	•	clean it
+	•	reconnect it properly
+	•	test that it works
+
+⸻
+
+2. Full App Review Scope
+
+Review all of the following:
+	•	UI
+	•	UX flow
+	•	screens
+	•	navigation
+	•	forms
+	•	state management
+	•	business logic
+	•	calculations
+	•	database queries
+	•	services
+	•	hooks
+	•	validation
+	•	hidden dependencies
+	•	old feature remnants
+	•	dead code
+	•	broken references
+
+⸻
+
+3. Removed / Changed Features Audit
+
+Carefully inspect the app and make sure any feature I removed is fully removed from:
+	•	screens
+	•	buttons
+	•	forms
+	•	cards
+	•	labels
+	•	settings
+	•	business logic
+	•	calculations
+	•	database usage
+	•	filters
+	•	validation
+	•	navigation
+	•	empty states
+	•	helper functions
+	•	store/state
+	•	API/database calls
+
+If any removed feature still exists partially in the app, remove it safely.
+
+If any current feature still depends on a removed feature, refactor it so the app works correctly without it.
+
+⸻
+
+4. UI and Screen Audit
+
+Review every screen and verify:
+	•	nothing is visually broken
+	•	no section is empty because a removed feature used to fill it
+	•	no button opens a deleted flow
+	•	no text mentions removed features
+	•	no card still references old logic
+	•	no placeholder or label is outdated
+	•	no hidden screen is still registered unnecessarily
+
+Check especially:
+	•	Dashboard
+	•	Accounts
+	•	Transactions
+	•	Savings
+	•	Commitments
+	•	Plans
+	•	Budgets
+	•	Statistics
+	•	Settings
+
+If anything is inconsistent after the recent changes, fix it.
+
+⸻
+
+5. Navigation Audit
+
+Review navigation and verify:
+	•	all visible routes still work
+	•	no route points to deleted or outdated screens
+	•	no screen depends on removed params
+	•	back navigation still works correctly
+	•	tab navigation still works
+	•	no orphan screens remain connected
+
+If a removed feature had a screen or flow:
+	•	remove its navigation references safely
+
+⸻
+
+6. Business Logic Audit
+
+Review all financial and app logic after the recent changes.
+
+Verify that:
+	•	account balances still update correctly
+	•	dashboard calculations are still correct
+	•	allocated money still works correctly
+	•	real available money is still correct
+	•	daily limit still works correctly
+	•	savings logic still works
+	•	commitments logic still works
+	•	plan calculations still work
+	•	budgets still work
+	•	statistics still work
+
+If any calculation still depends on deleted features or old assumptions:
+	•	update it
+	•	simplify it
+	•	make it consistent with the current version of the app
+
+⸻
+
+7. Commitments Audit
+
+Pay extra attention to the commitments section, especially after recent removals and changes.
+
+Verify:
+	•	commitments screen still works
+	•	creating a commitment works
+	•	paying a commitment works
+	•	commitment appears correctly in upcoming list
+	•	paid commitment moves correctly to paid state/history if applicable
+	•	allocated money updates correctly
+	•	dashboard updates correctly
+
+If recurrence or any removed commitment logic still exists in the code:
+	•	remove or disable it safely
+	•	make sure manual-only commitment logic is the one being used
+
+⸻
+
+8. Dashboard Audit
+
+Review the dashboard carefully and verify that it reflects the current app logic only.
+
+Check:
+	•	selected account logic
+	•	total balance
+	•	allocated money
+	•	real available money
+	•	daily spending limit
+	•	latest 3 transactions
+	•	upcoming commitments
+	•	savings summary
+
+Make sure nothing on the dashboard still depends on:
+	•	removed features
+	•	deleted sections
+	•	old recurring logic
+	•	hidden placeholder data
+
+Fix any outdated dashboard dependency.
+
+⸻
+
+9. Forms Audit
+
+Review all forms and verify:
+	•	all visible fields are still needed
+	•	no deleted feature fields remain
+	•	validation matches the current app logic
+	•	no required field depends on removed functionality
+	•	form submission still works
+	•	edit forms still work
+	•	create forms still work
+
+Check forms for:
+	•	account creation
+	•	transaction creation
+	•	category creation
+	•	savings wallet creation
+	•	commitment creation
+	•	plan creation
+	•	budget creation
+	•	settings changes
+
+⸻
+
+10. Database and Model Audit
+
+Review database usage and data models.
+
+Verify:
+	•	no removed feature is still required by frontend logic
+	•	no query still depends on deleted fields unnecessarily
+	•	no UI breaks because a field is no longer used
+	•	models/interfaces/types match the current app behavior
+
+If old fields still exist in database but are no longer needed:
+	•	it is acceptable to keep them temporarily
+	•	but frontend and logic must no longer depend on them
+
+Do not break the database.
+Refactor usage safely.
+
+⸻
+
+11. Code Cleanup Audit
+
+Review the codebase and clean up all outdated pieces caused by recent feature changes.
+
+Check for:
+	•	dead code
+	•	unused imports
+	•	unused components
+	•	unused screens
+	•	unused hooks
+	•	old helper functions
+	•	unreachable conditions
+	•	comments referring to removed features
+	•	old validations
+	•	old state variables
+	•	old constants
+	•	old translations
+
+Remove or refactor them safely.
+
+⸻
+
+12. Translation Audit
+
+Review the app text after recent changes.
+
+Verify:
+	•	no UI text mentions removed features
+	•	no translation keys are outdated
+	•	no empty labels remain
+	•	Arabic and English still match current app behavior
+	•	bilingual fields still work correctly
+
+If removed features still appear in translations:
+	•	remove or replace them
+
+⸻
+
+13. Settings Audit
+
+Review the Settings screen and verify:
+	•	all visible settings are still valid
+	•	removed features are not still configurable
+	•	no toggles exist for deleted logic
+	•	all settings still save correctly
+	•	settings still affect the app correctly
+
+If any setting belongs to a removed feature:
+	•	remove it safely
+
+⸻
+
+14. Statistics and Summary Audit
+
+Review statistics, dashboard summaries, and monthly summaries.
+
+Verify that:
+	•	charts still use valid data
+	•	no deleted feature affects graph inputs
+	•	no calculation uses outdated categories or commitment logic
+	•	no empty section appears because a removed feature used to provide data
+
+Fix all broken or outdated summaries.
+
+⸻
+
+15. UX Consistency Audit
+
+Review the full user flow after the recent changes.
+
+Verify that:
+	•	the app still feels consistent
+	•	no user flow suddenly ends
+	•	no screen feels incomplete
+	•	no card appears without useful action
+	•	no button leads to confusion
+	•	all major actions still make sense in order
+
+If any part of UX is broken because of removed features:
+	•	simplify the flow
+	•	remove the broken path
+	•	keep the app coherent
+
+⸻
+
+16. Validation and Error Audit
+
+Review all validation and error handling after the recent changes.
+
+Verify:
+	•	forms do not validate deleted fields
+	•	no errors appear because removed values are missing
+	•	loading/error/success states still work
+	•	no crash occurs after deleting old dependencies
+
+Fix any validation or runtime issues.
+
+⸻
+
+17. Final Functional Re-Test
+
+After reviewing and fixing everything, run a final end-to-end re-test of the app.
+
+At minimum verify these flows:
+	1.	create account
+	2.	add income
+	3.	add expense
+	4.	transfer between accounts
+	5.	create savings wallet
+	6.	deposit into savings
+	7.	withdraw from savings
+	8.	create commitment
+	9.	pay commitment
+	10.	view dashboard updates
+	11.	open transactions history
+	12.	check statistics
+	13.	change language
+	14.	change theme
+	15.	change selected account
+
+Make sure all still work correctly after the recent feature removals and edits.
+
+⸻
+
+18. Final Report Required
+
+After finishing, provide a short structured report with:
+	•	what you checked
+	•	what problems you found
+	•	what you fixed
+	•	what old code or old UI was removed
+	•	any area that still needs manual attention
+
+⸻
+
+19. Important Safety Rules
+
+While doing this audit:
+	•	do not redesign the app
+	•	do not add new features
+	•	do not change working logic unless needed to fix broken dependencies
+	•	do not break the current UI
+	•	do not remove valid current functionality
+	•	keep the app stable
+	•	preserve the current intended behavior
+
+⸻
+
+20. Final Goal
+
+The final result must be:
+	•	clean
+	•	stable
+	•	consistent
+	•	free from broken references
+	•	free from outdated feature remnants
+	•	fully aligned with the current version of the app
