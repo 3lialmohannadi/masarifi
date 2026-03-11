@@ -133,22 +133,20 @@ export default function RootLayout() {
 
   if (!fontsLoaded && !fontError) return null;
 
-  if (!videoSplashDone) {
-    return (
-      <>
-        <StatusBar style="light" hidden />
-        <VideoSplash onFinish={handleVideoFinish} />
-      </>
-    );
-  }
-
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <KeyboardProvider>
             <Providers>
-              <RootLayoutNav />
+              {!videoSplashDone ? (
+                <>
+                  <StatusBar style="light" hidden />
+                  <VideoSplash onFinish={handleVideoFinish} />
+                </>
+              ) : (
+                <RootLayoutNav />
+              )}
             </Providers>
           </KeyboardProvider>
         </GestureHandlerRootView>
