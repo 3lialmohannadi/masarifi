@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -178,7 +178,7 @@ export default function CommitmentDetailScreen() {
                   <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
                     <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
                       <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: account.color + "20", alignItems: "center", justifyContent: "center" }}>
-                        <Feather name={(account.icon || "credit-card") as any} size={14} color={account.color} />
+                        <MaterialCommunityIcons name={(account.icon || "credit-card") as any} size={14} color={account.color} />
                       </View>
                       <Text style={{ fontSize: 13, color: theme.textMuted }}>{language === "ar" ? "الحساب" : "Account"}</Text>
                     </View>

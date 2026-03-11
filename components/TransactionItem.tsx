@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Pressable, Platform } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { useApp } from "@/store/AppContext";
 import { useCategories } from "@/store/CategoriesContext";
@@ -45,8 +45,8 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
     iconBg = walletColor + "18";
     mainLabel = walletName;
     iconNode = (
-      <Feather
-        name={(linkedWallet?.icon as any) || "save"}
+      <MaterialCommunityIcons
+        name={(linkedWallet?.icon as any) || "piggy-bank"}
         size={20}
         color={walletColor}
       />

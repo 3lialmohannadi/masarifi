@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -378,7 +378,7 @@ export default function AddTransactionModal() {
                     justifyContent: "center",
                   }}
                 >
-                  <Feather name={selectedAccount.icon as any} size={15} color={selectedAccount.color} />
+                  <MaterialCommunityIcons name={selectedAccount.icon as any} size={15} color={selectedAccount.color} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: theme.text, fontSize: 15, fontWeight: "600" }}>
@@ -606,7 +606,7 @@ export default function AddTransactionModal() {
               }}
             >
               <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: item.color + "22", alignItems: "center", justifyContent: "center" }}>
-                <Feather name={item.icon as any} size={17} color={item.color} />
+                <MaterialCommunityIcons name={item.icon as any} size={17} color={item.color} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: theme.text, fontWeight: "600", fontSize: 15 }}>

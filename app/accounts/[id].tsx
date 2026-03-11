@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { View, Text, FlatList, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -146,7 +146,7 @@ export default function AccountDetailScreen() {
             <View style={{ backgroundColor: account.color, borderRadius: 18, padding: 20, gap: 12 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10 }}>
                 <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name={account.icon as any} size={22} color="#fff" />
+                  <MaterialCommunityIcons name={account.icon as any} size={22} color="#fff" />
                 </View>
                 <View>
                   <Text style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>{t.dashboard.totalBalance}</Text>

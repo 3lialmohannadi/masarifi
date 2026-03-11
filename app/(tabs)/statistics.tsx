@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, Text, ScrollView, Pressable, Platform, Dimensions } from "react-native";
 import Svg, { Circle, Path, G, Line, Rect, Defs, LinearGradient, Stop, Polyline, Polygon, Text as SvgText } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { useApp } from "@/store/AppContext";
 import { useTransactions } from "@/store/TransactionsContext";
@@ -493,7 +493,7 @@ export default function StatisticsTab() {
                   <View key={account.id} style={{ backgroundColor: theme.card, borderRadius: 16, padding: 14, gap: 10 }}>
                     <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
                       <View style={{ width: 40, height: 40, borderRadius: 11, backgroundColor: account.color + "20", alignItems: "center", justifyContent: "center" }}>
-                        <Feather name={account.icon as any} size={20} color={account.color} />
+                        <MaterialCommunityIcons name={account.icon as any} size={20} color={account.color} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>

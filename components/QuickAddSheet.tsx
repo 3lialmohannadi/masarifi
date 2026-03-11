@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { DatePickerModal } from "@/components/DatePickerModal";
 import * as Haptics from "expo-haptics";
@@ -216,7 +216,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
                     style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 14, padding: 16, backgroundColor: isSelected ? theme.primary + "12" : "transparent" }}
                   >
                     <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: item.color + "22", alignItems: "center", justifyContent: "center" }}>
-                      <Feather name={item.icon as any} size={18} color={item.color} />
+                      <MaterialCommunityIcons name={item.icon as any} size={18} color={item.color} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: theme.text, fontWeight: "600", textAlign: isRTL ? "right" : "left" }}>{getDisplayName(item, language)}</Text>

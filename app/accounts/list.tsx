@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, FlatList, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
@@ -112,7 +112,7 @@ export default function AccountsListScreen() {
             })}
           >
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: item.color + "20", alignItems: "center", justifyContent: "center" }}>
-              <Feather name={item.icon as any} size={22} color={item.color} />
+              <MaterialCommunityIcons name={item.icon as any} size={22} color={item.color} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
@@ -153,7 +153,7 @@ export default function AccountsListScreen() {
                   }}
                 >
                   <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: item.color + "15", alignItems: "center", justifyContent: "center" }}>
-                    <Feather name={item.icon as any} size={22} color={item.color} />
+                    <MaterialCommunityIcons name={item.icon as any} size={22} color={item.color} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 15, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
