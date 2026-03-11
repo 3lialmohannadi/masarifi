@@ -30,23 +30,31 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    apiRequest("GET", "/api/categories")
-      .then((res) => res.json())
-      .then((apiData: Category[]) => {
-        if (apiData && apiData.length > 0) {
-          setCategories(apiData);
-          saveData(KEYS.CATEGORIES, apiData);
-        } else {
-          setCategories([]);
-          saveData(KEYS.CATEGORIES, []);
+    async function hydrate() {
+      const local = await loadData<Category[]>(KEYS.CATEGORIES) || [];
+      setCategories(local);
+      setIsLoaded(true);
+      try {
+        const res = await apiRequest("GET", "/api/categories");
+        const apiData: Category[] = await res.json();
+        if (Array.isArray(apiData)) {
+          const localIds = new Set(local.map((c) => c.id));
+          const serverIds = new Set(apiData.map((c) => c.id));
+          const serverOnly = apiData.filter((c) => !localIds.has(c.id));
+          if (serverOnly.length > 0) {
+            const merged = [...local, ...serverOnly];
+            setCategories(merged);
+            saveData(KEYS.CATEGORIES, merged);
+          }
+          local.filter((c) => !serverIds.has(c.id)).forEach((c) =>
+            apiRequest("POST", "/api/categories", c).catch(() => {})
+          );
         }
-      })
-      .catch(() => {
-        loadData<Category[]>(KEYS.CATEGORIES).then((saved) => {
-          setCategories(saved && saved.length > 0 ? saved : []);
-        });
-      })
-      .finally(() => setIsLoaded(true));
+      } catch {
+        // server unavailable — local data already shown
+      }
+    }
+    hydrate();
   }, []);
 
   const persist = (data: Category[]) => {

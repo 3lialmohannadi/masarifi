@@ -106,9 +106,9 @@ The backend is an Express server that serves static Expo web build files and pro
 
 ### Code Quality Standards
 - **server/routes.ts**: `norm*` functions use Drizzle `$inferSelect` types. `toNumber()` replaces inline ternary coercions. `toIso`/`toIsoOrNull` are documented with JSDoc.
-- **store/CommitmentsContext.tsx**: `MAX_RECURRENCE_STEPS = 730` constant (not a magic number). Status sync uses `Map<id, status>` (not array-index comparison). `allocatedMoneyForAccount` and `reservedMoneyForDailyLimit` are documented with JSDoc.
-- **store/TransactionsContext.tsx**: Variable names use full domain words (`apiTransactions`, `localTransfers`, `transfer`, `newTransfer`). Hydration branches are commented.
-- **store/SavingsContext.tsx**: `addSavingsTransaction` delta logic is documented. Default wallet creation is commented. All hydration branches labeled.
+- **store/*Context.tsx (all 5 data contexts)**: Use **Local-First** sync architecture. On mount: AsyncStorage is read immediately → `isLoaded = true` (app usable without network). Server sync runs in background using merge-only logic (server items not in local are added; local items not on server are pushed up). Server data NEVER overwrites existing local records. This prevents data loss during TestFlight updates or server resets.
+- **store/CommitmentsContext.tsx**: `MAX_RECURRENCE_STEPS = 730` constant (not a magic number). Status refresh (`refreshCommitmentStatuses`) applied to local data on load. `allocatedMoneyForAccount` and `reservedMoneyForDailyLimit` are documented with JSDoc.
+- **store/SavingsContext.tsx**: `addSavingsTransaction` delta logic is documented. Default wallet creation only when BOTH local AND server are empty (true first launch).
 - **components/Toast.tsx**: `pointerEvents` lives on outer `View` (not `Animated.View`) to prevent React Native Web deprecation warning.
 - **Remaining known warnings**: `props.pointerEvents is deprecated` — emitted by `react-native-screens@4.16.0` and `react-native-web@0.21.2` internals, not by application code. Unfixable without upgrading those libraries.
 

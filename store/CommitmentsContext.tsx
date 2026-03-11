@@ -50,42 +50,35 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    apiRequest("GET", "/api/commitments")
-      .then((res) => res.json())
-      .then(async (apiData: Commitment[]) => {
-        if (apiData && apiData.length > 0) {
-          // Re-derive statuses in case time passed since the last server write
-          const refreshed = refreshCommitmentStatuses(apiData);
-          setCommitments(refreshed);
-          saveData(KEYS.COMMITMENTS, refreshed);
-
-          // Sync back any commitments whose status changed after the refresh
-          const apiStatusById = new Map(apiData.map((c) => [c.id, c.status]));
-          refreshed
-            .filter((c) => c.status !== apiStatusById.get(c.id))
-            .forEach((c) =>
+    async function hydrate() {
+      const local = await loadData<Commitment[]>(KEYS.COMMITMENTS) || [];
+      const refreshedLocal = refreshCommitmentStatuses(local);
+      setCommitments(refreshedLocal);
+      setIsLoaded(true);
+      try {
+        const res = await apiRequest("GET", "/api/commitments");
+        const apiData: Commitment[] = await res.json();
+        if (Array.isArray(apiData)) {
+          const localIds = new Set(refreshedLocal.map((c) => c.id));
+          const serverIds = new Set(apiData.map((c) => c.id));
+          const serverOnly = refreshCommitmentStatuses(apiData.filter((c) => !localIds.has(c.id)));
+          if (serverOnly.length > 0) {
+            const merged = [...refreshedLocal, ...serverOnly];
+            setCommitments(merged);
+            saveData(KEYS.COMMITMENTS, merged);
+            serverOnly.forEach((c) =>
               apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {})
             );
-        } else {
-          // API returned empty — push local cache to the server
-          const local = await loadData<Commitment[]>(KEYS.COMMITMENTS);
-          if (local && local.length > 0) {
-            const refreshed = refreshCommitmentStatuses(local);
-            setCommitments(refreshed);
-            refreshed.forEach((commitment) =>
-              apiRequest("POST", "/api/commitments", commitment).catch(() => {})
-            );
           }
+          refreshedLocal.filter((c) => !serverIds.has(c.id)).forEach((c) =>
+            apiRequest("POST", "/api/commitments", c).catch(() => {})
+          );
         }
-      })
-      .catch(() => {
-        // Network unavailable — fall back to local cache
-        loadData<Commitment[]>(KEYS.COMMITMENTS).then((saved) => {
-          const refreshed = refreshCommitmentStatuses(saved || []);
-          setCommitments(refreshed);
-        });
-      })
-      .finally(() => setIsLoaded(true));
+      } catch {
+        // server unavailable — local data already shown
+      }
+    }
+    hydrate();
   }, []);
 
   const persist = (data: Commitment[]) => {

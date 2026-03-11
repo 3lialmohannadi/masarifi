@@ -29,29 +29,31 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    apiRequest("GET", "/api/accounts")
-      .then((res) => res.json())
-      .then((apiData: Account[]) => {
-        if (apiData && apiData.length > 0) {
-          setAccounts(apiData);
-          saveData(KEYS.ACCOUNTS, apiData);
-        } else {
-          loadData<Account[]>(KEYS.ACCOUNTS).then((local) => {
-            if (local && local.length > 0) {
-              setAccounts(local);
-              local.forEach((item) =>
-                apiRequest("POST", "/api/accounts", item).catch(() => {})
-              );
-            }
-          });
+    async function hydrate() {
+      const local = await loadData<Account[]>(KEYS.ACCOUNTS) || [];
+      setAccounts(local);
+      setIsLoaded(true);
+      try {
+        const res = await apiRequest("GET", "/api/accounts");
+        const apiData: Account[] = await res.json();
+        if (Array.isArray(apiData)) {
+          const localIds = new Set(local.map((a) => a.id));
+          const serverIds = new Set(apiData.map((a) => a.id));
+          const serverOnly = apiData.filter((a) => !localIds.has(a.id));
+          if (serverOnly.length > 0) {
+            const merged = [...local, ...serverOnly];
+            setAccounts(merged);
+            saveData(KEYS.ACCOUNTS, merged);
+          }
+          local.filter((a) => !serverIds.has(a.id)).forEach((a) =>
+            apiRequest("POST", "/api/accounts", a).catch(() => {})
+          );
         }
-      })
-      .catch(() => {
-        loadData<Account[]>(KEYS.ACCOUNTS).then((local) => {
-          setAccounts(local || []);
-        });
-      })
-      .finally(() => setIsLoaded(true));
+      } catch {
+        // server unavailable — local data already shown
+      }
+    }
+    hydrate();
   }, []);
 
   const persist = (data: Account[]) => {
