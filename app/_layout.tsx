@@ -9,8 +9,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { VideoSplash } from "@/components/VideoSplash";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -118,6 +119,7 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
+  const [videoSplashDone, setVideoSplashDone] = useState(false);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -125,7 +127,20 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
+  const handleVideoFinish = useCallback(() => {
+    setVideoSplashDone(true);
+  }, []);
+
   if (!fontsLoaded && !fontError) return null;
+
+  if (!videoSplashDone) {
+    return (
+      <>
+        <StatusBar style="light" hidden />
+        <VideoSplash onFinish={handleVideoFinish} />
+      </>
+    );
+  }
 
   return (
     <ErrorBoundary>
