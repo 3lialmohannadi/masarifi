@@ -84,8 +84,8 @@ export default function SettingsScreen() {
   const [resetDone, setResetDone] = useState(false);
 
   const LANG_OPTIONS = [
-    { code: "ar" as const, label: "العربية", flag: "🇶🇦" },
-    { code: "en" as const, label: "English", flag: "🇬🇧" },
+    { code: "ar" as const, label: "العربية" },
+    { code: "en" as const, label: "English" },
   ];
 
   const THEME_OPTIONS = [
@@ -218,7 +218,6 @@ export default function SettingsScreen() {
                 borderColor: language === opt.code ? theme.primary : theme.border,
               }}
             >
-              <Text style={{ fontSize: 26 }}>{opt.flag}</Text>
               <Text style={{ fontSize: 14, fontWeight: "700", color: language === opt.code ? "#fff" : theme.text }}>
                 {opt.label}
               </Text>
