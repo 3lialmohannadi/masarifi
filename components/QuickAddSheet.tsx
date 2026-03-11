@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { DatePickerModal } from "@/components/DatePickerModal";
+import { CategoryPickerModal } from "@/components/CategoryPickerModal";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
@@ -76,8 +77,8 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const [categoryId, setCategoryId] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(todayISOString());
-  const [step, setStep] = useState<"main" | "account" | "date" | "category">("main");
-  const [catSearch, setCatSearch] = useState("");
+  const [step, setStep] = useState<"main" | "account" | "date">("main");
+  const [showCategories, setShowCategories] = useState(false);
   const [saving, setSaving] = useState(false);
   const [amountError, setAmountError] = useState("");
   const [categoryError, setCategoryError] = useState("");
@@ -233,115 +234,6 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     );
   }
 
-  if (step === "category") {
-    const filteredCats = catSearch.trim()
-      ? categories.filter((c) =>
-          getDisplayName(c, language).toLowerCase().includes(catSearch.toLowerCase()) ||
-          c.name_ar.includes(catSearch) ||
-          c.name_en.toLowerCase().includes(catSearch.toLowerCase())
-        )
-      : categories;
-
-    return (
-      <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
-        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }}>
-          <View
-            style={{
-              backgroundColor: theme.card,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              paddingBottom: insets.bottom + 16,
-              maxHeight: "82%",
-            }}
-          >
-            {/* Handle */}
-            <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginTop: 10, marginBottom: 4 }} />
-
-            {/* Header */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-              <Pressable onPress={() => { setStep("main"); setCatSearch(""); }} hitSlop={10}>
-                <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
-              </Pressable>
-              <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>{t.transactions.selectCategory}</Text>
-              <View style={{ width: 22 }} />
-            </View>
-
-            {/* Search */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, marginHorizontal: 16, marginTop: 12, marginBottom: 4, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12 }}>
-              <Feather name="search" size={15} color={theme.textMuted} />
-              <TextInput
-                value={catSearch}
-                onChangeText={setCatSearch}
-                placeholder={language === "ar" ? "بحث..." : "Search..."}
-                placeholderTextColor={theme.textMuted}
-                style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
-              />
-              {catSearch.length > 0 && (
-                <Pressable onPress={() => setCatSearch("")} hitSlop={6}>
-                  <Feather name="x" size={15} color={theme.textMuted} />
-                </Pressable>
-              )}
-            </View>
-
-            {/* Category Grid */}
-            <FlatList
-              data={filteredCats}
-              numColumns={4}
-              keyExtractor={(c) => c.id}
-              contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 8, paddingBottom: 8 }}
-              columnWrapperStyle={{ gap: 8, marginBottom: 8 }}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              renderItem={({ item: cat }) => {
-                const isSelected = cat.id === categoryId;
-                return (
-                  <Pressable
-                    key={cat.id}
-                    onPress={() => {
-                      Haptics.selectionAsync();
-                      setCategoryId(cat.id);
-                      setCategoryError("");
-                      setStep("main");
-                      setCatSearch("");
-                    }}
-                    style={{
-                      flex: 1,
-                      alignItems: "center",
-                      gap: 5,
-                      paddingVertical: 10,
-                      paddingHorizontal: 4,
-                      borderRadius: 14,
-                      backgroundColor: isSelected ? cat.color + "20" : "transparent",
-                      borderWidth: 1.5,
-                      borderColor: isSelected ? cat.color : "transparent",
-                    }}
-                  >
-                    <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: cat.color + "20", alignItems: "center", justifyContent: "center" }}>
-                      <CategoryIcon name={cat.icon} size={20} color={cat.color} />
-                    </View>
-                    <Text style={{ fontSize: 10, fontWeight: "600", color: isSelected ? cat.color : theme.textSecondary, textAlign: "center" }} numberOfLines={2}>
-                      {getDisplayName(cat, language)}
-                    </Text>
-                    {isSelected && (
-                      <View style={{ position: "absolute", top: 6, right: isRTL ? "auto" : 6, left: isRTL ? 6 : "auto", width: 16, height: 16, borderRadius: 8, backgroundColor: cat.color, alignItems: "center", justifyContent: "center" }}>
-                        <Feather name="check" size={10} color="#fff" />
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              }}
-              ListEmptyComponent={
-                <View style={{ padding: 20, alignItems: "center" }}>
-                  <Text style={{ color: theme.textMuted, fontSize: 13 }}>{t.categories.noCategories}</Text>
-                </View>
-              }
-            />
-          </View>
-        </View>
-      </Modal>
-    );
-  }
-
   if (step === "date") {
     return (
       <>
@@ -389,6 +281,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   }
 
   return (
+    <>
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <Pressable testID="quickadd-backdrop" style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }} onPress={() => { Keyboard.dismiss(); onClose(); }}>
@@ -462,7 +355,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
             )}
             <Pressable
               testID="cat-selector-btn"
-              onPress={() => { Haptics.selectionAsync(); setStep("category"); }}
+              onPress={() => { Haptics.selectionAsync(); setShowCategories(true); }}
               style={({ pressed }) => ({
                 flexDirection: isRTL ? "row-reverse" : "row",
                 alignItems: "center",
@@ -594,5 +487,23 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
         </Pressable>
       </KeyboardAvoidingView>
     </Modal>
+    <CategoryPickerModal
+      visible={showCategories}
+      onClose={() => setShowCategories(false)}
+      categories={categories}
+      selectedId={categoryId}
+      onSelect={(id) => {
+        Haptics.selectionAsync();
+        setCategoryId(id);
+        setCategoryError("");
+      }}
+      theme={theme}
+      insets={insets}
+      language={language}
+      isRTL={isRTL}
+      noDataText={t.categories.noCategories}
+      title={language === "ar" ? "اختر التصنيف" : "Select Category"}
+    />
+    </>
   );
 }
