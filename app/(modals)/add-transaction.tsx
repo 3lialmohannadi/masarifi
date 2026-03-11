@@ -655,35 +655,55 @@ export default function AddTransactionModal() {
         <FlatList
           data={catSearch.trim() ? relevantCategories.filter((c) => c.name_ar.includes(catSearch) || c.name_en.toLowerCase().includes(catSearch.toLowerCase())) : relevantCategories}
           keyExtractor={(c) => c.id}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                setCategoryId(item.id);
-                setShowCategories(false);
-                setCatSearch("");
-                if (errors.category) setErrors((e) => ({ ...e, category: "" }));
-              }}
-              style={{
-                flexDirection: isRTL ? "row-reverse" : "row",
-                alignItems: "center",
-                gap: 12,
-                padding: 14,
-                backgroundColor: item.id === categoryId ? theme.primary + "15" : "transparent",
-                borderRadius: 12,
-                marginHorizontal: 8,
-                marginVertical: 2,
-              }}
-            >
-              <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: `${item.color}22`, alignItems: "center", justifyContent: "center" }}>
-                <CategoryIcon name={item.icon} size={19} color={item.color} />
-              </View>
-              <Text style={{ flex: 1, color: theme.text, fontWeight: "500", fontSize: 15 }}>
-                {getDisplayName(item, language)}
-              </Text>
-              {item.is_favorite && <Feather name="star" size={14} color="#F59E0B" />}
-              {item.id === categoryId && <Feather name="check" size={18} color={theme.primary} />}
-            </Pressable>
-          )}
+          numColumns={3}
+          columnWrapperStyle={{ paddingHorizontal: 8, gap: 8, marginVertical: 4 }}
+          contentContainerStyle={{ paddingVertical: 6 }}
+          renderItem={({ item }) => {
+            const isSelected = item.id === categoryId;
+            return (
+              <Pressable
+                onPress={() => {
+                  setCategoryId(item.id);
+                  setShowCategories(false);
+                  setCatSearch("");
+                  if (errors.category) setErrors((e) => ({ ...e, category: "" }));
+                }}
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingVertical: 12,
+                  paddingHorizontal: 6,
+                  backgroundColor: isSelected ? theme.primary + "18" : theme.background,
+                  borderRadius: 14,
+                  borderWidth: isSelected ? 2 : 1,
+                  borderColor: isSelected ? theme.primary : theme.border,
+                  gap: 6,
+                }}
+              >
+                <View style={{ width: 44, height: 44, borderRadius: 13, backgroundColor: `${item.color}22`, alignItems: "center", justifyContent: "center", position: "relative" }}>
+                  <CategoryIcon name={item.icon} size={22} color={item.color} />
+                  {item.is_favorite && (
+                    <View style={{ position: "absolute", top: -3, right: -3, backgroundColor: "#F59E0B", borderRadius: 6, width: 12, height: 12, alignItems: "center", justifyContent: "center" }}>
+                      <Feather name="star" size={7} color="#fff" />
+                    </View>
+                  )}
+                </View>
+                <Text
+                  numberOfLines={2}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: isSelected ? "700" : "500",
+                    color: isSelected ? theme.primary : theme.text,
+                    textAlign: "center",
+                    lineHeight: 14,
+                  }}
+                >
+                  {getDisplayName(item, language)}
+                </Text>
+              </Pressable>
+            );
+          }}
           ListEmptyComponent={
             <Text style={{ color: theme.textMuted, textAlign: "center", padding: 20 }}>
               {t.categories.noCategories}
