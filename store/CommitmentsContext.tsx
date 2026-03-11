@@ -61,6 +61,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
           .then((apiData: Commitment[]) => {
             if (Array.isArray(apiData)) {
               const serverMap = new Map(apiData.map((c) => [c.id, c]));
+              const localIds = new Set(refreshed.map((c) => c.id));
               refreshed.forEach((c) => {
                 const onServer = serverMap.get(c.id);
                 if (!onServer) {
@@ -69,6 +70,9 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
                   apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {});
                 }
               });
+              apiData.filter((c) => !localIds.has(c.id)).forEach((c) =>
+                apiRequest("DELETE", `/api/commitments/${c.id}`).catch(() => {})
+              );
             }
           })
           .catch(() => {});

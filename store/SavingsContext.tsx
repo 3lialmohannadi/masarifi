@@ -48,6 +48,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
         ]).then(([apiWallets, apiTxs]) => {
           if (Array.isArray(apiWallets)) {
             const serverMap = new Map(apiWallets.map((w) => [w.id, w]));
+            const localIds = new Set(localWallets.map((w) => w.id));
             localWallets.forEach((w) => {
               const onServer = serverMap.get(w.id);
               if (!onServer) {
@@ -56,11 +57,18 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
                 apiRequest("PATCH", `/api/savings-wallets/${w.id}`, w).catch(() => {});
               }
             });
+            apiWallets.filter((w) => !localIds.has(w.id)).forEach((w) =>
+              apiRequest("DELETE", `/api/savings-wallets/${w.id}`).catch(() => {})
+            );
           }
           if (Array.isArray(apiTxs)) {
             const serverIds = new Set(apiTxs.map((t) => t.id));
+            const localTxIds = new Set(localTxs.map((t) => t.id));
             localTxs.filter((t) => !serverIds.has(t.id)).forEach((t) =>
               apiRequest("POST", "/api/savings-transactions", t).catch(() => {})
+            );
+            apiTxs.filter((t) => !localTxIds.has(t.id)).forEach((t) =>
+              apiRequest("DELETE", `/api/savings-transactions/${t.id}`).catch(() => {})
             );
           }
         }).catch(() => {});

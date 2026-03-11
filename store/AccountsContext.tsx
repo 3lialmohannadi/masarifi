@@ -39,6 +39,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
           .then((apiData: Account[]) => {
             if (Array.isArray(apiData)) {
               const serverMap = new Map(apiData.map((a) => [a.id, a]));
+              const localIds = new Set(local.map((a) => a.id));
               local.forEach((a) => {
                 const onServer = serverMap.get(a.id);
                 if (!onServer) {
@@ -47,6 +48,9 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
                   apiRequest("PATCH", `/api/accounts/${a.id}`, a).catch(() => {});
                 }
               });
+              apiData.filter((a) => !localIds.has(a.id)).forEach((a) =>
+                apiRequest("DELETE", `/api/accounts/${a.id}`).catch(() => {})
+              );
             }
           })
           .catch(() => {});

@@ -40,6 +40,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
           .then((apiData: Category[]) => {
             if (Array.isArray(apiData)) {
               const serverMap = new Map(apiData.map((c) => [c.id, c]));
+              const localIds = new Set(local.map((c) => c.id));
               local.forEach((c) => {
                 const onServer = serverMap.get(c.id);
                 if (!onServer) {
@@ -48,6 +49,9 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
                   apiRequest("PATCH", `/api/categories/${c.id}`, c).catch(() => {});
                 }
               });
+              apiData.filter((c) => !localIds.has(c.id)).forEach((c) =>
+                apiRequest("DELETE", `/api/categories/${c.id}`).catch(() => {})
+              );
             }
           })
           .catch(() => {});
