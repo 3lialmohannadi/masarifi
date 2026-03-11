@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import * as fs from "fs";
 import * as path from "path";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 const app = express();
 const log = console.log;
@@ -108,35 +109,16 @@ function getAppName(): string {
   }
 }
 
-function proxyToMetro(req: Request, res: Response) {
-  import("http").then((http) => {
-    const url = req.url || req.path;
-    const options = {
-      hostname: "localhost",
-      port: 8081,
-      path: url,
-      method: req.method,
-      headers: { ...req.headers, host: "localhost:8081" },
-    };
-    const proxy = http.request(options, (metroRes) => {
-      res.status(metroRes.statusCode || 200);
-      Object.entries(metroRes.headers).forEach(([k, v]) => {
-        if (v !== undefined) res.setHeader(k, v as string);
-      });
-      metroRes.pipe(res);
-    });
-    proxy.on("error", () => {
-      res.status(503).send("Metro bundler not available. Please wait for it to start.");
-    });
-    if (req.method !== "GET" && req.method !== "HEAD") {
-      req.pipe(proxy);
-    } else {
-      proxy.end();
-    }
-  }).catch(() => {
-    res.status(503).send("Metro bundler not available.");
-  });
-}
+const metroProxy = createProxyMiddleware({
+  target: "http://localhost:8081",
+  changeOrigin: true,
+  ws: true,
+  on: {
+    error: (_err: unknown, _req: unknown, res: unknown) => {
+      (res as Response).status(503).send("Metro bundler not available. Please wait for it to start.");
+    },
+  },
+});
 
 function serveExpoManifest(platform: string, req: Request, res: Response) {
   const manifestPath = path.resolve(
@@ -212,16 +194,17 @@ function configureExpoAndLanding(app: express.Application) {
     const platform = req.header("expo-platform");
 
     if (isDev) {
-      if ((req.path === "/" || req.path === "/manifest") && platform && (platform === "ios" || platform === "android")) {
-        return proxyToMetro(req, res);
+      if (req.path === "/" || req.path === "/manifest") {
+        if (platform === "ios" || platform === "android") {
+          return (metroProxy as express.RequestHandler)(req, res, next);
+        }
+        return serveLandingPage({ req, res, landingPageTemplate, appName });
       }
-      if (req.path !== "/" && req.path !== "/manifest") {
-        return proxyToMetro(req, res);
-      }
-    } else {
-      if ((req.path === "/" || req.path === "/manifest") && platform && (platform === "ios" || platform === "android")) {
-        return serveExpoManifest(platform, req, res);
-      }
+      return (metroProxy as express.RequestHandler)(req, res, next);
+    }
+
+    if ((req.path === "/" || req.path === "/manifest") && (platform === "ios" || platform === "android")) {
+      return serveExpoManifest(platform, req, res);
     }
 
     if (req.path === "/") {
