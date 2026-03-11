@@ -14,7 +14,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { DatePickerModal } from "@/components/DatePickerModal";
-import { CategoryPickerModal } from "@/components/CategoryPickerModal";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
@@ -45,10 +44,8 @@ function getSmartSuggestion(note: string, categories: Category[], language: stri
   for (const word of words) {
     const names = SMART_SUGGESTIONS[word];
     if (names) {
-      const arName = names[0];
-      const enName = names[1];
       const matched = categories.find(
-        (c) => c.name_ar === arName || c.name_en === enName
+        (c) => c.name_ar === names[0] || c.name_en === names[1]
       );
       if (matched) return matched;
     }
@@ -56,7 +53,7 @@ function getSmartSuggestion(note: string, categories: Category[], language: stri
   return null;
 }
 
-type Step = "main" | "account" | "date";
+type Step = "main" | "account" | "date" | "category";
 
 export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetProps) {
   const insets = useSafeAreaInsets();
@@ -81,10 +78,10 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const [amount, setAmount] = useState("");
   const [accountId, setAccountId] = useState(defaultAccount?.id || "");
   const [categoryId, setCategoryId] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(todayISOString());
   const [step, setStep] = useState<Step>("main");
-  const [showCategories, setShowCategories] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [amountError, setAmountError] = useState("");
@@ -100,23 +97,28 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     setNote("");
     setDate(todayISOString());
     setStep("main");
+    setCategorySearch("");
     setAmountError("");
     setCategoryError("");
     setDateError("");
     setSaving(false);
-    setShowCategories(false);
     setShowDatePicker(false);
-
-    // Pre-select last used category
     const lastKey = settings.last_used_category_id;
     const found = lastKey ? allCategories.find((c) => c.id === lastKey) : null;
     setCategoryId(found?.id || "");
-
     setTimeout(() => amountRef.current?.focus(), 250);
   }, [visible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedAccount = activeAccounts.find((a) => a.id === accountId);
   const selectedCategory = allCategories.find((c) => c.id === categoryId);
+
+  const filteredCategories = useMemo(() => {
+    if (!categorySearch.trim()) return allCategories;
+    const q = categorySearch.toLowerCase();
+    return allCategories.filter(
+      (c) => c.name_ar.includes(categorySearch) || c.name_en.toLowerCase().includes(q)
+    );
+  }, [allCategories, categorySearch]);
 
   const smartSuggestion = useMemo(
     () => getSmartSuggestion(note, allCategories, language),
@@ -163,16 +165,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     const acctId = accountId || defaultAccount?.id || "";
 
     updateBalance(acctId, delta);
-    addTransaction({
-      type,
-      amount: amountNum,
-      account_id: acctId,
-      category_id: categoryId,
-      currency,
-      date,
-      note,
-    });
-
+    addTransaction({ type, amount: amountNum, account_id: acctId, category_id: categoryId, currency, date, note });
     if (categoryId) updateSettings({ last_used_category_id: categoryId });
 
     setSaving(false);
@@ -183,21 +176,97 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
   const today = todayISOString();
   const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
 
-  // ─── Inner content per step ───────────────────────────────────────────────
+  const goBack = () => setStep("main");
+
+  // ─── Step: Category Picker ────────────────────────────────────────────────
+
+  const renderCategoryStep = () => (
+    <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: "80%", paddingBottom: insets.bottom + 16 }}>
+      <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginTop: 10, marginBottom: 4 }} />
+      {/* Header */}
+      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+        <Pressable onPress={goBack} hitSlop={12}>
+          <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
+        </Pressable>
+        <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
+          {language === "ar" ? "اختر التصنيف" : "Select Category"}
+        </Text>
+        <Pressable onPress={goBack} hitSlop={12}>
+          <Feather name="x" size={20} color={theme.textSecondary} />
+        </Pressable>
+      </View>
+      {/* Search */}
+      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, marginHorizontal: 12, marginTop: 10, marginBottom: 6, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12 }}>
+        <Feather name="search" size={15} color={theme.textMuted} />
+        <TextInput
+          value={categorySearch}
+          onChangeText={setCategorySearch}
+          placeholder={language === "ar" ? "بحث..." : "Search..."}
+          placeholderTextColor={theme.textMuted}
+          style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
+        />
+        {categorySearch.length > 0 && (
+          <Pressable onPress={() => setCategorySearch("")} hitSlop={6}>
+            <Feather name="x" size={15} color={theme.textMuted} />
+          </Pressable>
+        )}
+      </View>
+      {/* Grid */}
+      <FlatList
+        data={filteredCategories}
+        keyExtractor={(c) => c.id}
+        numColumns={3}
+        keyboardShouldPersistTaps="handled"
+        columnWrapperStyle={{ paddingHorizontal: 8, gap: 8, marginVertical: 4 }}
+        contentContainerStyle={{ paddingVertical: 6 }}
+        renderItem={({ item }) => {
+          const isSelected = item.id === categoryId;
+          return (
+            <Pressable
+              onPress={() => {
+                Haptics.selectionAsync();
+                setCategoryId(item.id);
+                setCategoryError("");
+                setStep("main");
+              }}
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                paddingVertical: 12,
+                paddingHorizontal: 6,
+                backgroundColor: isSelected ? theme.primary + "18" : theme.background,
+                borderRadius: 14,
+                borderWidth: isSelected ? 2 : 1,
+                borderColor: isSelected ? theme.primary : theme.border,
+                gap: 6,
+              }}
+            >
+              <View style={{ width: 44, height: 44, borderRadius: 13, backgroundColor: `${item.color}22`, alignItems: "center", justifyContent: "center" }}>
+                <CategoryIcon name={item.icon || "tag"} size={22} color={item.color} />
+              </View>
+              <Text numberOfLines={2} style={{ fontSize: 11, fontWeight: isSelected ? "700" : "500", color: isSelected ? theme.primary : theme.text, textAlign: "center", lineHeight: 14 }}>
+                {getDisplayName(item, language)}
+              </Text>
+            </Pressable>
+          );
+        }}
+        ListEmptyComponent={
+          <Text style={{ color: theme.textMuted, textAlign: "center", padding: 20 }}>
+            {t.categories.noCategories}
+          </Text>
+        }
+      />
+    </View>
+  );
+
+  // ─── Step: Account Picker ─────────────────────────────────────────────────
 
   const renderAccountStep = () => (
-    <View
-      style={{
-        backgroundColor: theme.card,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        paddingBottom: insets.bottom + 16,
-        maxHeight: "65%",
-      }}
-    >
+    <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: insets.bottom + 16, maxHeight: "65%" }}>
       <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginTop: 10, marginBottom: 4 }} />
       <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-        <Pressable onPress={() => setStep("main")} hitSlop={12}>
+        <Pressable onPress={goBack} hitSlop={12}>
           <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
         </Pressable>
         <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>{t.transactions.selectAccount}</Text>
@@ -228,11 +297,13 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     </View>
   );
 
+  // ─── Step: Date Picker ────────────────────────────────────────────────────
+
   const renderDateStep = () => (
     <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: insets.bottom + 24, padding: 20, gap: 16 }}>
       <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginBottom: 4 }} />
       <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
-        <Pressable onPress={() => setStep("main")} hitSlop={12}>
+        <Pressable onPress={goBack} hitSlop={12}>
           <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
         </Pressable>
         <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>{t.common.date}</Text>
@@ -259,6 +330,8 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
       </Pressable>
     </View>
   );
+
+  // ─── Step: Main ───────────────────────────────────────────────────────────
 
   const renderMainStep = () => (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1, justifyContent: "flex-end" }}>
@@ -298,14 +371,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               keyboardType="decimal-pad"
               placeholder="0.00"
               placeholderTextColor={theme.textMuted}
-              style={{
-                fontSize: 44,
-                fontWeight: "800",
-                color: typeColor,
-                textAlign: "center",
-                minWidth: 120,
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
-              }}
+              style={{ fontSize: 44, fontWeight: "800", color: typeColor, textAlign: "center", minWidth: 120, ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
             />
             {selectedAccount && (
               <Text style={{ fontSize: 14, color: theme.textMuted, alignSelf: "flex-end", paddingBottom: 8 }}>
@@ -313,19 +379,15 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               </Text>
             )}
           </View>
-          {!!amountError && (
-            <Text style={{ fontSize: 12, color: "#EF4444", marginTop: 2 }}>{amountError}</Text>
-          )}
+          {!!amountError && <Text style={{ fontSize: 12, color: "#EF4444", marginTop: 2 }}>{amountError}</Text>}
         </View>
 
-        {/* Category Selector */}
+        {/* Category */}
         <View style={{ paddingHorizontal: 16, marginBottom: 6 }}>
-          {!!categoryError && (
-            <Text style={{ fontSize: 12, color: "#EF4444", marginBottom: 6, textAlign: isRTL ? "right" : "left" }}>{categoryError}</Text>
-          )}
+          {!!categoryError && <Text style={{ fontSize: 12, color: "#EF4444", marginBottom: 6, textAlign: isRTL ? "right" : "left" }}>{categoryError}</Text>}
           <Pressable
             testID="cat-selector-btn"
-            onPress={() => { Haptics.selectionAsync(); setShowCategories(true); }}
+            onPress={() => { Haptics.selectionAsync(); setStep("category"); }}
             style={({ pressed }) => ({
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
@@ -366,19 +428,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
         {showSmartSuggestion && smartSuggestion && (
           <Pressable
             onPress={() => { Haptics.selectionAsync(); setCategoryId(smartSuggestion.id); setCategoryError(""); }}
-            style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
-              alignItems: "center",
-              gap: 8,
-              marginHorizontal: 16,
-              marginBottom: 8,
-              backgroundColor: smartSuggestion.color + "15",
-              borderRadius: 12,
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderWidth: 1,
-              borderColor: smartSuggestion.color + "40",
-            }}
+            style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, marginHorizontal: 16, marginBottom: 8, backgroundColor: smartSuggestion.color + "15", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: smartSuggestion.color + "40" }}
           >
             <Feather name="zap" size={13} color={smartSuggestion.color} />
             <Text style={{ fontSize: 12, color: smartSuggestion.color, fontWeight: "600", flex: 1, textAlign: isRTL ? "right" : "left" }}>
@@ -392,7 +442,6 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
 
         {/* Bottom Row */}
         <View style={{ paddingHorizontal: 16, gap: 10 }}>
-          {/* Account + Date row */}
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
             <Pressable
               onPress={() => setStep("account")}
@@ -411,7 +460,6 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               )}
               <Feather name="chevron-down" size={13} color={theme.textMuted} />
             </Pressable>
-
             <Pressable
               onPress={() => setStep("date")}
               style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, backgroundColor: theme.background, borderRadius: 12, padding: 11, borderWidth: 1, borderColor: dateError ? "#EF4444" : theme.border }}
@@ -423,7 +471,6 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
             </Pressable>
           </View>
 
-          {/* Note */}
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, backgroundColor: theme.background, borderRadius: 12, paddingHorizontal: 12, borderWidth: 1, borderColor: theme.border }}>
             <Feather name="message-square" size={14} color={theme.textMuted} />
             <TextInput
@@ -435,7 +482,6 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
             />
           </View>
 
-          {/* Save Button */}
           <Pressable
             onPress={handleSave}
             disabled={saving}
@@ -451,6 +497,8 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     </KeyboardAvoidingView>
   );
 
+  // ─── Single Modal with all steps ─────────────────────────────────────────
+
   return (
     <>
       <Modal
@@ -458,48 +506,36 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
         transparent
         animationType="slide"
         statusBarTranslucent
-        onRequestClose={() => { if (step !== "main") { setStep("main"); } else { onClose(); } }}
+        onRequestClose={() => { if (step !== "main") { goBack(); } else { onClose(); } }}
       >
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)" }}>
           {step === "main" && renderMainStep()}
+          {step === "category" && (
+            <>
+              <Pressable style={{ flex: 1 }} onPress={goBack} />
+              {renderCategoryStep()}
+            </>
+          )}
           {step === "account" && (
             <>
-              <Pressable style={{ flex: 1 }} onPress={() => setStep("main")} />
+              <Pressable style={{ flex: 1 }} onPress={goBack} />
               {renderAccountStep()}
             </>
           )}
           {step === "date" && (
             <>
-              <Pressable style={{ flex: 1 }} onPress={() => setStep("main")} />
+              <Pressable style={{ flex: 1 }} onPress={goBack} />
               {renderDateStep()}
             </>
           )}
         </View>
       </Modal>
 
-      <CategoryPickerModal
-        visible={showCategories}
-        onClose={() => setShowCategories(false)}
-        categories={allCategories}
-        selectedId={categoryId}
-        onSelect={(id) => {
-          Haptics.selectionAsync();
-          setCategoryId(id);
-          setCategoryError("");
-        }}
-        theme={theme}
-        insets={insets}
-        language={language}
-        isRTL={isRTL}
-        noDataText={t.categories.noCategories}
-        title={language === "ar" ? "اختر التصنيف" : "Select Category"}
-      />
-
       <DatePickerModal
         visible={showDatePicker}
         value={date}
         onConfirm={(d) => { setDate(d); setDateError(""); setShowDatePicker(false); setStep("main"); }}
-        onClose={() => { setShowDatePicker(false); }}
+        onClose={() => setShowDatePicker(false)}
       />
     </>
   );
