@@ -48,19 +48,17 @@ function AppLoadingGate({ children }: { children: React.ReactNode }) {
 function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AppProvider>
-      <AppLoadingGate>
-        <AccountsProvider>
-          <TransactionsProvider>
-            <CategoriesProvider>
-              <SavingsProvider>
-                <CommitmentsProvider>
-                  {children}
-                </CommitmentsProvider>
-              </SavingsProvider>
-            </CategoriesProvider>
-          </TransactionsProvider>
-        </AccountsProvider>
-      </AppLoadingGate>
+      <AccountsProvider>
+        <TransactionsProvider>
+          <CategoriesProvider>
+            <SavingsProvider>
+              <CommitmentsProvider>
+                {children}
+              </CommitmentsProvider>
+            </SavingsProvider>
+          </CategoriesProvider>
+        </TransactionsProvider>
+      </AccountsProvider>
     </AppProvider>
   );
 }
@@ -145,7 +143,9 @@ export default function RootLayout() {
                   <VideoSplash onFinish={handleVideoFinish} />
                 </>
               ) : (
-                <RootLayoutNav />
+                <AppLoadingGate>
+                  <RootLayoutNav />
+                </AppLoadingGate>
               )}
             </Providers>
           </KeyboardProvider>
