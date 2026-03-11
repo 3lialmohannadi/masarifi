@@ -153,9 +153,6 @@ export interface AppSettings {
   manual_daily_limit: number;
   selected_account_id: string;
   last_used_category_id: string;
-  last_used_expense_category_id?: string;
-  last_used_income_category_id?: string;
-  onboarded: boolean;
   notification_enabled: boolean;
   default_currency: string;
 }

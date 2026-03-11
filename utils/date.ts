@@ -1,14 +1,6 @@
 import type { Language } from "@/types";
 
-function toLatinDigits(str: string): string {
-  return str.replace(/[٠١٢٣٤٥٦٧٨٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
-}
-
-const MONTHS_AR_LONG = [
-  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
-];
-const MONTHS_AR_SHORT = [
+const MONTHS_AR = [
   "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
   "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
 ];
@@ -19,7 +11,7 @@ export function formatDate(dateStr: string, language: Language = "en"): string {
     if (isNaN(date.getTime())) return dateStr;
     if (language === "ar") {
       const day = date.getDate();
-      const month = MONTHS_AR_LONG[date.getMonth()];
+      const month = MONTHS_AR[date.getMonth()];
       const year = date.getFullYear();
       return `${day} ${month} ${year}`;
     }
@@ -35,7 +27,7 @@ export function formatDateShort(dateStr: string, language: Language = "en"): str
     if (isNaN(date.getTime())) return dateStr;
     if (language === "ar") {
       const day = date.getDate();
-      const month = MONTHS_AR_SHORT[date.getMonth()];
+      const month = MONTHS_AR[date.getMonth()];
       return `${day} ${month}`;
     }
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -104,30 +96,4 @@ export function getDaysRemaining(targetDateStr: string): number {
   today.setHours(0, 0, 0, 0);
   const diff = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   return diff;
-}
-
-export function addMonths(dateStr: string, months: number): string {
-  const date = new Date(dateStr);
-  date.setMonth(date.getMonth() + months);
-  return date.toISOString().split("T")[0];
-}
-
-export function addDays(dateStr: string, days: number): string {
-  const date = new Date(dateStr);
-  date.setDate(date.getDate() + days);
-  return date.toISOString().split("T")[0];
-}
-
-export function addWeeks(dateStr: string, weeks: number): string {
-  return addDays(dateStr, weeks * 7);
-}
-
-export function addYears(dateStr: string, years: number): string {
-  const date = new Date(dateStr);
-  date.setFullYear(date.getFullYear() + years);
-  return date.toISOString().split("T")[0];
-}
-
-export function monthYearToMonthKey(month: number, year: number): string {
-  return `${year}-${String(month).padStart(2, "0")}`;
 }
