@@ -9,7 +9,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { VideoSplash } from "@/components/VideoSplash";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -118,12 +118,21 @@ export default function RootLayout() {
     Inter_700Bold,
   });
   const [videoSplashDone, setVideoSplashDone] = useState(false);
+  const hideAsyncCalledRef = useRef(false);
+
+  const handleSplashHide = useCallback(() => {
+    if (!hideAsyncCalledRef.current) {
+      hideAsyncCalledRef.current = true;
+      SplashScreen.hideAsync();
+    }
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      const fallback = setTimeout(handleSplashHide, 5000);
+      return () => clearTimeout(fallback);
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, handleSplashHide]);
 
   const handleVideoFinish = useCallback(() => {
     setVideoSplashDone(true);
@@ -140,7 +149,7 @@ export default function RootLayout() {
               {!videoSplashDone ? (
                 <>
                   <StatusBar style="light" hidden />
-                  <VideoSplash onFinish={handleVideoFinish} />
+                  <VideoSplash onFinish={handleVideoFinish} onReady={handleSplashHide} />
                 </>
               ) : (
                 <AppLoadingGate>

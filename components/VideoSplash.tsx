@@ -1,14 +1,17 @@
 import { VideoView, useVideoPlayer } from "expo-video";
-import React, { useEffect } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { StyleSheet, View } from "react-native";
 
 const videoSource = require("@/assets/videos/splash.mp4");
 
 interface Props {
   onFinish: () => void;
+  onReady?: () => void;
 }
 
-export function VideoSplash({ onFinish }: Props) {
+export function VideoSplash({ onFinish, onReady }: Props) {
+  const readyCalled = useRef(false);
+
   const player = useVideoPlayer(videoSource, (p) => {
     p.loop = false;
     p.muted = false;
@@ -16,28 +19,22 @@ export function VideoSplash({ onFinish }: Props) {
   });
 
   useEffect(() => {
-    const sub = player.addListener("playToEnd", onFinish);
-    const timeout = setTimeout(onFinish, 12000);
+    const playSub = player.addListener("playingChange", ({ isPlaying }) => {
+      if (isPlaying && !readyCalled.current) {
+        readyCalled.current = true;
+        onReady?.();
+      }
+    });
+
+    const endSub = player.addListener("playToEnd", onFinish);
+    const timeout = setTimeout(onFinish, 5000);
+
     return () => {
-      sub.remove();
+      playSub.remove();
+      endSub.remove();
       clearTimeout(timeout);
     };
-  }, [player, onFinish]);
-
-  if (Platform.OS === "web") {
-    return (
-      <View style={styles.container}>
-        <VideoView
-          player={player}
-          style={styles.video}
-          contentFit="cover"
-          nativeControls={false}
-          allowsFullscreen={false}
-          allowsPictureInPicture={false}
-        />
-      </View>
-    );
-  }
+  }, [player, onFinish, onReady]);
 
   return (
     <View style={styles.container}>
