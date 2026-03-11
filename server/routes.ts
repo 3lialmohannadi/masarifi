@@ -10,10 +10,7 @@ type TransactionRow = typeof schema.transactions.$inferSelect;
 type TransferRow = typeof schema.transfers.$inferSelect;
 type SavingsWalletRow = typeof schema.savingsWallets.$inferSelect;
 type SavingsTxRow = typeof schema.savingsTransactions.$inferSelect;
-type PlanRow = typeof schema.plans.$inferSelect;
-type PlanCategoryRow = typeof schema.planCategories.$inferSelect;
 type CommitmentRow = typeof schema.commitments.$inferSelect;
-type BudgetRow = typeof schema.budgets.$inferSelect;
 type CategoryRow = typeof schema.categories.$inferSelect;
 
 function errMsg(e: unknown): string {
@@ -118,27 +115,6 @@ function normSavingsTx(t: SavingsTxRow) {
   };
 }
 
-/** Normalises a plans DB row for the API response. */
-function normPlan(p: PlanRow) {
-  return {
-    ...p,
-    total_budget: toNumber(p.total_budget),
-    start_date: toIso(p.start_date),
-    end_date: toIso(p.end_date),
-    created_at: toIso(p.created_at),
-    updated_at: toIso(p.updated_at),
-  };
-}
-
-/** Normalises a plan_categories DB row for the API response. */
-function normPlanCategory(pc: PlanCategoryRow) {
-  return {
-    ...pc,
-    budget_amount: toNumber(pc.budget_amount),
-    created_at: toIso(pc.created_at),
-  };
-}
-
 /** Normalises a commitments DB row for the API response. */
 function normCommitment(c: CommitmentRow) {
   return {
@@ -148,16 +124,6 @@ function normCommitment(c: CommitmentRow) {
     paid_at: toIsoOrNull(c.paid_at),
     created_at: toIso(c.created_at),
     updated_at: toIso(c.updated_at),
-  };
-}
-
-/** Normalises a budgets DB row for the API response. */
-function normBudget(b: BudgetRow) {
-  return {
-    ...b,
-    amount: toNumber(b.amount),
-    created_at: toIso(b.created_at),
-    updated_at: toIso(b.updated_at),
   };
 }
 
@@ -426,105 +392,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ── Plans ─────────────────────────────────────────────────────────────────
-
-  app.get("/api/plans", async (_req, res) => {
-    try {
-      const rows = await storage.getPlans(DEFAULT_USER_ID);
-      res.json(rows.map(normPlan));
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.post("/api/plans", async (req, res) => {
-    try {
-      const { id, created_at: _c, updated_at: _u, ...rest } = req.body;
-      const data = {
-        ...rest, id, user_id: DEFAULT_USER_ID,
-        start_date: toDate(rest.start_date) ?? new Date(),
-        end_date: toDate(rest.end_date) ?? new Date(),
-      };
-      const row = await storage.createPlan(data as any);
-      res.json(normPlan(row));
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.patch("/api/plans/:id", async (req, res) => {
-    try {
-      const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...rest } = req.body;
-      const data = {
-        ...rest,
-        ...(rest.start_date ? { start_date: toDate(rest.start_date) } : {}),
-        ...(rest.end_date ? { end_date: toDate(rest.end_date) } : {}),
-      };
-      const row = await storage.updatePlan(req.params.id, data as any);
-      if (!row) return res.status(404).json({ message: "Plan not found" });
-      res.json(normPlan(row));
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.delete("/api/plans/:id", async (req, res) => {
-    try {
-      await storage.deletePlan(req.params.id);
-      res.json({ ok: true });
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  // ── Plan Categories ───────────────────────────────────────────────────────
-
-  app.get("/api/plan-categories", async (req, res) => {
-    try {
-      const planId = req.query.planId as string | undefined;
-      if (planId) {
-        const rows = await storage.getPlanCategories(planId);
-        res.json(rows.map(normPlanCategory));
-      } else {
-        const rows = await db.select().from(schema.planCategories);
-        res.json(rows.map(normPlanCategory));
-      }
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.post("/api/plan-categories", async (req, res) => {
-    try {
-      const { id, created_at: _c, ...rest } = req.body;
-      const data = { ...rest, id };
-      const row = await storage.createPlanCategory(data as any);
-      res.json(normPlanCategory(row));
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.patch("/api/plan-categories/:id", async (req, res) => {
-    try {
-      const { id: _id, created_at: _c, ...rest } = req.body;
-      const row = await storage.updatePlanCategory(req.params.id, rest as any);
-      if (!row) return res.status(404).json({ message: "Plan category not found" });
-      res.json(normPlanCategory(row));
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.delete("/api/plan-categories/:id", async (req, res) => {
-    try {
-      await storage.deletePlanCategory(req.params.id);
-      res.json({ ok: true });
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
   // ── Commitments ───────────────────────────────────────────────────────────
 
   app.get("/api/commitments", async (_req, res) => {
@@ -576,58 +443,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ── Budgets ───────────────────────────────────────────────────────────────
-
-  app.get("/api/budgets", async (_req, res) => {
-    try {
-      const rows = await storage.getBudgets(DEFAULT_USER_ID);
-      res.json(rows.map(normBudget));
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.post("/api/budgets", async (req, res) => {
-    try {
-      const { id, created_at: _c, updated_at: _u, ...rest } = req.body;
-      const existing = await storage.getBudgetByCategoryAndMonth(rest.category_id, rest.month);
-      if (existing) {
-        const row = await storage.updateBudget(existing.id, { amount: rest.amount } as any);
-        return res.json(normBudget(row));
-      }
-      const data = { ...rest, id, user_id: DEFAULT_USER_ID };
-      const row = await storage.createBudget(data as any);
-      res.json(normBudget(row));
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.patch("/api/budgets/:id", async (req, res) => {
-    try {
-      const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...rest } = req.body;
-      const row = await storage.updateBudget(req.params.id, rest as any);
-      if (!row) return res.status(404).json({ message: "Budget not found" });
-      res.json(normBudget(row));
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
-  app.delete("/api/budgets/:id", async (req, res) => {
-    try {
-      await storage.deleteBudget(req.params.id);
-      res.json({ ok: true });
-    } catch (e: unknown) {
-      res.status(500).json({ message: errMsg(e) });
-    }
-  });
-
   app.post("/api/reset", async (req, res) => {
     try {
-      await db.delete(schema.budgets).where(eq(schema.budgets.user_id, DEFAULT_USER_ID));
       await db.delete(schema.commitments).where(eq(schema.commitments.user_id, DEFAULT_USER_ID));
-      await db.delete(schema.plans).where(eq(schema.plans.user_id, DEFAULT_USER_ID));
       await db.delete(schema.savingsTransactions).where(eq(schema.savingsTransactions.user_id, DEFAULT_USER_ID));
       await db.delete(schema.savingsWallets).where(eq(schema.savingsWallets.user_id, DEFAULT_USER_ID));
       await db.delete(schema.transfers).where(eq(schema.transfers.user_id, DEFAULT_USER_ID));

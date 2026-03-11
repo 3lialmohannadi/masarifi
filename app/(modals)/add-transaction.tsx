@@ -20,7 +20,6 @@ import { useApp } from "@/store/AppContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useCategories } from "@/store/CategoriesContext";
-import { usePlans } from "@/store/PlansContext";
 import { AppButton } from "@/components/ui/AppButton";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
@@ -41,7 +40,6 @@ export default function AddTransactionModal() {
   const { transactions, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
   const { accounts, updateBalance } = useAccounts();
   const { categories } = useCategories();
-  const { plans, getPlanCategories } = usePlans();
   const params = useLocalSearchParams<{ id?: string; type?: string; accountId?: string }>();
 
   const existingTx = params.id ? transactions.find((tx) => tx.id === params.id) : undefined;
@@ -60,14 +58,9 @@ export default function AddTransactionModal() {
   const [categoryId, setCategoryId] = useState(existingTx?.category_id || "");
   const [date, setDate] = useState(existingTx?.date || todayISOString());
   const [note, setNote] = useState(existingTx?.note || "");
-  const [linkedPlanId, setLinkedPlanId] = useState(existingTx?.linked_plan_id || "");
-  const [linkedPlanCategoryId, setLinkedPlanCategoryId] = useState(existingTx?.linked_plan_category_id || "");
-
   const [showAccounts, setShowAccounts] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
   const [catSearch, setCatSearch] = useState("");
-  const [showPlans, setShowPlans] = useState(false);
-  const [showPlanCategories, setShowPlanCategories] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -99,13 +92,6 @@ export default function AddTransactionModal() {
   const activeAccounts = accounts.filter((a) => a.is_active);
   const selectedAccount = accounts.find((a) => a.id === accountId);
   const selectedCategory = categories.find((c) => c.id === categoryId);
-  const selectedPlan = plans.find((p) => p.id === linkedPlanId);
-  const planCategoriesForPlan = useMemo(
-    () => (linkedPlanId ? getPlanCategories(linkedPlanId) : []),
-    [linkedPlanId, getPlanCategories]
-  );
-  const selectedPlanCategory = planCategoriesForPlan.find((pc) => pc.id === linkedPlanCategoryId);
-
   // Pre-select last used category for new transactions (one-time init)
   const categoryInitialized = React.useRef(false);
   React.useEffect(() => {
@@ -157,8 +143,6 @@ export default function AddTransactionModal() {
           currency,
           date,
           note,
-          linked_plan_id: linkedPlanId || undefined,
-          linked_plan_category_id: linkedPlanCategoryId || undefined,
         });
       } else {
         const delta = type === "income" ? amountNum : -amountNum;
@@ -172,8 +156,6 @@ export default function AddTransactionModal() {
           currency,
           date,
           note,
-          linked_plan_id: linkedPlanId || undefined,
-          linked_plan_category_id: linkedPlanCategoryId || undefined,
         });
       }
       showToast(t.toast.saved);
@@ -565,62 +547,6 @@ export default function AddTransactionModal() {
           </Pressable>
         )}
 
-        {/* ── Link to Plan ── */}
-        {type === "expense" && plans.length > 0 && (
-          <Field label={`${t.transactions.linkedPlan} (${t.common.optional})`}>
-            <Pressable
-              onPress={() => setShowPlans(true)}
-              style={pickerStyle(false)}
-            >
-              {selectedPlan && (
-                <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: selectedPlan.color, marginEnd: 8 }} />
-              )}
-              <Text style={{ color: selectedPlan ? theme.text : theme.textMuted, fontSize: 15, flex: 1 }}>
-                {selectedPlan ? getDisplayName(selectedPlan, language) : t.transactions.selectPlan}
-              </Text>
-              {selectedPlan && (
-                <Pressable
-                  onPress={(e) => { e.stopPropagation(); setLinkedPlanId(""); setLinkedPlanCategoryId(""); }}
-                  hitSlop={8}
-                  style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }}
-                >
-                  <Feather name="x" size={14} color={theme.textMuted} />
-                </Pressable>
-              )}
-              <Feather name="chevron-down" size={16} color={theme.textMuted} />
-            </Pressable>
-          </Field>
-        )}
-
-        {/* ── Plan Category ── */}
-        {type === "expense" && selectedPlan && planCategoriesForPlan.length > 0 && (
-          <Field label={`${t.plans.categories} (${t.common.optional})`}>
-            <Pressable
-              onPress={() => setShowPlanCategories(true)}
-              style={[pickerStyle(false), { borderColor: selectedPlanCategory ? selectedPlanCategory.color + "80" : undefined }]}
-            >
-              {selectedPlanCategory && (
-                <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: selectedPlanCategory.color, marginEnd: 8 }} />
-              )}
-              <Text style={{ color: selectedPlanCategory ? theme.text : theme.textMuted, fontSize: 15, flex: 1 }}>
-                {selectedPlanCategory
-                  ? (language === "ar" ? selectedPlanCategory.name_ar || selectedPlanCategory.name_en : selectedPlanCategory.name_en || selectedPlanCategory.name_ar)
-                  : (language === "ar" ? "اختر فئة الخطة" : "Select Plan Category")}
-              </Text>
-              {selectedPlanCategory && (
-                <Pressable
-                  onPress={(e) => { e.stopPropagation(); setLinkedPlanCategoryId(""); }}
-                  hitSlop={8}
-                  style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }}
-                >
-                  <Feather name="x" size={14} color={theme.textMuted} />
-                </Pressable>
-              )}
-              <Feather name="chevron-down" size={16} color={theme.textMuted} />
-            </Pressable>
-          </Field>
-        )}
-
         <AppButton
           title={existingTx ? t.common.save : t.common.add}
           onPress={handleSave}
@@ -765,106 +691,6 @@ export default function AddTransactionModal() {
           }
         />
       </SelectorModal>
-
-      {/* ── Plan Picker ── */}
-      {type === "expense" && plans.length > 0 && (
-        <SelectorModal
-          visible={showPlans}
-          onClose={() => setShowPlans(false)}
-          title={t.transactions.selectPlan}
-          theme={theme}
-          insets={insets}
-        >
-          <FlatList
-            data={[
-              { id: "", name_ar: "بدون خطة", name_en: "No Plan" },
-              ...plans,
-            ] as { id: string; name_ar: string; name_en: string; color?: string }[]}
-            keyExtractor={(p) => p.id || "none"}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => {
-                  setLinkedPlanId(item.id);
-                  setLinkedPlanCategoryId("");
-                  setShowPlans(false);
-                }}
-                style={{
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: 14,
-                  backgroundColor: item.id === linkedPlanId ? theme.primary + "15" : "transparent",
-                  borderRadius: 12,
-                  marginHorizontal: 8,
-                  marginVertical: 2,
-                }}
-              >
-                {item.color && (
-                  <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: item.color }} />
-                )}
-                <Text style={{ flex: 1, color: item.id ? theme.text : theme.textMuted, fontWeight: "500", fontSize: 15 }}>
-                  {getDisplayName(item, language)}
-                </Text>
-                {item.id === linkedPlanId && <Feather name="check" size={18} color={theme.primary} />}
-              </Pressable>
-            )}
-          />
-        </SelectorModal>
-      )}
-
-      {/* ── Plan Category Picker ── */}
-      {type === "expense" && selectedPlan && planCategoriesForPlan.length > 0 && (
-        <SelectorModal
-          visible={showPlanCategories}
-          onClose={() => setShowPlanCategories(false)}
-          title={language === "ar" ? "اختر فئة الخطة" : "Select Plan Category"}
-          theme={theme}
-          insets={insets}
-        >
-          <FlatList
-            data={[
-              { id: "", name_ar: "بدون فئة", name_en: "No Category", color: "", icon: "" },
-              ...planCategoriesForPlan,
-            ] as { id: string; name_ar: string; name_en: string; color?: string; icon?: string; budget_amount?: number }[]}
-            keyExtractor={(pc) => pc.id || "none"}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => {
-                  setLinkedPlanCategoryId(item.id);
-                  setShowPlanCategories(false);
-                }}
-                style={{
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: 14,
-                  backgroundColor: item.id === linkedPlanCategoryId ? (item.color || theme.primary) + "15" : "transparent",
-                  borderRadius: 12,
-                  marginHorizontal: 8,
-                  marginVertical: 2,
-                }}
-              >
-                {item.color ? (
-                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: item.color + "20", alignItems: "center", justifyContent: "center" }}>
-                    <CategoryIcon name={item.icon || "tag"} size={14} color={item.color} />
-                  </View>
-                ) : null}
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: item.id ? theme.text : theme.textMuted, fontWeight: "500", fontSize: 15 }}>
-                    {item.id ? (language === "ar" ? item.name_ar || item.name_en : item.name_en || item.name_ar) : (language === "ar" ? "بدون فئة" : "No Category")}
-                  </Text>
-                  {item.budget_amount != null && item.budget_amount > 0 && (
-                    <Text style={{ color: theme.textMuted, fontSize: 12 }}>
-                      {language === "ar" ? "الميزانية: " : "Budget: "}{item.budget_amount.toLocaleString("en-US")} {selectedPlan.currency}
-                    </Text>
-                  )}
-                </View>
-                {item.id === linkedPlanCategoryId && <Feather name="check" size={18} color={item.color || theme.primary} />}
-              </Pressable>
-            )}
-          />
-        </SelectorModal>
-      )}
 
       <DatePickerModal
         visible={showDatePicker}

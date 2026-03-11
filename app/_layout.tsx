@@ -22,8 +22,6 @@ import { TransactionsProvider } from "@/store/TransactionsContext";
 import { CategoriesProvider } from "@/store/CategoriesContext";
 import { SavingsProvider } from "@/store/SavingsContext";
 import { CommitmentsProvider } from "@/store/CommitmentsContext";
-import { PlansProvider } from "@/store/PlansContext";
-import { BudgetsProvider } from "@/store/BudgetsContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -55,9 +53,7 @@ function Providers({ children }: { children: React.ReactNode }) {
             <CategoriesProvider>
               <SavingsProvider>
                 <CommitmentsProvider>
-                  <PlansProvider>
-                    <BudgetsProvider>{children}</BudgetsProvider>
-                  </PlansProvider>
+                  {children}
                 </CommitmentsProvider>
               </SavingsProvider>
             </CategoriesProvider>
@@ -93,23 +89,11 @@ function RootLayoutNav() {
         options={{ presentation: "modal", headerShown: false }}
       />
       <Stack.Screen
-        name="(modals)/plan-form"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/plan-category-form"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
         name="(modals)/transfer-form"
         options={{ presentation: "modal", headerShown: false }}
       />
       <Stack.Screen
         name="(modals)/transfer-detail"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/budget-form"
         options={{ presentation: "modal", headerShown: false }}
       />
       <Stack.Screen
@@ -119,11 +103,8 @@ function RootLayoutNav() {
       <Stack.Screen name="accounts/list" options={{ headerShown: false }} />
       <Stack.Screen name="accounts/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="savings/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="plans/index" options={{ headerShown: false }} />
-      <Stack.Screen name="plans/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="commitments/index" options={{ headerShown: false }} />
       <Stack.Screen name="commitments/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="budget/index" options={{ headerShown: false }} />
       <Stack.Screen name="settings/index" options={{ headerShown: false }} />
       <Stack.Screen name="categories/index" options={{ headerShown: false }} />
     </Stack>

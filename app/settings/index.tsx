@@ -10,8 +10,6 @@ import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useSavings } from "@/store/SavingsContext";
 import { useCommitments } from "@/store/CommitmentsContext";
-import { usePlans } from "@/store/PlansContext";
-import { useBudgets } from "@/store/BudgetsContext";
 import { AppInput } from "@/components/ui/AppInput";
 
 const CURRENCIES = [
@@ -76,8 +74,6 @@ export default function SettingsScreen() {
   const { transactions, clearAll: clearTransactions } = useTransactions();
   const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
   const { commitments, clearAll: clearCommitments } = useCommitments();
-  const { plans, clearAll: clearPlans } = usePlans();
-  const { budgets, clearAll: clearBudgets } = useBudgets();
 
   const [manualDailyLimit, setManualDailyLimit] = useState(String(settings.manual_daily_limit || ""));
   const [exporting, setExporting] = useState(false);
@@ -119,8 +115,6 @@ export default function SettingsScreen() {
         savings_wallets: savingsWallets,
         savings_transactions: savingsTransactions,
         commitments,
-        plans,
-        budgets,
         settings,
       };
       const jsonString = JSON.stringify(exportData, null, 2);
@@ -150,7 +144,7 @@ export default function SettingsScreen() {
     } finally {
       setExporting(false);
     }
-  }, [accounts, transactions, savingsWallets, savingsTransactions, commitments, plans, budgets, settings, showToast, t.toast.error]);
+  }, [accounts, transactions, savingsWallets, savingsTransactions, commitments, settings, showToast, t.toast.error]);
 
   const handleReset = useCallback(async () => {
     setResetting(true);
@@ -161,8 +155,6 @@ export default function SettingsScreen() {
       clearTransactions();
       clearSavings();
       clearCommitments();
-      clearPlans();
-      clearBudgets();
       setShowResetConfirm(false);
       setResetDone(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -173,7 +165,7 @@ export default function SettingsScreen() {
     } finally {
       setResetting(false);
     }
-  }, [clearAccounts, clearTransactions, clearSavings, clearCommitments, clearPlans, clearBudgets, showToast, t.toast.error]);
+  }, [clearAccounts, clearTransactions, clearSavings, clearCommitments, showToast, t.toast.error]);
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 

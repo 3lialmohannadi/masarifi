@@ -85,25 +85,11 @@ export default function MoreTab() {
 
         <SectionHeader title={t.more.financial} />
         <MenuItem
-          icon="target"
-          label={t.plans.title}
-          subtitle={t.more.plansSubtitle}
-          color={theme.plan}
-          onPress={() => router.push("/plans")}
-        />
-        <MenuItem
           icon="calendar"
           label={t.commitments.title}
           subtitle={t.more.commitmentsSubtitle}
           color="#F59E0B"
           onPress={() => router.push("/commitments")}
-        />
-        <MenuItem
-          icon="pie-chart"
-          label={t.budget.title}
-          subtitle={t.more.budgetSubtitle}
-          color="#8B5CF6"
-          onPress={() => router.push("/budget")}
         />
 
         <View style={{ height: 12 }} />

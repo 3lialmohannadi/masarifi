@@ -1,4 +1,4 @@
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, desc, asc } from "drizzle-orm";
 import { db } from "./db";
 import * as schema from "@database/schema";
 import type {
@@ -16,14 +16,8 @@ import type {
   InsertSavingsWallet,
   SavingsTransaction,
   InsertSavingsTransaction,
-  Plan,
-  InsertPlan,
-  PlanCategory,
-  InsertPlanCategory,
   Commitment,
   InsertCommitment,
-  Budget,
-  InsertBudget,
   Settings,
 } from "@database/schema";
 
@@ -81,20 +75,6 @@ export interface IStorage {
   updateSavingsTransaction(id: string, data: Partial<SavingsTransaction>): Promise<SavingsTransaction>;
   deleteSavingsTransaction(id: string): Promise<void>;
 
-  // Plans
-  getPlans(userId?: string): Promise<Plan[]>;
-  getPlan(id: string): Promise<Plan | undefined>;
-  createPlan(data: InsertPlan): Promise<Plan>;
-  updatePlan(id: string, data: Partial<Plan>): Promise<Plan>;
-  deletePlan(id: string): Promise<void>;
-
-  // Plan Categories
-  getPlanCategories(planId: string): Promise<PlanCategory[]>;
-  getPlanCategory(id: string): Promise<PlanCategory | undefined>;
-  createPlanCategory(data: InsertPlanCategory): Promise<PlanCategory>;
-  updatePlanCategory(id: string, data: Partial<PlanCategory>): Promise<PlanCategory>;
-  deletePlanCategory(id: string): Promise<void>;
-
   // Commitments
   getCommitments(userId?: string): Promise<Commitment[]>;
   getCommitment(id: string): Promise<Commitment | undefined>;
@@ -102,13 +82,6 @@ export interface IStorage {
   updateCommitment(id: string, data: Partial<Commitment>): Promise<Commitment>;
   deleteCommitment(id: string): Promise<void>;
 
-  // Budgets
-  getBudgets(userId?: string): Promise<Budget[]>;
-  getBudget(id: string): Promise<Budget | undefined>;
-  getBudgetByCategoryAndMonth(categoryId: string, month: string): Promise<Budget | undefined>;
-  createBudget(data: InsertBudget): Promise<Budget>;
-  updateBudget(id: string, data: Partial<Budget>): Promise<Budget>;
-  deleteBudget(id: string): Promise<void>;
 }
 
 // ─── Database Storage ─────────────────────────────────────────────────────────
@@ -361,71 +334,6 @@ export class DatabaseStorage implements IStorage {
     await db.delete(schema.savingsTransactions).where(eq(schema.savingsTransactions.id, id));
   }
 
-  // ── Plans ──────────────────────────────────────────────────────────────────
-
-  async getPlans(userId?: string): Promise<Plan[]> {
-    if (userId) {
-      return db.select().from(schema.plans)
-        .where(eq(schema.plans.user_id, userId))
-        .orderBy(asc(schema.plans.created_at));
-    }
-    return db.select().from(schema.plans).orderBy(asc(schema.plans.created_at));
-  }
-
-  async getPlan(id: string): Promise<Plan | undefined> {
-    const [row] = await db.select().from(schema.plans).where(eq(schema.plans.id, id));
-    return row;
-  }
-
-  async createPlan(data: InsertPlan): Promise<Plan> {
-    const [row] = await db.insert(schema.plans).values(data).returning();
-    return row;
-  }
-
-  async updatePlan(id: string, data: Partial<Plan>): Promise<Plan> {
-    const [row] = await db
-      .update(schema.plans)
-      .set({ ...data, updated_at: new Date() })
-      .where(eq(schema.plans.id, id))
-      .returning();
-    return row;
-  }
-
-  async deletePlan(id: string): Promise<void> {
-    await db.delete(schema.plans).where(eq(schema.plans.id, id));
-  }
-
-  // ── Plan Categories ────────────────────────────────────────────────────────
-
-  async getPlanCategories(planId: string): Promise<PlanCategory[]> {
-    return db.select().from(schema.planCategories)
-      .where(eq(schema.planCategories.plan_id, planId))
-      .orderBy(asc(schema.planCategories.created_at));
-  }
-
-  async getPlanCategory(id: string): Promise<PlanCategory | undefined> {
-    const [row] = await db.select().from(schema.planCategories).where(eq(schema.planCategories.id, id));
-    return row;
-  }
-
-  async createPlanCategory(data: InsertPlanCategory): Promise<PlanCategory> {
-    const [row] = await db.insert(schema.planCategories).values(data).returning();
-    return row;
-  }
-
-  async updatePlanCategory(id: string, data: Partial<PlanCategory>): Promise<PlanCategory> {
-    const [row] = await db
-      .update(schema.planCategories)
-      .set(data)
-      .where(eq(schema.planCategories.id, id))
-      .returning();
-    return row;
-  }
-
-  async deletePlanCategory(id: string): Promise<void> {
-    await db.delete(schema.planCategories).where(eq(schema.planCategories.id, id));
-  }
-
   // ── Commitments ────────────────────────────────────────────────────────────
 
   async getCommitments(userId?: string): Promise<Commitment[]> {
@@ -460,47 +368,6 @@ export class DatabaseStorage implements IStorage {
     await db.delete(schema.commitments).where(eq(schema.commitments.id, id));
   }
 
-  // ── Budgets ────────────────────────────────────────────────────────────────
-
-  async getBudgets(userId?: string): Promise<Budget[]> {
-    if (userId) {
-      return db.select().from(schema.budgets)
-        .where(eq(schema.budgets.user_id, userId))
-        .orderBy(desc(schema.budgets.month));
-    }
-    return db.select().from(schema.budgets).orderBy(desc(schema.budgets.month));
-  }
-
-  async getBudget(id: string): Promise<Budget | undefined> {
-    const [row] = await db.select().from(schema.budgets).where(eq(schema.budgets.id, id));
-    return row;
-  }
-
-  async getBudgetByCategoryAndMonth(categoryId: string, month: string): Promise<Budget | undefined> {
-    const [row] = await db
-      .select()
-      .from(schema.budgets)
-      .where(and(eq(schema.budgets.category_id, categoryId), eq(schema.budgets.month, month)));
-    return row;
-  }
-
-  async createBudget(data: InsertBudget): Promise<Budget> {
-    const [row] = await db.insert(schema.budgets).values(data).returning();
-    return row;
-  }
-
-  async updateBudget(id: string, data: Partial<Budget>): Promise<Budget> {
-    const [row] = await db
-      .update(schema.budgets)
-      .set({ ...data, updated_at: new Date() })
-      .where(eq(schema.budgets.id, id))
-      .returning();
-    return row;
-  }
-
-  async deleteBudget(id: string): Promise<void> {
-    await db.delete(schema.budgets).where(eq(schema.budgets.id, id));
-  }
 }
 
 export const storage = new DatabaseStorage();

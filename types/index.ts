@@ -18,7 +18,6 @@ export type CategoryType =
   | "expense"
   | "savings"
   | "commitment"
-  | "plan"
   | "general";
 
 export type CommitmentStatus =
@@ -41,17 +40,6 @@ export type SavingsMovementType =
   | "deposit_external"
   | "withdraw_internal"
   | "withdraw_external";
-
-export type PlanType =
-  | "travel"
-  | "wedding"
-  | "car"
-  | "house"
-  | "study"
-  | "business"
-  | "event"
-  | "medical"
-  | "other";
 
 export interface Account {
   id: string;
@@ -91,8 +79,6 @@ export interface Transaction {
   date: string;
   note: string;
   linked_commitment_id?: string;
-  linked_plan_id?: string;
-  linked_plan_category_id?: string;
   linked_saving_wallet_id?: string;
   linked_transfer_account_id?: string;
   created_at: string;
@@ -139,33 +125,6 @@ export interface SavingsTransaction {
   created_at: string;
 }
 
-export interface Plan {
-  id: string;
-  name_ar: string;
-  name_en: string;
-  plan_type: PlanType;
-  description: string;
-  start_date: string;
-  end_date: string;
-  total_budget: number;
-  currency: string;
-  color: string;
-  icon: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PlanCategory {
-  id: string;
-  plan_id: string;
-  name_ar: string;
-  name_en: string;
-  budget_amount: number;
-  color: string;
-  icon: string;
-  created_at: string;
-}
-
 export interface Commitment {
   id: string;
   name_ar: string;
@@ -183,15 +142,6 @@ export interface Commitment {
   note: string;
   /** Kept for DB backward-compatibility — unused in the app. */
   parent_commitment_id?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Budget {
-  id: string;
-  category_id?: string;
-  amount: number;
-  month: string;
   created_at: string;
   updated_at: string;
 }

@@ -1,7 +1,7 @@
 # Masarifi - Personal Finance App
 
 ## Overview
-Masarifi is a bilingual (Arabic/English) personal finance mobile app built with React Native and Expo, targeting users in the Gulf region. It offers comprehensive money management features including accounts, transactions, transfers, savings with goal tracking, manual commitments (one-time bills/dues), financial plans, monthly budgets, and detailed statistics. The app supports multiple Gulf currencies and provides a holistic view of personal finances. The vision is to empower users with robust tools for financial planning and tracking, leveraging local market understanding and advanced mobile technology.
+Masarifi is a bilingual (Arabic/English) personal finance mobile app built with React Native and Expo, targeting users in the Gulf region. It offers comprehensive money management features including accounts, transactions, transfers, savings with goal tracking, manual commitments (one-time bills/dues), and detailed statistics. The app supports multiple Gulf currencies and provides a holistic view of personal finances. The vision is to empower users with robust tools for financial tracking, leveraging local market understanding and advanced mobile technology.
 
 ## Design System
 **Color Palette (Teal FinTech):**
@@ -21,7 +21,7 @@ Masarifi is a bilingual (Arabic/English) personal finance mobile app built with 
 - Card border radius: `borderRadius: 16` — cards, rows, and modal/form inputs
 - Icon container: `width: 42, height: 42, borderRadius: 13` — colored icon bg circles in NavRows
 - NavRow icon size: `size={20}` — Feather icon inside the 42px container
-- **Category icons: Use `MaterialCommunityIcons` via `<CategoryIcon name={...} size={...} color={...} />` from `@/components/CategoryIcon`. All category, plan, plan-category icons use MCIcons. Account/savings wallet icons remain Feather.**
+- **Category icons: Use `MaterialCommunityIcons` via `<CategoryIcon name={...} size={...} color={...} />` from `@/components/CategoryIcon`. All category icons use MCIcons. Account/savings wallet icons remain Feather.**
 - Badge/chip: `borderRadius: 20` — filter pills and status badges use 20 (pill shape)
 - Back button (stack screens): circle `width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border` with chevron `size={18}`
 - Item gap in lists: consistent spacing via `gap: 8` or `marginBottom: 8` between list items
@@ -33,12 +33,10 @@ Masarifi is a bilingual (Arabic/English) personal finance mobile app built with 
 ```
 app/                  Expo Router screens (file-based routing)
   (tabs)/             Bottom tab screens (Home, Transactions, Savings, Statistics, More)
-  (modals)/           Modal forms (account, transaction, commitment, plan, budget, etc.)
+  (modals)/           Modal forms (account, transaction, commitment, savings, etc.)
   accounts/           Account detail & list screens
-  budget/             Budget screen
   categories/         Categories management screen
   commitments/        Commitments list & detail screens
-  plans/              Plans list & detail screens
   savings/            Savings wallet detail screen
   settings/           Settings screen
 assets/               Images, icons, splash screens
@@ -62,8 +60,6 @@ store/                React Context providers (one per domain)
   TransactionsContext.tsx
   CommitmentsContext.tsx
   SavingsContext.tsx
-  PlansContext.tsx
-  BudgetsContext.tsx
   CategoriesContext.tsx
 theme/                Design system
   colors.ts           LightTheme, DarkTheme, shadow utilities, type Theme
@@ -99,7 +95,7 @@ The app supports Arabic (RTL default) and English, with language selection persi
 The application supports key Gulf-region currencies (QAR, SAR, AED, KWD, BHD, OMR) alongside USD, EUR, and GBP, each configured with bilingual names, country flag emojis, proper decimal precision, and display symbols.
 
 ### Backend (Express.js + PostgreSQL)
-The backend is an Express server that serves static Expo web build files and provides a comprehensive REST API for all entities (accounts, categories, transactions, savings, commitments, plans, budgets). It uses Drizzle ORM for PostgreSQL interactions with fully-typed `norm*` functions (one per entity) that convert Drizzle rows to API responses. A `toNumber()` helper handles Postgres `numeric` → JS number coercion. All route handlers have try/catch with an `errMsg()` helper for safe error extraction.
+The backend is an Express server that serves static Expo web build files and provides a comprehensive REST API for all entities (accounts, categories, transactions, transfers, savings, commitments). It uses Drizzle ORM for PostgreSQL interactions with fully-typed `norm*` functions (one per entity) that convert Drizzle rows to API responses. A `toNumber()` helper handles Postgres `numeric` → JS number coercion. All route handlers have try/catch with an `errMsg()` helper for safe error extraction.
 
 ### Code Quality Standards
 - **server/routes.ts**: `norm*` functions use Drizzle `$inferSelect` types. `toNumber()` replaces inline ternary coercions. `toIso`/`toIsoOrNull` are documented with JSDoc.
@@ -118,7 +114,7 @@ All screens use the `EmptyState` component (`components/ui/EmptyState.tsx`) when
 - **Subtitle**: Helpful guidance text explaining what the user can do
 - **Action** (optional): A pressable button to create the first item
 
-Screens with empty states: Transactions, Transfers, Commitments, Budget, Plans, Savings (wallets + movements), Accounts, Categories, and the Home screen recent-transactions section.
+Screens with empty states: Transactions, Transfers, Commitments, Savings (wallets + movements), Accounts, Categories, and the Home screen recent-transactions section.
 
 ### Toast Notifications
 All modal forms show toast feedback via the `Toast` component (`components/Toast.tsx`):
