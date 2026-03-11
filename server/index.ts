@@ -108,40 +108,37 @@ function getAppName(): string {
   }
 }
 
-async function serveExpoManifest(platform: string, req: Request, res: Response) {
-  if (process.env.NODE_ENV === "development") {
-    try {
-      const http = await import("http");
-      const options = {
-        hostname: "localhost",
-        port: 8081,
-        path: req.path === "/manifest" ? "/manifest" : "/",
-        method: "GET",
-        headers: {
-          "expo-platform": platform,
-          "expo-protocol-version": "1",
-          "expo-sfv-version": "0",
-          "accept": "application/expo+json,application/json",
-          "host": req.get("host") || "localhost:8081",
-        },
-      };
-      const proxy = http.request(options, (metroRes) => {
-        res.status(metroRes.statusCode || 200);
-        Object.entries(metroRes.headers).forEach(([k, v]) => {
-          if (v) res.setHeader(k, v as string);
-        });
-        metroRes.pipe(res);
+function proxyToMetro(req: Request, res: Response) {
+  import("http").then((http) => {
+    const url = req.url || req.path;
+    const options = {
+      hostname: "localhost",
+      port: 8081,
+      path: url,
+      method: req.method,
+      headers: { ...req.headers, host: "localhost:8081" },
+    };
+    const proxy = http.request(options, (metroRes) => {
+      res.status(metroRes.statusCode || 200);
+      Object.entries(metroRes.headers).forEach(([k, v]) => {
+        if (v !== undefined) res.setHeader(k, v as string);
       });
-      proxy.on("error", () => {
-        res.status(503).json({ error: "Metro bundler not available. Please wait for it to start." });
-      });
+      metroRes.pipe(res);
+    });
+    proxy.on("error", () => {
+      res.status(503).send("Metro bundler not available. Please wait for it to start.");
+    });
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      req.pipe(proxy);
+    } else {
       proxy.end();
-    } catch {
-      res.status(503).json({ error: "Metro bundler not available." });
     }
-    return;
-  }
+  }).catch(() => {
+    res.status(503).send("Metro bundler not available.");
+  });
+}
 
+function serveExpoManifest(platform: string, req: Request, res: Response) {
   const manifestPath = path.resolve(
     process.cwd(),
     "static-build",
@@ -203,6 +200,8 @@ function configureExpoAndLanding(app: express.Application) {
   const landingPageTemplate = fs.readFileSync(templatePath, "utf-8");
   const appName = getAppName();
 
+  const isDev = process.env.NODE_ENV === "development";
+
   log("Serving static Expo files with dynamic manifest routing");
 
   app.use((req: Request, res: Response, next: NextFunction) => {
@@ -210,22 +209,23 @@ function configureExpoAndLanding(app: express.Application) {
       return next();
     }
 
-    if (req.path !== "/" && req.path !== "/manifest") {
-      return next();
-    }
-
     const platform = req.header("expo-platform");
-    if (platform && (platform === "ios" || platform === "android")) {
-      return serveExpoManifest(platform, req, res);
+
+    if (isDev) {
+      if ((req.path === "/" || req.path === "/manifest") && platform && (platform === "ios" || platform === "android")) {
+        return proxyToMetro(req, res);
+      }
+      if (req.path !== "/" && req.path !== "/manifest") {
+        return proxyToMetro(req, res);
+      }
+    } else {
+      if ((req.path === "/" || req.path === "/manifest") && platform && (platform === "ios" || platform === "android")) {
+        return serveExpoManifest(platform, req, res);
+      }
     }
 
     if (req.path === "/") {
-      return serveLandingPage({
-        req,
-        res,
-        landingPageTemplate,
-        appName,
-      });
+      return serveLandingPage({ req, res, landingPageTemplate, appName });
     }
 
     next();
