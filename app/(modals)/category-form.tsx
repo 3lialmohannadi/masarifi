@@ -25,7 +25,6 @@ export default function CategoryFormModal() {
   const [nameEn, setNameEn] = useState(existing?.name_en || "");
   const [icon, setIcon] = useState(existing?.icon || "tag");
   const [color, setColor] = useState(existing?.color || "#2F8F83");
-  const [isFavorite, setIsFavorite] = useState(existing?.is_favorite || false);
   const [showIcon, setShowIcon] = useState(false);
   const [showColor, setShowColor] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,7 +48,6 @@ export default function CategoryFormModal() {
           name_en: nameEn,
           icon,
           color,
-          is_favorite: isFavorite,
         });
       } else {
         addCategory({
@@ -58,7 +56,7 @@ export default function CategoryFormModal() {
           type: "general",
           icon,
           color,
-          is_favorite: isFavorite,
+          is_favorite: false,
           is_default: false,
           is_active: true,
         });
@@ -180,55 +178,6 @@ export default function CategoryFormModal() {
           onChangeEn={setNameEn}
           errorAr={errors.name}
         />
-
-        {/* Favorite Toggle */}
-        <Pressable
-          testID="btn-toggle-favorite"
-          onPress={() => {
-            Haptics.selectionAsync();
-            setIsFavorite(!isFavorite);
-          }}
-          style={{
-            flexDirection: isRTL ? "row-reverse" : "row",
-            alignItems: "center",
-            gap: 12,
-            backgroundColor: theme.card,
-            padding: 16,
-            borderRadius: 14,
-            borderWidth: 1,
-            borderColor: theme.border,
-          }}
-        >
-          <Feather
-            name="star"
-            size={20}
-            color={isFavorite ? "#F59E0B" : theme.textSecondary}
-          />
-          <Text style={{ flex: 1, fontSize: 15, color: theme.text }}>
-            {t.categories.favorite}
-          </Text>
-          <View
-            style={{
-              width: 44,
-              height: 26,
-              borderRadius: 13,
-              backgroundColor: isFavorite ? "#F59E0B" : theme.border,
-              alignItems: "center",
-              justifyContent: "center",
-              paddingHorizontal: 2,
-            }}
-          >
-            <View
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: 11,
-                backgroundColor: "#fff",
-                alignSelf: isFavorite ? "flex-end" : "flex-start",
-              }}
-            />
-          </View>
-        </Pressable>
 
         <AppButton
           title={t.common.save}

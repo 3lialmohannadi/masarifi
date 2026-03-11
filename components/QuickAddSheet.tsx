@@ -86,7 +86,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
 
   const categories = useMemo(
     () =>
-      [...allCategories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
+      [...allCategories],
     [allCategories]
   );
 

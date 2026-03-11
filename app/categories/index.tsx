@@ -16,7 +16,7 @@ export default function CategoriesScreen() {
   const { categories, deleteCategory } = useCategories();
 
   const activeCategories = useMemo(
-    () => [...categories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0)),
+    () => [...categories],
     [categories]
   );
 
@@ -192,9 +192,6 @@ export default function CategoriesScreen() {
                 >
                   {getDisplayName(item, language)}
                 </Text>
-                {item.is_favorite && (
-                  <Feather name="star" size={10} color="#F59E0B" />
-                )}
               </View>
 
               {/* Action row */}

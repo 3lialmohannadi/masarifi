@@ -19,7 +19,6 @@ interface CategoriesContextValue {
   deleteCategory: (id: string) => boolean;
   getCategory: (id?: string) => Category | undefined;
   getCategoriesByType: (type: CategoryType) => Category[];
-  toggleFavorite: (id: string) => void;
   isLoaded: boolean;
 }
 
@@ -85,17 +84,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
 
   const getCategory = (id?: string) => id ? categories.find((c) => c.id === id) : undefined;
 
-  const getCategoriesByType = (_type: CategoryType) =>
-    [...categories].sort((a, b) => (b.is_favorite ? 1 : 0) - (a.is_favorite ? 1 : 0));
-
-  const toggleFavorite = (id: string) => {
-    const updated = categories.map((c) =>
-      c.id === id ? { ...c, is_favorite: !c.is_favorite, updated_at: now() } : c
-    );
-    persist(updated);
-    const record = updated.find((c) => c.id === id);
-    if (record) apiRequest("PATCH", `/api/categories/${id}`, record).catch(console.error);
-  };
+  const getCategoriesByType = (_type: CategoryType) => [...categories];
 
   const value = useMemo(
     () => ({
@@ -105,7 +94,6 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
       deleteCategory,
       getCategory,
       getCategoriesByType,
-      toggleFavorite,
       isLoaded,
     }),
     [categories, categoryIdsInUse, isLoaded]

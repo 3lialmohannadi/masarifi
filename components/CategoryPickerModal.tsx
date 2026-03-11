@@ -186,23 +186,6 @@ export function CategoryPickerModal({
                     }}
                   >
                     <CategoryIcon name={item.icon || "tag"} size={22} color={item.color} />
-                    {item.is_favorite && (
-                      <View
-                        style={{
-                          position: "absolute",
-                          top: -3,
-                          right: -3,
-                          backgroundColor: "#F59E0B",
-                          borderRadius: 6,
-                          width: 12,
-                          height: 12,
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Feather name="star" size={7} color="#fff" />
-                      </View>
-                    )}
                   </View>
                   <Text
                     numberOfLines={2}
