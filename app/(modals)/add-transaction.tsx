@@ -26,6 +26,7 @@ import { formatCurrency } from "@/utils/currency";
 import { todayISOString } from "@/utils/date";
 import { SMART_SUGGESTIONS } from "@/utils/defaults";
 import { DatePickerModal } from "@/components/DatePickerModal";
+import { CategoryPickerModal } from "@/components/CategoryPickerModal";
 import type { TransactionType, Category } from "@/types";
 
 function isValidDate(str: string): boolean {
@@ -60,7 +61,6 @@ export default function AddTransactionModal() {
   const [note, setNote] = useState(existingTx?.note || "");
   const [showAccounts, setShowAccounts] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
-  const [catSearch, setCatSearch] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -630,87 +630,22 @@ export default function AddTransactionModal() {
       </SelectorModal>
 
       {/* ── Category Picker ── */}
-      <SelectorModal
+      <CategoryPickerModal
         visible={showCategories}
-        onClose={() => { setShowCategories(false); setCatSearch(""); }}
-        title={t.transactions.selectCategory}
+        onClose={() => setShowCategories(false)}
+        categories={relevantCategories}
+        selectedId={categoryId}
+        onSelect={(id) => {
+          setCategoryId(id);
+          if (errors.category) setErrors((e) => ({ ...e, category: "" }));
+        }}
         theme={theme}
         insets={insets}
-      >
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, marginHorizontal: 12, marginTop: 8, marginBottom: 4, backgroundColor: theme.background, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12 }}>
-          <Feather name="search" size={15} color={theme.textMuted} />
-          <TextInput
-            value={catSearch}
-            onChangeText={setCatSearch}
-            placeholder={language === "ar" ? "بحث..." : "Search..."}
-            placeholderTextColor={theme.textMuted}
-            style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
-          />
-          {catSearch.length > 0 && (
-            <Pressable onPress={() => setCatSearch("")} hitSlop={6}>
-              <Feather name="x" size={15} color={theme.textMuted} />
-            </Pressable>
-          )}
-        </View>
-        <FlatList
-          data={catSearch.trim() ? relevantCategories.filter((c) => c.name_ar.includes(catSearch) || c.name_en.toLowerCase().includes(catSearch.toLowerCase())) : relevantCategories}
-          keyExtractor={(c) => c.id}
-          numColumns={3}
-          columnWrapperStyle={{ paddingHorizontal: 8, gap: 8, marginVertical: 4 }}
-          contentContainerStyle={{ paddingVertical: 6 }}
-          renderItem={({ item }) => {
-            const isSelected = item.id === categoryId;
-            return (
-              <Pressable
-                onPress={() => {
-                  setCategoryId(item.id);
-                  setShowCategories(false);
-                  setCatSearch("");
-                  if (errors.category) setErrors((e) => ({ ...e, category: "" }));
-                }}
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingVertical: 12,
-                  paddingHorizontal: 6,
-                  backgroundColor: isSelected ? theme.primary + "18" : theme.background,
-                  borderRadius: 14,
-                  borderWidth: isSelected ? 2 : 1,
-                  borderColor: isSelected ? theme.primary : theme.border,
-                  gap: 6,
-                }}
-              >
-                <View style={{ width: 44, height: 44, borderRadius: 13, backgroundColor: `${item.color}22`, alignItems: "center", justifyContent: "center", position: "relative" }}>
-                  <CategoryIcon name={item.icon} size={22} color={item.color} />
-                  {item.is_favorite && (
-                    <View style={{ position: "absolute", top: -3, right: -3, backgroundColor: "#F59E0B", borderRadius: 6, width: 12, height: 12, alignItems: "center", justifyContent: "center" }}>
-                      <Feather name="star" size={7} color="#fff" />
-                    </View>
-                  )}
-                </View>
-                <Text
-                  numberOfLines={2}
-                  style={{
-                    fontSize: 11,
-                    fontWeight: isSelected ? "700" : "500",
-                    color: isSelected ? theme.primary : theme.text,
-                    textAlign: "center",
-                    lineHeight: 14,
-                  }}
-                >
-                  {getDisplayName(item, language)}
-                </Text>
-              </Pressable>
-            );
-          }}
-          ListEmptyComponent={
-            <Text style={{ color: theme.textMuted, textAlign: "center", padding: 20 }}>
-              {t.categories.noCategories}
-            </Text>
-          }
-        />
-      </SelectorModal>
+        language={language}
+        isRTL={isRTL}
+        noDataText={t.categories.noCategories}
+        title={t.transactions.selectCategory}
+      />
 
       <DatePickerModal
         visible={showDatePicker}
