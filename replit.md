@@ -75,6 +75,13 @@ utils/                Utility functions
   translate.ts        MyMemory auto-translation
 ```
 
+## Feature Status (Current)
+- **Plans/Budget**: Permanently removed — no UI, no routes, no translations, no backend endpoints.
+- **Favorites on Categories**: Permanently removed from UI. `is_favorite: false` is still sent to DB on category create (schema unchanged for backward-compat). No star badges, no sorting by favorite, no toggleFavorite function.
+- **Commitments**: Always manual. `recurrence_type` always `"none"`. `is_manual` always `true`. No recurring auto-generation.
+- **CategoryPickerModal**: Unified across all 4 forms (add-transaction, commitment-form, savings-movement, QuickAddSheet). 3-column grid with search.
+- **Splash Screen**: 3-second video splash (assets/videos/splash.mp4, 316KB). `playingChange` event triggers `SplashScreen.hideAsync()`. 5s fallback timeout.
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 

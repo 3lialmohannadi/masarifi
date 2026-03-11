@@ -164,7 +164,6 @@ export const en = {
       savings: "Savings",
       commitment: "Commitment",
     },
-    favorite: "Mark as Favorite",
     noCategories: "No categories",
     addFirstCategory: "Create a custom category to organize transactions",
   },

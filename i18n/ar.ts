@@ -164,7 +164,6 @@ export const ar = {
       savings: "ادخار",
       commitment: "التزام",
     },
-    favorite: "تعليم كمفضلة",
     noCategories: "لا توجد تصنيفات",
     addFirstCategory: "أنشئ تصنيفاً مخصصاً لتنظيم عملياتك",
   },

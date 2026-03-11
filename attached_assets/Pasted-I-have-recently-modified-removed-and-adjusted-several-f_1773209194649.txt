@@ -1,0 +1,306 @@
+I have recently modified, removed, and adjusted several features in the app.
+
+Before releasing the app, I want you to perform a complete pre-release audit of the entire application to ensure the system is stable, consistent, and free of broken logic.
+
+Do not redesign the app and do not add new features.
+
+Your job is to audit, fix, clean, and verify stability.
+
+⸻
+
+1. Global Feature Consistency Audit
+
+Review the entire application and confirm that all recently:
+	•	removed features
+	•	modified features
+	•	simplified features
+
+are applied consistently across the whole app.
+
+Check that no screen, logic, or component still depends on removed features.
+
+If you find leftover logic, remove it safely.
+
+⸻
+
+2. UI Consistency Audit
+
+Inspect all screens and verify:
+	•	no broken layout
+	•	no overlapping elements
+	•	no empty sections caused by removed features
+	•	no buttons pointing to deleted flows
+	•	no text referring to removed functionality
+	•	no unused UI components
+
+Ensure the UI still feels complete and coherent.
+
+⸻
+
+3. Navigation Integrity Audit
+
+Verify that:
+	•	all navigation routes are valid
+	•	no screen routes to removed pages
+	•	no button opens non-existing screens
+	•	back navigation works correctly
+	•	tab navigation works correctly
+	•	no orphan screens remain in navigation
+
+Remove or fix any broken routes.
+
+⸻
+
+4. Business Logic Integrity Audit
+
+Audit all financial logic to confirm the system still behaves correctly.
+
+Verify that:
+	•	account balances update correctly
+	•	expenses subtract from accounts
+	•	income increases accounts
+	•	transfers work correctly
+	•	savings deposit/withdrawal works correctly
+	•	commitments logic works correctly
+	•	allocated money logic works correctly
+	•	real available money calculation is correct
+	•	daily spending limit still calculates correctly
+
+If any calculation still references removed features, update the logic.
+
+⸻
+
+5. Dashboard Verification
+
+Carefully review the dashboard.
+
+Confirm that it correctly displays:
+	•	selected account balance
+	•	allocated money
+	•	real available money
+	•	daily spending limit
+	•	latest transactions
+	•	upcoming commitments
+	•	savings summary
+
+Make sure the dashboard does not reference removed features.
+
+⸻
+
+6. Commitments System Audit
+
+Audit the commitments module.
+
+Verify that:
+	•	creating a commitment works
+	•	editing a commitment works
+	•	paying a commitment works
+	•	paid commitments update status correctly
+	•	allocated money updates correctly
+	•	real available money updates correctly
+
+Ensure that no removed commitment logic remains in the system.
+
+⸻
+
+7. Transactions System Audit
+
+Verify the transaction system completely.
+
+Check that:
+	•	income works correctly
+	•	expense works correctly
+	•	transaction editing works
+	•	transaction deletion works
+	•	transaction history works
+	•	filters work
+	•	search works
+
+Ensure all calculations update correctly.
+
+⸻
+
+8. Savings System Audit
+
+Audit the savings module.
+
+Verify that:
+	•	general savings wallet works
+	•	goal savings wallets work
+	•	deposits work
+	•	withdrawals work
+	•	internal transfers work
+	•	external deposits work
+	•	external withdrawals work
+	•	savings progress bars display correctly
+
+Ensure savings logic is not affected by removed features.
+
+⸻
+
+9. Plans System Audit
+
+Review Plan Mode completely.
+
+Confirm that:
+	•	creating a plan works
+	•	creating plan categories works
+	•	expenses can be linked to plans
+	•	plan budget tracking works
+	•	plan progress calculations are correct
+
+If any removed feature affected plans, fix the logic.
+
+⸻
+
+10. Category System Audit
+
+Verify that the category system works properly.
+
+Check that:
+	•	creating categories works
+	•	editing categories works
+	•	deleting categories works safely
+	•	icon selection works
+	•	color selection works
+	•	categories appear correctly in forms
+
+⸻
+
+11. Forms Validation Audit
+
+Inspect all forms in the app.
+
+Verify that validation rules still apply correctly:
+	•	amount > 0
+	•	required fields are enforced
+	•	account selection required
+	•	category selection required
+	•	dates valid
+	•	bilingual name fields handled correctly
+
+Remove validation rules that refer to removed features.
+
+⸻
+
+12. Data Model Audit
+
+Review the data models and database usage.
+
+Ensure:
+	•	models match the current app logic
+	•	no query depends on removed fields
+	•	no old feature data is still required
+	•	no broken relationships exist
+
+Do not break the database schema, but remove unused logic.
+
+⸻
+
+13. Code Cleanup Audit
+
+Scan the entire codebase and clean it.
+
+Remove:
+	•	dead code
+	•	unused components
+	•	unused imports
+	•	unused screens
+	•	outdated helper functions
+	•	unused hooks
+	•	old logic referencing removed features
+
+Ensure the codebase is clean and maintainable.
+
+⸻
+
+14. Translation Audit
+
+Verify the bilingual system.
+
+Confirm that:
+	•	Arabic and English both work
+	•	removed features are not referenced in translations
+	•	all UI text still matches the current functionality
+	•	name_ar and name_en are handled correctly
+
+⸻
+
+15. Settings Audit
+
+Review the settings screen.
+
+Verify that:
+	•	only valid settings remain
+	•	removed features are not configurable
+	•	settings persist correctly
+	•	language and theme settings work
+
+⸻
+
+16. Performance Audit
+
+Check performance issues.
+
+Ensure that:
+	•	lists use FlatList
+	•	no unnecessary re-renders
+	•	scrolling is smooth
+	•	no heavy logic inside render functions
+
+Optimize where needed.
+
+⸻
+
+17. Edge Case Testing
+
+Test extreme scenarios such as:
+	•	deleting a category in use
+	•	paying a commitment with low balance
+	•	switching accounts quickly
+	•	large number of transactions
+	•	large number of savings wallets
+	•	switching languages repeatedly
+
+Ensure the app does not break.
+
+⸻
+
+18. UX Flow Audit
+
+Simulate a real user flow and confirm everything works logically:
+	1.	create account
+	2.	add income
+	3.	add expense
+	4.	transfer between accounts
+	5.	create savings wallet
+	6.	deposit to savings
+	7.	withdraw from savings
+	8.	create commitment
+	9.	pay commitment
+	10.	check dashboard updates
+
+Confirm no flow is broken.
+
+⸻
+
+19. Build Stability Check
+
+Confirm the project:
+	•	builds successfully
+	•	contains no critical warnings
+	•	contains no runtime errors
+	•	contains no missing dependencies
+
+⸻
+
+20. Final Audit Report
+
+After completing the audit, generate a report summarizing:
+	•	issues found
+	•	fixes applied
+	•	code cleaned
+	•	areas verified
+	•	any remaining risk areas
+
+The goal is to ensure the application is stable, consistent, and ready for release.
