@@ -109,6 +109,7 @@ export async function apiRequest(
   route: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  await ensureAuthenticated();
   const baseUrl = getApiUrl();
   const url = new URL(route, baseUrl);
   const token = await getAuthToken();
@@ -149,6 +150,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    await ensureAuthenticated();
     const baseUrl = getApiUrl();
     const url = new URL(queryKey.join("/") as string, baseUrl);
     const token = await getAuthToken();
