@@ -334,6 +334,7 @@ export const en = {
     hasAccount: "Already have an account?",
     continueWithGoogle: "Continue with Google",
     orContinueWith: "or continue with",
+    googleNotConfigured: "Google Sign-In requires native configuration",
     emailRequired: "Email is required",
     emailInvalid: "Please enter a valid email",
     passwordRequired: "Password is required",

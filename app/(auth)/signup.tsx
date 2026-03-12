@@ -58,9 +58,9 @@ export default function SignupScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       showToast(t.auth.signupSuccess, "success");
       router.replace("/(tabs)");
-    } catch (e: any) {
+    } catch (e: unknown) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      const msg = e?.message || "";
+      const msg = e instanceof Error ? e.message : "";
       if (msg.includes("already") || msg.includes("409")) {
         setErrors({ email: t.auth.emailExists });
       } else {
@@ -218,7 +218,7 @@ export default function SignupScreen() {
         <Pressable
           onPress={() => {
             Haptics.selectionAsync();
-            showToast("Google Sign-In requires native configuration", "info");
+            showToast(t.auth.googleNotConfigured, "info");
           }}
           style={({ pressed }) => ({
             flexDirection: isRTL ? "row-reverse" : "row",

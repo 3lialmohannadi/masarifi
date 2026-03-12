@@ -334,6 +334,7 @@ export const ar = {
     hasAccount: "لديك حساب بالفعل؟",
     continueWithGoogle: "المتابعة مع Google",
     orContinueWith: "أو المتابعة عبر",
+    googleNotConfigured: "تسجيل الدخول عبر Google يتطلب إعداد التطبيق الأصلي",
     emailRequired: "البريد الإلكتروني مطلوب",
     emailInvalid: "الرجاء إدخال بريد إلكتروني صالح",
     passwordRequired: "كلمة المرور مطلوبة",

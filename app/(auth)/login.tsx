@@ -43,9 +43,9 @@ export default function LoginScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       showToast(t.auth.loginSuccess, "success");
       router.replace("/(tabs)");
-    } catch (e: any) {
+    } catch (e: unknown) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      const msg = e?.message || "";
+      const msg = e instanceof Error ? e.message : "";
       if (msg.includes("Invalid") || msg.includes("401")) {
         setErrors({ password: t.auth.invalidCredentials });
       } else {
@@ -184,7 +184,7 @@ export default function LoginScreen() {
         <Pressable
           onPress={() => {
             Haptics.selectionAsync();
-            showToast("Google Sign-In requires native configuration", "info");
+            showToast(t.auth.googleNotConfigured, "info");
           }}
           style={({ pressed }) => ({
             flexDirection: isRTL ? "row-reverse" : "row",

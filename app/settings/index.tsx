@@ -11,6 +11,7 @@ import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useSavings } from "@/store/SavingsContext";
 import { useCommitments } from "@/store/CommitmentsContext";
+import { useCategories } from "@/store/CategoriesContext";
 import { AppInput } from "@/components/ui/AppInput";
 
 const CURRENCIES = [
@@ -76,6 +77,7 @@ export default function SettingsScreen() {
   const { transactions, clearAll: clearTransactions } = useTransactions();
   const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
   const { commitments, clearAll: clearCommitments } = useCommitments();
+  const { clearAll: clearCategories } = useCategories();
 
   const [manualDailyLimit, setManualDailyLimit] = useState(String(settings.manual_daily_limit || ""));
   const [exporting, setExporting] = useState(false);
@@ -179,17 +181,18 @@ export default function SettingsScreen() {
       clearTransactions();
       clearSavings();
       clearCommitments();
+      clearCategories();
       await logout();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       showToast(t.auth.logoutSuccess, "success");
       setShowLogoutConfirm(false);
-      router.replace("/(auth)/welcome");
+      // AuthGate handles navigation to /(auth)/welcome when isLoggedIn becomes false
     } catch {
       showToast(t.toast.error, "error");
     } finally {
       setLoggingOut(false);
     }
-  }, [logout, clearAccounts, clearTransactions, clearSavings, clearCommitments, showToast, t]);
+  }, [logout, clearAccounts, clearTransactions, clearSavings, clearCommitments, clearCategories, showToast, t]);
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
