@@ -13,13 +13,6 @@ export const apiSpec = {
     { url: "/api", description: "API base" },
   ],
   components: {
-    securitySchemes: {
-      bearerAuth: {
-        type: "http",
-        scheme: "bearer",
-        bearerFormat: "JWT",
-      },
-    },
     schemas: {
       Error: {
         type: "object",
@@ -35,13 +28,6 @@ export const apiSpec = {
               },
             },
           },
-        },
-      },
-      AuthResponse: {
-        type: "object",
-        properties: {
-          token: { type: "string" },
-          userId: { type: "string" },
         },
       },
       Account: {
@@ -159,61 +145,7 @@ export const apiSpec = {
       },
     },
   },
-  security: [{ bearerAuth: [] }],
   paths: {
-    "/auth/register": {
-      post: {
-        tags: ["Auth"],
-        summary: "Register a new user",
-        security: [],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["username", "password"],
-                properties: {
-                  username: { type: "string", minLength: 3, maxLength: 50 },
-                  password: { type: "string", minLength: 6, maxLength: 128 },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          "201": { description: "User registered", content: { "application/json": { schema: { $ref: "#/components/schemas/AuthResponse" } } } },
-          "400": { description: "Validation error", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
-          "409": { description: "Username already exists" },
-        },
-      },
-    },
-    "/auth/login": {
-      post: {
-        tags: ["Auth"],
-        summary: "Login with username and password",
-        security: [],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["username", "password"],
-                properties: {
-                  username: { type: "string" },
-                  password: { type: "string" },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          "200": { description: "Login successful", content: { "application/json": { schema: { $ref: "#/components/schemas/AuthResponse" } } } },
-          "401": { description: "Invalid credentials" },
-        },
-      },
-    },
     "/accounts": {
       get: {
         tags: ["Accounts"], summary: "List all accounts",

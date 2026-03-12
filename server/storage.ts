@@ -2,8 +2,6 @@ import { eq, desc, asc, and } from "drizzle-orm";
 import { db } from "./db";
 import * as schema from "@database/schema";
 import type {
-  User,
-  InsertUser,
   Account,
   InsertAccount,
   Category,
@@ -24,14 +22,6 @@ import type {
 // ─── Interface ────────────────────────────────────────────────────────────────
 
 export interface IStorage {
-  // Users
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByGoogleId(googleId: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  updateUser(id: string, data: Partial<User>): Promise<User>;
-
   // Settings
   getSettings(userId?: string): Promise<Settings | undefined>;
   upsertSettings(data: Partial<Settings>): Promise<Settings>;
@@ -90,42 +80,6 @@ export interface IStorage {
 // ─── Database Storage ─────────────────────────────────────────────────────────
 
 export class DatabaseStorage implements IStorage {
-
-  // ── Users ──────────────────────────────────────────────────────────────────
-
-  async getUser(id: string): Promise<User | undefined> {
-    const [row] = await db.select().from(schema.users).where(eq(schema.users.id, id));
-    return row;
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [row] = await db.select().from(schema.users).where(eq(schema.users.username, username));
-    return row;
-  }
-
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const [row] = await db.select().from(schema.users).where(eq(schema.users.email, email));
-    return row;
-  }
-
-  async getUserByGoogleId(googleId: string): Promise<User | undefined> {
-    const [row] = await db.select().from(schema.users).where(eq(schema.users.google_id, googleId));
-    return row;
-  }
-
-  async createUser(data: InsertUser): Promise<User> {
-    const [row] = await db.insert(schema.users).values(data).returning();
-    return row;
-  }
-
-  async updateUser(id: string, data: Partial<User>): Promise<User> {
-    const [row] = await db
-      .update(schema.users)
-      .set({ ...data, updated_at: new Date() })
-      .where(eq(schema.users.id, id))
-      .returning();
-    return row;
-  }
 
   // ── Settings ───────────────────────────────────────────────────────────────
 
