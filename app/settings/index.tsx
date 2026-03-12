@@ -6,6 +6,7 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
+import { useAuth } from "@/store/AuthContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useSavings } from "@/store/SavingsContext";
@@ -70,6 +71,7 @@ function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, setLanguage, themeMode, setThemeMode, settings, updateSettings, isRTL, showToast } = useApp();
+  const { user, logout } = useAuth();
   const { accounts, clearAll: clearAccounts } = useAccounts();
   const { transactions, clearAll: clearTransactions } = useTransactions();
   const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
@@ -82,6 +84,8 @@ export default function SettingsScreen() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetDone, setResetDone] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const LANG_OPTIONS = [
     { code: "ar" as const, label: "العربية" },
@@ -167,6 +171,21 @@ export default function SettingsScreen() {
     }
   }, [clearAccounts, clearTransactions, clearSavings, clearCommitments, showToast, t.toast.error]);
 
+  const handleLogout = useCallback(async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      showToast(t.auth.logoutSuccess, "success");
+      setShowLogoutConfirm(false);
+      router.replace("/(auth)/welcome");
+    } catch {
+      showToast(t.toast.error, "error");
+    } finally {
+      setLoggingOut(false);
+    }
+  }, [logout, showToast, t]);
+
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
   const defaultCurr = settings.default_currency || "QAR";
@@ -203,6 +222,42 @@ export default function SettingsScreen() {
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
       >
+        {/* ── Profile ── */}
+        {user && (
+          <>
+            <SectionLabel title={t.profile.title} />
+            <Pressable
+              onPress={() => { Haptics.selectionAsync(); router.push("/settings/profile"); }}
+              style={({ pressed }) => ({
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 14,
+                padding: 14,
+                backgroundColor: pressed ? theme.cardSecondary : theme.card,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: theme.border,
+                marginBottom: 8,
+              })}
+            >
+              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: theme.primary, alignItems: "center", justifyContent: "center" }}>
+                <Text style={{ fontSize: 20, fontWeight: "700", color: "#fff" }}>
+                  {(user.full_name || user.email || "U").charAt(0).toUpperCase()}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                  {user.full_name || "—"}
+                </Text>
+                <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                  {user.email || "—"}
+                </Text>
+              </View>
+              <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.border} />
+            </Pressable>
+          </>
+        )}
+
         {/* ── Language ── */}
         <SectionLabel title={t.settings.language} />
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10, marginBottom: 8 }}>
@@ -527,6 +582,40 @@ export default function SettingsScreen() {
           />
         </View>
 
+        {/* ── Logout ── */}
+        {user && (
+          <>
+            <SectionLabel title={t.auth.logout} />
+            <Pressable
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                setShowLogoutConfirm(true);
+              }}
+              style={({ pressed }) => ({
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 14,
+                padding: 14,
+                borderRadius: 16,
+                backgroundColor: pressed ? theme.cardSecondary : theme.card,
+                borderWidth: 1,
+                borderColor: theme.border,
+                marginBottom: 8,
+              })}
+            >
+              <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="log-out" size={18} color="#EF4444" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: "600", color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>
+                  {t.auth.logout}
+                </Text>
+              </View>
+              <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color="#EF444460" />
+            </Pressable>
+          </>
+        )}
+
         {/* ── App Info ── */}
         <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, alignItems: "center", gap: 8, borderWidth: 1, borderColor: theme.border, marginTop: 8 }}>
           <Image
@@ -614,6 +703,79 @@ export default function SettingsScreen() {
                 ) : (
                   <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>
                     {t.settings.resetConfirm}
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* ── Logout Confirmation Modal ── */}
+      <Modal visible={showLogoutConfirm} transparent animationType="fade">
+        <Pressable
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.65)", justifyContent: "center", padding: 24 }}
+          onPress={() => !loggingOut && setShowLogoutConfirm(false)}
+        >
+          <Pressable
+            style={{
+              backgroundColor: theme.card,
+              borderRadius: 22,
+              padding: 24,
+              gap: 16,
+              borderWidth: 1.5,
+              borderColor: theme.border,
+            }}
+            onPress={() => {}}
+          >
+            <View style={{ alignItems: "center", gap: 8 }}>
+              <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: "#EF444420", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="log-out" size={30} color="#EF4444" />
+              </View>
+              <Text style={{ fontSize: 20, fontWeight: "800", color: theme.text, textAlign: "center" }}>
+                {t.auth.logout}
+              </Text>
+            </View>
+
+            <Text style={{ fontSize: 14, color: theme.textSecondary, textAlign: "center", lineHeight: 22 }}>
+              {t.auth.logoutConfirm}
+            </Text>
+
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+              <Pressable
+                onPress={() => setShowLogoutConfirm(false)}
+                disabled={loggingOut}
+                style={({ pressed }) => ({
+                  flex: 1,
+                  padding: 14,
+                  borderRadius: 12,
+                  alignItems: "center",
+                  backgroundColor: pressed ? theme.cardSecondary : theme.cardSecondary,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                })}
+              >
+                <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text }}>
+                  {language === "ar" ? "إلغاء" : "Cancel"}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleLogout}
+                disabled={loggingOut}
+                style={({ pressed }) => ({
+                  flex: 1,
+                  padding: 14,
+                  borderRadius: 12,
+                  alignItems: "center",
+                  backgroundColor: loggingOut ? "#EF444460" : pressed ? "#DC2626" : "#EF4444",
+                })}
+              >
+                {loggingOut ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>
+                    {t.auth.logout}
                   </Text>
                 )}
               </Pressable>

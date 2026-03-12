@@ -1,8 +1,10 @@
 import { fetch } from "expo/fetch";
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { UserProfile } from "@/types";
 
 const AUTH_TOKEN_KEY = "@masarifi/auth_token";
+const USER_PROFILE_KEY = "@masarifi/user_profile";
 
 /** Store the auth token after login/register */
 export async function setAuthToken(token: string): Promise<void> {
@@ -17,76 +19,56 @@ export async function getAuthToken(): Promise<string | null> {
 /** Clear the auth token on logout */
 export async function clearAuthToken(): Promise<void> {
   await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+  await AsyncStorage.removeItem(USER_PROFILE_KEY);
+}
+
+/** Store the user profile */
+export async function setUserProfile(profile: UserProfile): Promise<void> {
+  await AsyncStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
+}
+
+/** Retrieve the stored user profile */
+export async function getUserProfile(): Promise<UserProfile | null> {
+  const raw = await AsyncStorage.getItem(USER_PROFILE_KEY);
+  if (!raw) return null;
+  return JSON.parse(raw);
 }
 
 /**
- * Ensure the app is authenticated.
- * If no token is stored, auto-login as the default user.
- * If login fails (user doesn't exist yet), auto-register first.
+ * Check if user has a stored auth token (is logged in).
  */
-let authPromise: Promise<void> | null = null;
-export function ensureAuthenticated(): Promise<void> {
-  if (!authPromise) {
-    authPromise = doEnsureAuth();
-  }
-  return authPromise;
+export async function isAuthenticated(): Promise<boolean> {
+  const token = await getAuthToken();
+  return !!token;
 }
 
-/** Clear cached auth state so the next ensureAuthenticated() re-authenticates */
+/** Clear cached auth state so the next ensureAuthenticated() re-checks */
 export function resetAuth(): void {
-  authPromise = null;
+  // No-op: auth is now managed by AuthContext
 }
 
-async function doEnsureAuth(): Promise<void> {
-  const existing = await getAuthToken();
-  if (existing) return;
-
-  await performLogin();
+/** Backwards-compatible: resolves immediately if token exists */
+export async function ensureAuthenticated(): Promise<void> {
+  const token = await getAuthToken();
+  if (!token) {
+    throw new Error("Not authenticated");
+  }
 }
 
-async function performLogin(): Promise<void> {
+/** Auth API calls that don't require a token */
+export async function authApiRequest(
+  method: string,
+  route: string,
+  data?: unknown,
+): Promise<Response> {
   const baseUrl = getApiUrl();
-  const credentials = { username: "default", password: "default" };
+  const url = new URL(route, baseUrl);
 
-  // Try login first
-  const loginUrl = new URL("/api/auth/login", baseUrl).toString();
-  let res = await fetch(loginUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
+  return fetch(url.toString(), {
+    method,
+    headers: data ? { "Content-Type": "application/json" } : {},
+    body: data ? JSON.stringify(data) : undefined,
   });
-
-  if (res.ok) {
-    const data = await res.json();
-    if (data.token) {
-      await setAuthToken(data.token);
-      return;
-    }
-  }
-
-  const loginStatus = res.status;
-  const loginBody = await res.text().catch(() => "");
-  console.warn(`[Auth] login failed (${loginStatus}): ${loginBody}`);
-
-  // If login fails, try register
-  const registerUrl = new URL("/api/auth/register", baseUrl).toString();
-  res = await fetch(registerUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
-  });
-
-  if (res.ok) {
-    const data = await res.json();
-    if (data.token) {
-      await setAuthToken(data.token);
-      return;
-    }
-  }
-
-  const regStatus = res.status;
-  const regBody = await res.text().catch(() => "");
-  console.error(`[Auth] register also failed (${regStatus}): ${regBody}. Authentication unavailable.`);
 }
 
 export function getApiUrl(): string {
@@ -135,7 +117,6 @@ export async function apiRequest(
   route: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  await ensureAuthenticated();
   const baseUrl = getApiUrl();
   const url = new URL(route, baseUrl);
 
@@ -154,23 +135,10 @@ export async function apiRequest(
   }
 
   let lastError: unknown;
-  let didRetryAuth = false;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const res = await doFetch();
-
-      // If 401 and haven't retried auth yet, re-authenticate and retry once
-      if (res.status === 401 && !didRetryAuth) {
-        didRetryAuth = true;
-        await clearAuthToken();
-        resetAuth();
-        await ensureAuthenticated();
-        const retryRes = await doFetch();
-        await throwIfResNotOk(retryRes);
-        return retryRes;
-      }
-
       await throwIfResNotOk(res);
       return res;
     } catch (error) {
@@ -192,26 +160,14 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    await ensureAuthenticated();
     const baseUrl = getApiUrl();
     const url = new URL(queryKey.join("/") as string, baseUrl);
 
-    async function doFetch(): Promise<Response> {
-      const token = await getAuthToken();
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-      return fetch(url.toString(), { credentials: "include", headers });
-    }
+    const token = await getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    let res = await doFetch();
-
-    // If 401 and token might be stale, re-authenticate and retry
-    if (res.status === 401) {
-      await clearAuthToken();
-      resetAuth();
-      await ensureAuthenticated();
-      res = await doFetch();
-    }
+    const res = await fetch(url.toString(), { credentials: "include", headers });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;

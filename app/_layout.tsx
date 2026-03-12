@@ -6,7 +6,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -18,6 +18,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toast } from "@/components/Toast";
 import { queryClient } from "@/services/api";
 import { AppProvider, useApp } from "@/store/AppContext";
+import { AuthProvider, useAuth } from "@/store/AuthContext";
 import { AccountsProvider } from "@/store/AccountsContext";
 import { TransactionsProvider } from "@/store/TransactionsContext";
 import { CategoriesProvider } from "@/store/CategoriesContext";
@@ -28,7 +29,9 @@ SplashScreen.preventAutoHideAsync();
 
 function AppLoadingGate({ children }: { children: React.ReactNode }) {
   const { isLoaded, isDark } = useApp();
-  if (!isLoaded) {
+  const { isAuthLoading } = useAuth();
+
+  if (!isLoaded || isAuthLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: "#0F1E1C", alignItems: "center", justifyContent: "center" }}>
         <StatusBar style="light" />
@@ -48,65 +51,88 @@ function AppLoadingGate({ children }: { children: React.ReactNode }) {
 function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AppProvider>
-      <AccountsProvider>
-        <TransactionsProvider>
-          <CategoriesProvider>
-            <SavingsProvider>
-              <CommitmentsProvider>
-                {children}
-              </CommitmentsProvider>
-            </SavingsProvider>
-          </CategoriesProvider>
-        </TransactionsProvider>
-      </AccountsProvider>
+      <AuthProvider>
+        <AccountsProvider>
+          <TransactionsProvider>
+            <CategoriesProvider>
+              <SavingsProvider>
+                <CommitmentsProvider>
+                  {children}
+                </CommitmentsProvider>
+              </SavingsProvider>
+            </CategoriesProvider>
+          </TransactionsProvider>
+        </AccountsProvider>
+      </AuthProvider>
     </AppProvider>
   );
 }
 
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { isLoggedIn } = useAuth();
+  const hasNavigated = useRef(false);
+
+  useEffect(() => {
+    if (!hasNavigated.current) {
+      hasNavigated.current = true;
+      if (!isLoggedIn) {
+        router.replace("/(auth)/welcome");
+      }
+    }
+  }, [isLoggedIn]);
+
+  return <>{children}</>;
+}
+
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="(modals)/add-transaction"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/account-form"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/category-form"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/saving-wallet-form"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/commitment-form"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/transfer-form"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/transfer-detail"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen
-        name="(modals)/savings-movement"
-        options={{ presentation: "modal", headerShown: false }}
-      />
-      <Stack.Screen name="accounts/list" options={{ headerShown: false }} />
-      <Stack.Screen name="accounts/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="savings/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="commitments/index" options={{ headerShown: false }} />
-      <Stack.Screen name="commitments/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="settings/index" options={{ headerShown: false }} />
-      <Stack.Screen name="categories/index" options={{ headerShown: false }} />
-    </Stack>
+    <AuthGate>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(modals)/add-transaction"
+          options={{ presentation: "modal", headerShown: false }}
+        />
+        <Stack.Screen
+          name="(modals)/account-form"
+          options={{ presentation: "modal", headerShown: false }}
+        />
+        <Stack.Screen
+          name="(modals)/category-form"
+          options={{ presentation: "modal", headerShown: false }}
+        />
+        <Stack.Screen
+          name="(modals)/saving-wallet-form"
+          options={{ presentation: "modal", headerShown: false }}
+        />
+        <Stack.Screen
+          name="(modals)/commitment-form"
+          options={{ presentation: "modal", headerShown: false }}
+        />
+        <Stack.Screen
+          name="(modals)/transfer-form"
+          options={{ presentation: "modal", headerShown: false }}
+        />
+        <Stack.Screen
+          name="(modals)/transfer-detail"
+          options={{ presentation: "modal", headerShown: false }}
+        />
+        <Stack.Screen
+          name="(modals)/savings-movement"
+          options={{ presentation: "modal", headerShown: false }}
+        />
+        <Stack.Screen name="accounts/list" options={{ headerShown: false }} />
+        <Stack.Screen name="accounts/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="savings/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="commitments/index" options={{ headerShown: false }} />
+        <Stack.Screen name="commitments/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="settings/index" options={{ headerShown: false }} />
+        <Stack.Screen name="settings/profile" options={{ headerShown: false }} />
+        <Stack.Screen name="settings/edit-profile" options={{ headerShown: false }} />
+        <Stack.Screen name="categories/index" options={{ headerShown: false }} />
+      </Stack>
+    </AuthGate>
   );
 }
 
