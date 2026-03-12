@@ -109,7 +109,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
 
   const getCategory = (id?: string) => id ? categories.find((c) => c.id === id) : undefined;
 
-  const getCategoriesByType = (_type: CategoryType) => [...categories];
+  const getCategoriesByType = (type: CategoryType) => categories.filter((c) => c.type === type);
 
   const value = useMemo(
     () => ({
