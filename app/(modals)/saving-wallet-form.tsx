@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, Alert, Switch, Platform } from "react-native";
+import { View, Text, Pressable, Alert, Platform } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";

@@ -46,7 +46,7 @@ function ToastBanner({ toast, onDismiss }: ToastProps) {
       translateY.setValue(-100);
       opacity.setValue(0);
     };
-  }, [toast.id]);
+  }, [toast.id, opacity, translateY]);
 
   const bgColor = BG_COLORS[toast.type] ?? BG_COLORS.info;
   const iconName = ICONS[toast.type] ?? ICONS.info;

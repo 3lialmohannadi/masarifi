@@ -127,7 +127,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
       clearAll,
       isLoaded,
     }),
-    [categories, categoryIdsInUse, isLoaded]
+    [categories, categoryIdsInUse, isLoaded] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return <CategoriesContext.Provider value={value}>{children}</CategoriesContext.Provider>;

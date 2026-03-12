@@ -15,7 +15,7 @@ import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollV
 
 export default function CategoryFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL, showToast } = useApp();
+  const { theme, t, isRTL, showToast } = useApp();
   const { categories, addCategory, updateCategory, deleteCategory } = useCategories();
   const params = useLocalSearchParams<{ id?: string }>();
 

@@ -22,7 +22,6 @@ interface DatePickerModalProps {
 }
 
 const DAYS_AR = ["أحد", "اثن", "ثلا", "أرب", "خمي", "جمع", "سبت"];
-const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const MONTHS_AR = [
   "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",

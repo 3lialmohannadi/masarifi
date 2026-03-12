@@ -11,7 +11,6 @@ import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { createDefaultSavingsWallet } from "@/utils/defaults";
 import { apiRequest } from "@/services/api";
-import { createSyncFn } from "@/utils/syncHelper";
 
 interface SavingsContextValue {
   wallets: SavingsWallet[];
@@ -33,7 +32,6 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
   const [wallets, setWallets] = useState<SavingsWallet[]>([]);
   const [savingsTransactions, setSavingsTransactions] = useState<SavingsTransaction[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const sync = createSyncFn();
 
   useEffect(() => {
     async function hydrate() {
@@ -199,7 +197,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
       clearAll,
       isLoaded,
     }),
-    [wallets, savingsTransactions, totalSavings, isLoaded]
+    [wallets, savingsTransactions, totalSavings, isLoaded] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return <SavingsContext.Provider value={value}>{children}</SavingsContext.Provider>;

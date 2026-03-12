@@ -5,8 +5,9 @@ import { db } from "./db";
 import * as schema from "@database/schema";
 import { eq, and } from "drizzle-orm";
 import { z, ZodError } from "zod";
-const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 import { apiSpec } from "./api-docs";
+
+const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 type AccountRow = typeof schema.accounts.$inferSelect;
 type TransactionRow = typeof schema.transactions.$inferSelect;

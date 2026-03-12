@@ -101,7 +101,7 @@ export default function SettingsScreen() {
   const saveManualLimit = useCallback(() => {
     const val = parseFloat(manualDailyLimit);
     if (!isNaN(val) && val >= 0) updateSettings({ manual_daily_limit: val });
-  }, [manualDailyLimit]);
+  }, [manualDailyLimit, updateSettings]);
 
   const handleExport = useCallback(async () => {
     setExporting(true);

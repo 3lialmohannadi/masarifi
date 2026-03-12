@@ -12,7 +12,6 @@ import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { isReservedOn28th, isPastDate, isToday } from "@/utils/date";
 import { apiRequest } from "@/services/api";
-import { createSyncFn } from "@/utils/syncHelper";
 
 interface CommitmentsContextValue {
   commitments: Commitment[];
@@ -49,7 +48,6 @@ function refreshCommitmentStatuses(list: Commitment[]): Commitment[] {
 export function CommitmentsProvider({ children }: { children: ReactNode }) {
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const sync = createSyncFn();
 
   useEffect(() => {
     async function hydrate() {
@@ -213,7 +211,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       clearAll,
       isLoaded,
     }),
-    [commitments, isLoaded, allocatedMoneyForAccount, reservedMoneyForDailyLimit, upcomingCommitments]
+    [commitments, isLoaded, allocatedMoneyForAccount, reservedMoneyForDailyLimit, upcomingCommitments] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return <CommitmentsContext.Provider value={value}>{children}</CommitmentsContext.Provider>;

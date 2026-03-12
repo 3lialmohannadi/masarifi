@@ -100,7 +100,7 @@ export default function AddTransactionModal() {
     const found = key ? relevantCategories.find((c) => c.id === key) : null;
     if (found) setCategoryId(found.id);
     categoryInitialized.current = true;
-  }, [relevantCategories]);
+  }, [relevantCategories]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};

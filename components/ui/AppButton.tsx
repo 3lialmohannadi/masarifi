@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, Text, ActivityIndicator, StyleSheet, ViewStyle } from "react-native";
+import { Pressable, Text, ActivityIndicator, ViewStyle } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 

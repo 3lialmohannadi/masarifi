@@ -9,7 +9,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useColorScheme } from "react-native";
-import type { Language, ThemeMode, DailyLimitMode, AppSettings } from "@/types";
+import type { Language, ThemeMode, AppSettings } from "@/types";
 import { LightTheme, DarkTheme, type Theme } from "@/theme/colors";
 import { getTranslations, type TranslationKeys } from "@/i18n";
 import { loadData, saveData, KEYS } from "@/utils/storage";
@@ -124,7 +124,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast,
       hideToast,
     }),
-    [settings, theme, isDark, t, isRTL, isLoaded, toast, showToast, hideToast]
+    [settings, theme, isDark, t, isRTL, isLoaded, toast, showToast, hideToast] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

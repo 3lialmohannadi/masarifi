@@ -80,7 +80,7 @@ export default function TransactionsTab() {
       const dateB = b.kind === "tx" ? b.tx.date : b.transfer.date;
       return new Date(dateB).getTime() - new Date(dateA).getTime();
     });
-  }, [transactions, transfers, filter, debouncedSearch, selectedAccountId, language]);
+  }, [transactions, transfers, filter, debouncedSearch, selectedAccountId, language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const listData = useMemo<ListItem[]>(() => {
     const items: ListItem[] = [];

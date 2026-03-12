@@ -176,7 +176,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       clearAll,
       isLoaded,
     }),
-    [transactions, transfers, isLoaded]
+    [transactions, transfers, isLoaded] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return <TransactionsContext.Provider value={value}>{children}</TransactionsContext.Provider>;

@@ -232,7 +232,7 @@ export default function StatisticsTab() {
       color: category?.color || theme.expense,
       label: category ? getDisplayName(category, language) : id,
     })),
-    [categorySpending, language]
+    [categorySpending, language, theme.expense]
   );
 
   // Last 6 months data (for bar + line charts)

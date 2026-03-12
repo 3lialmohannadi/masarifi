@@ -126,7 +126,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({ accounts, addAccount, updateAccount, deleteAccount, getAccount, updateBalance, clearAll, isLoaded, syncError }),
-    [accounts, isLoaded, syncError]
+    [accounts, isLoaded, syncError] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return <AccountsContext.Provider value={value}>{children}</AccountsContext.Provider>;
