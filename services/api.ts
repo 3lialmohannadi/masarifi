@@ -1,4 +1,5 @@
 import { fetch } from "expo/fetch";
+import { Platform } from "react-native";
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { UserProfile } from "@/types";
@@ -72,13 +73,18 @@ export async function authApiRequest(
 }
 
 export function getApiUrl(): string {
+  // On web, use the current page origin so API calls go to the same server
+  if (Platform.OS === "web" && typeof window !== "undefined" && window.location) {
+    return window.location.origin + "/";
+  }
+
+  // On mobile (iOS/Android), use the configured domain
   let host = process.env.EXPO_PUBLIC_DOMAIN;
 
   if (!host) {
     throw new Error("EXPO_PUBLIC_DOMAIN is not set");
   }
 
-  // Use http for localhost, https for everything else
   const protocol = host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https";
   let url = new URL(`${protocol}://${host}`);
 
