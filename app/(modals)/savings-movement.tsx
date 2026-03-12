@@ -520,7 +520,7 @@ export default function SavingsMovementModal() {
                 fontWeight: "700",
                 color: actionColor,
                 textAlign: "center",
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
               }}
             />
           </View>
@@ -558,7 +558,7 @@ export default function SavingsMovementModal() {
                 color: theme.text,
                 fontSize: 14,
                 textAlign: isRTL ? "right" : "left",
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
               }}
             />
           </View>

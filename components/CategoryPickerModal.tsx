@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
-import type { Category } from "@/types";
+import type { Category, Language } from "@/types";
 import type { Theme } from "@/theme/colors";
 import { getDisplayName } from "@/utils/display";
 
@@ -22,7 +22,7 @@ interface Props {
   onSelect: (id: string) => void;
   theme: Theme;
   insets: { bottom: number };
-  language: string;
+  language: Language;
   isRTL: boolean;
   noDataText: string;
   title: string;
@@ -138,7 +138,7 @@ export function CategoryPickerModal({
                 color: theme.text,
                 fontSize: 14,
                 textAlign: isRTL ? "right" : "left",
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
               }}
             />
             {search.length > 0 && (

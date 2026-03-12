@@ -181,7 +181,7 @@ export default function CommitmentFormModal() {
                 fontSize: 15,
                 color: theme.text,
                 textAlign: "right",
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
               }}
             />
             <TextInput
@@ -198,7 +198,7 @@ export default function CommitmentFormModal() {
                 paddingVertical: 13,
                 fontSize: 15,
                 color: theme.text,
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
               }}
             />
           </View>
@@ -227,7 +227,7 @@ export default function CommitmentFormModal() {
               fontWeight: "700",
               color: theme.expense,
               textAlign: "center",
-              ...Platform.select({ web: { outlineStyle: "none" } } as any),
+              ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
             }}
           />
           {!!errors.amount && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.amount}</Text>}
@@ -352,7 +352,7 @@ export default function CommitmentFormModal() {
               textAlign: isRTL ? "right" : "left",
               minHeight: 80,
               textAlignVertical: "top",
-              ...Platform.select({ web: { outlineStyle: "none" } } as any),
+              ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
             }}
           />
         </View>

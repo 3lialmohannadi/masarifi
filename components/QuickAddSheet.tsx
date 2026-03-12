@@ -203,7 +203,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
           onChangeText={setCategorySearch}
           placeholder={language === "ar" ? "بحث..." : "Search..."}
           placeholderTextColor={theme.textMuted}
-          style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
+          style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
         />
         {categorySearch.length > 0 && (
           <Pressable onPress={() => setCategorySearch("")} hitSlop={6}>
@@ -371,7 +371,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               keyboardType="decimal-pad"
               placeholder="0.00"
               placeholderTextColor={theme.textMuted}
-              style={{ fontSize: 44, fontWeight: "800", color: typeColor, textAlign: "center", minWidth: 120, ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
+              style={{ fontSize: 44, fontWeight: "800", color: typeColor, textAlign: "center", minWidth: 120, ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
             />
             {selectedAccount && (
               <Text style={{ fontSize: 14, color: theme.textMuted, alignSelf: "flex-end", paddingBottom: 8 }}>
@@ -478,7 +478,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               onChangeText={setNote}
               placeholder={language === "ar" ? "ملاحظة... (ستاربكس، أوبر، ...)" : "Note... (starbucks, uber, ...)"}
               placeholderTextColor={theme.textMuted}
-              style={{ flex: 1, paddingVertical: 11, color: theme.text, fontSize: 13, textAlign: isRTL ? "right" : "left", ...Platform.select({ web: { outlineStyle: "none" } } as any) }}
+              style={{ flex: 1, paddingVertical: 11, color: theme.text, fontSize: 13, textAlign: isRTL ? "right" : "left", ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
             />
           </View>
 
