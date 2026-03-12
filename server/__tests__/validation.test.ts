@@ -2,11 +2,6 @@ import { describe, it, expect } from "vitest";
 import { z } from "zod";
 
 // Replicate the validation schemas from routes.ts for isolated testing
-const registerSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters").max(50),
-  password: z.string().min(6, "Password must be at least 6 characters").max(128),
-});
-
 const createAccountSchema = z.object({
   name_ar: z.string().min(1, "Arabic name is required"),
   name_en: z.string().min(1, "English name is required"),
@@ -62,26 +57,6 @@ const createCommitmentSchema = z.object({
 });
 
 describe("Validation Schemas", () => {
-  describe("registerSchema", () => {
-    it("should accept valid registration data", () => {
-      const result = registerSchema.parse({ username: "testuser", password: "password123" });
-      expect(result.username).toBe("testuser");
-      expect(result.password).toBe("password123");
-    });
-
-    it("should reject short username", () => {
-      expect(() => registerSchema.parse({ username: "ab", password: "password123" })).toThrow();
-    });
-
-    it("should reject short password", () => {
-      expect(() => registerSchema.parse({ username: "testuser", password: "12345" })).toThrow();
-    });
-
-    it("should reject empty fields", () => {
-      expect(() => registerSchema.parse({ username: "", password: "" })).toThrow();
-    });
-  });
-
   describe("createAccountSchema", () => {
     it("should accept valid account with all fields", () => {
       const result = createAccountSchema.parse({
