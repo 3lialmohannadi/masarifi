@@ -86,13 +86,13 @@ export const dailyLimitModeEnum = pgEnum("daily_limit_mode", [
 
 // ─── Tables ───────────────────────────────────────────────────────────────────
 
-// 1. users (minimal — single default user, no auth)
+// 1. users (single default user — kept for FK references only)
 export const users = pgTable("users", {
   id: varchar("id", { length: 36 })
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  password: text("password").notNull(), // DB legacy column (NOT NULL), unused
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -384,34 +384,7 @@ export const budgets = pgTable("budgets", {
 
 // ─── Relations ────────────────────────────────────────────────────────────────
 
-export const usersRelations = relations(users, ({ one, many }) => ({
-  settings: one(settings, {
-    fields: [users.id],
-    references: [settings.user_id],
-  }),
-  accounts: many(accounts),
-  categories: many(categories),
-  transactions: many(transactions),
-  transfers: many(transfers),
-  savingsWallets: many(savingsWallets),
-  savingsTransactions: many(savingsTransactions),
-  plans: many(plans),
-  commitments: many(commitments),
-  budgets: many(budgets),
-}));
-
-export const settingsRelations = relations(settings, ({ one }) => ({
-  user: one(users, {
-    fields: [settings.user_id],
-    references: [users.id],
-  }),
-}));
-
-export const accountsRelations = relations(accounts, ({ one, many }) => ({
-  user: one(users, {
-    fields: [accounts.user_id],
-    references: [users.id],
-  }),
+export const accountsRelations = relations(accounts, ({ many }) => ({
   transactions: many(transactions),
   sourceTransfers: many(transfers, { relationName: "source" }),
   destinationTransfers: many(transfers, { relationName: "destination" }),
@@ -419,21 +392,13 @@ export const accountsRelations = relations(accounts, ({ one, many }) => ({
   savingsTransactions: many(savingsTransactions),
 }));
 
-export const categoriesRelations = relations(categories, ({ one, many }) => ({
-  user: one(users, {
-    fields: [categories.user_id],
-    references: [users.id],
-  }),
+export const categoriesRelations = relations(categories, ({ many }) => ({
   transactions: many(transactions),
   commitments: many(commitments),
   budgets: many(budgets),
 }));
 
 export const transactionsRelations = relations(transactions, ({ one }) => ({
-  user: one(users, {
-    fields: [transactions.user_id],
-    references: [users.id],
-  }),
   account: one(accounts, {
     fields: [transactions.account_id],
     references: [accounts.id],
@@ -461,10 +426,6 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 }));
 
 export const transfersRelations = relations(transfers, ({ one }) => ({
-  user: one(users, {
-    fields: [transfers.user_id],
-    references: [users.id],
-  }),
   sourceAccount: one(accounts, {
     fields: [transfers.source_account_id],
     references: [accounts.id],
@@ -479,11 +440,7 @@ export const transfersRelations = relations(transfers, ({ one }) => ({
 
 export const savingsWalletsRelations = relations(
   savingsWallets,
-  ({ one, many }) => ({
-    user: one(users, {
-      fields: [savingsWallets.user_id],
-      references: [users.id],
-    }),
+  ({ many }) => ({
     savingsTransactions: many(savingsTransactions),
     linkedTransactions: many(transactions),
   })
@@ -492,10 +449,6 @@ export const savingsWalletsRelations = relations(
 export const savingsTransactionsRelations = relations(
   savingsTransactions,
   ({ one }) => ({
-    user: one(users, {
-      fields: [savingsTransactions.user_id],
-      references: [users.id],
-    }),
     wallet: one(savingsWallets, {
       fields: [savingsTransactions.wallet_id],
       references: [savingsWallets.id],
@@ -507,11 +460,7 @@ export const savingsTransactionsRelations = relations(
   })
 );
 
-export const plansRelations = relations(plans, ({ one, many }) => ({
-  user: one(users, {
-    fields: [plans.user_id],
-    references: [users.id],
-  }),
+export const plansRelations = relations(plans, ({ many }) => ({
   planCategories: many(planCategories),
   linkedTransactions: many(transactions),
 }));
@@ -525,10 +474,6 @@ export const planCategoriesRelations = relations(planCategories, ({ one, many })
 }));
 
 export const commitmentsRelations = relations(commitments, ({ one, many }) => ({
-  user: one(users, {
-    fields: [commitments.user_id],
-    references: [users.id],
-  }),
   account: one(accounts, {
     fields: [commitments.account_id],
     references: [accounts.id],
@@ -547,10 +492,6 @@ export const commitmentsRelations = relations(commitments, ({ one, many }) => ({
 }));
 
 export const budgetsRelations = relations(budgets, ({ one }) => ({
-  user: one(users, {
-    fields: [budgets.user_id],
-    references: [users.id],
-  }),
   category: one(categories, {
     fields: [budgets.category_id],
     references: [categories.id],

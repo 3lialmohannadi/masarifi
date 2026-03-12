@@ -57,7 +57,6 @@ __export(schema_exports, {
   savingsWallets: () => savingsWallets,
   savingsWalletsRelations: () => savingsWalletsRelations,
   settings: () => settings,
-  settingsRelations: () => settingsRelations,
   themeEnum: () => themeEnum,
   transactionTypeEnum: () => transactionTypeEnum,
   transactions: () => transactions,
@@ -65,8 +64,7 @@ __export(schema_exports, {
   transfers: () => transfers,
   transfersRelations: () => transfersRelations,
   updateSettingsSchema: () => updateSettingsSchema,
-  users: () => users,
-  usersRelations: () => usersRelations
+  users: () => users
 });
 import { sql, relations } from "drizzle-orm";
 import {
@@ -365,52 +363,19 @@ var budgets = pgTable("budgets", {
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull()
 });
-var usersRelations = relations(users, ({ one, many }) => ({
-  settings: one(settings, {
-    fields: [users.id],
-    references: [settings.user_id]
-  }),
-  accounts: many(accounts),
-  categories: many(categories),
-  transactions: many(transactions),
-  transfers: many(transfers),
-  savingsWallets: many(savingsWallets),
-  savingsTransactions: many(savingsTransactions),
-  plans: many(plans),
-  commitments: many(commitments),
-  budgets: many(budgets)
-}));
-var settingsRelations = relations(settings, ({ one }) => ({
-  user: one(users, {
-    fields: [settings.user_id],
-    references: [users.id]
-  })
-}));
-var accountsRelations = relations(accounts, ({ one, many }) => ({
-  user: one(users, {
-    fields: [accounts.user_id],
-    references: [users.id]
-  }),
+var accountsRelations = relations(accounts, ({ many }) => ({
   transactions: many(transactions),
   sourceTransfers: many(transfers, { relationName: "source" }),
   destinationTransfers: many(transfers, { relationName: "destination" }),
   commitments: many(commitments),
   savingsTransactions: many(savingsTransactions)
 }));
-var categoriesRelations = relations(categories, ({ one, many }) => ({
-  user: one(users, {
-    fields: [categories.user_id],
-    references: [users.id]
-  }),
+var categoriesRelations = relations(categories, ({ many }) => ({
   transactions: many(transactions),
   commitments: many(commitments),
   budgets: many(budgets)
 }));
 var transactionsRelations = relations(transactions, ({ one }) => ({
-  user: one(users, {
-    fields: [transactions.user_id],
-    references: [users.id]
-  }),
   account: one(accounts, {
     fields: [transactions.account_id],
     references: [accounts.id]
@@ -437,10 +402,6 @@ var transactionsRelations = relations(transactions, ({ one }) => ({
   })
 }));
 var transfersRelations = relations(transfers, ({ one }) => ({
-  user: one(users, {
-    fields: [transfers.user_id],
-    references: [users.id]
-  }),
   sourceAccount: one(accounts, {
     fields: [transfers.source_account_id],
     references: [accounts.id],
@@ -454,11 +415,7 @@ var transfersRelations = relations(transfers, ({ one }) => ({
 }));
 var savingsWalletsRelations = relations(
   savingsWallets,
-  ({ one, many }) => ({
-    user: one(users, {
-      fields: [savingsWallets.user_id],
-      references: [users.id]
-    }),
+  ({ many }) => ({
     savingsTransactions: many(savingsTransactions),
     linkedTransactions: many(transactions)
   })
@@ -466,10 +423,6 @@ var savingsWalletsRelations = relations(
 var savingsTransactionsRelations = relations(
   savingsTransactions,
   ({ one }) => ({
-    user: one(users, {
-      fields: [savingsTransactions.user_id],
-      references: [users.id]
-    }),
     wallet: one(savingsWallets, {
       fields: [savingsTransactions.wallet_id],
       references: [savingsWallets.id]
@@ -480,11 +433,7 @@ var savingsTransactionsRelations = relations(
     })
   })
 );
-var plansRelations = relations(plans, ({ one, many }) => ({
-  user: one(users, {
-    fields: [plans.user_id],
-    references: [users.id]
-  }),
+var plansRelations = relations(plans, ({ many }) => ({
   planCategories: many(planCategories),
   linkedTransactions: many(transactions)
 }));
@@ -496,10 +445,6 @@ var planCategoriesRelations = relations(planCategories, ({ one, many }) => ({
   linkedTransactions: many(transactions)
 }));
 var commitmentsRelations = relations(commitments, ({ one, many }) => ({
-  user: one(users, {
-    fields: [commitments.user_id],
-    references: [users.id]
-  }),
   account: one(accounts, {
     fields: [commitments.account_id],
     references: [accounts.id]
@@ -517,10 +462,6 @@ var commitmentsRelations = relations(commitments, ({ one, many }) => ({
   })
 }));
 var budgetsRelations = relations(budgets, ({ one }) => ({
-  user: one(users, {
-    fields: [budgets.user_id],
-    references: [users.id]
-  }),
   category: one(categories, {
     fields: [budgets.category_id],
     references: [categories.id]
