@@ -177,7 +177,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     savingsTransactions.filter((t) => t.wallet_id === walletId);
 
   const totalSavings = useMemo(
-    () => wallets.reduce((sum, w) => sum + w.current_amount, 0),
+    () => wallets.filter((w) => !w.is_archived).reduce((sum, w) => sum + w.current_amount, 0),
     [wallets]
   );
 

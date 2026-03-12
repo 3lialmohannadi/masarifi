@@ -383,7 +383,7 @@ export default function DashboardScreen() {
                   <Feather name="repeat" size={22} color="#F59E0B" />
                 </View>
                 <Text style={{ fontSize: 11, fontWeight: "600", color: "#F59E0B", textAlign: "center" }}>
-                  {language === "ar" ? "التزام" : "Commitment"}
+                  {t.commitments.title}
                 </Text>
               </Pressable>
 
@@ -399,7 +399,7 @@ export default function DashboardScreen() {
                   <Feather name="pocket" size={22} color="#3B82F6" />
                 </View>
                 <Text style={{ fontSize: 11, fontWeight: "600", color: "#3B82F6", textAlign: "center" }}>
-                  {language === "ar" ? "ادخار" : "Savings"}
+                  {t.tabs.savings}
                 </Text>
               </Pressable>
             </View>
@@ -490,7 +490,7 @@ export default function DashboardScreen() {
                   const isDueToday = c.status === "due_today";
                   const accentColor = isOverdue ? "#EF4444" : isDueToday ? "#F59E0B" : theme.primary;
                   const commitmentAccount = accounts.find((a) => a.id === c.account_id);
-                  const commitmentCurrency = commitmentAccount?.currency || "SAR";
+                  const commitmentCurrency = commitmentAccount?.currency || settings.default_currency || "QAR";
                   return (
                     <View key={c.id}>
                       {index > 0 && <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: 16 }} />}

@@ -47,7 +47,11 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
               local.forEach((a) => {
                 const onServer = serverMap.get(a.id);
                 if (!onServer) {
-                  apiRequest("POST", "/api/accounts", a).catch(() => {});
+                  // Don't re-create soft-deleted (archived) accounts that were
+                  // already removed from the server via deleteAccount().
+                  if (a.is_active !== false) {
+                    apiRequest("POST", "/api/accounts", a).catch(() => {});
+                  }
                 } else if (onServer.updated_at !== a.updated_at) {
                   apiRequest("PATCH", `/api/accounts/${a.id}`, a).catch(() => {});
                 }

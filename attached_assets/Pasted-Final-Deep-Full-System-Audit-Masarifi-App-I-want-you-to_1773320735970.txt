@@ -1,0 +1,379 @@
+Final Deep Full-System Audit — Masarifi App
+
+
+
+
+
+I want you to perform a final deep full-system audit of the entire application.
+
+
+
+This is a comprehensive final inspection of the app before release.
+
+
+
+The app has gone through many feature additions, removals, refinements, UI changes, and logic changes. Because of that, I now need a full, precise, system-wide audit to ensure that the application is fully stable, clean, consistent, and release-ready.
+
+
+
+Do not redesign the app.
+
+Do not add new features.
+
+Do not change the product direction.
+
+Do not make random changes.
+
+
+
+Your task is only to:
+
+
+
+inspect everything carefully
+find all broken, outdated, unused, inconsistent, or risky parts
+fix them safely
+clean the codebase
+verify all flows
+confirm the app is stable
+
+
+
+
+
+
+
+
+
+
+1. Full Application Scope
+
+
+
+
+
+Audit the entire app across all layers:
+
+
+
+UI
+UX
+navigation
+screens
+layouts
+forms
+state management
+services
+hooks
+helpers
+business logic
+financial calculations
+settings
+translation system
+database queries
+models/types/interfaces
+validation
+performance
+error handling
+build stability
+
+
+
+
+This must be a full end-to-end audit, not a partial review.
+
+
+
+
+
+
+
+
+
+2. Feature Consistency Audit
+
+
+
+
+
+Review the entire application and verify that all recent changes, removals, simplifications, and refactors are applied consistently everywhere.
+
+
+
+Look for:
+
+
+
+removed features still partially present
+hidden old logic
+outdated labels
+unused buttons
+broken conditional rendering
+calculations still depending on removed features
+forms still containing deleted fields
+translations still referencing old functionality
+settings still exposing deleted options
+old database fields still being used in frontend logic
+
+
+
+
+If any old feature remnants exist:
+
+
+
+remove them safely
+refactor dependent code
+verify no breakage remains
+
+
+
+
+
+
+
+
+
+
+3. Full UI Audit
+
+
+
+
+
+Inspect all screens visually and structurally.
+
+
+
+Verify:
+
+
+
+no layout overlap
+no clipped text
+no hidden buttons
+no empty broken sections
+no outdated cards
+no old widgets
+no references to removed features
+no broken spacing
+no inconsistent padding or margins
+no mismatched component styles
+no unfinished screen sections
+
+
+
+
+Check all pages in both:
+
+
+
+Arabic
+English
+Light Mode
+Dark Mode
+
+
+
+
+If any visual inconsistency exists:
+
+
+
+fix it
+standardize spacing
+standardize typography
+standardize card styling
+keep the current design language intact
+
+
+
+
+
+
+
+
+
+
+4. UX Audit
+
+
+
+
+
+Review the entire user experience.
+
+
+
+Verify that:
+
+
+
+user flows are logical
+actions are clear
+screens feel complete
+no confusing dead ends exist
+no action suddenly stops
+buttons always lead to valid next steps
+all major tasks can be completed smoothly
+forms are easy to understand
+no removed feature creates UX confusion
+
+
+
+
+If any flow is broken or awkward:
+
+
+
+simplify it
+remove invalid paths
+fix the flow without changing intended behavior
+
+
+
+
+
+
+
+
+
+
+5. Navigation Audit
+
+
+
+
+
+Inspect the navigation system completely.
+
+
+
+Verify:
+
+
+
+every visible route works
+no route points to deleted screens
+no tab leads to outdated content
+no stack screen is orphaned
+no hidden route still depends on removed features
+back navigation works correctly
+deep navigation between screens works
+the selected account context remains stable across screens if required
+
+
+
+
+Remove or fix any broken, orphaned, or outdated route safely.
+
+
+
+
+
+
+
+
+
+6. Dashboard Audit
+
+
+
+
+
+Review the Dashboard very carefully.
+
+
+
+Verify that it correctly reflects the current app logic only.
+
+
+
+It must correctly show:
+
+
+
+selected account only
+total balance of selected account only
+allocated money
+real available money
+daily spending limit
+latest 3 transactions
+show more button for transactions
+upcoming commitments
+savings summary
+
+
+
+
+Confirm that:
+
+
+
+total balance is only for selected account
+allocated money includes commitments only
+real available money = selected account balance - allocated money
+savings are not part of allocated money
+deleted features do not affect dashboard
+no stale cards remain
+all dashboard values update immediately after relevant actions
+
+
+
+
+If anything is outdated, broken, or inconsistent:
+
+
+
+fix it
+simplify dependencies
+confirm correct recalculation logic
+
+
+
+
+
+
+
+
+
+
+7. Financial Logic Audit
+
+
+
+
+
+Perform a deep and precise audit of all financial logic.
+
+
+
+Verify correctness for:
+
+
+
+account balances
+income
+expenses
+transfers
+savings deposits
+savings withdrawals
+commitment creation
+commitment payment
+allocated money
+real available money
+daily spending limit
+statistics totals
+monthly summaries if still present
+
+
+
+
+For each of these, confirm:
+
+
+
+calculations are accurate
+updates are immediate
+no deleted feature influences totals
+no stale values persist
