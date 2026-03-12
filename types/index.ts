@@ -2,18 +2,6 @@ export type Language = "ar" | "en";
 export type ThemeMode = "light" | "dark" | "auto";
 export type DailyLimitMode = "smart" | "manual";
 export type Gender = "male" | "female";
-export type AuthProvider = "email" | "google";
-
-export interface UserProfile {
-  id: string;
-  email: string | null;
-  full_name: string | null;
-  phone: string | null;
-  gender: Gender | null;
-  auth_provider: AuthProvider;
-  created_at: string;
-  updated_at: string;
-}
 
 export type AccountType =
   | "current"

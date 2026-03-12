@@ -147,12 +147,6 @@ function normCategory(c: CategoryRow) {
 
 // ── Validation Schemas ────────────────────────────────────────────────────────
 
-const updateProfileSchema = z.object({
-  full_name: z.string().min(1).max(100).optional(),
-  phone: z.string().max(20).optional().nullable(),
-  gender: z.enum(["male", "female"]).optional().nullable(),
-});
-
 const createAccountSchema = z.object({
   name_ar: z.string().min(1, "Arabic name is required"),
   name_en: z.string().min(1, "English name is required"),
@@ -264,25 +258,18 @@ function handleError(res: Response, e: unknown) {
   return res.status(500).json({ message: errMsg(e) });
 }
 
-// ── Backwards compatibility: default user bootstrap ─────────────────────────
+// ── Default user bootstrap ──────────────────────────────────────────────────
 
-const DEFAULT_USER_ID = "default-user";
+const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 async function ensureDefaultUser() {
   try {
-    const hashedPassword = await hashPassword("default");
-    // Check by username (not ID) since the user may have been created via register with a different ID
-    const existing = await storage.getUserByUsername("default");
-    if (existing) {
-      // Ensure password is always in sync
-      await db.update(schema.users)
-        .set({ password: hashedPassword })
-        .where(eq(schema.users.id, existing.id));
-    } else {
+    const existing = await db.select().from(schema.users).where(eq(schema.users.id, DEFAULT_USER_ID)).limit(1);
+    if (existing.length === 0) {
       await db.insert(schema.users).values({
         id: DEFAULT_USER_ID,
         username: "default",
-        password: hashedPassword,
+        password: "no-auth",
       }).onConflictDoNothing();
     }
   } catch (e) {
@@ -309,52 +296,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/savings-transactions", requireAuth);
   app.use("/api/commitments", requireAuth);
   app.use("/api/reset", requireAuth);
-  app.use("/api/profile", requireAuth);
-
-  // ── Profile ──────────────────────────────────────────────────────────────
-
-  app.get("/api/profile", async (req: Request, res: Response) => {
-    try {
-      const userId = getUserId(req);
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.json({
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        phone: user.phone,
-        gender: user.gender,
-        auth_provider: user.auth_provider,
-        created_at: toIso(user.created_at),
-        updated_at: toIso(user.updated_at),
-      });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  app.patch("/api/profile", async (req: Request, res: Response) => {
-    try {
-      const userId = getUserId(req);
-      const validated = updateProfileSchema.parse(req.body);
-      const user = await storage.updateUser(userId, validated);
-      res.json({
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        phone: user.phone,
-        gender: user.gender,
-        auth_provider: user.auth_provider,
-        created_at: toIso(user.created_at),
-        updated_at: toIso(user.updated_at),
-      });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
   // ── Accounts ──────────────────────────────────────────────────────────────
 
   app.get("/api/accounts", async (req: Request, res: Response) => {
