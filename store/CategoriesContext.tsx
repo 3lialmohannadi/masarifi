@@ -10,6 +10,7 @@ import type { Category, CategoryType } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { apiRequest } from "@/services/api";
+import { createSyncFn } from "@/utils/syncHelper";
 import { useTransactions } from "@/store/TransactionsContext";
 
 interface CategoriesContextValue {
@@ -28,6 +29,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
   const { categoryIdsInUse } = useTransactions();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const sync = createSyncFn();
 
   useEffect(() => {
     async function hydrate() {
@@ -85,7 +87,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persist([...categories, newCat]);
-    apiRequest("POST", "/api/categories", newCat).catch(console.error);
+    sync(apiRequest("POST", "/api/categories", newCat), "create category");
     return newCat;
   };
 
@@ -95,13 +97,13 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
     );
     persist(updated);
     const record = updated.find((c) => c.id === id);
-    if (record) apiRequest("PATCH", `/api/categories/${id}`, record).catch(console.error);
+    if (record) sync(apiRequest("PATCH", `/api/categories/${id}`, record), "update category");
   };
 
   const deleteCategory = (id: string): boolean => {
     if (categoryIdsInUse.includes(id)) return false;
     persist(categories.filter((c) => c.id !== id));
-    apiRequest("DELETE", `/api/categories/${id}`).catch(console.error);
+    sync(apiRequest("DELETE", `/api/categories/${id}`), "delete category");
     return true;
   };
 

@@ -10,9 +10,11 @@ import type { Account } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { apiRequest } from "@/services/api";
+import { createSyncFn } from "@/utils/syncHelper";
 
 interface AccountsContextValue {
   accounts: Account[];
+  syncError: string | null;
   addAccount: (account: Omit<Account, "id" | "created_at" | "updated_at">) => Account;
   updateAccount: (id: string, updates: Partial<Account>) => void;
   deleteAccount: (id: string) => void;
@@ -27,6 +29,8 @@ const AccountsContext = createContext<AccountsContextValue | null>(null);
 export function AccountsProvider({ children }: { children: ReactNode }) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const sync = createSyncFn((msg) => setSyncError(msg));
 
   useEffect(() => {
     async function hydrate() {
@@ -84,7 +88,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persist([...accounts, newAccount]);
-    apiRequest("POST", "/api/accounts", newAccount).catch(console.error);
+    sync(apiRequest("POST", "/api/accounts", newAccount), "create account");
     return newAccount;
   };
 
@@ -94,7 +98,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
     );
     persist(updated);
     const record = updated.find((a) => a.id === id);
-    if (record) apiRequest("PATCH", `/api/accounts/${id}`, record).catch(console.error);
+    if (record) sync(apiRequest("PATCH", `/api/accounts/${id}`, record), "update account");
   };
 
   const deleteAccount = (id: string) => {
@@ -102,7 +106,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
       a.id === id ? { ...a, is_active: false, updated_at: now() } : a
     );
     persist(updated);
-    apiRequest("DELETE", `/api/accounts/${id}`).catch(console.error);
+    sync(apiRequest("DELETE", `/api/accounts/${id}`), "delete account");
   };
 
   const getAccount = (id: string) => accounts.find((a) => a.id === id);
@@ -113,7 +117,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
     );
     persist(updated);
     const record = updated.find((a) => a.id === id);
-    if (record) apiRequest("PATCH", `/api/accounts/${id}`, record).catch(console.error);
+    if (record) sync(apiRequest("PATCH", `/api/accounts/${id}`, record), "update balance");
   };
 
   const clearAll = () => {
@@ -121,8 +125,8 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
   };
 
   const value = useMemo(
-    () => ({ accounts, addAccount, updateAccount, deleteAccount, getAccount, updateBalance, clearAll, isLoaded }),
-    [accounts, isLoaded]
+    () => ({ accounts, addAccount, updateAccount, deleteAccount, getAccount, updateBalance, clearAll, isLoaded, syncError }),
+    [accounts, isLoaded, syncError]
   );
 
   return <AccountsContext.Provider value={value}>{children}</AccountsContext.Provider>;
