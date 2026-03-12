@@ -5,7 +5,7 @@ import { db } from "./db";
 import * as schema from "@database/schema";
 import { eq, and } from "drizzle-orm";
 import { z, ZodError } from "zod";
-import { requireAuth, getUserId, DEFAULT_USER_ID } from "./auth";
+const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 import { apiSpec } from "./api-docs";
 
 type AccountRow = typeof schema.accounts.$inferSelect;
@@ -267,7 +267,7 @@ async function ensureDefaultUser() {
       await db.insert(schema.users).values({
         id: DEFAULT_USER_ID,
         username: "default",
-        password: "no-auth",
+        password: "-",
       }).onConflictDoNothing();
     }
   } catch (e) {
@@ -284,21 +284,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(apiSpec);
   });
 
-  // ── All routes below use the default user ─────────────────────────────
-
-  app.use("/api/accounts", requireAuth);
-  app.use("/api/categories", requireAuth);
-  app.use("/api/transactions", requireAuth);
-  app.use("/api/transfers", requireAuth);
-  app.use("/api/savings-wallets", requireAuth);
-  app.use("/api/savings-transactions", requireAuth);
-  app.use("/api/commitments", requireAuth);
-  app.use("/api/reset", requireAuth);
   // ── Accounts ──────────────────────────────────────────────────────────────
 
   app.get("/api/accounts", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getAccounts(userId);
       res.json(rows.map(normAccount));
     } catch (e: unknown) {
@@ -308,7 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/accounts", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createAccountSchema.parse(body);
       const data = {
@@ -325,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/accounts/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getAccount(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Account not found" });
@@ -342,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/accounts/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getAccount(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Account not found" });
@@ -370,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/categories", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getCategories(userId);
       res.json(rows.map(normCategory));
     } catch (e: unknown) {
@@ -380,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/categories", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createCategorySchema.parse(body);
       const data = {
@@ -397,7 +387,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/categories/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getCategory(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Category not found" });
@@ -414,7 +404,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/categories/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getCategory(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Category not found" });
@@ -441,7 +431,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/transactions", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getTransactions(userId);
       res.json(rows.map(normTransaction));
     } catch (e: unknown) {
@@ -451,7 +441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/transactions", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createTransactionSchema.parse(body);
       if (parseFloat(validated.amount) <= 0) {
@@ -472,7 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/transactions/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transaction not found" });
@@ -493,7 +483,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/transactions/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transaction not found" });
@@ -509,7 +499,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/transfers", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getTransfers(userId);
       res.json(rows.map(normTransfer));
     } catch (e: unknown) {
@@ -519,7 +509,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/transfers", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, user_id: _uid, ...body } = req.body;
       const validated = createTransferSchema.parse(body);
       if (parseFloat(validated.source_amount) <= 0) {
@@ -540,7 +530,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/transfers/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getTransfer(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transfer not found" });
@@ -556,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/savings-wallets", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getSavingsWallets(userId);
       res.json(rows.map(normSavingsWallet));
     } catch (e: unknown) {
@@ -566,7 +556,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/savings-wallets", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createSavingsWalletSchema.parse(body);
       const data = {
@@ -584,7 +574,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/savings-wallets/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getSavingsWallet(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings wallet not found" });
@@ -605,7 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/savings-wallets/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getSavingsWallet(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings wallet not found" });
@@ -621,7 +611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/savings-transactions", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const walletId = req.query.walletId as string | undefined;
       const rows = await storage.getSavingsTransactions(walletId, userId);
       res.json(rows.map(normSavingsTx));
@@ -632,7 +622,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/savings-transactions", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, user_id: _uid, ...body } = req.body;
       const validated = createSavingsTxSchema.parse(body);
       if (parseFloat(validated.amount) <= 0) {
@@ -653,7 +643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/savings-transactions/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getSavingsTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings transaction not found" });
@@ -669,7 +659,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/commitments", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getCommitments(userId);
       res.json(rows.map(normCommitment));
     } catch (e: unknown) {
@@ -679,7 +669,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/commitments", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createCommitmentSchema.parse(body);
       if (parseFloat(validated.amount) <= 0) {
@@ -701,7 +691,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/commitments/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getCommitment(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Commitment not found" });
@@ -723,7 +713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/commitments/:id", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getCommitment(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Commitment not found" });
@@ -739,7 +729,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/reset", async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const confirmHeader = req.headers["x-confirm-reset"];
       if (confirmHeader !== "true") {
         return res.status(400).json({ message: "Reset requires X-Confirm-Reset: true header" });

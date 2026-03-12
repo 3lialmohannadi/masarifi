@@ -24,7 +24,6 @@ __export(schema_exports, {
   accountTypeEnum: () => accountTypeEnum,
   accounts: () => accounts,
   accountsRelations: () => accountsRelations,
-  authProviderEnum: () => authProviderEnum,
   budgets: () => budgets,
   budgetsRelations: () => budgetsRelations,
   categories: () => categories,
@@ -34,7 +33,6 @@ __export(schema_exports, {
   commitments: () => commitments,
   commitmentsRelations: () => commitmentsRelations,
   dailyLimitModeEnum: () => dailyLimitModeEnum,
-  genderEnum: () => genderEnum,
   insertAccountSchema: () => insertAccountSchema,
   insertBudgetSchema: () => insertBudgetSchema,
   insertCategorySchema: () => insertCategorySchema,
@@ -45,7 +43,6 @@ __export(schema_exports, {
   insertSavingsWalletSchema: () => insertSavingsWalletSchema,
   insertTransactionSchema: () => insertTransactionSchema,
   insertTransferSchema: () => insertTransferSchema,
-  insertUserSchema: () => insertUserSchema,
   languageEnum: () => languageEnum,
   planCategories: () => planCategories,
   planCategoriesRelations: () => planCategoriesRelations,
@@ -138,8 +135,6 @@ var planTypeEnum = pgEnum("plan_type", [
   "medical",
   "other"
 ]);
-var genderEnum = pgEnum("gender", ["male", "female"]);
-var authProviderEnum = pgEnum("auth_provider", ["email", "google"]);
 var languageEnum = pgEnum("language", ["ar", "en"]);
 var themeEnum = pgEnum("theme", ["light", "dark", "auto"]);
 var dailyLimitModeEnum = pgEnum("daily_limit_mode", [
@@ -149,13 +144,7 @@ var dailyLimitModeEnum = pgEnum("daily_limit_mode", [
 var users = pgTable("users", {
   id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
-  email: text("email").unique(),
   password: text("password").notNull(),
-  full_name: text("full_name"),
-  phone: text("phone"),
-  gender: genderEnum("gender"),
-  auth_provider: authProviderEnum("auth_provider").default("email").notNull(),
-  google_id: text("google_id").unique(),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull()
 });
@@ -537,16 +526,6 @@ var budgetsRelations = relations(budgets, ({ one }) => ({
     references: [categories.id]
   })
 }));
-var insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  email: true,
-  password: true,
-  full_name: true,
-  phone: true,
-  gender: true,
-  auth_provider: true,
-  google_id: true
-});
 var insertAccountSchema = createInsertSchema(accounts).omit({
   id: true,
   created_at: true,
@@ -789,16 +768,6 @@ var storage = new DatabaseStorage();
 import { eq as eq2, and as and2 } from "drizzle-orm";
 import { z, ZodError } from "zod";
 
-// server/auth.ts
-var DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
-function requireAuth(req, _res, next) {
-  req.userId = DEFAULT_USER_ID;
-  next();
-}
-function getUserId(req) {
-  return req.userId ?? DEFAULT_USER_ID;
-}
-
 // server/api-docs.ts
 var apiSpec = {
   openapi: "3.0.3",
@@ -1011,7 +980,7 @@ var apiSpec = {
       post: {
         tags: ["Admin"],
         summary: "Reset all user data",
-        description: "Deletes all accounts, transactions, transfers, savings, and commitments for the authenticated user. Requires X-Confirm-Reset: true header.",
+        description: "Deletes all accounts, transactions, transfers, savings, and commitments. Requires X-Confirm-Reset: true header.",
         parameters: [{ name: "X-Confirm-Reset", in: "header", required: true, schema: { type: "string", enum: ["true"] } }],
         responses: { "200": { description: "Data reset" }, "400": { description: "Missing confirmation header" } }
       }
@@ -1020,6 +989,7 @@ var apiSpec = {
 };
 
 // server/routes.ts
+var DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 function paramId(req) {
   const id = req.params.id;
   return Array.isArray(id) ? id[0] : id;
@@ -1218,7 +1188,7 @@ async function ensureDefaultUser() {
       await db.insert(users).values({
         id: DEFAULT_USER_ID,
         username: "default",
-        password: "no-auth"
+        password: "-"
       }).onConflictDoNothing();
     }
   } catch (e) {
@@ -1230,17 +1200,9 @@ async function registerRoutes(app2) {
   app2.get("/api/docs", (_req, res) => {
     res.json(apiSpec);
   });
-  app2.use("/api/accounts", requireAuth);
-  app2.use("/api/categories", requireAuth);
-  app2.use("/api/transactions", requireAuth);
-  app2.use("/api/transfers", requireAuth);
-  app2.use("/api/savings-wallets", requireAuth);
-  app2.use("/api/savings-transactions", requireAuth);
-  app2.use("/api/commitments", requireAuth);
-  app2.use("/api/reset", requireAuth);
   app2.get("/api/accounts", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getAccounts(userId);
       res.json(rows.map(normAccount));
     } catch (e) {
@@ -1249,7 +1211,7 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/accounts", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createAccountSchema.parse(body);
       const data = {
@@ -1265,7 +1227,7 @@ async function registerRoutes(app2) {
   });
   app2.patch("/api/accounts/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getAccount(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Account not found" });
@@ -1281,7 +1243,7 @@ async function registerRoutes(app2) {
   });
   app2.delete("/api/accounts/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getAccount(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Account not found" });
@@ -1301,7 +1263,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/categories", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getCategories(userId);
       res.json(rows.map(normCategory));
     } catch (e) {
@@ -1310,7 +1272,7 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/categories", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createCategorySchema.parse(body);
       const data = {
@@ -1326,7 +1288,7 @@ async function registerRoutes(app2) {
   });
   app2.patch("/api/categories/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getCategory(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Category not found" });
@@ -1342,7 +1304,7 @@ async function registerRoutes(app2) {
   });
   app2.delete("/api/categories/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getCategory(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Category not found" });
@@ -1362,7 +1324,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/transactions", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getTransactions(userId);
       res.json(rows.map(normTransaction));
     } catch (e) {
@@ -1371,7 +1333,7 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/transactions", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createTransactionSchema.parse(body);
       if (parseFloat(validated.amount) <= 0) {
@@ -1391,7 +1353,7 @@ async function registerRoutes(app2) {
   });
   app2.patch("/api/transactions/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transaction not found" });
@@ -1411,7 +1373,7 @@ async function registerRoutes(app2) {
   });
   app2.delete("/api/transactions/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transaction not found" });
@@ -1424,7 +1386,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/transfers", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getTransfers(userId);
       res.json(rows.map(normTransfer));
     } catch (e) {
@@ -1433,7 +1395,7 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/transfers", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, user_id: _uid, ...body } = req.body;
       const validated = createTransferSchema.parse(body);
       if (parseFloat(validated.source_amount) <= 0) {
@@ -1453,7 +1415,7 @@ async function registerRoutes(app2) {
   });
   app2.delete("/api/transfers/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getTransfer(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transfer not found" });
@@ -1466,7 +1428,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/savings-wallets", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getSavingsWallets(userId);
       res.json(rows.map(normSavingsWallet));
     } catch (e) {
@@ -1475,7 +1437,7 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/savings-wallets", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createSavingsWalletSchema.parse(body);
       const data = {
@@ -1492,7 +1454,7 @@ async function registerRoutes(app2) {
   });
   app2.patch("/api/savings-wallets/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getSavingsWallet(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings wallet not found" });
@@ -1512,7 +1474,7 @@ async function registerRoutes(app2) {
   });
   app2.delete("/api/savings-wallets/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getSavingsWallet(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings wallet not found" });
@@ -1525,7 +1487,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/savings-transactions", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const walletId = req.query.walletId;
       const rows = await storage.getSavingsTransactions(walletId, userId);
       res.json(rows.map(normSavingsTx));
@@ -1535,7 +1497,7 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/savings-transactions", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, user_id: _uid, ...body } = req.body;
       const validated = createSavingsTxSchema.parse(body);
       if (parseFloat(validated.amount) <= 0) {
@@ -1555,7 +1517,7 @@ async function registerRoutes(app2) {
   });
   app2.delete("/api/savings-transactions/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getSavingsTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings transaction not found" });
@@ -1568,7 +1530,7 @@ async function registerRoutes(app2) {
   });
   app2.get("/api/commitments", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const rows = await storage.getCommitments(userId);
       res.json(rows.map(normCommitment));
     } catch (e) {
@@ -1577,7 +1539,7 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/commitments", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createCommitmentSchema.parse(body);
       if (parseFloat(validated.amount) <= 0) {
@@ -1598,7 +1560,7 @@ async function registerRoutes(app2) {
   });
   app2.patch("/api/commitments/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getCommitment(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Commitment not found" });
@@ -1619,7 +1581,7 @@ async function registerRoutes(app2) {
   });
   app2.delete("/api/commitments/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const existing = await storage.getCommitment(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Commitment not found" });
@@ -1632,7 +1594,7 @@ async function registerRoutes(app2) {
   });
   app2.post("/api/reset", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = DEFAULT_USER_ID;
       const confirmHeader = req.headers["x-confirm-reset"];
       if (confirmHeader !== "true") {
         return res.status(400).json({ message: "Reset requires X-Confirm-Reset: true header" });
