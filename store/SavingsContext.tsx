@@ -42,10 +42,8 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
         setWallets(localWallets);
         setSavingsTransactions(localTxs);
         setIsLoaded(true);
-        Promise.all([
-          apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).catch(() => null),
-          apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
-        ]).then(([apiWallets, apiTxs]) => {
+        // Sync wallets first (immediately)
+        apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).then((apiWallets) => {
           if (Array.isArray(apiWallets)) {
             const serverMap = new Map(apiWallets.map((w) => [w.id, w]));
             const localIds = new Set(localWallets.map((w) => w.id));
@@ -61,17 +59,22 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
               apiRequest("DELETE", `/api/savings-wallets/${w.id}`).catch(() => {})
             );
           }
-          if (Array.isArray(apiTxs)) {
-            const serverIds = new Set(apiTxs.map((t) => t.id));
-            const localTxIds = new Set(localTxs.map((t) => t.id));
-            localTxs.filter((t) => !serverIds.has(t.id)).forEach((t) =>
-              apiRequest("POST", "/api/savings-transactions", t).catch(() => {})
-            );
-            apiTxs.filter((t) => !localTxIds.has(t.id)).forEach((t) =>
-              apiRequest("DELETE", `/api/savings-transactions/${t.id}`).catch(() => {})
-            );
-          }
         }).catch(() => {});
+        // Delay savings transactions sync to let wallets sync first (avoids FK race condition)
+        setTimeout(() => {
+          apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).then((apiTxs) => {
+            if (Array.isArray(apiTxs)) {
+              const serverIds = new Set(apiTxs.map((t) => t.id));
+              const localTxIds = new Set(localTxs.map((t) => t.id));
+              localTxs.filter((t) => !serverIds.has(t.id)).forEach((t) =>
+                apiRequest("POST", "/api/savings-transactions", t).catch(() => {})
+              );
+              apiTxs.filter((t) => !localTxIds.has(t.id)).forEach((t) =>
+                apiRequest("DELETE", `/api/savings-transactions/${t.id}`).catch(() => {})
+              );
+            }
+          }).catch(() => {});
+        }, 2000);
       } else {
         try {
           const [apiWallets, apiTxs] = await Promise.all([

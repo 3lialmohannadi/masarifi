@@ -206,7 +206,7 @@ const createTransferSchema = z.object({
 
 const createSavingsWalletSchema = z.object({
   name_ar: z.string().min(1, "Arabic name is required"),
-  name_en: z.string().min(1, "English name is required"),
+  name_en: z.string().optional().default(""),
   description: z.string().default(""),
   type: z.enum(["general_savings", "goal_savings"]).default("general_savings"),
   current_amount: z.union([z.string(), z.number()]).transform((v) => String(v)).default("0"),
@@ -233,7 +233,7 @@ const createCommitmentSchema = z.object({
   account_id: z.string().min(1, "Account ID is required"),
   category_id: z.string().nullable().optional(),
   name_ar: z.string().min(1, "Arabic name is required"),
-  name_en: z.string().min(1, "English name is required"),
+  name_en: z.string().optional().default(""),
   amount: z.union([z.string(), z.number()]).transform((v) => String(v)),
   due_date: z.string().or(z.date()),
   recurrence_type: z.enum(["none", "daily", "weekly", "monthly", "yearly"]).default("monthly"),
@@ -406,12 +406,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = DEFAULT_USER_ID;
       const existing = await storage.getCategory(paramId(req));
-      if (!existing || existing.user_id !== userId) {
-        return res.status(404).json({ message: "Category not found" });
-      }
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
+
+      if (!existing || existing.user_id !== userId) {
+        // Category not on server yet — create it (handles race condition during sync)
+        const validated = createCategorySchema.parse(body);
+        const data = {
+          ...validated,
+          name_en: validated.name_en || validated.name_ar,
+          id: paramId(req),
+          user_id: userId,
+        };
+        const row = await storage.createCategory(data);
+        return res.status(201).json(normCategory(row));
+      }
+
       const validated = updateCategorySchema.parse(body);
-      const row = await storage.updateCategory(paramId(req), validated);
+      const row = await storage.updateCategory(paramId(req), {
+        ...validated,
+        ...(validated.name_en !== undefined ? { name_en: validated.name_en || existing.name_en || existing.name_ar } : {}),
+      });
       if (!row) return res.status(404).json({ message: "Category not found" });
       res.json(normCategory(row));
     } catch (e: unknown) {
@@ -583,6 +597,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validated = createSavingsWalletSchema.parse(body);
       const data = {
         ...validated,
+        name_en: validated.name_en || validated.name_ar,
         id: id || undefined,
         user_id: userId,
         target_date: toDate(validated.target_date) ?? null,
@@ -598,13 +613,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = DEFAULT_USER_ID;
       const existing = await storage.getSavingsWallet(paramId(req));
-      if (!existing || existing.user_id !== userId) {
-        return res.status(404).json({ message: "Savings wallet not found" });
-      }
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
+
+      if (!existing || existing.user_id !== userId) {
+        // Wallet not on server yet — create it (handles race condition during sync)
+        const validated = createSavingsWalletSchema.parse(body);
+        const data = {
+          ...validated,
+          name_en: validated.name_en || validated.name_ar,
+          id: paramId(req),
+          user_id: userId,
+          target_date: toDate(validated.target_date) ?? null,
+        };
+        const row = await storage.createSavingsWallet(data);
+        return res.status(201).json(normSavingsWallet(row));
+      }
+
       const { target_date: rawTargetDate, ...restWallet } = updateSavingsWalletSchema.parse(body);
       const data = {
         ...restWallet,
+        ...(restWallet.name_en !== undefined ? { name_en: restWallet.name_en || existing.name_en || existing.name_ar } : {}),
         ...(rawTargetDate !== undefined ? { target_date: toDate(rawTargetDate) } : {}),
       };
       const row = await storage.updateSavingsWallet(paramId(req), data);
@@ -649,6 +677,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validated = createSavingsTxSchema.parse(body);
       if (parseFloat(validated.amount) <= 0) {
         return res.status(400).json({ message: "Amount must be greater than 0" });
+      }
+      // Verify wallet exists before inserting
+      const wallet = await storage.getSavingsWallet(validated.wallet_id);
+      if (!wallet || wallet.user_id !== userId) {
+        return res.status(409).json({ message: "Savings wallet not synced yet — retry after wallet sync" });
       }
       const data = {
         ...validated,
@@ -697,8 +730,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (parseFloat(validated.amount) <= 0) {
         return res.status(400).json({ message: "Amount must be greater than 0" });
       }
+      // Verify the account exists before inserting
+      const account = await storage.getAccount(validated.account_id);
+      if (!account || account.user_id !== userId) {
+        return res.status(409).json({ message: "Account not synced yet — retry after account sync" });
+      }
       const data = {
         ...validated,
+        name_en: validated.name_en || validated.name_ar,
         id: id || undefined,
         user_id: userId,
         due_date: toDate(validated.due_date) ?? new Date(),
@@ -715,13 +754,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = DEFAULT_USER_ID;
       const existing = await storage.getCommitment(paramId(req));
-      if (!existing || existing.user_id !== userId) {
-        return res.status(404).json({ message: "Commitment not found" });
-      }
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
+
+      if (!existing || existing.user_id !== userId) {
+        // Commitment not on server yet — create it (handles race condition during sync)
+        const validated = createCommitmentSchema.parse(body);
+        const account = await storage.getAccount(validated.account_id);
+        if (!account || account.user_id !== userId) {
+          return res.status(409).json({ message: "Account not synced yet — retry after account sync" });
+        }
+        const data = {
+          ...validated,
+          name_en: validated.name_en || validated.name_ar,
+          id: paramId(req),
+          user_id: userId,
+          due_date: toDate(validated.due_date) ?? new Date(),
+          paid_at: toDate(validated.paid_at),
+        };
+        const row = await storage.createCommitment(data);
+        return res.status(201).json(normCommitment(row));
+      }
+
       const { due_date: rawDueDate, paid_at: rawPaidAt, ...restCommitment } = updateCommitmentSchema.parse(body);
       const data = {
         ...restCommitment,
+        ...(restCommitment.name_en !== undefined ? { name_en: restCommitment.name_en || existing.name_en || existing.name_ar } : {}),
         ...(rawDueDate ? { due_date: toDate(rawDueDate) ?? undefined } : {}),
         ...(rawPaidAt !== undefined ? { paid_at: toDate(rawPaidAt) ?? undefined } : {}),
       };

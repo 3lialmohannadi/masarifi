@@ -56,26 +56,29 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
         const refreshed = refreshCommitmentStatuses(local);
         setCommitments(refreshed);
         setIsLoaded(true);
-        apiRequest("GET", "/api/commitments")
-          .then((r) => r.json())
-          .then((apiData: Commitment[]) => {
-            if (Array.isArray(apiData)) {
-              const serverMap = new Map(apiData.map((c) => [c.id, c]));
-              const localIds = new Set(refreshed.map((c) => c.id));
-              refreshed.forEach((c) => {
-                const onServer = serverMap.get(c.id);
-                if (!onServer) {
-                  apiRequest("POST", "/api/commitments", c).catch(() => {});
-                } else if (onServer.updated_at !== c.updated_at) {
-                  apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {});
-                }
-              });
-              apiData.filter((c) => !localIds.has(c.id)).forEach((c) =>
-                apiRequest("DELETE", `/api/commitments/${c.id}`).catch(() => {})
-              );
-            }
-          })
-          .catch(() => {});
+        // Delay commitments sync to let accounts sync first (commitments reference account_id FK)
+        setTimeout(() => {
+          apiRequest("GET", "/api/commitments")
+            .then((r) => r.json())
+            .then((apiData: Commitment[]) => {
+              if (Array.isArray(apiData)) {
+                const serverMap = new Map(apiData.map((c) => [c.id, c]));
+                const localIds = new Set(refreshed.map((c) => c.id));
+                refreshed.forEach((c) => {
+                  const onServer = serverMap.get(c.id);
+                  if (!onServer) {
+                    apiRequest("POST", "/api/commitments", c).catch(() => {});
+                  } else if (onServer.updated_at !== c.updated_at) {
+                    apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {});
+                  }
+                });
+                apiData.filter((c) => !localIds.has(c.id)).forEach((c) =>
+                  apiRequest("DELETE", `/api/commitments/${c.id}`).catch(() => {})
+                );
+              }
+            })
+            .catch(() => {});
+        }, 3000);
       } else {
         try {
           const res = await apiRequest("GET", "/api/commitments");
