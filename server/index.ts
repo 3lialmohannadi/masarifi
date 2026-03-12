@@ -247,12 +247,20 @@ function configureExpoAndLanding(app: express.Application) {
 
   // Serve web export from dist/ with SPA fallback
   if (hasWebExport) {
-    app.use(express.static(distPath));
+    app.use(express.static(distPath, {
+      maxAge: "1h",
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith(".html")) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        }
+      },
+    }));
     // SPA fallback: serve index.html for all non-API, non-file routes
     app.use((req: Request, res: Response, next: NextFunction) => {
       if (req.path.startsWith("/api") || req.path.includes(".")) {
         return next();
       }
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.sendFile(path.join(distPath, "index.html"));
     });
     log("Serving web app from dist/");
