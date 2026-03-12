@@ -48,7 +48,11 @@ export default function LoginScreen() {
     } catch (e: unknown) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       const msg = e instanceof Error ? e.message : "";
-      if (msg.includes("Invalid") || msg.includes("401")) {
+      if (msg === "NETWORK_ERROR") {
+        showToast(t.auth.networkError, "error");
+      } else if (msg === "SERVER_ERROR") {
+        showToast(t.auth.serverError, "error");
+      } else if (msg.includes("Invalid") || msg.includes("401")) {
         setErrors({ password: t.auth.invalidCredentials });
       } else {
         showToast(t.toast.error, "error");

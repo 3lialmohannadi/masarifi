@@ -63,7 +63,11 @@ export default function SignupScreen() {
     } catch (e: unknown) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       const msg = e instanceof Error ? e.message : "";
-      if (msg.includes("already") || msg.includes("409")) {
+      if (msg === "NETWORK_ERROR") {
+        showToast(t.auth.networkError, "error");
+      } else if (msg === "SERVER_ERROR") {
+        showToast(t.auth.serverError, "error");
+      } else if (msg.includes("already") || msg.includes("409")) {
         setErrors({ email: t.auth.emailExists });
       } else {
         showToast(t.toast.error, "error");

@@ -356,6 +356,8 @@ export const en = {
     resetPasswordSuccess: "Password reset successfully",
     invalidResetToken: "Invalid or expired reset token",
     haveResetToken: "I have a reset token",
+    networkError: "Unable to connect to the server. Check your internet connection.",
+    serverError: "Server error. Please try again later.",
   },
   profile: {
     title: "Profile",
