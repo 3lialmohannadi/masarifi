@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useAuth } from "@/store/AuthContext";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { AppInput } from "@/components/ui/AppInput";
 import { AppButton } from "@/components/ui/AppButton";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
@@ -14,6 +15,7 @@ export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, isRTL, showToast } = useApp();
   const { loginWithEmail } = useAuth();
+  const { signIn: googleSignIn, loading: googleLoading, isConfigured: googleConfigured } = useGoogleAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -182,10 +184,19 @@ export default function LoginScreen() {
 
         {/* Google Sign-In */}
         <Pressable
-          onPress={() => {
+          onPress={async () => {
             Haptics.selectionAsync();
-            showToast(t.auth.googleNotConfigured, "info");
+            if (!googleConfigured) {
+              showToast(t.auth.googleNotConfigured, "info");
+              return;
+            }
+            try {
+              await googleSignIn();
+            } catch {
+              showToast(t.toast.error, "error");
+            }
           }}
+          disabled={googleLoading}
           style={({ pressed }) => ({
             flexDirection: isRTL ? "row-reverse" : "row",
             alignItems: "center",
@@ -196,9 +207,14 @@ export default function LoginScreen() {
             backgroundColor: pressed ? theme.cardSecondary : theme.card,
             borderWidth: 1.5,
             borderColor: theme.border,
+            opacity: googleLoading ? 0.6 : 1,
           })}
         >
-          <Text style={{ fontSize: 20 }}>G</Text>
+          {googleLoading ? (
+            <ActivityIndicator size="small" color={theme.text} />
+          ) : (
+            <Text style={{ fontSize: 20 }}>G</Text>
+          )}
           <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text }}>
             {t.auth.continueWithGoogle}
           </Text>

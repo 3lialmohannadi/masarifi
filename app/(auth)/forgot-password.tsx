@@ -122,13 +122,21 @@ export default function ForgotPasswordScreen() {
               {t.auth.resetPasswordSent}
             </Text>
             <AppButton
-              title={t.auth.backToLogin}
-              onPress={() => router.replace("/(auth)/login")}
-              variant="outline"
+              title={t.auth.haveResetToken}
+              onPress={() => router.push("/(auth)/reset-password")}
+              variant="primary"
               size="lg"
               fullWidth
               style={{ borderRadius: 16, paddingVertical: 18, marginTop: 16 }}
             />
+            <Pressable
+              onPress={() => router.replace("/(auth)/login")}
+              style={{ alignSelf: "center", marginTop: 12 }}
+            >
+              <Text style={{ fontSize: 14, color: theme.primary, fontWeight: "600" }}>
+                {t.auth.backToLogin}
+              </Text>
+            </Pressable>
           </View>
         ) : (
           /* Form State */

@@ -417,6 +417,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: user.phone,
           gender: user.gender,
           auth_provider: user.auth_provider,
+          created_at: toIso(user.created_at),
+          updated_at: toIso(user.updated_at),
         },
       });
     } catch (e: unknown) {
@@ -449,6 +451,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: user.phone,
           gender: user.gender,
           auth_provider: user.auth_provider,
+          created_at: toIso(user.created_at),
+          updated_at: toIso(user.updated_at),
         },
       });
     } catch (e: unknown) {
@@ -493,6 +497,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: user.phone,
           gender: user.gender,
           auth_provider: user.auth_provider,
+          created_at: toIso(user.created_at),
+          updated_at: toIso(user.updated_at),
         },
       });
     } catch (e: unknown) {
@@ -621,7 +627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user_id: userId,
       };
       const row = await storage.createAccount(data);
-      res.json(normAccount(row));
+      res.status(201).json(normAccount(row));
     } catch (e: unknown) {
       handleError(res, e);
     }
@@ -693,7 +699,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user_id: userId,
       };
       const row = await storage.createCategory(data);
-      res.json(normCategory(row));
+      res.status(201).json(normCategory(row));
     } catch (e: unknown) {
       handleError(res, e);
     }
@@ -723,10 +729,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Category not found" });
       }
-      // Check for referencing transactions
+      // Check for referencing transactions (scoped to current user)
       const txRefs = await db.select({ id: schema.transactions.id })
         .from(schema.transactions)
-        .where(eq(schema.transactions.category_id, paramId(req)))
+        .where(and(
+          eq(schema.transactions.category_id, paramId(req)),
+          eq(schema.transactions.user_id, userId)
+        ))
         .limit(1);
       if (txRefs.length > 0) {
         return res.status(409).json({ message: "Cannot delete category: it is used by transactions." });
@@ -765,7 +774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         date: toDate(validated.date) ?? new Date(),
       };
       const row = await storage.createTransaction(data);
-      res.json(normTransaction(row));
+      res.status(201).json(normTransaction(row));
     } catch (e: unknown) {
       handleError(res, e);
     }
@@ -833,7 +842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         date: toDate(validated.date) ?? new Date(),
       };
       const row = await storage.createTransfer(data);
-      res.json(normTransfer(row));
+      res.status(201).json(normTransfer(row));
     } catch (e: unknown) {
       handleError(res, e);
     }
@@ -877,7 +886,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         target_date: toDate(validated.target_date) ?? null,
       };
       const row = await storage.createSavingsWallet(data);
-      res.json(normSavingsWallet(row));
+      res.status(201).json(normSavingsWallet(row));
     } catch (e: unknown) {
       handleError(res, e);
     }
@@ -946,7 +955,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         date: toDate(validated.date) ?? new Date(),
       };
       const row = await storage.createSavingsTransaction(data);
-      res.json(normSavingsTx(row));
+      res.status(201).json(normSavingsTx(row));
     } catch (e: unknown) {
       handleError(res, e);
     }
@@ -994,7 +1003,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paid_at: toDate(validated.paid_at),
       };
       const row = await storage.createCommitment(data);
-      res.json(normCommitment(row));
+      res.status(201).json(normCommitment(row));
     } catch (e: unknown) {
       handleError(res, e);
     }

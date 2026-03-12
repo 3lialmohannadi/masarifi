@@ -1,44 +1,35 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, Platform, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useAuth } from "@/store/AuthContext";
-import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { AppInput } from "@/components/ui/AppInput";
 import { AppButton } from "@/components/ui/AppButton";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 
-export default function SignupScreen() {
+export default function ResetPasswordScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, isRTL, showToast } = useApp();
-  const { signupWithEmail } = useAuth();
-  const { signIn: googleSignIn, loading: googleLoading, isConfigured: googleConfigured } = useGoogleAuth();
+  const { resetPassword } = useAuth();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{
-    fullName?: string;
-    email?: string;
+    token?: string;
     password?: string;
     confirmPassword?: string;
   }>({});
 
   const validate = (): boolean => {
     const newErrors: typeof errors = {};
-    if (!fullName.trim()) {
-      newErrors.fullName = t.auth.nameRequired;
-    }
-    if (!email.trim()) {
-      newErrors.email = t.auth.emailRequired;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      newErrors.email = t.auth.emailInvalid;
+    if (!token.trim()) {
+      newErrors.token = t.auth.resetTokenRequired;
     }
     if (!password) {
       newErrors.password = t.auth.passwordRequired;
@@ -52,19 +43,19 @@ export default function SignupScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignup = async () => {
+  const handleReset = async () => {
     if (!validate()) return;
     setLoading(true);
     try {
-      await signupWithEmail(email.trim().toLowerCase(), password, fullName.trim());
+      await resetPassword(token.trim(), password);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      showToast(t.auth.signupSuccess, "success");
-      router.replace("/(tabs)");
+      showToast(t.auth.resetPasswordSuccess, "success");
+      router.replace("/(auth)/login");
     } catch (e: unknown) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       const msg = e instanceof Error ? e.message : "";
-      if (msg.includes("already") || msg.includes("409")) {
-        setErrors({ email: t.auth.emailExists });
+      if (msg.includes("Invalid") || msg.includes("expired") || msg.includes("400")) {
+        setErrors({ token: t.auth.invalidResetToken });
       } else {
         showToast(t.toast.error, "error");
       }
@@ -113,7 +104,7 @@ export default function SignupScreen() {
             textAlign: isRTL ? "right" : "left",
           }}
         >
-          {t.auth.signup}
+          {t.auth.resetPassword}
         </Text>
       </View>
 
@@ -127,39 +118,34 @@ export default function SignupScreen() {
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
       >
-        {/* Full Name */}
-        <AppInput
-          label={t.auth.fullName}
-          value={fullName}
-          onChangeText={(v) => {
-            setFullName(v);
-            if (errors.fullName) setErrors((e) => ({ ...e, fullName: undefined }));
+        <Text
+          style={{
+            fontSize: 15,
+            color: theme.textSecondary,
+            textAlign: isRTL ? "right" : "left",
+            lineHeight: 24,
           }}
-          placeholder={isRTL ? "محمد أحمد" : "John Doe"}
-          autoCapitalize="words"
-          autoComplete="name"
-          error={errors.fullName}
-        />
+        >
+          {t.auth.resetPasswordDesc}
+        </Text>
 
-        {/* Email */}
+        {/* Reset Token */}
         <AppInput
-          label={t.auth.email}
-          value={email}
+          label={t.auth.resetToken}
+          value={token}
           onChangeText={(v) => {
-            setEmail(v);
-            if (errors.email) setErrors((e) => ({ ...e, email: undefined }));
+            setToken(v);
+            if (errors.token) setErrors((e) => ({ ...e, token: undefined }));
           }}
-          placeholder="name@example.com"
-          keyboardType="email-address"
+          placeholder={t.auth.resetTokenPlaceholder}
           autoCapitalize="none"
-          autoComplete="email"
-          error={errors.email}
+          error={errors.token}
           fieldDirection="ltr"
         />
 
-        {/* Password */}
+        {/* New Password */}
         <AppInput
-          label={t.auth.password}
+          label={t.auth.newPassword}
           value={password}
           onChangeText={(v) => {
             setPassword(v);
@@ -197,10 +183,10 @@ export default function SignupScreen() {
           fieldDirection="ltr"
         />
 
-        {/* Sign Up Button */}
+        {/* Reset Button */}
         <AppButton
-          title={t.auth.signup}
-          onPress={handleSignup}
+          title={t.auth.resetPassword}
+          onPress={handleReset}
           loading={loading}
           disabled={loading}
           variant="primary"
@@ -209,67 +195,15 @@ export default function SignupScreen() {
           style={{ borderRadius: 16, paddingVertical: 18, marginTop: 8 }}
         />
 
-        {/* Divider */}
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginVertical: 4 }}>
-          <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-          <Text style={{ fontSize: 12, color: theme.textMuted }}>{t.auth.orContinueWith}</Text>
-          <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-        </View>
-
-        {/* Google Sign-In */}
+        {/* Back to Login */}
         <Pressable
-          onPress={async () => {
-            Haptics.selectionAsync();
-            if (!googleConfigured) {
-              showToast(t.auth.googleNotConfigured, "info");
-              return;
-            }
-            try {
-              await googleSignIn();
-            } catch {
-              showToast(t.toast.error, "error");
-            }
-          }}
-          disabled={googleLoading}
-          style={({ pressed }) => ({
-            flexDirection: isRTL ? "row-reverse" : "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 12,
-            paddingVertical: 16,
-            borderRadius: 16,
-            backgroundColor: pressed ? theme.cardSecondary : theme.card,
-            borderWidth: 1.5,
-            borderColor: theme.border,
-            opacity: googleLoading ? 0.6 : 1,
-          })}
+          onPress={() => router.replace("/(auth)/login")}
+          style={{ alignSelf: "center", marginTop: 12 }}
         >
-          {googleLoading ? (
-            <ActivityIndicator size="small" color={theme.text} />
-          ) : (
-            <Text style={{ fontSize: 20 }}>G</Text>
-          )}
-          <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text }}>
-            {t.auth.continueWithGoogle}
+          <Text style={{ fontSize: 14, color: theme.primary, fontWeight: "600" }}>
+            {t.auth.backToLogin}
           </Text>
         </Pressable>
-
-        {/* Login Link */}
-        <View
-          style={{
-            flexDirection: isRTL ? "row-reverse" : "row",
-            justifyContent: "center",
-            gap: 4,
-            marginTop: 12,
-          }}
-        >
-          <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t.auth.hasAccount}</Text>
-          <Pressable onPress={() => router.replace("/(auth)/login")}>
-            <Text style={{ fontSize: 14, color: theme.primary, fontWeight: "700" }}>
-              {t.auth.login}
-            </Text>
-          </Pressable>
-        </View>
       </KeyboardAwareScrollViewCompat>
     </View>
   );

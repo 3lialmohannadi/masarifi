@@ -349,6 +349,13 @@ export const en = {
     logoutSuccess: "Logged out successfully",
     sendResetLink: "Send Reset Link",
     backToLogin: "Back to Login",
+    resetToken: "Reset Token",
+    resetTokenPlaceholder: "Paste token from email",
+    resetTokenRequired: "Reset token is required",
+    resetPasswordDesc: "Enter the reset token you received and your new password.",
+    resetPasswordSuccess: "Password reset successfully",
+    invalidResetToken: "Invalid or expired reset token",
+    haveResetToken: "I have a reset token",
   },
   profile: {
     title: "Profile",
