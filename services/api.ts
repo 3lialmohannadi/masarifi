@@ -49,27 +49,44 @@ async function performLogin(): Promise<void> {
   const credentials = { username: "default", password: "default" };
 
   // Try login first
-  let res = await fetch(new URL("/api/auth/login", baseUrl).toString(), {
+  const loginUrl = new URL("/api/auth/login", baseUrl).toString();
+  let res = await fetch(loginUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
   });
 
-  // If login fails, try register
-  if (!res.ok) {
-    res = await fetch(new URL("/api/auth/register", baseUrl).toString(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credentials),
-    });
+  if (res.ok) {
+    const data = await res.json();
+    if (data.token) {
+      await setAuthToken(data.token);
+      return;
+    }
   }
+
+  const loginStatus = res.status;
+  const loginBody = await res.text().catch(() => "");
+  console.warn(`[Auth] login failed (${loginStatus}): ${loginBody}`);
+
+  // If login fails, try register
+  const registerUrl = new URL("/api/auth/register", baseUrl).toString();
+  res = await fetch(registerUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
 
   if (res.ok) {
     const data = await res.json();
     if (data.token) {
       await setAuthToken(data.token);
+      return;
     }
   }
+
+  const regStatus = res.status;
+  const regBody = await res.text().catch(() => "");
+  console.error(`[Auth] register also failed (${regStatus}): ${regBody}. Authentication unavailable.`);
 }
 
 export function getApiUrl(): string {
@@ -137,13 +154,15 @@ export async function apiRequest(
   }
 
   let lastError: unknown;
+  let didRetryAuth = false;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const res = await doFetch();
 
-      // If 401, the stored token is stale — re-authenticate and retry once
-      if (res.status === 401) {
+      // If 401 and haven't retried auth yet, re-authenticate and retry once
+      if (res.status === 401 && !didRetryAuth) {
+        didRetryAuth = true;
         await clearAuthToken();
         resetAuth();
         await ensureAuthenticated();
