@@ -20,6 +20,7 @@ interface CategoriesContextValue {
   deleteCategory: (id: string) => boolean;
   getCategory: (id?: string) => Category | undefined;
   getCategoriesByType: (type: CategoryType) => Category[];
+  clearAll: () => void;
   isLoaded: boolean;
 }
 
@@ -111,6 +112,10 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
 
   const getCategoriesByType = (type: CategoryType) => categories.filter((c) => c.type === type);
 
+  const clearAll = () => {
+    persist([]);
+  };
+
   const value = useMemo(
     () => ({
       categories,
@@ -119,6 +124,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
       deleteCategory,
       getCategory,
       getCategoriesByType,
+      clearAll,
       isLoaded,
     }),
     [categories, categoryIdsInUse, isLoaded]
