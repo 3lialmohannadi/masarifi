@@ -211,7 +211,7 @@ export const apiSpec = {
       post: {
         tags: ["Admin"],
         summary: "Reset all user data",
-        description: "Deletes all accounts, transactions, transfers, savings, and commitments for the authenticated user. Requires X-Confirm-Reset: true header.",
+        description: "Deletes all accounts, transactions, transfers, savings, and commitments. Requires X-Confirm-Reset: true header.",
         parameters: [{ name: "X-Confirm-Reset", in: "header", required: true, schema: { type: "string", enum: ["true"] } }],
         responses: { "200": { description: "Data reset" }, "400": { description: "Missing confirmation header" } },
       },

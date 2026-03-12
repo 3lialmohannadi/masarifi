@@ -77,9 +77,6 @@ export const planTypeEnum = pgEnum("plan_type", [
   "other",
 ]);
 
-export const genderEnum = pgEnum("gender", ["male", "female"]);
-export const authProviderEnum = pgEnum("auth_provider", ["email", "google"]);
-
 export const languageEnum = pgEnum("language", ["ar", "en"]);
 export const themeEnum = pgEnum("theme", ["light", "dark", "auto"]);
 export const dailyLimitModeEnum = pgEnum("daily_limit_mode", [
@@ -89,19 +86,13 @@ export const dailyLimitModeEnum = pgEnum("daily_limit_mode", [
 
 // ─── Tables ───────────────────────────────────────────────────────────────────
 
-// 1. users
+// 1. users (minimal — single default user, no auth)
 export const users = pgTable("users", {
   id: varchar("id", { length: 36 })
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
-  email: text("email").unique(),
   password: text("password").notNull(),
-  full_name: text("full_name"),
-  phone: text("phone"),
-  gender: genderEnum("gender"),
-  auth_provider: authProviderEnum("auth_provider").default("email").notNull(),
-  google_id: text("google_id").unique(),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -568,17 +559,6 @@ export const budgetsRelations = relations(budgets, ({ one }) => ({
 
 // ─── Zod Schemas (Insert) ─────────────────────────────────────────────────────
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  email: true,
-  password: true,
-  full_name: true,
-  phone: true,
-  gender: true,
-  auth_provider: true,
-  google_id: true,
-});
-
 export const insertAccountSchema = createInsertSchema(accounts).omit({
   id: true,
   created_at: true,
@@ -640,9 +620,6 @@ export const updateSettingsSchema = createInsertSchema(settings).partial().omit(
 });
 
 // ─── TypeScript Types ─────────────────────────────────────────────────────────
-
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
 
 export type Account = typeof accounts.$inferSelect;
 export type InsertAccount = z.infer<typeof insertAccountSchema>;
