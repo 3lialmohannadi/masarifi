@@ -417,6 +417,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: user.phone,
           gender: user.gender,
           auth_provider: user.auth_provider,
+          created_at: toIso(user.created_at),
+          updated_at: toIso(user.updated_at),
         },
       });
     } catch (e: unknown) {
@@ -449,6 +451,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: user.phone,
           gender: user.gender,
           auth_provider: user.auth_provider,
+          created_at: toIso(user.created_at),
+          updated_at: toIso(user.updated_at),
         },
       });
     } catch (e: unknown) {
@@ -493,6 +497,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: user.phone,
           gender: user.gender,
           auth_provider: user.auth_provider,
+          created_at: toIso(user.created_at),
+          updated_at: toIso(user.updated_at),
         },
       });
     } catch (e: unknown) {
