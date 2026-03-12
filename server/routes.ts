@@ -5,7 +5,7 @@ import { db } from "./db";
 import * as schema from "@database/schema";
 import { eq, and } from "drizzle-orm";
 import { z, ZodError } from "zod";
-import { hashPassword, comparePassword, generateToken, requireAuth, getUserId } from "./auth";
+import { requireAuth, getUserId } from "./auth";
 import { apiSpec } from "./api-docs";
 
 type AccountRow = typeof schema.accounts.$inferSelect;
@@ -147,48 +147,6 @@ function normCategory(c: CategoryRow) {
 
 // ── Validation Schemas ────────────────────────────────────────────────────────
 
-const registerSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters").max(50),
-  password: z.string().min(6, "Password must be at least 6 characters").max(128),
-});
-
-const emailRegisterSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters").max(128),
-  full_name: z.string().min(1, "Full name is required").max(100),
-});
-
-const emailLoginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-
-const googleAuthSchema = z.object({
-  google_id: z.string().min(1, "Google ID is required"),
-  email: z.string().email("Invalid email address"),
-  full_name: z.string().optional(),
-});
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Invalid email address"),
-});
-
-const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Token is required"),
-  password: z.string().min(6, "Password must be at least 6 characters").max(128),
-});
-
-const updateProfileSchema = z.object({
-  full_name: z.string().min(1).max(100).optional(),
-  phone: z.string().max(20).optional().nullable(),
-  gender: z.enum(["male", "female"]).optional().nullable(),
-});
-
-const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(1, "Password is required"),
-});
-
 const createAccountSchema = z.object({
   name_ar: z.string().min(1, "Arabic name is required"),
   name_en: z.string().min(1, "English name is required"),
@@ -300,25 +258,18 @@ function handleError(res: Response, e: unknown) {
   return res.status(500).json({ message: errMsg(e) });
 }
 
-// ── Backwards compatibility: default user bootstrap ─────────────────────────
+// ── Default user bootstrap ──────────────────────────────────────────────────
 
-const DEFAULT_USER_ID = "default-user";
+const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 async function ensureDefaultUser() {
   try {
-    const hashedPassword = await hashPassword("default");
-    // Check by username (not ID) since the user may have been created via register with a different ID
-    const existing = await storage.getUserByUsername("default");
-    if (existing) {
-      // Ensure password is always in sync
-      await db.update(schema.users)
-        .set({ password: hashedPassword })
-        .where(eq(schema.users.id, existing.id));
-    } else {
+    const existing = await db.select().from(schema.users).where(eq(schema.users.id, DEFAULT_USER_ID)).limit(1);
+    if (existing.length === 0) {
       await db.insert(schema.users).values({
         id: DEFAULT_USER_ID,
         username: "default",
-        password: hashedPassword,
+        password: "no-auth",
       }).onConflictDoNothing();
     }
   } catch (e) {
@@ -335,220 +286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(apiSpec);
   });
 
-  // ── Auth Routes (public) ──────────────────────────────────────────────────
-
-  app.post("/api/auth/register", async (req: Request, res: Response) => {
-    try {
-      const { username, password } = registerSchema.parse(req.body);
-
-      const existingUser = await storage.getUserByUsername(username);
-      if (existingUser) {
-        return res.status(409).json({ message: "Username already exists" });
-      }
-
-      const hashedPassword = await hashPassword(password);
-      const user = await storage.createUser({
-        username,
-        password: hashedPassword,
-      });
-
-      const token = generateToken(user.id);
-      res.status(201).json({ token, userId: user.id });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  app.post("/api/auth/login", async (req: Request, res: Response) => {
-    try {
-      const { username, password } = loginSchema.parse(req.body);
-
-      const user = await storage.getUserByUsername(username);
-      if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      const isValid = await comparePassword(password, user.password);
-      if (!isValid) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      const token = generateToken(user.id);
-      res.json({ token, userId: user.id });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  // ── Email Auth Routes (public) ────────────────────────────────────────────
-
-  app.post("/api/auth/email/register", async (req: Request, res: Response) => {
-    try {
-      const { email, password, full_name } = emailRegisterSchema.parse(req.body);
-
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(409).json({ message: "Email already registered" });
-      }
-
-      // Also check if email is already taken as a legacy username
-      const existingUsername = await storage.getUserByUsername(email);
-      if (existingUsername) {
-        return res.status(409).json({ message: "Email already registered" });
-      }
-
-      const hashedPassword = await hashPassword(password);
-      const user = await storage.createUser({
-        username: email,
-        email,
-        password: hashedPassword,
-        full_name,
-        auth_provider: "email",
-      });
-
-      const token = generateToken(user.id);
-      res.status(201).json({
-        token,
-        userId: user.id,
-        user: {
-          id: user.id,
-          email: user.email,
-          full_name: user.full_name,
-          phone: user.phone,
-          gender: user.gender,
-          auth_provider: user.auth_provider,
-          created_at: toIso(user.created_at),
-          updated_at: toIso(user.updated_at),
-        },
-      });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  app.post("/api/auth/email/login", async (req: Request, res: Response) => {
-    try {
-      const { email, password } = emailLoginSchema.parse(req.body);
-
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        return res.status(401).json({ message: "Invalid email or password" });
-      }
-
-      const isValid = await comparePassword(password, user.password);
-      if (!isValid) {
-        return res.status(401).json({ message: "Invalid email or password" });
-      }
-
-      const token = generateToken(user.id);
-      res.json({
-        token,
-        userId: user.id,
-        user: {
-          id: user.id,
-          email: user.email,
-          full_name: user.full_name,
-          phone: user.phone,
-          gender: user.gender,
-          auth_provider: user.auth_provider,
-          created_at: toIso(user.created_at),
-          updated_at: toIso(user.updated_at),
-        },
-      });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  app.post("/api/auth/google", async (req: Request, res: Response) => {
-    try {
-      const { google_id, email, full_name } = googleAuthSchema.parse(req.body);
-
-      let user = await storage.getUserByGoogleId(google_id);
-
-      if (!user) {
-        // Check if a user with this email already exists
-        user = await storage.getUserByEmail(email);
-        if (user) {
-          // Link Google account to existing user
-          user = await storage.updateUser(user.id, { google_id, auth_provider: "google" });
-        } else {
-          // Create new user
-          const hashedPassword = await hashPassword(google_id + Date.now());
-          user = await storage.createUser({
-            username: email,
-            email,
-            password: hashedPassword,
-            full_name: full_name || null,
-            auth_provider: "google",
-            google_id,
-          });
-        }
-      }
-
-      const token = generateToken(user.id);
-      res.json({
-        token,
-        userId: user.id,
-        user: {
-          id: user.id,
-          email: user.email,
-          full_name: user.full_name,
-          phone: user.phone,
-          gender: user.gender,
-          auth_provider: user.auth_provider,
-          created_at: toIso(user.created_at),
-          updated_at: toIso(user.updated_at),
-        },
-      });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  app.post("/api/auth/forgot-password", async (req: Request, res: Response) => {
-    try {
-      const { email } = forgotPasswordSchema.parse(req.body);
-
-      const user = await storage.getUserByEmail(email);
-      // Always return success to prevent email enumeration
-      if (!user) {
-        return res.json({ message: "If an account with this email exists, a reset link has been sent." });
-      }
-
-      // Generate a reset token (using the JWT mechanism with short expiry)
-      const resetToken = generateToken(user.id);
-
-      // In production, send an email with the reset link.
-      // For now, we return a success message. The token can be used directly.
-      console.log(`[Auth] Password reset requested for ${email}. Token: ${resetToken}`);
-
-      res.json({ message: "If an account with this email exists, a reset link has been sent." });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  app.post("/api/auth/reset-password", async (req: Request, res: Response) => {
-    try {
-      const { token, password } = resetPasswordSchema.parse(req.body);
-      const { verifyToken } = await import("./auth");
-
-      const payload = verifyToken(token);
-      if (!payload) {
-        return res.status(400).json({ message: "Invalid or expired reset token" });
-      }
-
-      const hashedPassword = await hashPassword(password);
-      await storage.updateUser(payload.userId, { password: hashedPassword });
-
-      res.json({ message: "Password reset successfully" });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  // ── All routes below require authentication ─────────────────────────────
+  // ── All routes below use the default user ─────────────────────────────
 
   app.use("/api/accounts", requireAuth);
   app.use("/api/categories", requireAuth);
@@ -558,52 +296,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/savings-transactions", requireAuth);
   app.use("/api/commitments", requireAuth);
   app.use("/api/reset", requireAuth);
-  app.use("/api/profile", requireAuth);
-
-  // ── Profile ──────────────────────────────────────────────────────────────
-
-  app.get("/api/profile", async (req: Request, res: Response) => {
-    try {
-      const userId = getUserId(req);
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.json({
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        phone: user.phone,
-        gender: user.gender,
-        auth_provider: user.auth_provider,
-        created_at: toIso(user.created_at),
-        updated_at: toIso(user.updated_at),
-      });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
-  app.patch("/api/profile", async (req: Request, res: Response) => {
-    try {
-      const userId = getUserId(req);
-      const validated = updateProfileSchema.parse(req.body);
-      const user = await storage.updateUser(userId, validated);
-      res.json({
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        phone: user.phone,
-        gender: user.gender,
-        auth_provider: user.auth_provider,
-        created_at: toIso(user.created_at),
-        updated_at: toIso(user.updated_at),
-      });
-    } catch (e: unknown) {
-      handleError(res, e);
-    }
-  });
-
   // ── Accounts ──────────────────────────────────────────────────────────────
 
   app.get("/api/accounts", async (req: Request, res: Response) => {
