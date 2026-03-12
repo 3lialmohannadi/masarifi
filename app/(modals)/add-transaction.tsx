@@ -349,7 +349,7 @@ export default function AddTransactionModal() {
                 color: type === "income" ? theme.income : theme.expense,
                 textAlign: "center",
                 width: "100%",
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
               }}
             />
             {selectedAccount && (
@@ -511,7 +511,7 @@ export default function AddTransactionModal() {
                 fontSize: 14,
                 paddingVertical: 12,
                 textAlign: isRTL ? "right" : "left",
-                ...Platform.select({ web: { outlineStyle: "none" } } as any),
+                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
               }}
             />
           </View>

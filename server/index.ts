@@ -15,6 +15,8 @@ declare module "http" {
 }
 
 function setupCors(app: express.Application) {
+  const allowedLocalPorts = new Set(["3000", "5000", "8081", "19000", "19006"]);
+
   app.use((req, res, next) => {
     const origins = new Set<string>();
 
@@ -28,20 +30,34 @@ function setupCors(app: express.Application) {
       });
     }
 
+    // Allow additional origins from environment
+    if (process.env.CORS_ORIGINS) {
+      process.env.CORS_ORIGINS.split(",").forEach((o) => {
+        origins.add(o.trim());
+      });
+    }
+
     const origin = req.header("origin");
 
-    // Allow localhost origins for Expo web development (any port)
-    const isLocalhost =
-      origin?.startsWith("http://localhost:") ||
-      origin?.startsWith("http://127.0.0.1:");
+    // Allow localhost origins only on specific Expo/dev ports in development
+    let isAllowedLocalhost = false;
+    if (process.env.NODE_ENV === "development" && origin) {
+      try {
+        const url = new URL(origin);
+        const isLocal = url.hostname === "localhost" || url.hostname === "127.0.0.1";
+        isAllowedLocalhost = isLocal && allowedLocalPorts.has(url.port);
+      } catch {
+        // Invalid origin URL
+      }
+    }
 
-    if (origin && (origins.has(origin) || isLocalhost)) {
+    if (origin && (origins.has(origin) || isAllowedLocalhost)) {
       res.header("Access-Control-Allow-Origin", origin);
       res.header(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS",
+        "GET, POST, PUT, PATCH, DELETE, OPTIONS",
       );
-      res.header("Access-Control-Allow-Headers", "Content-Type");
+      res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Confirm-Reset");
       res.header("Access-Control-Allow-Credentials", "true");
     }
 

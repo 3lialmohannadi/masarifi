@@ -11,6 +11,7 @@ import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { createDefaultSavingsWallet } from "@/utils/defaults";
 import { apiRequest } from "@/services/api";
+import { createSyncFn } from "@/utils/syncHelper";
 
 interface SavingsContextValue {
   wallets: SavingsWallet[];
@@ -32,6 +33,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
   const [wallets, setWallets] = useState<SavingsWallet[]>([]);
   const [savingsTransactions, setSavingsTransactions] = useState<SavingsTransaction[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const sync = createSyncFn();
 
   useEffect(() => {
     async function hydrate() {
@@ -120,7 +122,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persistWallets([...wallets, newWallet]);
-    apiRequest("POST", "/api/savings-wallets", newWallet).catch(console.error);
+    apiRequest("POST", "/api/savings-wallets", newWallet).catch((e: unknown) => console.error("[Sync]", e));
     return newWallet;
   };
 
@@ -130,7 +132,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     );
     persistWallets(updated);
     const record = updated.find((w) => w.id === id);
-    if (record) apiRequest("PATCH", `/api/savings-wallets/${id}`, record).catch(console.error);
+    if (record) apiRequest("PATCH", `/api/savings-wallets/${id}`, record).catch((e: unknown) => console.error("[Sync]", e));
   };
 
   const deleteWallet = (id: string) => {
@@ -138,7 +140,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     if (wallet?.is_default) return;
     persistWallets(wallets.filter((w) => w.id !== id));
     persistTransactions(savingsTransactions.filter((t) => t.wallet_id !== id));
-    apiRequest("DELETE", `/api/savings-wallets/${id}`).catch(console.error);
+    apiRequest("DELETE", `/api/savings-wallets/${id}`).catch((e: unknown) => console.error("[Sync]", e));
   };
 
   const getWallet = (id: string) => wallets.find((w) => w.id === id);
@@ -162,10 +164,10 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
     );
     persistWallets(updatedWallets);
 
-    apiRequest("POST", "/api/savings-transactions", newTx).catch(console.error);
+    apiRequest("POST", "/api/savings-transactions", newTx).catch((e: unknown) => console.error("[Sync]", e));
     const updatedWallet = updatedWallets.find((w) => w.id === tx.wallet_id);
     if (updatedWallet) {
-      apiRequest("PATCH", `/api/savings-wallets/${tx.wallet_id}`, updatedWallet).catch(console.error);
+      apiRequest("PATCH", `/api/savings-wallets/${tx.wallet_id}`, updatedWallet).catch((e: unknown) => console.error("[Sync]", e));
     }
     return newTx;
   };

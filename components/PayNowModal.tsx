@@ -203,7 +203,7 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
               borderColor: theme.inputBorder,
               textAlign: isRTL ? "right" : "left",
               fontSize: 14,
-              ...Platform.select({ web: { outlineStyle: "none" } } as any),
+              ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
             }}
             placeholderTextColor={theme.textMuted}
           />

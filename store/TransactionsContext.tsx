@@ -10,6 +10,7 @@ import type { Transaction, Transfer } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { apiRequest } from "@/services/api";
+import { createSyncFn } from "@/utils/syncHelper";
 
 interface TransactionsContextValue {
   transactions: Transaction[];
@@ -32,6 +33,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const sync = createSyncFn();
 
   useEffect(() => {
     async function hydrate() {
@@ -113,7 +115,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persistTx([...transactions, newTx]);
-    apiRequest("POST", "/api/transactions", newTx).catch(console.error);
+    sync(apiRequest("POST", "/api/transactions", newTx), "create transaction");
     return newTx;
   };
 
@@ -123,24 +125,24 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     );
     persistTx(updated);
     const record = updated.find((t) => t.id === id);
-    if (record) apiRequest("PATCH", `/api/transactions/${id}`, record).catch(console.error);
+    if (record) sync(apiRequest("PATCH", `/api/transactions/${id}`, record), "update transaction");
   };
 
   const deleteTransaction = (id: string) => {
     persistTx(transactions.filter((t) => t.id !== id));
-    apiRequest("DELETE", `/api/transactions/${id}`).catch(console.error);
+    sync(apiRequest("DELETE", `/api/transactions/${id}`), "delete transaction");
   };
 
   const addTransfer = (transfer: Omit<Transfer, "id" | "created_at">): Transfer => {
     const newTransfer: Transfer = { ...transfer, id: generateId(), created_at: now() };
     persistTf([...transfers, newTransfer]);
-    apiRequest("POST", "/api/transfers", newTransfer).catch(console.error);
+    sync(apiRequest("POST", "/api/transfers", newTransfer), "create transfer");
     return newTransfer;
   };
 
   const deleteTransfer = (id: string) => {
     persistTf(transfers.filter((t) => t.id !== id));
-    apiRequest("DELETE", `/api/transfers/${id}`).catch(console.error);
+    sync(apiRequest("DELETE", `/api/transfers/${id}`), "delete transfer");
   };
 
   const getTransactionsByAccount = (accountId: string) =>

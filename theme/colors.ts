@@ -31,6 +31,7 @@ export const AppColors = {
 };
 
 export const LightTheme = {
+  ...AppColors,
   background: "#F4F7F7",
   backgroundSecondary: "#EBF2F1",
   card: "#FFFFFF",
@@ -40,27 +41,22 @@ export const LightTheme = {
   text: "#1F2A44",
   textSecondary: "#6B7280",
   textMuted: "#9CA3AF",
-  primary: teal,
-  primaryDark: tealDark,
   primaryLight: "#E0F0EE",
-  secondary: "#A7C7C3",
   tabBar: "#FFFFFF",
   header: "#FFFFFF",
   input: "#F4F7F7",
   inputBorder: "#D4E4E2",
   shadow: "#2F8F83",
   overlay: "rgba(0,0,0,0.4)",
-  income: "#22C55E",
-  expense: "#EF4444",
   incomeBackground: "#F0FDF4",
   expenseBackground: "#FEF2F2",
   warningBackground: "#FFFBEB",
   warningText: "#D97706",
   warningBorder: "#FDE68A",
-  ...AppColors,
 };
 
 export const DarkTheme = {
+  ...AppColors,
   background: "#0F1E1C",
   backgroundSecondary: "#122220",
   card: "#1A2E2B",
@@ -70,24 +66,18 @@ export const DarkTheme = {
   text: "#E8F2F1",
   textSecondary: "#A7C7C3",
   textMuted: "#6B8E8B",
-  primary: teal,
-  primaryDark: tealDark,
   primaryLight: "#0D2E2B",
-  secondary: "#A7C7C3",
   tabBar: "#1A2E2B",
   header: "#1A2E2B",
   input: "#1A2E2B",
   inputBorder: "#2A4440",
   shadow: "#000000",
   overlay: "rgba(0,0,0,0.7)",
-  income: "#22C55E",
-  expense: "#EF4444",
   incomeBackground: "#052e16",
   expenseBackground: "#450a0a",
   warningBackground: "#451a03",
   warningText: "#FBBF24",
   warningBorder: "#78350F",
-  ...AppColors,
 };
 
 export type Theme = typeof LightTheme;
