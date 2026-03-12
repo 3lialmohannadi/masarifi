@@ -19,6 +19,50 @@ export async function clearAuthToken(): Promise<void> {
   await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
 }
 
+/**
+ * Ensure the app is authenticated.
+ * If no token is stored, auto-login as the default user.
+ * If login fails (user doesn't exist yet), auto-register first.
+ */
+let authPromise: Promise<void> | null = null;
+export function ensureAuthenticated(): Promise<void> {
+  if (!authPromise) {
+    authPromise = doEnsureAuth();
+  }
+  return authPromise;
+}
+
+async function doEnsureAuth(): Promise<void> {
+  const existing = await getAuthToken();
+  if (existing) return;
+
+  const baseUrl = getApiUrl();
+  const credentials = { username: "default", password: "default" };
+
+  // Try login first
+  let res = await fetch(new URL("/api/auth/login", baseUrl).toString(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+
+  // If login fails, try register
+  if (!res.ok) {
+    res = await fetch(new URL("/api/auth/register", baseUrl).toString(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+    });
+  }
+
+  if (res.ok) {
+    const data = await res.json();
+    if (data.token) {
+      await setAuthToken(data.token);
+    }
+  }
+}
+
 export function getApiUrl(): string {
   let host = process.env.EXPO_PUBLIC_DOMAIN;
 

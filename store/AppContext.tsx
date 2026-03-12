@@ -13,6 +13,7 @@ import type { Language, ThemeMode, DailyLimitMode, AppSettings } from "@/types";
 import { LightTheme, DarkTheme, type Theme } from "@/theme/colors";
 import { getTranslations, type TranslationKeys } from "@/i18n";
 import { loadData, saveData, KEYS } from "@/utils/storage";
+import { ensureAuthenticated } from "@/services/api";
 
 const DEFAULT_SETTINGS: AppSettings = {
   language: "ar",
@@ -62,8 +63,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    loadData<AppSettings>(KEYS.SETTINGS)
-      .then((saved) => {
+    Promise.all([
+      loadData<AppSettings>(KEYS.SETTINGS),
+      ensureAuthenticated().catch(() => {}),
+    ])
+      .then(([saved]) => {
         if (saved) {
           setSettings({ ...DEFAULT_SETTINGS, ...saved });
         }
