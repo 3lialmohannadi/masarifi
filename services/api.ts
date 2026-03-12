@@ -32,10 +32,19 @@ export function ensureAuthenticated(): Promise<void> {
   return authPromise;
 }
 
+/** Clear cached auth state so the next ensureAuthenticated() re-authenticates */
+export function resetAuth(): void {
+  authPromise = null;
+}
+
 async function doEnsureAuth(): Promise<void> {
   const existing = await getAuthToken();
   if (existing) return;
 
+  await performLogin();
+}
+
+async function performLogin(): Promise<void> {
   const baseUrl = getApiUrl();
   const credentials = { username: "default", password: "default" };
 
@@ -112,22 +121,36 @@ export async function apiRequest(
   await ensureAuthenticated();
   const baseUrl = getApiUrl();
   const url = new URL(route, baseUrl);
-  const token = await getAuthToken();
 
-  const headers: Record<string, string> = {};
-  if (data) headers["Content-Type"] = "application/json";
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  async function doFetch(): Promise<Response> {
+    const token = await getAuthToken();
+    const headers: Record<string, string> = {};
+    if (data) headers["Content-Type"] = "application/json";
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    return fetch(url.toString(), {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
+  }
 
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const res = await fetch(url.toString(), {
-        method,
-        headers,
-        body: data ? JSON.stringify(data) : undefined,
-        credentials: "include",
-      });
+      const res = await doFetch();
+
+      // If 401, the stored token is stale — re-authenticate and retry once
+      if (res.status === 401) {
+        await clearAuthToken();
+        resetAuth();
+        await ensureAuthenticated();
+        const retryRes = await doFetch();
+        await throwIfResNotOk(retryRes);
+        return retryRes;
+      }
 
       await throwIfResNotOk(res);
       return res;
@@ -153,15 +176,23 @@ export const getQueryFn: <T>(options: {
     await ensureAuthenticated();
     const baseUrl = getApiUrl();
     const url = new URL(queryKey.join("/") as string, baseUrl);
-    const token = await getAuthToken();
 
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    async function doFetch(): Promise<Response> {
+      const token = await getAuthToken();
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      return fetch(url.toString(), { credentials: "include", headers });
+    }
 
-    const res = await fetch(url.toString(), {
-      credentials: "include",
-      headers,
-    });
+    let res = await doFetch();
+
+    // If 401 and token might be stale, re-authenticate and retry
+    if (res.status === 401) {
+      await clearAuthToken();
+      resetAuth();
+      await ensureAuthenticated();
+      res = await doFetch();
+    }
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
