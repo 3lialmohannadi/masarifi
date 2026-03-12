@@ -58,8 +58,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loginWithEmail = useCallback(async (email: string, password: string) => {
-    const res = await authApiRequest("POST", "/api/auth/email/login", { email, password });
+    let res: Response;
+    try {
+      res = await authApiRequest("POST", "/api/auth/email/login", { email, password });
+    } catch {
+      throw new Error("NETWORK_ERROR");
+    }
     if (!res.ok) {
+      if (res.status >= 500) throw new Error("SERVER_ERROR");
       const data = await res.json().catch(() => ({ message: "Login failed" }));
       throw new Error(data.message || "Login failed");
     }
@@ -70,12 +76,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signupWithEmail = useCallback(async (email: string, password: string, fullName: string) => {
-    const res = await authApiRequest("POST", "/api/auth/email/register", {
-      email,
-      password,
-      full_name: fullName,
-    });
+    let res: Response;
+    try {
+      res = await authApiRequest("POST", "/api/auth/email/register", {
+        email,
+        password,
+        full_name: fullName,
+      });
+    } catch {
+      throw new Error("NETWORK_ERROR");
+    }
     if (!res.ok) {
+      if (res.status >= 500) throw new Error("SERVER_ERROR");
       const data = await res.json().catch(() => ({ message: "Registration failed" }));
       throw new Error(data.message || "Registration failed");
     }

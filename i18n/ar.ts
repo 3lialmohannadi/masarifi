@@ -356,6 +356,8 @@ export const ar = {
     resetPasswordSuccess: "تم إعادة تعيين كلمة المرور بنجاح",
     invalidResetToken: "رمز إعادة التعيين غير صالح أو منتهي الصلاحية",
     haveResetToken: "لدي رمز إعادة تعيين",
+    networkError: "تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.",
+    serverError: "خطأ في الخادم. حاول مرة أخرى لاحقاً.",
   },
   profile: {
     title: "الملف الشخصي",
