@@ -203,6 +203,10 @@ function configureExpoAndLanding(app: express.Application) {
 
   log("Serving static Expo files with dynamic manifest routing");
 
+  // Check if a web export exists in dist/
+  const distPath = path.resolve(process.cwd(), "dist");
+  const hasWebExport = fs.existsSync(path.join(distPath, "index.html"));
+
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith("/api")) {
       return next();
@@ -210,18 +214,25 @@ function configureExpoAndLanding(app: express.Application) {
 
     const platform = req.header("expo-platform");
 
+    // Serve Expo Go manifests (mobile)
+    if ((req.path === "/" || req.path === "/manifest") && (platform === "ios" || platform === "android")) {
+      if (isDev) {
+        return (metroProxy as express.RequestHandler)(req, res, next);
+      }
+      return serveExpoManifest(platform, req, res);
+    }
+
+    // If web export exists, serve it (skip landing page and Metro proxy)
+    if (hasWebExport) {
+      return next();
+    }
+
+    // No web export: use Metro proxy in dev, landing page in prod
     if (isDev) {
-      if (req.path === "/" || req.path === "/manifest") {
-        if (platform === "ios" || platform === "android") {
-          return (metroProxy as express.RequestHandler)(req, res, next);
-        }
+      if (req.path === "/") {
         return serveLandingPage({ req, res, landingPageTemplate, appName });
       }
       return (metroProxy as express.RequestHandler)(req, res, next);
-    }
-
-    if ((req.path === "/" || req.path === "/manifest") && (platform === "ios" || platform === "android")) {
-      return serveExpoManifest(platform, req, res);
     }
 
     if (req.path === "/") {
@@ -233,6 +244,19 @@ function configureExpoAndLanding(app: express.Application) {
 
   app.use("/assets", express.static(path.resolve(process.cwd(), "assets")));
   app.use(express.static(path.resolve(process.cwd(), "static-build")));
+
+  // Serve web export from dist/ with SPA fallback
+  if (hasWebExport) {
+    app.use(express.static(distPath));
+    // SPA fallback: serve index.html for all non-API, non-file routes
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      if (req.path.startsWith("/api") || req.path.includes(".")) {
+        return next();
+      }
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+    log("Serving web app from dist/");
+  }
 
   log("Expo routing: Checking expo-platform header on / and /manifest");
 }
