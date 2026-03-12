@@ -18,7 +18,7 @@ type CategoryRow = typeof schema.categories.$inferSelect;
 
 /** Safely extract a route param as string (Express 5 returns string | string[]). */
 function paramId(req: Request): string {
-  const id = paramId(req);
+  const id = req.params.id;
   return Array.isArray(id) ? id[0] : id;
 }
 

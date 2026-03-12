@@ -14,7 +14,8 @@ interface SavingsWalletCardProps {
 }
 
 export const SavingsWalletCard = React.memo(function SavingsWalletCard({ wallet, onPress }: SavingsWalletCardProps) {
-  const { theme, language, t, isRTL, isDark } = useApp();
+  const { theme, language, t, isRTL, isDark, settings } = useApp();
+  const currency = settings.default_currency;
 
   const isGoal = wallet.type === "goal_savings";
   const hasGoal = isGoal && !!wallet.target_amount && Number(wallet.target_amount) > 0;
@@ -62,11 +63,11 @@ export const SavingsWalletCard = React.memo(function SavingsWalletCard({ wallet,
             </View>
             <View style={{ alignItems: isRTL ? "flex-start" : "flex-end" }}>
               <Text style={{ fontSize: 18, fontWeight: "800", color: "#fff" }}>
-                {formatCurrency(wallet.current_amount, "QAR", language)}
+                {formatCurrency(wallet.current_amount, currency, language)}
               </Text>
               {hasGoal && (
                 <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>
-                  / {formatCurrency(Number(wallet.target_amount!), "QAR", language)}
+                  / {formatCurrency(Number(wallet.target_amount!), currency, language)}
                 </Text>
               )}
             </View>
@@ -98,7 +99,7 @@ export const SavingsWalletCard = React.memo(function SavingsWalletCard({ wallet,
             <View style={{ width: 1, height: 30, backgroundColor: theme.border }} />
             <View style={{ flex: 1, alignItems: "center", gap: 2 }}>
               <Text style={{ fontSize: 13, fontWeight: "700", color: theme.text }} numberOfLines={1}>
-                {formatCurrency(wallet.current_amount, "QAR", language)}
+                {formatCurrency(wallet.current_amount, currency, language)}
               </Text>
               <Text style={{ fontSize: 10, color: theme.textMuted }}>{t.savings.currentAmount}</Text>
             </View>
@@ -108,7 +109,7 @@ export const SavingsWalletCard = React.memo(function SavingsWalletCard({ wallet,
                 style={{ fontSize: 13, fontWeight: "700", color: remaining > 0 ? theme.expense : theme.income }}
                 numberOfLines={1}
               >
-                {formatCurrency(remaining, "QAR", language)}
+                {formatCurrency(remaining, currency, language)}
               </Text>
               <Text style={{ fontSize: 10, color: theme.textMuted }}>{t.savings.remaining}</Text>
             </View>

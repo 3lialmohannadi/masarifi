@@ -116,7 +116,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     if (!categorySearch.trim()) return allCategories;
     const q = categorySearch.toLowerCase();
     return allCategories.filter(
-      (c) => c.name_ar.includes(categorySearch) || c.name_en.toLowerCase().includes(q)
+      (c) => c.name_ar.includes(q) || c.name_en.toLowerCase().includes(q)
     );
   }, [allCategories, categorySearch]);
 

@@ -46,7 +46,7 @@ export function CategoryPickerModal({
   const filtered = search.trim()
     ? categories.filter(
         (c) =>
-          c.name_ar.includes(search) ||
+          c.name_ar.includes(search.toLowerCase()) ||
           c.name_en.toLowerCase().includes(search.toLowerCase())
       )
     : categories;

@@ -30,7 +30,7 @@ type SourceType = "internal" | "external";
 
 export default function SavingsMovementModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, selectedAccountId, isRTL, showToast } = useApp();
+  const { theme, t, language, selectedAccountId, isRTL, showToast, settings } = useApp();
   const { wallets, addSavingsTransaction } = useSavings();
   const { accounts, updateBalance } = useAccounts();
   const { addTransaction } = useTransactions();
@@ -395,7 +395,7 @@ export default function SavingsMovementModal() {
                 <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: selectedWallet.color }} />
                 <Text style={{ color: theme.text, fontWeight: "600", flex: 1 }}>{getDisplayName(selectedWallet, language)}</Text>
                 <Text style={{ color: theme.textSecondary, fontSize: 13 }}>
-                  {formatCurrency(selectedWallet.current_amount, "QAR", language)}
+                  {formatCurrency(selectedWallet.current_amount, settings.default_currency, language)}
                 </Text>
               </View>
             ) : (
@@ -651,7 +651,7 @@ export default function SavingsMovementModal() {
                       {getDisplayName(item, language)}
                     </Text>
                     <Text style={{ color: theme.textSecondary, fontSize: 12, textAlign: isRTL ? "right" : "left" }}>
-                      {formatCurrency(item.current_amount, "QAR", language)}
+                      {formatCurrency(item.current_amount, settings.default_currency, language)}
                     </Text>
                   </View>
                   {item.id === walletId && <Feather name="check" size={16} color={theme.primary} />}

@@ -18,6 +18,7 @@ export type CategoryType =
   | "expense"
   | "savings"
   | "commitment"
+  | "plan"
   | "general";
 
 export type CommitmentStatus =
