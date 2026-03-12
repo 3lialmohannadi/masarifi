@@ -16,6 +16,12 @@ type SavingsTxRow = typeof schema.savingsTransactions.$inferSelect;
 type CommitmentRow = typeof schema.commitments.$inferSelect;
 type CategoryRow = typeof schema.categories.$inferSelect;
 
+/** Safely extract a route param as string (Express 5 returns string | string[]). */
+function paramId(req: Request): string {
+  const id = paramId(req);
+  return Array.isArray(id) ? id[0] : id;
+}
+
 function errMsg(e: unknown): string {
   if (e instanceof ZodError) {
     return e.errors.map((err) => `${err.path.join(".")}: ${err.message}`).join("; ");
@@ -364,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = getUserId(req);
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createAccountSchema.parse(body);
-      const data: schema.InsertAccount = {
+      const data = {
         ...validated,
         id: id || undefined,
         user_id: userId,
@@ -379,13 +385,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/accounts/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getAccount(req.params.id);
+      const existing = await storage.getAccount(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Account not found" });
       }
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = updateAccountSchema.parse(body);
-      const row = await storage.updateAccount(req.params.id, validated);
+      const row = await storage.updateAccount(paramId(req), validated);
       if (!row) return res.status(404).json({ message: "Account not found" });
       res.json(normAccount(row));
     } catch (e: unknown) {
@@ -396,7 +402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/accounts/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getAccount(req.params.id);
+      const existing = await storage.getAccount(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Account not found" });
       }
@@ -404,7 +410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const commitmentRefs = await db.select({ id: schema.commitments.id })
         .from(schema.commitments)
         .where(and(
-          eq(schema.commitments.account_id, req.params.id),
+          eq(schema.commitments.account_id, paramId(req)),
           eq(schema.commitments.user_id, userId)
         ))
         .limit(1);
@@ -412,7 +418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(409).json({ message: "Cannot delete account: it has linked commitments. Remove them first." });
       }
       // Soft-delete
-      await storage.updateAccount(req.params.id, { is_active: false });
+      await storage.updateAccount(paramId(req), { is_active: false });
       res.json({ ok: true });
     } catch (e: unknown) {
       handleError(res, e);
@@ -436,7 +442,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = getUserId(req);
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createCategorySchema.parse(body);
-      const data: schema.InsertCategory = {
+      const data = {
         ...validated,
         id: id || undefined,
         user_id: userId,
@@ -451,13 +457,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/categories/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getCategory(req.params.id);
+      const existing = await storage.getCategory(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Category not found" });
       }
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = updateCategorySchema.parse(body);
-      const row = await storage.updateCategory(req.params.id, validated);
+      const row = await storage.updateCategory(paramId(req), validated);
       if (!row) return res.status(404).json({ message: "Category not found" });
       res.json(normCategory(row));
     } catch (e: unknown) {
@@ -468,19 +474,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/categories/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getCategory(req.params.id);
+      const existing = await storage.getCategory(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Category not found" });
       }
       // Check for referencing transactions
       const txRefs = await db.select({ id: schema.transactions.id })
         .from(schema.transactions)
-        .where(eq(schema.transactions.category_id, req.params.id))
+        .where(eq(schema.transactions.category_id, paramId(req)))
         .limit(1);
       if (txRefs.length > 0) {
         return res.status(409).json({ message: "Cannot delete category: it is used by transactions." });
       }
-      await storage.deleteCategory(req.params.id);
+      await storage.deleteCategory(paramId(req));
       res.json({ ok: true });
     } catch (e: unknown) {
       handleError(res, e);
@@ -507,7 +513,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (parseFloat(validated.amount) <= 0) {
         return res.status(400).json({ message: "Amount must be greater than 0" });
       }
-      const data: schema.InsertTransaction = {
+      const data = {
         ...validated,
         id: id || undefined,
         user_id: userId,
@@ -523,17 +529,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/transactions/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getTransaction(req.params.id);
+      const existing = await storage.getTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transaction not found" });
       }
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
-      const validated = updateTransactionSchema.parse(body);
+      const { date: rawDate, ...rest } = updateTransactionSchema.parse(body);
       const data = {
-        ...validated,
-        ...(validated.date ? { date: toDate(validated.date) } : {}),
+        ...rest,
+        ...(rawDate ? { date: toDate(rawDate) ?? undefined } : {}),
       };
-      const row = await storage.updateTransaction(req.params.id, data);
+      const row = await storage.updateTransaction(paramId(req), data);
       if (!row) return res.status(404).json({ message: "Transaction not found" });
       res.json(normTransaction(row));
     } catch (e: unknown) {
@@ -544,11 +550,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/transactions/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getTransaction(req.params.id);
+      const existing = await storage.getTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transaction not found" });
       }
-      await storage.deleteTransaction(req.params.id);
+      await storage.deleteTransaction(paramId(req));
       res.json({ ok: true });
     } catch (e: unknown) {
       handleError(res, e);
@@ -575,7 +581,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (parseFloat(validated.source_amount) <= 0) {
         return res.status(400).json({ message: "Source amount must be greater than 0" });
       }
-      const data: schema.InsertTransfer = {
+      const data = {
         ...validated,
         id: id || undefined,
         user_id: userId,
@@ -591,11 +597,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/transfers/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getTransfer(req.params.id);
+      const existing = await storage.getTransfer(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Transfer not found" });
       }
-      await storage.deleteTransfer(req.params.id);
+      await storage.deleteTransfer(paramId(req));
       res.json({ ok: true });
     } catch (e: unknown) {
       handleError(res, e);
@@ -619,7 +625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = getUserId(req);
       const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
       const validated = createSavingsWalletSchema.parse(body);
-      const data: schema.InsertSavingsWallet = {
+      const data = {
         ...validated,
         id: id || undefined,
         user_id: userId,
@@ -635,17 +641,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/savings-wallets/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getSavingsWallet(req.params.id);
+      const existing = await storage.getSavingsWallet(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings wallet not found" });
       }
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
-      const validated = updateSavingsWalletSchema.parse(body);
+      const { target_date: rawTargetDate, ...restWallet } = updateSavingsWalletSchema.parse(body);
       const data = {
-        ...validated,
-        ...(validated.target_date !== undefined ? { target_date: toDate(validated.target_date) } : {}),
+        ...restWallet,
+        ...(rawTargetDate !== undefined ? { target_date: toDate(rawTargetDate) } : {}),
       };
-      const row = await storage.updateSavingsWallet(req.params.id, data);
+      const row = await storage.updateSavingsWallet(paramId(req), data);
       if (!row) return res.status(404).json({ message: "Savings wallet not found" });
       res.json(normSavingsWallet(row));
     } catch (e: unknown) {
@@ -656,11 +662,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/savings-wallets/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getSavingsWallet(req.params.id);
+      const existing = await storage.getSavingsWallet(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings wallet not found" });
       }
-      await storage.deleteSavingsWallet(req.params.id);
+      await storage.deleteSavingsWallet(paramId(req));
       res.json({ ok: true });
     } catch (e: unknown) {
       handleError(res, e);
@@ -687,7 +693,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (parseFloat(validated.amount) <= 0) {
         return res.status(400).json({ message: "Amount must be greater than 0" });
       }
-      const data: schema.InsertSavingsTransaction = {
+      const data = {
         ...validated,
         id: id || undefined,
         user_id: userId,
@@ -703,11 +709,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/savings-transactions/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getSavingsTransaction(req.params.id);
+      const existing = await storage.getSavingsTransaction(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Savings transaction not found" });
       }
-      await storage.deleteSavingsTransaction(req.params.id);
+      await storage.deleteSavingsTransaction(paramId(req));
       res.json({ ok: true });
     } catch (e: unknown) {
       handleError(res, e);
@@ -734,7 +740,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (parseFloat(validated.amount) <= 0) {
         return res.status(400).json({ message: "Amount must be greater than 0" });
       }
-      const data: schema.InsertCommitment = {
+      const data = {
         ...validated,
         id: id || undefined,
         user_id: userId,
@@ -751,18 +757,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/commitments/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getCommitment(req.params.id);
+      const existing = await storage.getCommitment(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Commitment not found" });
       }
       const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
-      const validated = updateCommitmentSchema.parse(body);
+      const { due_date: rawDueDate, paid_at: rawPaidAt, ...restCommitment } = updateCommitmentSchema.parse(body);
       const data = {
-        ...validated,
-        ...(validated.due_date ? { due_date: toDate(validated.due_date) } : {}),
-        ...(validated.paid_at !== undefined ? { paid_at: toDate(validated.paid_at) } : {}),
+        ...restCommitment,
+        ...(rawDueDate ? { due_date: toDate(rawDueDate) ?? undefined } : {}),
+        ...(rawPaidAt !== undefined ? { paid_at: toDate(rawPaidAt) ?? undefined } : {}),
       };
-      const row = await storage.updateCommitment(req.params.id, data);
+      const row = await storage.updateCommitment(paramId(req), data);
       if (!row) return res.status(404).json({ message: "Commitment not found" });
       res.json(normCommitment(row));
     } catch (e: unknown) {
@@ -773,11 +779,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/commitments/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const existing = await storage.getCommitment(req.params.id);
+      const existing = await storage.getCommitment(paramId(req));
       if (!existing || existing.user_id !== userId) {
         return res.status(404).json({ message: "Commitment not found" });
       }
-      await storage.deleteCommitment(req.params.id);
+      await storage.deleteCommitment(paramId(req));
       res.json({ ok: true });
     } catch (e: unknown) {
       handleError(res, e);
