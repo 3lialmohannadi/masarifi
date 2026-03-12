@@ -9,7 +9,7 @@ export function createSyncFn(onError?: (message: string) => void) {
   ): void {
     operation.catch((err) => {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error(`[Sync] ${errorContext}:`, msg);
+      console.warn(`[Sync] ${errorContext}:`, msg);
       if (onError) {
         onError(`Sync failed: ${errorContext}`);
       }

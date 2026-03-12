@@ -112,7 +112,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
       updated_at: now(),
     };
     persist([...commitments, newC]);
-    apiRequest("POST", "/api/commitments", newC).catch((e: unknown) => console.error("[Sync]", e));
+    apiRequest("POST", "/api/commitments", newC).catch((e: unknown) => console.warn("[Sync]", e));
     return newC;
   };
 
@@ -129,12 +129,12 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     );
     persist(updated);
     const record = updated.find((c) => c.id === id);
-    if (record) apiRequest("PATCH", `/api/commitments/${id}`, record).catch((e: unknown) => console.error("[Sync]", e));
+    if (record) apiRequest("PATCH", `/api/commitments/${id}`, record).catch((e: unknown) => console.warn("[Sync]", e));
   };
 
   const deleteCommitment = (id: string) => {
     persist(commitments.filter((c) => c.id !== id));
-    apiRequest("DELETE", `/api/commitments/${id}`).catch((e: unknown) => console.error("[Sync]", e));
+    apiRequest("DELETE", `/api/commitments/${id}`).catch((e: unknown) => console.warn("[Sync]", e));
   };
 
   const getCommitment = (id: string) => commitments.find((c) => c.id === id);
@@ -145,7 +145,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     );
     persist(updated);
     const paidRecord = updated.find((c) => c.id === id);
-    if (paidRecord) apiRequest("PATCH", `/api/commitments/${id}`, paidRecord).catch((e: unknown) => console.error("[Sync]", e));
+    if (paidRecord) apiRequest("PATCH", `/api/commitments/${id}`, paidRecord).catch((e: unknown) => console.warn("[Sync]", e));
   };
 
   /**
@@ -184,7 +184,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     const previousStatusById = new Map(commitments.map((c) => [c.id, c.status]));
     refreshed
       .filter((c) => c.status !== previousStatusById.get(c.id))
-      .forEach((c) => apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch((e: unknown) => console.error("[Sync]", e)));
+      .forEach((c) => apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch((e: unknown) => console.warn("[Sync]", e)));
   };
 
   const upcomingCommitments = useMemo(
