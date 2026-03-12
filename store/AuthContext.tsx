@@ -26,6 +26,7 @@ interface AuthContextValue {
   signupWithEmail: (email: string, password: string, fullName: string) => Promise<void>;
   loginWithGoogle: (googleId: string, email: string, fullName?: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<string>;
+  resetPassword: (token: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateProfile: (data: { full_name?: string; phone?: string | null; gender?: string | null }) => Promise<void>;
@@ -110,6 +111,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data.message;
   }, []);
 
+  const resetPassword = useCallback(async (token: string, password: string): Promise<void> => {
+    const res = await authApiRequest("POST", "/api/auth/reset-password", { token, password });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({ message: "Reset failed" }));
+      throw new Error(data.message || "Reset failed");
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     await clearAuthToken();
     queryClient.clear();
@@ -141,11 +150,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signupWithEmail,
       loginWithGoogle,
       forgotPassword,
+      resetPassword,
       logout,
       refreshProfile,
       updateProfile,
     }),
-    [user, isAuthLoading, loginWithEmail, signupWithEmail, loginWithGoogle, forgotPassword, logout, refreshProfile, updateProfile]
+    [user, isAuthLoading, loginWithEmail, signupWithEmail, loginWithGoogle, forgotPassword, resetPassword, logout, refreshProfile, updateProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

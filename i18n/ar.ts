@@ -349,6 +349,13 @@ export const ar = {
     logoutSuccess: "تم تسجيل الخروج بنجاح",
     sendResetLink: "إرسال رابط إعادة التعيين",
     backToLogin: "العودة لتسجيل الدخول",
+    resetToken: "رمز إعادة التعيين",
+    resetTokenPlaceholder: "الصق الرمز من البريد الإلكتروني",
+    resetTokenRequired: "رمز إعادة التعيين مطلوب",
+    resetPasswordDesc: "أدخل رمز إعادة التعيين الذي تلقيته وكلمة المرور الجديدة.",
+    resetPasswordSuccess: "تم إعادة تعيين كلمة المرور بنجاح",
+    invalidResetToken: "رمز إعادة التعيين غير صالح أو منتهي الصلاحية",
+    haveResetToken: "لدي رمز إعادة تعيين",
   },
   profile: {
     title: "الملف الشخصي",
