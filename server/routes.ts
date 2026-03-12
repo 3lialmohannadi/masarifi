@@ -274,9 +274,15 @@ const DEFAULT_USER_ID = "default-user";
 
 async function ensureDefaultUser() {
   try {
-    const existing = await storage.getUser(DEFAULT_USER_ID);
-    if (!existing) {
-      const hashedPassword = await hashPassword("default");
+    const hashedPassword = await hashPassword("default");
+    // Check by username (not ID) since the user may have been created via register with a different ID
+    const existing = await storage.getUserByUsername("default");
+    if (existing) {
+      // Ensure password is always in sync
+      await db.update(schema.users)
+        .set({ password: hashedPassword })
+        .where(eq(schema.users.id, existing.id));
+    } else {
       await db.insert(schema.users).values({
         id: DEFAULT_USER_ID,
         username: "default",
