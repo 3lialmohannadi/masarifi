@@ -150,7 +150,7 @@ function normCategory(c: CategoryRow) {
 
 const createAccountSchema = z.object({
   name_ar: z.string().min(1, "Arabic name is required"),
-  name_en: z.string().min(1, "English name is required"),
+  name_en: z.string().optional().default(""),
   type: z.enum(["current", "cash", "travel", "savings_bank", "wallet", "credit", "investment"]),
   balance: z.union([z.string(), z.number()]).transform((v) => String(v)).optional().default("0"),
   currency: z.string().min(1).max(10).default("QAR"),
@@ -163,7 +163,7 @@ const updateAccountSchema = createAccountSchema.partial();
 
 const createCategorySchema = z.object({
   name_ar: z.string().min(1, "Arabic name is required"),
-  name_en: z.string().min(1, "English name is required"),
+  name_en: z.string().optional().default(""),
   icon: z.string().max(50).default("tag"),
   color: z.string().max(20).default("#6B7280"),
   type: z.enum(["income", "expense", "savings", "commitment", "plan", "general"]),
@@ -304,6 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validated = createAccountSchema.parse(body);
       const data = {
         ...validated,
+        name_en: validated.name_en || validated.name_ar,
         id: id || undefined,
         user_id: userId,
       };
@@ -318,12 +319,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = DEFAULT_USER_ID;
       const existing = await storage.getAccount(paramId(req));
+      const { id: _reqId, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
+
       if (!existing || existing.user_id !== userId) {
-        return res.status(404).json({ message: "Account not found" });
+        // Account not on server yet — create it (handles race condition during sync)
+        const validated = createAccountSchema.parse(body);
+        const data = {
+          ...validated,
+          name_en: validated.name_en || validated.name_ar,
+          id: paramId(req),
+          user_id: userId,
+        };
+        const row = await storage.createAccount(data);
+        return res.status(201).json(normAccount(row));
       }
-      const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
+
       const validated = updateAccountSchema.parse(body);
-      const row = await storage.updateAccount(paramId(req), validated);
+      const row = await storage.updateAccount(paramId(req), {
+        ...validated,
+        ...(validated.name_en !== undefined ? { name_en: validated.name_en || existing.name_en || existing.name_ar } : {}),
+      });
       if (!row) return res.status(404).json({ message: "Account not found" });
       res.json(normAccount(row));
     } catch (e: unknown) {
@@ -376,6 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validated = createCategorySchema.parse(body);
       const data = {
         ...validated,
+        name_en: validated.name_en || validated.name_ar,
         id: id || undefined,
         user_id: userId,
       };
@@ -447,6 +463,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validated = createTransactionSchema.parse(body);
       if (parseFloat(validated.amount) <= 0) {
         return res.status(400).json({ message: "Amount must be greater than 0" });
+      }
+      // Verify the account exists before inserting (gives a clear 404 instead of a FK 500)
+      const account = await storage.getAccount(validated.account_id);
+      if (!account || account.user_id !== userId) {
+        return res.status(409).json({ message: "Account not synced yet — retry after account sync" });
       }
       const data = {
         ...validated,

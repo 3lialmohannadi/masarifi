@@ -44,36 +44,39 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
         setTransactions(localTx);
         setTransfers(localTf);
         setIsLoaded(true);
-        Promise.all([
-          apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
-          apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
-        ]).then(([apiTx, apiTf]) => {
-          if (Array.isArray(apiTx)) {
-            const serverMap = new Map(apiTx.map((t) => [t.id, t]));
-            const localIds = new Set(localTx.map((t) => t.id));
-            localTx.forEach((t) => {
-              const onServer = serverMap.get(t.id);
-              if (!onServer) {
-                apiRequest("POST", "/api/transactions", t).catch(() => {});
-              } else if (onServer.updated_at !== t.updated_at) {
-                apiRequest("PATCH", `/api/transactions/${t.id}`, t).catch(() => {});
-              }
-            });
-            apiTx.filter((t) => !localIds.has(t.id)).forEach((t) =>
-              apiRequest("DELETE", `/api/transactions/${t.id}`).catch(() => {})
-            );
-          }
-          if (Array.isArray(apiTf)) {
-            const serverIds = new Set(apiTf.map((t) => t.id));
-            const localTfIds = new Set(localTf.map((t) => t.id));
-            localTf.filter((t) => !serverIds.has(t.id)).forEach((t) =>
-              apiRequest("POST", "/api/transfers", t).catch(() => {})
-            );
-            apiTf.filter((t) => !localTfIds.has(t.id)).forEach((t) =>
-              apiRequest("DELETE", `/api/transfers/${t.id}`).catch(() => {})
-            );
-          }
-        }).catch(() => {});
+        // Delay transaction sync to let accounts sync first (avoids FK race condition)
+        setTimeout(() => {
+          Promise.all([
+            apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
+            apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
+          ]).then(([apiTx, apiTf]) => {
+            if (Array.isArray(apiTx)) {
+              const serverMap = new Map(apiTx.map((t) => [t.id, t]));
+              const localIds = new Set(localTx.map((t) => t.id));
+              localTx.forEach((t) => {
+                const onServer = serverMap.get(t.id);
+                if (!onServer) {
+                  apiRequest("POST", "/api/transactions", t).catch(() => {});
+                } else if (onServer.updated_at !== t.updated_at) {
+                  apiRequest("PATCH", `/api/transactions/${t.id}`, t).catch(() => {});
+                }
+              });
+              apiTx.filter((t) => !localIds.has(t.id)).forEach((t) =>
+                apiRequest("DELETE", `/api/transactions/${t.id}`).catch(() => {})
+              );
+            }
+            if (Array.isArray(apiTf)) {
+              const serverIds = new Set(apiTf.map((t) => t.id));
+              const localTfIds = new Set(localTf.map((t) => t.id));
+              localTf.filter((t) => !serverIds.has(t.id)).forEach((t) =>
+                apiRequest("POST", "/api/transfers", t).catch(() => {})
+              );
+              apiTf.filter((t) => !localTfIds.has(t.id)).forEach((t) =>
+                apiRequest("DELETE", `/api/transfers/${t.id}`).catch(() => {})
+              );
+            }
+          }).catch(() => {});
+        }, 2000);
       } else {
         try {
           const [apiTx, apiTf] = await Promise.all([
