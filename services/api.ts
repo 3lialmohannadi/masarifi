@@ -116,6 +116,7 @@ export async function apiRequest(
   method: string,
   route: string,
   data?: unknown | undefined,
+  extraHeaders?: Record<string, string>,
 ): Promise<Response> {
   const baseUrl = getApiUrl();
   const url = new URL(route, baseUrl);
@@ -125,6 +126,7 @@ export async function apiRequest(
     const headers: Record<string, string> = {};
     if (data) headers["Content-Type"] = "application/json";
     if (token) headers["Authorization"] = `Bearer ${token}`;
+    if (extraHeaders) Object.assign(headers, extraHeaders);
 
     return fetch(url.toString(), {
       method,

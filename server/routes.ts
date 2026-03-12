@@ -391,6 +391,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(409).json({ message: "Email already registered" });
       }
 
+      // Also check if email is already taken as a legacy username
+      const existingUsername = await storage.getUserByUsername(email);
+      if (existingUsername) {
+        return res.status(409).json({ message: "Email already registered" });
+      }
+
       const hashedPassword = await hashPassword(password);
       const user = await storage.createUser({
         username: email,
@@ -511,7 +517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For now, we return a success message. The token can be used directly.
       console.log(`[Auth] Password reset requested for ${email}. Token: ${resetToken}`);
 
-      res.json({ message: "If an account with this email exists, a reset link has been sent.", resetToken });
+      res.json({ message: "If an account with this email exists, a reset link has been sent." });
     } catch (e: unknown) {
       handleError(res, e);
     }
@@ -916,8 +922,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/savings-transactions", async (req: Request, res: Response) => {
     try {
+      const userId = getUserId(req);
       const walletId = req.query.walletId as string | undefined;
-      const rows = await storage.getSavingsTransactions(walletId);
+      const rows = await storage.getSavingsTransactions(walletId, userId);
       res.json(rows.map(normSavingsTx));
     } catch (e: unknown) {
       handleError(res, e);

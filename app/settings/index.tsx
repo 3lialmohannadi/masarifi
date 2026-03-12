@@ -154,7 +154,7 @@ export default function SettingsScreen() {
     setResetting(true);
     try {
       const { apiRequest } = await import("@/services/api");
-      await apiRequest("POST", "/api/reset");
+      await apiRequest("POST", "/api/reset", undefined, { "X-Confirm-Reset": "true" });
       clearAccounts();
       clearTransactions();
       clearSavings();
@@ -174,6 +174,11 @@ export default function SettingsScreen() {
   const handleLogout = useCallback(async () => {
     setLoggingOut(true);
     try {
+      // Clear all local data before logging out to prevent data leakage
+      clearAccounts();
+      clearTransactions();
+      clearSavings();
+      clearCommitments();
       await logout();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       showToast(t.auth.logoutSuccess, "success");
@@ -184,7 +189,7 @@ export default function SettingsScreen() {
     } finally {
       setLoggingOut(false);
     }
-  }, [logout, showToast, t]);
+  }, [logout, clearAccounts, clearTransactions, clearSavings, clearCommitments, showToast, t]);
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 

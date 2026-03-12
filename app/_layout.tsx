@@ -70,14 +70,11 @@ function Providers({ children }: { children: React.ReactNode }) {
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth();
-  const hasNavigated = useRef(false);
 
   useEffect(() => {
-    if (!hasNavigated.current) {
-      hasNavigated.current = true;
-      if (!isLoggedIn) {
-        router.replace("/(auth)/welcome");
-      }
+    // Redirect to welcome when not logged in (initial load or after logout)
+    if (!isLoggedIn) {
+      router.replace("/(auth)/welcome");
     }
   }, [isLoggedIn]);
 

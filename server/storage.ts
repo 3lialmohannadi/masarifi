@@ -1,4 +1,4 @@
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc, asc, and } from "drizzle-orm";
 import { db } from "./db";
 import * as schema from "@database/schema";
 import type {
@@ -72,7 +72,7 @@ export interface IStorage {
   deleteSavingsWallet(id: string): Promise<void>;
 
   // Savings Transactions
-  getSavingsTransactions(walletId?: string): Promise<SavingsTransaction[]>;
+  getSavingsTransactions(walletId?: string, userId?: string): Promise<SavingsTransaction[]>;
   getSavingsTransaction(id: string): Promise<SavingsTransaction | undefined>;
   createSavingsTransaction(data: InsertSavingsTransaction): Promise<SavingsTransaction>;
   updateSavingsTransaction(id: string, data: Partial<SavingsTransaction>): Promise<SavingsTransaction>;
@@ -324,13 +324,16 @@ export class DatabaseStorage implements IStorage {
 
   // ── Savings Transactions ───────────────────────────────────────────────────
 
-  async getSavingsTransactions(walletId?: string): Promise<SavingsTransaction[]> {
-    if (walletId) {
-      return db.select().from(schema.savingsTransactions)
-        .where(eq(schema.savingsTransactions.wallet_id, walletId))
-        .orderBy(desc(schema.savingsTransactions.date));
+  async getSavingsTransactions(walletId?: string, userId?: string): Promise<SavingsTransaction[]> {
+    const conditions = [];
+    if (walletId) conditions.push(eq(schema.savingsTransactions.wallet_id, walletId));
+    if (userId) conditions.push(eq(schema.savingsTransactions.user_id, userId));
+
+    const query = db.select().from(schema.savingsTransactions);
+    if (conditions.length > 0) {
+      return query.where(and(...conditions)).orderBy(desc(schema.savingsTransactions.date));
     }
-    return db.select().from(schema.savingsTransactions).orderBy(desc(schema.savingsTransactions.date));
+    return query.orderBy(desc(schema.savingsTransactions.date));
   }
 
   async getSavingsTransaction(id: string): Promise<SavingsTransaction | undefined> {
