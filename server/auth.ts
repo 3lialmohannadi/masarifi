@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 
 /** Default user ID used when auth is disabled */
-const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
+export const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 /**
  * No-op auth middleware — allows all requests through with a default user ID.

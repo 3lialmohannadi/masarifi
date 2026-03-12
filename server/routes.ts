@@ -5,7 +5,7 @@ import { db } from "./db";
 import * as schema from "@database/schema";
 import { eq, and } from "drizzle-orm";
 import { z, ZodError } from "zod";
-import { requireAuth, getUserId } from "./auth";
+import { requireAuth, getUserId, DEFAULT_USER_ID } from "./auth";
 import { apiSpec } from "./api-docs";
 
 type AccountRow = typeof schema.accounts.$inferSelect;
@@ -259,8 +259,6 @@ function handleError(res: Response, e: unknown) {
 }
 
 // ── Default user bootstrap ──────────────────────────────────────────────────
-
-const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 async function ensureDefaultUser() {
   try {
