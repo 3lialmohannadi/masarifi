@@ -35,6 +35,7 @@ function isRetryableError(error: unknown): boolean {
   if (error instanceof TypeError) return true;
   if (error instanceof Error) {
     const msg = error.message;
+    if (msg.startsWith("409") && msg.includes("not synced yet")) return true;
     if (msg.startsWith("4")) return false;
     if (msg.startsWith("5") || msg.includes("network") || msg.includes("fetch")) return true;
   }
