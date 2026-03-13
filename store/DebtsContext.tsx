@@ -224,7 +224,7 @@ export function DebtsProvider({ children }: { children: ReactNode }) {
   );
 
   const { totalOriginal, totalPaid, totalRemaining, activeDebts } = useMemo(() => {
-    const active = debts.filter((d) => d.status !== "completed");
+    const active = debts.filter((d) => d.status !== "completed" && d.status !== "cancelled");
     return {
       totalOriginal: debts.reduce((s, d) => s + d.original_amount, 0),
       totalPaid: debts.reduce((s, d) => s + d.paid_amount, 0),

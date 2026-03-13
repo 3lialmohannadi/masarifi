@@ -68,13 +68,8 @@ export default function ContactSupportScreen() {
       } else {
         showToast(t.toast.error, "error");
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg.includes("Network") || msg.includes("network") || msg.includes("fetch")) {
-        showToast(t.toast.error, "error");
-      } else {
-        showToast(t.toast.error, "error");
-      }
+    } catch {
+      showToast(t.toast.error, "error");
     } finally {
       setLoading(false);
     }

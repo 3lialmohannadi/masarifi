@@ -524,7 +524,7 @@ export default function SettingsScreen() {
           />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.income }} />
-            <Text style={{ fontSize: 11, color: theme.textMuted }}>{t.settings.version} 1.0.0</Text>
+            <Text style={{ fontSize: 11, color: theme.textMuted }}>{t.settings.version} 1.1.0</Text>
           </View>
           <Text style={{ fontSize: 10, color: theme.textMuted }}>
             {accounts.filter((a) => a.is_active).length} {t.settings.accountsCount} · {transactions.length} {t.settings.transactionsCount}

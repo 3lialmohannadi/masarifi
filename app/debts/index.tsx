@@ -176,7 +176,7 @@ export default function DebtsScreen() {
         ListEmptyComponent={
           <EmptyState
             icon="credit-card"
-            title={isFiltered ? t.debts.noDebts : t.debts.noDebts}
+            title={t.debts.noDebts}
             subtitle={isFiltered ? t.debts.clearFilters : t.debts.addFirst}
             action={
               !isFiltered ? (
