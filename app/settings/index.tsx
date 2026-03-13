@@ -503,6 +503,25 @@ export default function SettingsScreen() {
           {!resetDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color="#EF444460" />}
         </Pressable>
 
+        {/* ── Account (Auth Testing) ── */}
+        <SectionLabel title={t.auth.signIn + " / " + t.auth.signUp} />
+        <View style={{ gap: 8, marginBottom: 8 }}>
+          <NavRow
+            icon="log-in"
+            iconColor="#2F8F83"
+            label={t.auth.signIn}
+            subtitle={t.auth.signInSubtitle}
+            onPress={() => router.push("/auth/sign-in")}
+          />
+          <NavRow
+            icon="user-plus"
+            iconColor="#6366F1"
+            label={t.auth.signUp}
+            subtitle={t.auth.signUpSubtitle}
+            onPress={() => router.push("/auth/sign-up")}
+          />
+        </View>
+
         {/* ── Support ── */}
         <SectionLabel title={t.settings.support} />
         <View style={{ gap: 8, marginBottom: 8 }}>
