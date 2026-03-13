@@ -11,6 +11,7 @@ import { TransactionItem } from "@/components/TransactionItem";
 import { TransferItem } from "@/components/TransferItem";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
+import { todayISOString, formatDateShort } from "@/utils/date";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { Transaction, Transfer } from "@/types";
 
@@ -22,9 +23,6 @@ type ListItem =
   | { type: "header"; date: string }
   | { type: "tx"; tx: Transaction }
   | { type: "transfer"; transfer: Transfer; perspective: "source" | "destination" };
-
-const MONTH_NAMES_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-const MONTH_NAMES_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 export default function AccountDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -53,13 +51,11 @@ export default function AccountDetailScreen() {
     .reduce((s, tx) => s + tx.amount, 0);
 
   const formatGroupDate = (dateStr: string): string => {
-    const today = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const today = todayISOString();
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
     if (dateStr === today) return t.transactions.today;
     if (dateStr === yesterday) return t.transactions.yesterday;
-    const d = new Date(dateStr);
-    const names = language === "ar" ? MONTH_NAMES_AR : MONTH_NAMES_EN;
-    return `${d.getDate()} ${names[d.getMonth()]}`;
+    return formatDateShort(dateStr, language);
   };
 
   const listData = useMemo<ListItem[]>(() => {

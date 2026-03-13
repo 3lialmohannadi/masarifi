@@ -19,6 +19,7 @@ import { TransactionItem } from "@/components/TransactionItem";
 import { TransferItem } from "@/components/TransferItem";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getDisplayName } from "@/utils/display";
+import { todayISOString, formatDateShort } from "@/utils/date";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { Transaction, Transfer } from "@/types";
 
@@ -32,9 +33,6 @@ type ListItem =
   | { type: "header"; date: string }
   | { type: "tx"; tx: Transaction }
   | { type: "transfer"; transfer: Transfer; perspective: "source" | "destination" | "both" };
-
-const MONTH_NAMES_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-const MONTH_NAMES_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 export default function TransactionsTab() {
   const insets = useSafeAreaInsets();
@@ -106,13 +104,11 @@ export default function TransactionsTab() {
   }, [combined, selectedAccountId]);
 
   const formatGroupDate = useCallback((dateStr: string): string => {
-    const today = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const today = todayISOString();
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
     if (dateStr === today) return t.transactions.today;
     if (dateStr === yesterday) return t.transactions.yesterday;
-    const d = new Date(dateStr);
-    const names = language === "ar" ? MONTH_NAMES_AR : MONTH_NAMES_EN;
-    return `${d.getDate()} ${names[d.getMonth()]}`;
+    return formatDateShort(dateStr, language);
   }, [t, language]);
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
