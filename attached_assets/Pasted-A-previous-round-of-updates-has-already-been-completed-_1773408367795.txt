@@ -1,0 +1,570 @@
+A previous round of updates has already been completed.
+
+Now I need you to apply a new set of refinements, UI corrections, settings changes, code cleanup, and a full app review.
+
+
+
+Important instructions:
+
+
+
+Do NOT redesign the app from scratch.
+Do NOT change the brand identity.
+Keep the current Masarifi style, but improve consistency, polish, and usability.
+Apply the following changes exactly as requested.
+After completing the requested changes, perform a full detailed audit of the app and the entire codebase, fix any issues you find, and clean up the code properly.
+
+
+
+
+
+
+
+
+
+
+Part 1 — Dashboard debts summary card placement
+
+
+
+
+
+The debts summary in the dashboard is good, but its current placement is not correct.
+
+
+
+
+
+Current issue
+
+
+
+
+
+It appears directly under the savings wallets/cards.
+
+
+
+
+
+Required change
+
+
+
+
+
+The debts summary must be placed as its own separate section, not merged visually with the savings wallets section.
+
+
+
+
+
+Expected behavior
+
+
+
+
+
+Keep the debts summary card in the dashboard
+But visually separate it from the savings wallets/cards
+The savings wallets remain in their own section
+The debts summary should appear in a distinct section below the wallets section
+Use proper spacing, headings, and layout hierarchy so it feels intentional and well-structured
+
+
+
+
+This should improve visual clarity and information hierarchy.
+
+
+
+
+
+
+
+
+
+Part 2 — Fix missing or incorrect debts icons
+
+
+
+
+
+The debts page is generally good, but some icons still do not display correctly.
+
+
+
+
+
+Required fixes
+
+
+
+
+
+Fix the icons for at least the following debt subcategories:
+
+
+
+Personal loan
+Car loan
+
+
+
+
+
+
+Expected result
+
+
+
+
+
+The correct icons must display consistently
+Icons must render properly in all relevant places:
+debts list
+debt details
+any subcategory display
+
+Check if the issue is caused by missing icon mapping, invalid icon name, unsupported icon set, styling issue, or rendering fallback problem
+Fix all similar icon issues if you find them, not only the ones explicitly mentioned
+
+
+
+
+
+
+
+
+
+
+Part 3 — Move debts statistics below the debt cards
+
+
+
+
+
+
+
+Current issue
+
+
+
+
+
+The debts statistics appear above the debt cards.
+
+
+
+
+
+Required change
+
+
+
+
+
+Move the debts statistics section so that it appears:
+
+
+
+below the debts cards/list, not above them.
+
+
+
+
+
+Expected layout order for Debts page
+
+
+
+
+
+Top summary cards
+Debts list/cards
+Debts statistics section
+
+
+
+
+Make sure the page still feels clean and logical after this change.
+
+
+
+
+
+
+
+
+
+Part 4 — Reorder and clean up the Settings page
+
+
+
+
+
+Update the Settings page so that the items appear in the following exact order:
+
+
+
+Language
+Light / Dark / System mode
+Notifications
+Daily limit mode
+Default currency
+Export data
+Reset app
+Contact support
+
+
+
+
+
+
+Also remove these items from Settings:
+
+
+
+
+
+Manage accounts
+Manage categories
+
+
+
+
+These two items should remain only in the More page, since they already exist there.
+
+
+
+
+
+Expected result
+
+
+
+
+
+Settings page should be cleaner
+No duplicate options between Settings and More
+The order should match the list above exactly
+
+
+
+
+
+
+
+
+
+
+Part 5 — Full visual consistency and UI/UX refinement
+
+
+
+
+
+Perform a full visual and UX review of the app.
+
+
+
+
+
+Goals
+
+
+
+
+
+Unify the visual identity across the app
+Improve consistency in:
+typography
+font sizes
+weights
+spacing
+card styles
+button styles
+icon sizing
+section hierarchy
+screen layout consistency
+
+
+
+
+
+
+
+Required work
+
+
+
+
+
+Review all relevant screens and make improvements where needed so the app feels polished and consistent.
+
+
+
+This includes:
+
+
+
+consistent headings
+consistent paddings and margins
+consistent card radius / shadows / section separation
+consistent button placement and behavior
+consistent icon treatment
+consistent empty states
+consistent spacing between sections
+
+
+
+
+Do NOT overcomplicate the UI.
+
+The goal is refinement, consistency, and a cleaner experience.
+
+
+
+
+
+
+
+
+
+Part 6 — Full app audit and bug fixing
+
+
+
+
+
+After completing the requested UI and structure updates, perform a complete and detailed audit of the entire app.
+
+
+
+
+
+Check for:
+
+
+
+
+
+syntax errors
+runtime errors
+broken imports
+missing icons
+layout inconsistencies
+incorrect spacing
+broken navigation
+invalid state updates
+unstable forms
+broken modals or sheets
+calendar/date picker issues
+support page issues
+debts feature logic issues
+settings page issues
+duplicate options or dead UI
+visual inconsistencies
+mobile UX issues
+any bug or regression introduced by previous changes
+
+
+
+
+
+
+Fix anything you find.
+
+
+
+
+
+Do not just inspect.
+
+Actually correct the problems.
+
+
+
+
+
+
+
+
+
+Part 7 — Full codebase audit, cleanup, and refactoring
+
+
+
+
+
+Perform a full audit of the entire codebase, not only the visible UI.
+
+
+
+
+
+You must:
+
+
+
+
+
+inspect all related files
+review the full code structure
+find and fix hidden issues
+clean and organize the code where necessary
+
+
+
+
+
+
+Specifically check for:
+
+
+
+
+
+unused imports
+unused variables
+dead code
+duplicated logic
+inconsistent naming
+weak component structure
+repeated UI patterns that should be standardized
+poor state handling
+unnecessary rerenders
+incorrect hooks usage
+fragile form logic
+unclean navigation code
+inconsistent type definitions
+unnecessary complexity
+outdated code left from previous iterations
+
+
+
+
+
+
+Required action
+
+
+
+
+
+Fix any bugs found
+Clean up the code
+Refactor where necessary without breaking behavior
+Keep the project organized and maintainable
+Make the code cleaner, more consistent, and easier to maintain
+
+
+
+
+Do not perform unnecessary massive rewrites.
+
+Refactor carefully and only where useful.
+
+
+
+
+
+
+
+
+
+Part 8 — UX polish review
+
+
+
+
+
+Please also review the full app from a UX perspective and improve small issues where appropriate, including:
+
+
+
+confusing layout hierarchy
+poor spacing
+awkward grouping of sections
+inconsistent section ordering
+unclear buttons or labels
+cluttered screens
+poor visual balance
+
+
+
+
+Only make improvements that fit the existing Masarifi identity.
+
+
+
+
+
+
+
+
+
+Part 9 — Final validation and testing
+
+
+
+
+
+After completing all changes, test the following:
+
+
+
+Dashboard layout, especially wallet section vs debts section separation
+Debts summary card placement
+Debts page icon rendering
+Personal loan and car loan icons specifically
+Debts statistics placement below debt cards
+Settings page item order
+Removal of Manage accounts and Manage categories from Settings
+Confirmation that those items still exist in More
+Full app visual consistency
+Typography consistency
+Card and spacing consistency
+Navigation stability
+Overall app UX quality
+Full code stability after cleanup/refactor
+Full app stability after all refinements
+
+
+
+
+
+
+
+
+
+
+Final requirement
+
+
+
+
+
+At the end, provide a clear summary report explaining:
+
+
+
+What changes were applied
+What UI/UX inconsistencies were found
+What bugs were fixed
+What code issues were found
+What code cleanup/refactoring was done
+What visual improvements were made
+Confirmation that the app is now cleaner, more consistent, better organized, and free from major issues
+
+
+
+
+Do not stop until:
+
+
+
+all requested refinements are implemented
+the code has been fully checked
+existing issues have been fixed
+the codebase has been cleaned up properly

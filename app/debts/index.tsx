@@ -131,16 +131,6 @@ export default function DebtsScreen() {
         />
       )}
 
-      {debts.length > 0 && (
-        <DebtStatistics
-          debts={debts}
-          totalOriginal={totalOriginal}
-          totalPaid={totalPaid}
-          totalRemaining={totalRemaining}
-          currency={appCurrency || "QAR"}
-        />
-      )}
-
       {isFiltered && (
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
           <Feather name="filter" size={13} color={theme.textMuted} />
@@ -170,6 +160,19 @@ export default function DebtsScreen() {
             onPress={() => { Haptics.selectionAsync(); router.push(`/debts/${item.id}` as any); }}
           />
         )}
+        ListFooterComponent={
+          debts.length > 0 ? (
+            <View style={{ marginTop: 4 }}>
+              <DebtStatistics
+                debts={debts}
+                totalOriginal={totalOriginal}
+                totalPaid={totalPaid}
+                totalRemaining={totalRemaining}
+                currency={appCurrency || "QAR"}
+              />
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
           <EmptyState
             icon="credit-card"

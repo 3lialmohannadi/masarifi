@@ -628,33 +628,48 @@ export default function DashboardScreen() {
 
           {/* ─── Debts Summary ─── */}
           {debts.length > 0 && (
-            <Pressable
-              onPress={() => { Haptics.selectionAsync(); router.push("/debts" as any); }}
-              style={({ pressed }) => ({
-                backgroundColor: theme.card,
-                borderRadius: 16,
-                borderWidth: 1,
-                borderColor: theme.border,
-                padding: 14,
-                opacity: pressed ? 0.85 : 1,
-                flexDirection: isRTL ? "row-reverse" : "row",
-                alignItems: "center",
-                gap: 12,
-              })}
-            >
-              <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
-                <Feather name="credit-card" size={18} color="#EF4444" />
-              </View>
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+            <View style={{ gap: 12 }}>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
+                <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
                   {t.debts.debtSummary}
                 </Text>
-                <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                  {activeDebts.length} {t.debts.filterActive.toLowerCase()} · {t.debts.remaining}: {formatCurrency(debtsTotalRemaining, currency, language)}
-                </Text>
+                <Pressable
+                  onPress={() => { Haptics.selectionAsync(); router.push("/debts" as any); }}
+                  style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}
+                >
+                  <Text style={{ fontSize: 13, color: "#EF4444", fontWeight: "600" }}>{t.dashboard.showAll}</Text>
+                  <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={14} color="#EF4444" />
+                </Pressable>
               </View>
-              <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.textMuted} />
-            </Pressable>
+              <Pressable
+                onPress={() => { Haptics.selectionAsync(); router.push("/debts" as any); }}
+                style={({ pressed }) => ({
+                  backgroundColor: theme.card,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                  padding: 14,
+                  opacity: pressed ? 0.85 : 1,
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  gap: 12,
+                  ...cardShadow,
+                })}
+              >
+                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="credit-card" size={18} color="#EF4444" />
+                </View>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                    {activeDebts.length} {t.debts.filterActive.toLowerCase()}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                    {t.debts.remaining}: {formatCurrency(debtsTotalRemaining, currency, language)}
+                  </Text>
+                </View>
+                <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.textMuted} />
+              </Pressable>
+            </View>
           )}
 
         </View>

@@ -9,8 +9,8 @@ export interface SubcategoryDef {
 }
 
 export const BANK_SUBCATEGORIES: SubcategoryDef[] = [
-  { key: "personal_loan",    nameAr: "قرض شخصي",         nameEn: "Personal Loan",     icon: "cash",             color: "#3B82F6" },
-  { key: "car_loan",         nameAr: "قرض سيارة",         nameEn: "Car Loan",          icon: "car",              color: "#8B5CF6" },
+  { key: "personal_loan",    nameAr: "قرض شخصي",         nameEn: "Personal Loan",     icon: "dollar-sign",      color: "#3B82F6" },
+  { key: "car_loan",         nameAr: "قرض سيارة",         nameEn: "Car Loan",          icon: "disc",             color: "#8B5CF6" },
   { key: "mortgage",         nameAr: "رهن عقاري",         nameEn: "Mortgage",          icon: "home",             color: "#F59E0B" },
   { key: "credit_card",      nameAr: "بطاقة ائتمان",      nameEn: "Credit Card",       icon: "credit-card",      color: "#EF4444" },
   { key: "installments",     nameAr: "أقساط",             nameEn: "Installments",      icon: "repeat",           color: "#10B981" },

@@ -80,3 +80,9 @@ outputType = "console"
 task = "shell.exec"
 args = "npm run expo:dev"
 waitForPort = 8081
+
+[userenv]
+
+[userenv.shared]
+EXPO_PUBLIC_SUPABASE_URL = "https://kvhqitxrdebfphsqsebd.supabase.co"
+EXPO_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2aHFpdHhyZGViZnBoc3FzZWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MDE0MjEsImV4cCI6MjA4ODk3NzQyMX0.M9-FQGJd0L0DsHmuNv_Yck0zM2Ci0DBwv1jQzWvweGM"

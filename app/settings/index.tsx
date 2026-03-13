@@ -252,6 +252,40 @@ export default function SettingsScreen() {
           ))}
         </View>
 
+        {/* ── Notifications ── */}
+        <SectionLabel title={t.settings.notifications} />
+        <View style={{
+          flexDirection: isRTL ? "row-reverse" : "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: 14,
+          borderRadius: 16,
+          backgroundColor: theme.card,
+          borderWidth: 1,
+          borderColor: theme.border,
+          marginBottom: 8,
+        }}>
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, flex: 1 }}>
+            <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+              <Feather name="bell" size={20} color="#F59E0B" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                {t.settings.notifications}
+              </Text>
+              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                {t.settings.notificationsDesc}
+              </Text>
+            </View>
+          </View>
+          <Switch
+            testID="notifications-toggle"
+            value={settings.notification_enabled}
+            onValueChange={(v) => { Haptics.selectionAsync(); updateSettings({ notification_enabled: v }); }}
+            trackColor={{ true: theme.primary, false: theme.border }}
+          />
+        </View>
+
         {/* ── Daily Limit Mode ── */}
         <SectionLabel title={t.settings.dailyLimitMode} />
         <View style={{ gap: 8, marginBottom: 8 }}>
@@ -299,9 +333,7 @@ export default function SettingsScreen() {
                 testID="manual-limit-input"
                 label={t.settings.manualLimitAmount}
                 value={manualDailyLimit}
-                onChangeText={(v) => {
-                  setManualDailyLimit(v);
-                }}
+                onChangeText={(v) => { setManualDailyLimit(v); }}
                 keyboardType="decimal-pad"
                 placeholder="0.00"
                 onEndEditing={saveManualLimit}
@@ -314,35 +346,6 @@ export default function SettingsScreen() {
               )}
             </View>
           )}
-        </View>
-
-        {/* ── Manage ── */}
-        <SectionLabel title={t.settings.manage} />
-        <View style={{ gap: 8, marginBottom: 8 }}>
-          <NavRow
-            testID="settings-manage-accounts"
-            icon="credit-card"
-            iconColor={theme.primary}
-            label={t.settings.accounts}
-            subtitle={t.settings.accountsDesc}
-            onPress={() => router.push("/accounts/list")}
-          />
-          <NavRow
-            testID="settings-manage-categories"
-            icon="tag"
-            iconColor="#EC4899"
-            label={t.settings.categories}
-            subtitle={t.settings.categoriesDesc}
-            onPress={() => router.push("/categories")}
-          />
-          <NavRow
-            testID="settings-manage-debts"
-            icon="credit-card"
-            iconColor="#EF4444"
-            label={t.debts.title}
-            subtitle={t.settings.debtsDesc}
-            onPress={() => { Haptics.selectionAsync(); router.push("/debts"); }}
-          />
         </View>
 
         {/* ── Default Currency ── */}
@@ -499,40 +502,6 @@ export default function SettingsScreen() {
           </View>
           {!resetDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color="#EF444460" />}
         </Pressable>
-
-        {/* ── Notifications ── */}
-        <SectionLabel title={t.settings.notifications} />
-        <View style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: 14,
-          borderRadius: 16,
-          backgroundColor: theme.card,
-          borderWidth: 1,
-          borderColor: theme.border,
-          marginBottom: 8,
-        }}>
-          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, flex: 1 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
-              <Feather name="bell" size={20} color="#F59E0B" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-                {t.settings.notifications}
-              </Text>
-              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                {t.settings.notificationsDesc}
-              </Text>
-            </View>
-          </View>
-          <Switch
-            testID="notifications-toggle"
-            value={settings.notification_enabled}
-            onValueChange={(v) => { Haptics.selectionAsync(); updateSettings({ notification_enabled: v }); }}
-            trackColor={{ true: theme.primary, false: theme.border }}
-          />
-        </View>
 
         {/* ── Support ── */}
         <SectionLabel title={t.settings.support} />
