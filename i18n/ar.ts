@@ -517,6 +517,10 @@ export const ar = {
     noAccount: "ليس لديك حساب؟",
     alreadyHaveAccount: "لديك حساب بالفعل؟",
     signUpSuccess: "تم إنشاء الحساب! تحقق من بريدك الإلكتروني للتأكيد.",
+    signInSuccess: "أهلاً بعودتك!",
+    signOut: "تسجيل الخروج",
+    signOutConfirm: "هل أنت متأكد من تسجيل الخروج؟",
+    account: "الحساب",
   },
 };
 

@@ -18,7 +18,7 @@ import { AppButton } from "@/components/ui/AppButton";
 
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, isRTL, isDark } = useApp();
+  const { theme, t, isRTL, isDark, showToast } = useApp();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,7 +57,8 @@ export default function SignInScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       } else {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.back();
+        showToast(t.auth.signInSuccess, "success");
+        router.replace("/(tabs)");
       }
     } catch {
       setAuthError(t.common.error);

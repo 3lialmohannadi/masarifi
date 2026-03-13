@@ -1,0 +1,99 @@
+Supabase Sign Up and Sign In are now working.
+
+Now implement the next step carefully in my existing Expo Router React Native TypeScript app.
+
+Main goals:
+1. Connect auth session to the app properly
+2. Prepare user-based data sync
+3. Improve auth UX so it matches the app identity
+4. Add a basic profile system linked to the authenticated user
+
+Requirements:
+
+1. Auth session and persistence
+- Detect current Supabase auth session on app start
+- Keep the user signed in if a valid session exists
+- Handle signed-out state correctly
+- Persist auth state safely
+- Do not break the current app structure
+
+2. Basic profile system linked to auth
+Create a scalable profile structure linked directly to the authenticated Supabase user.
+
+Profile requirements:
+- Create or prepare a `profiles` table linked to the Supabase auth user id
+- Each profile should be tied to the authenticated user
+- Prepare fields such as:
+  - id
+  - email
+  - full_name
+  - phone
+  - gender
+  - created_at
+  - updated_at
+- On signup, make sure a profile record can be created or prepared correctly
+- Structure the code so the app can fetch the current user profile later
+- Keep this clean and scalable for future expansion
+
+3. User-based data sync preparation
+Prepare the app so future user data can be synced per authenticated user.
+
+This should support future syncing for:
+- accounts
+- transactions
+- savings
+- commitments
+- debts
+- categories
+
+Do not migrate everything fully yet unless needed.
+Instead, prepare the architecture cleanly so app data can be linked to the authenticated user id and profile.
+
+4. UX improvements for auth screens
+Make Sign In and Sign Up feel like a natural part of the app.
+
+Match the current app identity:
+- same colors
+- same spacing
+- same typography
+- same border radius
+- same visual hierarchy
+- same dark/light mode behavior
+- same RTL/LTR handling
+- same component style
+
+5. Better auth feedback
+Improve:
+- welcome message
+- sign in success message
+- account created message
+- validation messages
+- error messages
+- loading states
+- button states
+
+Make the wording polished, friendly, and aligned with the app tone.
+
+6. Architecture and safety
+- Keep implementation clean and scalable
+- Do not redesign the whole app
+- Do not remove current features
+- Do not break existing providers, routing, or settings
+- Reuse existing components if possible
+- Keep everything compatible with Expo Router and the current project structure
+
+Important:
+- Do not add Google login yet
+- Do not add Apple login yet
+- Do not add forgot password yet
+- Do not build a full profile screen unless needed
+- Focus first on profile structure + profile linkage + auth state + future sync readiness
+
+After implementation, clearly tell me:
+1. Which files you created
+2. Which files you changed
+3. How auth session now works
+4. How the profile is linked to the authenticated user
+5. How future per-user sync is prepared
+6. What UX improvements were added
+7. How I can test the profile linkage

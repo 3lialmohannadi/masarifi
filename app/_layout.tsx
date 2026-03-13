@@ -18,6 +18,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toast } from "@/components/Toast";
 import { queryClient } from "@/services/api";
 import { AppProvider, useApp } from "@/store/AppContext";
+import { AuthProvider } from "@/store/AuthContext";
 import { AccountsProvider } from "@/store/AccountsContext";
 import { TransactionsProvider } from "@/store/TransactionsContext";
 import { CategoriesProvider } from "@/store/CategoriesContext";
@@ -50,6 +51,7 @@ function AppLoadingGate({ children }: { children: React.ReactNode }) {
 function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AppProvider>
+      <AuthProvider>
       <AccountsProvider>
         <TransactionsProvider>
           <CategoriesProvider>
@@ -63,6 +65,7 @@ function Providers({ children }: { children: React.ReactNode }) {
           </CategoriesProvider>
         </TransactionsProvider>
       </AccountsProvider>
+      </AuthProvider>
     </AppProvider>
   );
 }

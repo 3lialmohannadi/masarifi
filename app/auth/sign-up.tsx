@@ -13,12 +13,13 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { supabase } from "@/src/lib/supabase";
+import { createProfile } from "@/src/lib/profileService";
 import { AppInput } from "@/components/ui/AppInput";
 import { AppButton } from "@/components/ui/AppButton";
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, isRTL, isDark } = useApp();
+  const { theme, t, isRTL, isDark, showToast } = useApp();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,9 +68,16 @@ export default function SignUpScreen() {
         }
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       } else if (data?.session) {
+        if (data.user) {
+          createProfile(data.user.id, data.user.email ?? email.trim().toLowerCase()).catch(() => {});
+        }
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        showToast(t.auth.signInSuccess, "success");
         router.replace("/(tabs)");
       } else {
+        if (data?.user) {
+          createProfile(data.user.id, data.user.email ?? email.trim().toLowerCase()).catch(() => {});
+        }
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         setDone(true);
       }

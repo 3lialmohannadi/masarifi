@@ -517,6 +517,10 @@ export const en = {
     noAccount: "Don't have an account?",
     alreadyHaveAccount: "Already have an account?",
     signUpSuccess: "Account created! Check your email to confirm.",
+    signInSuccess: "Welcome back!",
+    signOut: "Sign Out",
+    signOutConfirm: "Are you sure you want to sign out?",
+    account: "Account",
   },
 };
 
