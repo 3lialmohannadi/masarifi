@@ -11,7 +11,6 @@ import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useSavings } from "@/store/SavingsContext";
 import { useCommitments } from "@/store/CommitmentsContext";
-import { AppInput } from "@/components/ui/AppInput";
 import { AppButton } from "@/components/ui/AppButton";
 import { getProfile, type Profile } from "@/src/lib/profileService";
 
@@ -77,7 +76,6 @@ export default function SettingsScreen() {
   const { transactions, clearAll: clearTransactions } = useTransactions();
   const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
   const { commitments, clearAll: clearCommitments } = useCommitments();
-  const [manualDailyLimit, setManualDailyLimit] = useState(String(settings.manual_daily_limit || ""));
   const [exporting, setExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
   const [showCurrencies, setShowCurrencies] = useState(false);
@@ -128,16 +126,6 @@ export default function SettingsScreen() {
     { key: "dark" as const, label: t.settings.dark, icon: "moon" },
     { key: "auto" as const, label: t.settings.auto, icon: "smartphone" },
   ];
-
-  const LIMIT_MODES = [
-    { key: "smart" as const, label: t.settings.smartLimit, desc: t.settings.smartLimitDesc, icon: "zap" },
-    { key: "manual" as const, label: t.settings.manualLimit, desc: t.settings.manualLimitDesc, icon: "sliders" },
-  ];
-
-  const saveManualLimit = useCallback(() => {
-    const val = parseFloat(manualDailyLimit);
-    if (!isNaN(val) && val >= 0) updateSettings({ manual_daily_limit: val });
-  }, [manualDailyLimit, updateSettings]);
 
   const handleExport = useCallback(async () => {
     setExporting(true);
@@ -238,7 +226,7 @@ export default function SettingsScreen() {
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
       >
-        {/* ── Language ── */}
+        {/* ── 1. Language ── */}
         <SectionLabel title={t.settings.language} />
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10, marginBottom: 8 }}>
           {LANG_OPTIONS.map((opt) => (
@@ -265,7 +253,191 @@ export default function SettingsScreen() {
           ))}
         </View>
 
-        {/* ── Theme ── */}
+        {/* ── 2. Account ── */}
+        <SectionLabel title={t.auth.account} />
+
+        {user ? (
+          /* ── Signed-in: only the profile card ── */
+          <View style={{ marginBottom: 8 }}>
+            <Pressable
+              onPress={() => router.push("/profile")}
+              style={({ pressed }) => ({
+                backgroundColor: theme.card,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: theme.border,
+                padding: 16,
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 14,
+                opacity: pressed ? 0.85 : 1,
+              })}
+            >
+              <View
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  backgroundColor: theme.primary,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ color: "#fff", fontSize: 18, fontWeight: "800" }}>
+                  {initials}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                {profile?.full_name ? (
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "700",
+                      color: theme.text,
+                      textAlign: isRTL ? "right" : "left",
+                    }}
+                    numberOfLines={1}
+                  >
+                    {profile.full_name}
+                  </Text>
+                ) : null}
+                <Text
+                  style={{
+                    fontSize: 13,
+                    color: theme.textSecondary,
+                    textAlign: isRTL ? "right" : "left",
+                  }}
+                  numberOfLines={1}
+                >
+                  {user.email}
+                </Text>
+              </View>
+              <Feather
+                name={isRTL ? "chevron-left" : "chevron-right"}
+                size={16}
+                color={theme.textMuted}
+              />
+            </Pressable>
+          </View>
+        ) : (
+          /* ── Guest state ── */
+          <View style={{ marginBottom: 8 }}>
+            <View
+              style={{
+                backgroundColor: theme.card,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: theme.border,
+                padding: 20,
+                gap: 16,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  gap: 14,
+                }}
+              >
+                <View
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 24,
+                    backgroundColor: theme.primary + "18",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Feather name="user" size={22} color={theme.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "700",
+                      color: theme.text,
+                      textAlign: isRTL ? "right" : "left",
+                    }}
+                  >
+                    {t.auth.guestTitle}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: theme.textMuted,
+                      textAlign: isRTL ? "right" : "left",
+                    }}
+                  >
+                    {t.auth.guestSubtitle}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={{ gap: 10 }}>
+                {[t.auth.benefit1, t.auth.benefit2, t.auth.benefit3].map(
+                  (benefit, i) => (
+                    <View
+                      key={i}
+                      style={{
+                        flexDirection: isRTL ? "row-reverse" : "row",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: 11,
+                          backgroundColor: theme.primary + "18",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Feather name="check" size={12} color={theme.primary} />
+                      </View>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: theme.textSecondary,
+                          flex: 1,
+                          textAlign: isRTL ? "right" : "left",
+                        }}
+                      >
+                        {benefit}
+                      </Text>
+                    </View>
+                  )
+                )}
+              </View>
+
+              <AppButton
+                title={t.auth.signIn}
+                onPress={() => router.push("/auth/sign-in")}
+                fullWidth
+                size="lg"
+              />
+
+              <Pressable
+                onPress={() => router.push("/auth/sign-up")}
+                style={{ alignItems: "center" }}
+              >
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: theme.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  {t.auth.noAccount} {t.auth.signUp}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+
+        {/* ── 3. Theme ── */}
         <SectionLabel title={t.settings.theme} />
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8, marginBottom: 8 }}>
           {THEME_OPTIONS.map((opt) => (
@@ -288,7 +460,7 @@ export default function SettingsScreen() {
           ))}
         </View>
 
-        {/* ── Notifications ── */}
+        {/* ── 4. Notifications ── */}
         <SectionLabel title={t.settings.notifications} />
         <View style={{
           flexDirection: isRTL ? "row-reverse" : "row",
@@ -322,69 +494,7 @@ export default function SettingsScreen() {
           />
         </View>
 
-        {/* ── Daily Limit Mode ── */}
-        <SectionLabel title={t.settings.dailyLimitMode} />
-        <View style={{ gap: 8, marginBottom: 8 }}>
-          {LIMIT_MODES.map((opt) => {
-            const active = settings.daily_limit_mode === opt.key;
-            return (
-              <Pressable
-                key={opt.key}
-                testID={`limit-${opt.key}`}
-                onPress={() => { Haptics.selectionAsync(); updateSettings({ daily_limit_mode: opt.key }); }}
-                style={{
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  gap: 14,
-                  padding: 14,
-                  borderRadius: 16,
-                  backgroundColor: active ? theme.primaryLight : theme.card,
-                  borderWidth: 2,
-                  borderColor: active ? theme.primary : theme.border,
-                }}
-              >
-                <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: active ? theme.primary + "25" : theme.border + "50", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name={opt.icon as any} size={20} color={active ? theme.primary : theme.textSecondary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>{opt.label}</Text>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>{opt.desc}</Text>
-                </View>
-                <View style={{
-                  width: 22, height: 22, borderRadius: 11,
-                  borderWidth: 2,
-                  borderColor: active ? theme.primary : theme.border,
-                  backgroundColor: active ? theme.primary : "transparent",
-                  alignItems: "center", justifyContent: "center",
-                }}>
-                  {active && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: "#fff" }} />}
-                </View>
-              </Pressable>
-            );
-          })}
-
-          {settings.daily_limit_mode === "manual" && (
-            <View style={{ paddingTop: 4 }}>
-              <AppInput
-                testID="manual-limit-input"
-                label={t.settings.manualLimitAmount}
-                value={manualDailyLimit}
-                onChangeText={(v) => { setManualDailyLimit(v); }}
-                keyboardType="decimal-pad"
-                placeholder="0.00"
-                onEndEditing={saveManualLimit}
-                onBlur={saveManualLimit}
-              />
-              {manualDailyLimit !== "" && !isNaN(parseFloat(manualDailyLimit)) && (
-                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left", paddingHorizontal: 4, marginTop: 4 }}>
-                  {t.settings.autoSave}
-                </Text>
-              )}
-            </View>
-          )}
-        </View>
-
-        {/* ── Default Currency ── */}
+        {/* ── 5. Default Currency ── */}
         <SectionLabel title={t.settings.currencies} />
         <Pressable
           testID="settings-currency-toggle"
@@ -465,7 +575,7 @@ export default function SettingsScreen() {
           </View>
         )}
 
-        {/* ── Data Export ── */}
+        {/* ── 6. Data Export ── */}
         <SectionLabel title={t.settings.data} />
         <Pressable
           testID="settings-export-btn"
@@ -501,7 +611,7 @@ export default function SettingsScreen() {
           {!exportDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.border} />}
         </Pressable>
 
-        {/* ── Danger Zone ── */}
+        {/* ── 7. Danger Zone ── */}
         <SectionLabel title={t.settings.danger} />
         <Pressable
           onPress={() => {
@@ -539,212 +649,7 @@ export default function SettingsScreen() {
           {!resetDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color="#EF444460" />}
         </Pressable>
 
-        {/* ── Account ── */}
-        <SectionLabel title={t.auth.account} />
-
-        {user ? (
-          /* ── Signed-in state ── */
-          <View style={{ gap: 8, marginBottom: 8 }}>
-            {/* Profile summary card */}
-            <Pressable
-              onPress={() => router.push("/profile")}
-              style={({ pressed }) => ({
-                backgroundColor: theme.card,
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: theme.border,
-                padding: 16,
-                flexDirection: isRTL ? "row-reverse" : "row",
-                alignItems: "center",
-                gap: 14,
-                opacity: pressed ? 0.85 : 1,
-              })}
-            >
-              <View
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  backgroundColor: theme.primary,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Text style={{ color: "#fff", fontSize: 18, fontWeight: "800" }}>
-                  {initials}
-                </Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                {profile?.full_name ? (
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "700",
-                      color: theme.text,
-                      textAlign: isRTL ? "right" : "left",
-                    }}
-                    numberOfLines={1}
-                  >
-                    {profile.full_name}
-                  </Text>
-                ) : null}
-                <Text
-                  style={{
-                    fontSize: 13,
-                    color: theme.textSecondary,
-                    textAlign: isRTL ? "right" : "left",
-                  }}
-                  numberOfLines={1}
-                >
-                  {user.email}
-                </Text>
-              </View>
-              <Feather
-                name={isRTL ? "chevron-left" : "chevron-right"}
-                size={16}
-                color={theme.textMuted}
-              />
-            </Pressable>
-
-            {/* View Profile */}
-            <NavRow
-              icon="user"
-              iconColor={theme.primary}
-              label={t.auth.viewProfile}
-              onPress={() => router.push("/profile")}
-            />
-
-            {/* Sign Out */}
-            <NavRow
-              icon="log-out"
-              iconColor="#EF4444"
-              label={t.auth.signOut}
-              onPress={handleSignOut}
-            />
-          </View>
-        ) : (
-          /* ── Guest state ── */
-          <View style={{ marginBottom: 8 }}>
-            <View
-              style={{
-                backgroundColor: theme.card,
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: theme.border,
-                padding: 20,
-                gap: 16,
-              }}
-            >
-              {/* Guest header */}
-              <View
-                style={{
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  gap: 14,
-                }}
-              >
-                <View
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 24,
-                    backgroundColor: theme.primary + "18",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Feather name="user" size={22} color={theme.primary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "700",
-                      color: theme.text,
-                      textAlign: isRTL ? "right" : "left",
-                    }}
-                  >
-                    {t.auth.guestTitle}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: theme.textMuted,
-                      textAlign: isRTL ? "right" : "left",
-                    }}
-                  >
-                    {t.auth.guestSubtitle}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Benefits */}
-              <View style={{ gap: 10 }}>
-                {[t.auth.benefit1, t.auth.benefit2, t.auth.benefit3].map(
-                  (benefit, i) => (
-                    <View
-                      key={i}
-                      style={{
-                        flexDirection: isRTL ? "row-reverse" : "row",
-                        alignItems: "center",
-                        gap: 10,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 22,
-                          height: 22,
-                          borderRadius: 11,
-                          backgroundColor: theme.primary + "18",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Feather name="check" size={12} color={theme.primary} />
-                      </View>
-                      <Text
-                        style={{
-                          fontSize: 13,
-                          color: theme.textSecondary,
-                          flex: 1,
-                          textAlign: isRTL ? "right" : "left",
-                        }}
-                      >
-                        {benefit}
-                      </Text>
-                    </View>
-                  )
-                )}
-              </View>
-
-              {/* Sign In button */}
-              <AppButton
-                title={t.auth.signIn}
-                onPress={() => router.push("/auth/sign-in")}
-                fullWidth
-                size="lg"
-              />
-
-              {/* Create Account link */}
-              <Pressable
-                onPress={() => router.push("/auth/sign-up")}
-                style={{ alignItems: "center" }}
-              >
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: theme.primary,
-                    fontWeight: "600",
-                  }}
-                >
-                  {t.auth.noAccount} {t.auth.signUp}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
-
-        {/* ── Support ── */}
+        {/* ── 8. Support ── */}
         <SectionLabel title={t.settings.support} />
         <View style={{ gap: 8, marginBottom: 8 }}>
           <NavRow
@@ -790,7 +695,6 @@ export default function SettingsScreen() {
             }}
             onPress={() => {}}
           >
-            {/* Icon */}
             <View style={{ alignItems: "center", gap: 8 }}>
               <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: "#EF444420", alignItems: "center", justifyContent: "center" }}>
                 <Feather name="alert-triangle" size={30} color="#EF4444" />
@@ -800,14 +704,12 @@ export default function SettingsScreen() {
               </Text>
             </View>
 
-            {/* Message */}
             <View style={{ backgroundColor: "#EF444410", borderRadius: 12, padding: 14, borderWidth: 1, borderColor: "#EF444425" }}>
               <Text style={{ fontSize: 14, color: theme.text, textAlign: isRTL ? "right" : "left", lineHeight: 22 }}>
                 {t.settings.resetConfirmMessage}
               </Text>
             </View>
 
-            {/* Buttons */}
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
               <Pressable
                 onPress={() => setShowResetConfirm(false)}

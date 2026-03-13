@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, ScrollView, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
+import { AppInput } from "@/components/ui/AppInput";
 
 interface MenuItemProps {
   icon: string;
@@ -64,7 +65,20 @@ function SectionHeader({ title }: { title: string }) {
 
 export default function MoreTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, isRTL } = useApp();
+  const { theme, t, isRTL, settings, updateSettings } = useApp();
+  const [manualDailyLimit, setManualDailyLimit] = useState(
+    String(settings.manual_daily_limit || "")
+  );
+
+  const saveManualLimit = useCallback(() => {
+    const val = parseFloat(manualDailyLimit);
+    if (!isNaN(val) && val >= 0) updateSettings({ manual_daily_limit: val });
+  }, [manualDailyLimit, updateSettings]);
+
+  const LIMIT_MODES = [
+    { key: "smart" as const, label: t.settings.smartLimit, desc: t.settings.smartLimitDesc, icon: "zap" },
+    { key: "manual" as const, label: t.settings.manualLimit, desc: t.settings.manualLimitDesc, icon: "sliders" },
+  ];
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
@@ -100,6 +114,8 @@ export default function MoreTab() {
         />
 
         <View style={{ height: 12 }} />
+
+        {/* ── Accounts section ── */}
         <SectionHeader title={t.more.accounts} />
         <MenuItem
           icon="credit-card"
@@ -122,6 +138,86 @@ export default function MoreTab() {
           color="#06B6D4"
           onPress={() => router.push("/(modals)/transfer-form")}
         />
+
+        {/* ── Daily Limit Mode (inline under الحسابات) ── */}
+        <View
+          style={{
+            backgroundColor: theme.card,
+            borderRadius: 16,
+            borderWidth: 1,
+            borderColor: theme.border,
+            padding: 14,
+            marginBottom: 6,
+            gap: 10,
+          }}
+        >
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, marginBottom: 2 }}>
+            <View style={{ width: 36, height: 36, borderRadius: 11, backgroundColor: theme.primary + "18", alignItems: "center", justifyContent: "center" }}>
+              <Feather name="sliders" size={18} color={theme.primary} />
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+              {t.settings.dailyLimitMode}
+            </Text>
+          </View>
+
+          {LIMIT_MODES.map((opt) => {
+            const active = settings.daily_limit_mode === opt.key;
+            return (
+              <Pressable
+                key={opt.key}
+                testID={`limit-${opt.key}`}
+                onPress={() => { Haptics.selectionAsync(); updateSettings({ daily_limit_mode: opt.key }); }}
+                style={{
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: 12,
+                  borderRadius: 12,
+                  backgroundColor: active ? theme.primaryLight : theme.background,
+                  borderWidth: 1.5,
+                  borderColor: active ? theme.primary : theme.border,
+                }}
+              >
+                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: active ? theme.primary + "25" : theme.border + "50", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name={opt.icon as any} size={18} color={active ? theme.primary : theme.textSecondary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>{opt.label}</Text>
+                  <Text style={{ fontSize: 11, color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>{opt.desc}</Text>
+                </View>
+                <View style={{
+                  width: 20, height: 20, borderRadius: 10,
+                  borderWidth: 2,
+                  borderColor: active ? theme.primary : theme.border,
+                  backgroundColor: active ? theme.primary : "transparent",
+                  alignItems: "center", justifyContent: "center",
+                }}>
+                  {active && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#fff" }} />}
+                </View>
+              </Pressable>
+            );
+          })}
+
+          {settings.daily_limit_mode === "manual" && (
+            <View style={{ paddingTop: 2 }}>
+              <AppInput
+                testID="manual-limit-input"
+                label={t.settings.manualLimitAmount}
+                value={manualDailyLimit}
+                onChangeText={(v) => setManualDailyLimit(v)}
+                keyboardType="decimal-pad"
+                placeholder="0.00"
+                onEndEditing={saveManualLimit}
+                onBlur={saveManualLimit}
+              />
+              {manualDailyLimit !== "" && !isNaN(parseFloat(manualDailyLimit)) && (
+                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left", paddingHorizontal: 4, marginTop: 4 }}>
+                  {t.settings.autoSave}
+                </Text>
+              )}
+            </View>
+          )}
+        </View>
 
         <View style={{ height: 12 }} />
         <SectionHeader title={t.more.settings} />

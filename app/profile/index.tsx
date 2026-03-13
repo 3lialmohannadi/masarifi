@@ -6,10 +6,12 @@ import {
   ScrollView,
   ActivityIndicator,
   Platform,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useAuth } from "@/store/AuthContext";
 import { getProfile, type Profile } from "@/src/lib/profileService";
@@ -79,9 +81,28 @@ function InfoRow({
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, isRTL, isDark } = useApp();
-  const { user, isAuthLoading } = useAuth();
+  const { user, isAuthLoading, signOut } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const handleSignOut = () => {
+    Alert.alert(
+      t.auth.signOut,
+      t.auth.signOutConfirm,
+      [
+        { text: t.common.cancel, style: "cancel" },
+        {
+          text: t.auth.signOut,
+          style: "destructive",
+          onPress: async () => {
+            await signOut();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            router.replace("/(tabs)");
+          },
+        },
+      ]
+    );
+  };
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -296,6 +317,29 @@ export default function ProfileScreen() {
             value={profile?.gender}
           />
         </View>
+
+        {/* ── Sign Out ── */}
+        <Pressable
+          onPress={handleSignOut}
+          style={({ pressed }) => ({
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "center",
+            gap: 14,
+            padding: 14,
+            borderRadius: 16,
+            backgroundColor: pressed ? "#EF444410" : theme.card,
+            borderWidth: 1.5,
+            borderColor: "#EF444440",
+            marginTop: 4,
+          })}
+        >
+          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
+            <Feather name="log-out" size={20} color="#EF4444" />
+          </View>
+          <Text style={{ flex: 1, fontSize: 15, fontWeight: "600", color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>
+            {t.auth.signOut}
+          </Text>
+        </Pressable>
       </ScrollView>
     </View>
   );
