@@ -7,14 +7,8 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useDebts } from "@/store/DebtsContext";
 import { formatCurrency } from "@/utils/currency";
+import { dateToISO } from "@/utils/date";
 import { DatePickerModal } from "@/components/DatePickerModal";
-
-function toISO(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
 
 export default function DebtPaymentModal() {
   const { debtId } = useLocalSearchParams<{ debtId: string }>();
@@ -26,7 +20,7 @@ export default function DebtPaymentModal() {
   const currency = debt?.currency || "QAR";
 
   const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(toISO(new Date()));
+  const [date, setDate] = useState(dateToISO(new Date()));
   const [note, setNote] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);

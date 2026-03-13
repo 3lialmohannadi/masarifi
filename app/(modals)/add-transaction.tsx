@@ -23,17 +23,11 @@ import { useCategories } from "@/store/CategoriesContext";
 import { AppButton } from "@/components/ui/AppButton";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
-import { todayISOString } from "@/utils/date";
+import { todayISOString, isValidDate } from "@/utils/date";
 import { SMART_SUGGESTIONS } from "@/utils/defaults";
 import { DatePickerModal } from "@/components/DatePickerModal";
 import { CategoryPickerModal } from "@/components/CategoryPickerModal";
 import type { TransactionType, Category } from "@/types";
-
-function isValidDate(str: string): boolean {
-  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
-  const d = new Date(str);
-  return !isNaN(d.getTime());
-}
 
 function TxField({
   label,

@@ -40,6 +40,13 @@ export function todayISOString(): string {
   return new Date().toISOString().split("T")[0];
 }
 
+export function dateToISO(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export function getRemainingDaysInMonth(): number {
   const today = new Date();
   const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -88,6 +95,12 @@ export function getMonthKey(date: Date = new Date()): string {
 export function getCurrentMonthYear(): { month: number; year: number } {
   const today = new Date();
   return { month: today.getMonth() + 1, year: today.getFullYear() };
+}
+
+export function isValidDate(str: string): boolean {
+  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+  const d = new Date(str);
+  return !isNaN(d.getTime());
 }
 
 export function getDaysRemaining(targetDateStr: string): number {

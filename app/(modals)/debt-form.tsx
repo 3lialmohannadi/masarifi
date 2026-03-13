@@ -14,19 +14,13 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useDebts } from "@/store/DebtsContext";
 import { DatePickerModal } from "@/components/DatePickerModal";
+import { dateToISO } from "@/utils/date";
 import type { DebtCategory, DebtStatus } from "@/types";
 import {
   CATEGORY_SUBCATEGORIES,
   CATEGORY_META,
   type SubcategoryDef,
 } from "@/utils/debtSubcategories";
-
-function toISO(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
 
 type RepaymentMode = "months" | "due_date";
 
@@ -57,9 +51,9 @@ export default function DebtFormModal() {
   const [monthlyInstallment, setMonthlyInstallment] = useState(existingDebt?.monthly_installment ? String(existingDebt.monthly_installment) : "");
   const [repaymentMonths, setRepaymentMonths] = useState(existingDebt?.repayment_months ? String(existingDebt.repayment_months) : "");
   const [repaymentMode, setRepaymentMode] = useState<RepaymentMode>("due_date");
-  const [dueDate, setDueDate] = useState(existingDebt?.due_date ? toISO(new Date(existingDebt.due_date)) : "");
-  const [startDate, setStartDate] = useState(existingDebt?.start_date ? toISO(new Date(existingDebt.start_date)) : toISO(new Date()));
-  const [endDate, setEndDate] = useState(existingDebt?.end_date ? toISO(new Date(existingDebt.end_date)) : "");
+  const [dueDate, setDueDate] = useState(existingDebt?.due_date ? dateToISO(new Date(existingDebt.due_date)) : "");
+  const [startDate, setStartDate] = useState(existingDebt?.start_date ? dateToISO(new Date(existingDebt.start_date)) : dateToISO(new Date()));
+  const [endDate, setEndDate] = useState(existingDebt?.end_date ? dateToISO(new Date(existingDebt.end_date)) : "");
   const [notes, setNotes] = useState(existingDebt?.notes || "");
   const [currency] = useState(existingDebt?.currency || appCurrency || "QAR");
 

@@ -21,7 +21,7 @@ import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
-import { todayISOString } from "@/utils/date";
+import { todayISOString, isValidDate } from "@/utils/date";
 import { SMART_SUGGESTIONS } from "@/utils/defaults";
 import type { TransactionType, Category } from "@/types";
 
@@ -29,12 +29,6 @@ interface QuickAddSheetProps {
   visible: boolean;
   initialType: TransactionType;
   onClose: () => void;
-}
-
-function isValidDate(str: string): boolean {
-  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
-  const d = new Date(str);
-  return !isNaN(d.getTime());
 }
 
 function getSmartSuggestion(note: string, categories: Category[], language: string): Category | null {
