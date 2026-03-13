@@ -18,3 +18,33 @@ id = "Oo5JsLPDO6kMWaPHRUM41"
 uri = "file://attached_assets/generated_images/icon_option3_wallet.png"
 type = "image"
 title = "الخيار 3 — محفظة مينيمال"
+
+[[outputs]]
+id = "pkMH8s_smuPzVTGU-el0l"
+uri = "file://attached_assets/generated_images/icon_v2_option1_chart_meem.png"
+type = "image"
+title = "1 — خط بياني يتحول لحرف م"
+
+[[outputs]]
+id = "OmmhM2Dwc-h60_qSPWdf6"
+uri = "file://attached_assets/generated_images/icon_v2_option2_geometric.png"
+type = "image"
+title = "2 — شكل هندسي إسلامي"
+
+[[outputs]]
+id = "LdK6iRnxWI0-RM94-_WnU"
+uri = "file://attached_assets/generated_images/icon_v2_option3_mountain_m.png"
+type = "image"
+title = "3 — حرف M على شكل جبال"
+
+[[outputs]]
+id = "NbYJzx90Z9RYRWCh4oKwT"
+uri = "file://attached_assets/generated_images/icon_v2_option4_crescent.png"
+type = "image"
+title = "4 — هلال خليجي مع عملة"
+
+[[outputs]]
+id = "ok66G7XM0SftpENg2jr5o"
+uri = "file://attached_assets/generated_images/icon_v2_option5_infinity.png"
+type = "image"
+title = "5 — رمز اللانهاية مع تدفق مالي"
