@@ -521,6 +521,17 @@ export const ar = {
     signOut: "تسجيل الخروج",
     signOutConfirm: "هل أنت متأكد من تسجيل الخروج؟",
     account: "الحساب",
+    guestTitle: "تصفح كضيف",
+    guestSubtitle: "سجّل دخولك للمزامنة والنسخ الاحتياطي والمزيد",
+    benefit1: "مزامنة بياناتك عبر الأجهزة",
+    benefit2: "نسخ احتياطي واستعادة في أي وقت",
+    benefit3: "ربط البيانات بحسابك بأمان",
+    viewProfile: "ملفي الشخصي",
+    signedInAs: "مسجّل الدخول بـ",
+    profileName: "الاسم الكامل",
+    profilePhone: "رقم الهاتف",
+    profileGender: "الجنس",
+    memberSince: "عضو منذ",
   },
 };
 

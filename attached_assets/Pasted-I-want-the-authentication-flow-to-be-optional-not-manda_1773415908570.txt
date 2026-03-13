@@ -1,0 +1,72 @@
+I want the authentication flow to be optional, not mandatory.
+
+Important behavior I want:
+- When the app opens, users should still be able to enter and use the app as a guest
+- Do NOT force Sign In / Sign Up at app launch
+- Auth should be optional and available when the user wants account-based features
+
+Please update the current auth experience in my existing Expo Router React Native TypeScript app accordingly.
+
+Requirements:
+
+1. Guest mode
+- Keep the app accessible without login
+- Users can open and use the app as guests
+- Do not hard-lock the app behind authentication
+
+2. Settings behavior
+- In Settings, if the user is signed out:
+  - show a polished guest state
+  - show Sign In
+  - show Create Account
+  - explain clearly that signing in enables sync, backup, restore, and account-based features
+- If the user is signed in:
+  - hide Sign In and Create Account
+  - show a proper profile summary card
+  - show access to the profile screen
+  - show a clear Sign Out action
+
+3. Profile
+- Make sure the profile UI exists and is accessible when signed in
+- It should display the authenticated user’s linked profile data
+
+4. Sign out
+- Place Sign Out in a clear and logical place
+- After sign out, return the app to guest mode, not a forced auth screen
+
+5. Sync messaging
+- Make the benefits of signing in clear:
+  - sync data
+  - backup data
+  - restore data later
+  - connect data to the user account
+- Keep the wording polished and consistent with the app identity
+
+6. Design
+- The guest state, auth actions, profile section, and sign-out state must match the app’s existing identity exactly
+- same colors
+- same spacing
+- same typography
+- same border radius
+- same dark/light mode behavior
+- same RTL/LTR behavior
+- do not make it look generic
+
+7. Safety
+- Do not break the current app
+- Do not redesign the whole app unnecessarily
+- Reuse existing components if possible
+- Keep the architecture scalable for future sync improvements
+
+After finishing, clearly tell me:
+1. Which files you changed
+2. How guest mode now works
+3. Where Sign In / Create Account appear
+4. Where Sign Out appears
+5. Where the profile screen is located
+6. How signed-in vs guest states behave now
+
+Also make sure the signed-in user profile section is fully functional, not just visual:
+- fetch and display the current authenticated user's profile data
+- make the profile entry point real and connected
+- make sign out actually work and update the UI immediately

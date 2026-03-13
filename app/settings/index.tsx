@@ -1,16 +1,19 @@
-import React, { useState, useCallback } from "react";
-import { View, Text, Pressable, Switch, Share, Platform, Image, Modal, ActivityIndicator } from "react-native";
+import React, { useState, useCallback, useEffect } from "react";
+import { View, Text, Pressable, Switch, Share, Platform, Image, Modal, ActivityIndicator, Alert } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
+import { useAuth } from "@/store/AuthContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useSavings } from "@/store/SavingsContext";
 import { useCommitments } from "@/store/CommitmentsContext";
 import { AppInput } from "@/components/ui/AppInput";
+import { AppButton } from "@/components/ui/AppButton";
+import { getProfile, type Profile } from "@/src/lib/profileService";
 
 const CURRENCIES = [
   { code: "QAR", flag: "🇶🇦" },
@@ -81,6 +84,39 @@ export default function SettingsScreen() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetDone, setResetDone] = useState(false);
+
+  const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      getProfile(user.id).then(setProfile).catch(() => {});
+    } else {
+      setProfile(null);
+    }
+  }, [user]);
+
+  const initials = profile?.full_name
+    ? profile.full_name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+    : (user?.email?.[0] ?? "?").toUpperCase();
+
+  const handleSignOut = () => {
+    Alert.alert(
+      t.auth.signOut,
+      t.auth.signOutConfirm,
+      [
+        { text: t.common.cancel, style: "cancel" },
+        {
+          text: t.auth.signOut,
+          style: "destructive",
+          onPress: async () => {
+            await signOut();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          },
+        },
+      ]
+    );
+  };
 
   const LANG_OPTIONS = [
     { code: "ar" as const, label: "العربية" },
@@ -503,24 +539,210 @@ export default function SettingsScreen() {
           {!resetDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color="#EF444460" />}
         </Pressable>
 
-        {/* ── Account (Auth Testing) ── */}
-        <SectionLabel title={t.auth.signIn + " / " + t.auth.signUp} />
-        <View style={{ gap: 8, marginBottom: 8 }}>
-          <NavRow
-            icon="log-in"
-            iconColor="#2F8F83"
-            label={t.auth.signIn}
-            subtitle={t.auth.signInSubtitle}
-            onPress={() => router.push("/auth/sign-in")}
-          />
-          <NavRow
-            icon="user-plus"
-            iconColor="#6366F1"
-            label={t.auth.signUp}
-            subtitle={t.auth.signUpSubtitle}
-            onPress={() => router.push("/auth/sign-up")}
-          />
-        </View>
+        {/* ── Account ── */}
+        <SectionLabel title={t.auth.account} />
+
+        {user ? (
+          /* ── Signed-in state ── */
+          <View style={{ gap: 8, marginBottom: 8 }}>
+            {/* Profile summary card */}
+            <Pressable
+              onPress={() => router.push("/profile")}
+              style={({ pressed }) => ({
+                backgroundColor: theme.card,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: theme.border,
+                padding: 16,
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 14,
+                opacity: pressed ? 0.85 : 1,
+              })}
+            >
+              <View
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  backgroundColor: theme.primary,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ color: "#fff", fontSize: 18, fontWeight: "800" }}>
+                  {initials}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                {profile?.full_name ? (
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "700",
+                      color: theme.text,
+                      textAlign: isRTL ? "right" : "left",
+                    }}
+                    numberOfLines={1}
+                  >
+                    {profile.full_name}
+                  </Text>
+                ) : null}
+                <Text
+                  style={{
+                    fontSize: 13,
+                    color: theme.textSecondary,
+                    textAlign: isRTL ? "right" : "left",
+                  }}
+                  numberOfLines={1}
+                >
+                  {user.email}
+                </Text>
+              </View>
+              <Feather
+                name={isRTL ? "chevron-left" : "chevron-right"}
+                size={16}
+                color={theme.textMuted}
+              />
+            </Pressable>
+
+            {/* View Profile */}
+            <NavRow
+              icon="user"
+              iconColor={theme.primary}
+              label={t.auth.viewProfile}
+              onPress={() => router.push("/profile")}
+            />
+
+            {/* Sign Out */}
+            <NavRow
+              icon="log-out"
+              iconColor="#EF4444"
+              label={t.auth.signOut}
+              onPress={handleSignOut}
+            />
+          </View>
+        ) : (
+          /* ── Guest state ── */
+          <View style={{ marginBottom: 8 }}>
+            <View
+              style={{
+                backgroundColor: theme.card,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: theme.border,
+                padding: 20,
+                gap: 16,
+              }}
+            >
+              {/* Guest header */}
+              <View
+                style={{
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  gap: 14,
+                }}
+              >
+                <View
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 24,
+                    backgroundColor: theme.primary + "18",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Feather name="user" size={22} color={theme.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "700",
+                      color: theme.text,
+                      textAlign: isRTL ? "right" : "left",
+                    }}
+                  >
+                    {t.auth.guestTitle}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: theme.textMuted,
+                      textAlign: isRTL ? "right" : "left",
+                    }}
+                  >
+                    {t.auth.guestSubtitle}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Benefits */}
+              <View style={{ gap: 10 }}>
+                {[t.auth.benefit1, t.auth.benefit2, t.auth.benefit3].map(
+                  (benefit, i) => (
+                    <View
+                      key={i}
+                      style={{
+                        flexDirection: isRTL ? "row-reverse" : "row",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: 11,
+                          backgroundColor: theme.primary + "18",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Feather name="check" size={12} color={theme.primary} />
+                      </View>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: theme.textSecondary,
+                          flex: 1,
+                          textAlign: isRTL ? "right" : "left",
+                        }}
+                      >
+                        {benefit}
+                      </Text>
+                    </View>
+                  )
+                )}
+              </View>
+
+              {/* Sign In button */}
+              <AppButton
+                title={t.auth.signIn}
+                onPress={() => router.push("/auth/sign-in")}
+                fullWidth
+                size="lg"
+              />
+
+              {/* Create Account link */}
+              <Pressable
+                onPress={() => router.push("/auth/sign-up")}
+                style={{ alignItems: "center" }}
+              >
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: theme.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  {t.auth.noAccount} {t.auth.signUp}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
 
         {/* ── Support ── */}
         <SectionLabel title={t.settings.support} />

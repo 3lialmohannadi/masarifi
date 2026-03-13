@@ -521,6 +521,17 @@ export const en = {
     signOut: "Sign Out",
     signOutConfirm: "Are you sure you want to sign out?",
     account: "Account",
+    guestTitle: "Browsing as Guest",
+    guestSubtitle: "Sign in to unlock sync, backup, and more",
+    benefit1: "Sync your data across devices",
+    benefit2: "Backup and restore anytime",
+    benefit3: "Connect securely to your account",
+    viewProfile: "My Profile",
+    signedInAs: "Signed in as",
+    profileName: "Full Name",
+    profilePhone: "Phone",
+    profileGender: "Gender",
+    memberSince: "Member since",
   },
 };
 
