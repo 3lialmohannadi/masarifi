@@ -80,6 +80,7 @@ export const ar = {
     financial: "الإدارة المالية",
     accounts: "الحسابات",
     settings: "الإعدادات",
+    debtsSubtitle: "قروضك والتزاماتك المالية",
     commitmentsSubtitle: "الالتزامات والفواتير",
     accountsSubtitle: "إدارة حساباتك",
     categoriesSubtitle: "تصنيفات المعاملات",

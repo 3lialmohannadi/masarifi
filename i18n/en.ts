@@ -80,6 +80,7 @@ export const en = {
     financial: "Financial",
     accounts: "Accounts",
     settings: "Settings",
+    debtsSubtitle: "Your loans and financial obligations",
     commitmentsSubtitle: "Bills & Commitments",
     accountsSubtitle: "Manage Accounts",
     categoriesSubtitle: "Transaction Categories",
