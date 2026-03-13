@@ -23,13 +23,8 @@ import { useAccounts } from "@/store/AccountsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
-import { todayISOString } from "@/utils/date";
+import { todayISOString, isValidDate } from "@/utils/date";
 import { DatePickerModal } from "@/components/DatePickerModal";
-function isValidDate(str: string): boolean {
-  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
-  const d = new Date(str);
-  return !isNaN(d.getTime());
-}
 
 export default function CommitmentFormModal() {
   const insets = useSafeAreaInsets();

@@ -11,6 +11,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/store/AppContext";
+import { dateToISO } from "@/utils/date";
 import * as Haptics from "expo-haptics";
 
 interface DatePickerModalProps {
@@ -41,15 +42,8 @@ function parseDate(str: string): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
-function toISO(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
 function todayISO(): string {
-  return toISO(new Date());
+  return dateToISO(new Date());
 }
 
 export function DatePickerModal({

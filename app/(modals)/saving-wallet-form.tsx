@@ -13,12 +13,7 @@ import { BilingualNameInput } from "@/components/BilingualNameInput";
 import { IconPicker } from "@/components/IconPicker";
 import { ColorPicker } from "@/components/ColorPicker";
 import type { SavingsWalletType } from "@/types";
-
-function isValidDate(str: string): boolean {
-  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
-  const d = new Date(str);
-  return !isNaN(d.getTime());
-}
+import { isValidDate } from "@/utils/date";
 
 export default function SavingWalletFormModal() {
   const insets = useSafeAreaInsets();
