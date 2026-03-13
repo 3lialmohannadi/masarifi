@@ -35,6 +35,37 @@ function isValidDate(str: string): boolean {
   return !isNaN(d.getTime());
 }
 
+function TxField({
+  label,
+  children,
+  error,
+  required,
+}: {
+  label: string;
+  children: React.ReactNode;
+  error?: string;
+  required?: boolean;
+}) {
+  const { theme, isRTL } = useApp();
+  return (
+    <View style={{ gap: 6 }}>
+      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+        <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary }}>
+          {label}
+        </Text>
+        {required && <Text style={{ fontSize: 12, color: theme.expense }}>*</Text>}
+      </View>
+      {children}
+      {!!error && (
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+          <Feather name="alert-circle" size={12} color="#EF4444" />
+          <Text style={{ fontSize: 12, color: "#EF4444" }}>{error}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
 export default function AddTransactionModal() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, selectedAccountId, updateSettings, isRTL, settings, showToast } = useApp();
@@ -158,7 +189,7 @@ export default function AddTransactionModal() {
           note,
         });
       }
-      showToast(t.toast.saved);
+      showToast(existingTx ? t.toast.transactionUpdated : t.toast.transactionSaved);
       router.back();
     } catch {
       showToast(t.toast.error, "error");
@@ -179,7 +210,7 @@ export default function AddTransactionModal() {
             updateBalance(existingTx.account_id, delta);
             deleteTransaction(existingTx.id);
           }
-          showToast(t.toast.deleted, "info");
+          showToast(t.toast.transactionDeleted, "info");
           router.back();
         },
       },
@@ -192,34 +223,6 @@ export default function AddTransactionModal() {
     setDate(d.toISOString().split("T")[0]);
     if (errors.date) setErrors((e) => ({ ...e, date: "" }));
   };
-
-  const Field = ({
-    label,
-    children,
-    error,
-    required,
-  }: {
-    label: string;
-    children: React.ReactNode;
-    error?: string;
-    required?: boolean;
-  }) => (
-    <View style={{ gap: 6 }}>
-      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-        <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary }}>
-          {label}
-        </Text>
-        {required && <Text style={{ fontSize: 12, color: theme.expense }}>*</Text>}
-      </View>
-      {children}
-      {!!error && (
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-          <Feather name="alert-circle" size={12} color="#EF4444" />
-          <Text style={{ fontSize: 12, color: "#EF4444" }}>{error}</Text>
-        </View>
-      )}
-    </View>
-  );
 
   const pickerStyle = (hasError: boolean) => ({
     backgroundColor: theme.input,
@@ -321,7 +324,7 @@ export default function AddTransactionModal() {
         </View>
 
         {/* ── Amount ── */}
-        <Field label={t.common.amount} error={errors.amount} required>
+        <TxField label={t.common.amount} error={errors.amount} required>
           <View
             style={{
               backgroundColor: theme.input,
@@ -358,10 +361,10 @@ export default function AddTransactionModal() {
               </Text>
             )}
           </View>
-        </Field>
+        </TxField>
 
         {/* ── Account ── */}
-        <Field label={t.transactions.account} error={errors.account} required>
+        <TxField label={t.transactions.account} error={errors.account} required>
           <Pressable
             onPress={() => setShowAccounts(true)}
             style={pickerStyle(!!errors.account)}
@@ -394,10 +397,10 @@ export default function AddTransactionModal() {
             )}
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
-        </Field>
+        </TxField>
 
         {/* ── Category ── */}
-        <Field label={t.transactions.category} error={errors.category} required>
+        <TxField label={t.transactions.category} error={errors.category} required>
           <Pressable
             onPress={() => setShowCategories(true)}
             style={pickerStyle(!!errors.category)}
@@ -425,10 +428,10 @@ export default function AddTransactionModal() {
             )}
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
-        </Field>
+        </TxField>
 
         {/* ── Date ── */}
-        <Field label={t.common.date} error={errors.date} required>
+        <TxField label={t.common.date} error={errors.date} required>
           {/* Quick date buttons */}
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8, marginBottom: 8 }}>
             {[
@@ -486,10 +489,10 @@ export default function AddTransactionModal() {
             </Text>
             <Feather name="chevron-down" size={14} color={theme.textMuted} />
           </Pressable>
-        </Field>
+        </TxField>
 
         {/* ── Note ── */}
-        <Field label={`${t.common.note} (${t.common.optional})`}>
+        <TxField label={`${t.common.note} (${t.common.optional})`}>
           <View
             style={{
               backgroundColor: theme.input,
@@ -515,7 +518,7 @@ export default function AddTransactionModal() {
               }}
             />
           </View>
-        </Field>
+        </TxField>
 
         {/* ── Smart Suggestion ── */}
         {showSmartSuggestion && smartSuggestion && (

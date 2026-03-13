@@ -11,6 +11,7 @@ interface BilingualNameInputProps {
   onChangeEn: (v: string) => void;
   errorAr?: string;
   errorEn?: string;
+  englishOptional?: boolean;
 }
 
 export function BilingualNameInput({
@@ -20,6 +21,7 @@ export function BilingualNameInput({
   onChangeEn,
   errorAr,
   errorEn,
+  englishOptional = false,
 }: BilingualNameInputProps) {
   const { t } = useApp();
   const [translatingToEn, setTranslatingToEn] = useState(false);
@@ -63,7 +65,7 @@ export function BilingualNameInput({
         isTranslating={translatingToEn}
       />
       <AppInput
-        label={t.common.nameEn}
+        label={englishOptional ? `${t.common.nameEn} (${t.common.optional})` : t.common.nameEn}
         value={nameEn}
         onChangeText={onChangeEn}
         placeholder="Name in English"

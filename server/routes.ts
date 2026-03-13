@@ -285,6 +285,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(apiSpec);
   });
 
+  // ── Contact ───────────────────────────────────────────────────────────────
+
+  app.post("/api/contact", async (req: Request, res: Response) => {
+    try {
+      const { type, subject, message, email } = req.body as {
+        type: string;
+        subject: string;
+        message: string;
+        email?: string | null;
+      };
+      if (!type || !subject || !message) {
+        return res.status(400).json({ error: "type, subject, and message are required" });
+      }
+      const timestamp = new Date().toISOString();
+      console.log(
+        `[Contact] ${timestamp} | Type: ${type} | Subject: ${subject}` +
+          (email ? ` | Email: ${email}` : "") +
+          `\n  Message: ${message}`
+      );
+      return res.json({ ok: true });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      return res.status(500).json({ error: msg });
+    }
+  });
+
   // ── Accounts ──────────────────────────────────────────────────────────────
 
   app.get("/api/accounts", async (req: Request, res: Response) => {

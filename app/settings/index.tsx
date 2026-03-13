@@ -526,6 +526,18 @@ export default function SettingsScreen() {
           />
         </View>
 
+        {/* ── Support ── */}
+        <SectionLabel title={t.settings.support} />
+        <View style={{ gap: 8, marginBottom: 8 }}>
+          <NavRow
+            icon="mail"
+            iconColor="#6366F1"
+            label={t.settings.contactSupport}
+            subtitle={t.settings.contactSupportSubtitle}
+            onPress={() => { Haptics.selectionAsync(); router.push("/contact-support"); }}
+          />
+        </View>
+
         {/* ── App Info ── */}
         <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, alignItems: "center", gap: 8, borderWidth: 1, borderColor: theme.border, marginTop: 8 }}>
           <Image

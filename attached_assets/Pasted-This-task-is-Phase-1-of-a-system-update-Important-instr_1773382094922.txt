@@ -1,0 +1,436 @@
+This task is Phase 1 of a system update.
+
+
+
+Important instructions:
+
+
+
+Do NOT redesign the app.
+Do NOT change the color palette.
+Do NOT change the branding or UI identity.
+Only implement the improvements and fixes described below.
+The Debt / Liabilities feature is NOT part of this phase and must not be implemented yet.
+
+
+
+
+The goal of this phase is to improve stability, usability, and user communication.
+
+
+
+
+
+
+
+
+
+Task 1 — Fix keyboard issue when editing a transaction
+
+
+
+
+
+
+
+Problem
+
+
+
+
+
+When editing a transaction, the keyboard behaves incorrectly.
+
+
+
+The user types one character and the keyboard disappears.
+
+Then the user taps again, types another character, and the keyboard disappears again.
+
+
+
+This makes editing transactions very difficult.
+
+
+
+
+
+Expected behavior
+
+
+
+
+
+The keyboard must stay open while typing.
+Input fields must keep focus.
+Users should be able to type continuously without interruption.
+The keyboard should only close if the user taps outside the input field or submits the form.
+
+
+
+
+
+
+What you must check
+
+
+
+
+
+Inspect the Edit Transaction screen and fix the issue by verifying:
+
+
+
+TextInput components are not being remounted during typing
+No unstable key props exist on input components
+Form state is stable and not recreated on every keystroke
+No useEffect resets the form state while typing
+ScrollView settings such as keyboardShouldPersistTaps
+Any Modal or BottomSheet behavior
+Proper usage of KeyboardAvoidingView
+
+
+
+
+
+
+Acceptance criteria
+
+
+
+
+
+Users can type normally in all input fields
+Keyboard does not close automatically
+No flickering occurs while typing
+
+
+
+
+
+
+
+
+
+
+Task 2 — Simplify name input requirement
+
+
+
+
+
+
+
+Current issue
+
+
+
+
+
+Some forms require users to enter names in two languages (Arabic and English).
+
+
+
+This is unnecessary and complicates the experience.
+
+
+
+
+
+New requirement
+
+
+
+
+
+Users must only be required to enter one name in any language.
+
+
+
+
+
+Implementation rules
+
+
+
+
+
+Only one name field should be required.
+Any additional language fields must be optional.
+Validation must allow:
+Arabic characters
+English characters
+Mixed characters
+
+
+
+
+
+Saving should only be blocked if no name is entered at all.
+
+
+
+Update all relevant form validation logic accordingly.
+
+
+
+
+
+
+
+
+
+Task 3 — Add a “Contact Support” page
+
+
+
+
+
+Create a new page called:
+
+
+
+Contact Support
+
+
+
+This page should be accessible from Settings or More.
+
+
+
+
+
+Purpose
+
+
+
+
+
+Allow users to:
+
+
+
+Send suggestions
+Report technical problems
+Contact the admin
+
+
+
+
+
+
+Page structure
+
+
+
+
+
+The form must contain:
+
+
+
+
+
+1. Request Type (Dropdown)
+
+
+
+
+
+Options:
+
+
+
+Suggestion
+Technical Issue
+Other
+
+
+
+
+
+
+2. Subject
+
+
+
+
+
+Short text field.
+
+
+
+
+
+3. Message
+
+
+
+
+
+Large text area where the user explains the issue or suggestion.
+
+
+
+
+
+4. Email (Optional)
+
+
+
+
+
+Optional field so the admin can reply.
+
+
+
+
+
+Submit Button
+
+
+
+
+
+Label: Send
+
+
+
+
+
+
+
+
+
+Submission behavior
+
+
+
+
+
+When the user presses Send:
+
+
+
+Validate required fields.
+Send the message to the following email address:
+
+
+
+
+admin@masarifiapp.com
+
+
+
+Show a success confirmation message:
+
+
+
+
+“Your message has been sent successfully. We will review it shortly.”
+
+
+
+
+
+
+
+
+
+Limitations for this phase
+
+
+
+
+
+Do NOT add:
+
+
+
+File attachments
+Screenshot uploads
+Ticketing systems
+Live chat
+
+
+
+
+Keep the page simple.
+
+
+
+
+
+
+
+
+
+Task 4 — Improve system feedback messages
+
+
+
+
+
+The application should show clear feedback after important actions.
+
+
+
+
+
+Success messages examples
+
+
+
+
+
+Transaction saved successfully
+Transaction updated successfully
+Transaction deleted successfully
+Message sent successfully
+
+
+
+
+
+
+Error messages examples
+
+
+
+
+
+Please enter a valid name
+Please enter a valid amount
+Something went wrong. Please try again.
+
+
+
+
+Messages should be:
+
+
+
+Short
+Clear
+Non-intrusive
+
+
+
+
+
+
+
+
+
+
+Task 5 — Handle empty states
+
+
+
+
+
+If a page has no data, do not leave it blank.
+
+
+
+Instead show a friendly message.
