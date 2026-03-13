@@ -496,6 +496,28 @@ export const ar = {
     walletRequired: "محفظة الادخار مطلوبة",
     smartSuggestion: "اقتراح",
   },
+  auth: {
+    signIn: "تسجيل الدخول",
+    signUp: "إنشاء حساب",
+    signInSubtitle: "أهلاً بعودتك إلى مصاريفي",
+    signUpSubtitle: "أنشئ حسابك في مصاريفي",
+    email: "البريد الإلكتروني",
+    emailPlaceholder: "بريدك@example.com",
+    emailRequired: "البريد الإلكتروني مطلوب",
+    emailInvalid: "يرجى إدخال بريد إلكتروني صحيح",
+    password: "كلمة المرور",
+    passwordPlaceholder: "أدخل كلمة المرور",
+    passwordRequired: "كلمة المرور مطلوبة",
+    passwordMinLength: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    confirmPassword: "تأكيد كلمة المرور",
+    confirmPasswordPlaceholder: "أعد إدخال كلمة المرور",
+    passwordMismatch: "كلمتا المرور غير متطابقتين",
+    invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    emailAlreadyInUse: "هذا البريد الإلكتروني مسجل مسبقاً",
+    noAccount: "ليس لديك حساب؟",
+    alreadyHaveAccount: "لديك حساب بالفعل؟",
+    signUpSuccess: "تم إنشاء الحساب! تحقق من بريدك الإلكتروني للتأكيد.",
+  },
 };
 
 export type TranslationKeys = typeof ar;

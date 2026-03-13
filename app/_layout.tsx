@@ -120,6 +120,8 @@ function RootLayoutNav() {
         name="(modals)/debt-payment"
         options={{ presentation: "modal", headerShown: false }}
       />
+      <Stack.Screen name="auth/sign-in" options={{ headerShown: false }} />
+      <Stack.Screen name="auth/sign-up" options={{ headerShown: false }} />
     </Stack>
   );
 }

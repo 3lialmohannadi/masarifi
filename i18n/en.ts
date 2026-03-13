@@ -496,6 +496,28 @@ export const en = {
     walletRequired: "Savings wallet is required",
     smartSuggestion: "Suggestion",
   },
+  auth: {
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    signInSubtitle: "Welcome back to Masarifi",
+    signUpSubtitle: "Create your Masarifi account",
+    email: "Email",
+    emailPlaceholder: "your@email.com",
+    emailRequired: "Email is required",
+    emailInvalid: "Please enter a valid email",
+    password: "Password",
+    passwordPlaceholder: "Enter your password",
+    passwordRequired: "Password is required",
+    passwordMinLength: "Password must be at least 6 characters",
+    confirmPassword: "Confirm Password",
+    confirmPasswordPlaceholder: "Re-enter your password",
+    passwordMismatch: "Passwords do not match",
+    invalidCredentials: "Invalid email or password",
+    emailAlreadyInUse: "This email is already registered",
+    noAccount: "Don't have an account?",
+    alreadyHaveAccount: "Already have an account?",
+    signUpSuccess: "Account created! Check your email to confirm.",
+  },
 };
 
 export type TranslationKeys = typeof en;
