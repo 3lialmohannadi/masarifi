@@ -79,11 +79,12 @@ function InfoRow({
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, isRTL, isDark } = useApp();
-  const { user } = useAuth();
+  const { user, isAuthLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isAuthLoading) return;
     if (!user) {
       router.replace("/(tabs)");
       return;
@@ -92,7 +93,7 @@ export default function ProfileScreen() {
       .then((p) => setProfile(p))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, isAuthLoading]);
 
   const initials = profile?.full_name
     ? profile.full_name
@@ -270,6 +271,7 @@ export default function ProfileScreen() {
             paddingHorizontal: 16,
             borderWidth: 1,
             borderColor: theme.border,
+            overflow: "hidden",
             ...cardShadow,
           }}
         >

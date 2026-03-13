@@ -84,6 +84,27 @@ export default function SignInScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={12}
+          style={{
+            position: "absolute",
+            top: insets.top + 12,
+            right: isRTL ? undefined : 20,
+            left: isRTL ? 20 : undefined,
+            zIndex: 10,
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: theme.card,
+            borderWidth: 1,
+            borderColor: theme.border,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Feather name="x" size={18} color={theme.textSecondary} />
+        </Pressable>
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
