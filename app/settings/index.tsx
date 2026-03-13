@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, Pressable, Switch, Share, Platform, Image, Modal, ActivityIndicator, Alert } from "react-native";
+import { View, Text, Pressable, Switch, Share, Platform, Image, Modal, ActivityIndicator } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -83,7 +83,7 @@ export default function SettingsScreen() {
   const [resetting, setResetting] = useState(false);
   const [resetDone, setResetDone] = useState(false);
 
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
@@ -97,24 +97,6 @@ export default function SettingsScreen() {
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
     : (user?.email?.[0] ?? "?").toUpperCase();
-
-  const handleSignOut = () => {
-    Alert.alert(
-      t.auth.signOut,
-      t.auth.signOutConfirm,
-      [
-        { text: t.common.cancel, style: "cancel" },
-        {
-          text: t.auth.signOut,
-          style: "destructive",
-          onPress: async () => {
-            await signOut();
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          },
-        },
-      ]
-    );
-  };
 
   const LANG_OPTIONS = [
     { code: "ar" as const, label: "العربية" },

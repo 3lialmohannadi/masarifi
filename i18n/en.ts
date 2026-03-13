@@ -516,6 +516,7 @@ export const en = {
     emailAlreadyInUse: "This email is already registered",
     noAccount: "Don't have an account?",
     alreadyHaveAccount: "Already have an account?",
+    signUpSuccessTitle: "Account Created!",
     signUpSuccess: "Account created! Check your email to confirm.",
     signInSuccess: "Welcome back!",
     signOut: "Sign Out",

@@ -516,6 +516,7 @@ export const ar = {
     emailAlreadyInUse: "هذا البريد الإلكتروني مسجل مسبقاً",
     noAccount: "ليس لديك حساب؟",
     alreadyHaveAccount: "لديك حساب بالفعل؟",
+    signUpSuccessTitle: "تم إنشاء حسابك!",
     signUpSuccess: "تم إنشاء الحساب! تحقق من بريدك الإلكتروني للتأكيد.",
     signInSuccess: "أهلاً بعودتك!",
     signOut: "تسجيل الخروج",

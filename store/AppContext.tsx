@@ -81,17 +81,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const t = useMemo(() => getTranslations(settings.language), [settings.language]);
   const isRTL = settings.language === "ar";
 
-  const updateSettings = (partial: Partial<AppSettings>) => {
+  const updateSettings = useCallback((partial: Partial<AppSettings>) => {
     setSettings((prev) => {
       const next = { ...prev, ...partial };
       saveData(KEYS.SETTINGS, next);
       return next;
     });
-  };
+  }, []);
 
-  const setLanguage = (lang: Language) => updateSettings({ language: lang });
-  const setThemeMode = (mode: ThemeMode) => updateSettings({ theme: mode });
-  const setSelectedAccountId = (id: string) => updateSettings({ selected_account_id: id });
+  const setLanguage = useCallback((lang: Language) => updateSettings({ language: lang }), [updateSettings]);
+  const setThemeMode = useCallback((mode: ThemeMode) => updateSettings({ theme: mode }), [updateSettings]);
+  const setSelectedAccountId = useCallback((id: string) => updateSettings({ selected_account_id: id }), [updateSettings]);
 
   const hideToast = useCallback(() => {
     setToast(null);
@@ -124,7 +124,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast,
       hideToast,
     }),
-    [settings, theme, isDark, t, isRTL, isLoaded, toast, showToast, hideToast] // eslint-disable-line react-hooks/exhaustive-deps
+    [settings, theme, isDark, t, isRTL, isLoaded, toast, updateSettings, setLanguage, setThemeMode, setSelectedAccountId, showToast, hideToast]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -132,7 +132,7 @@ export default function SignUpScreen() {
             marginBottom: 12,
           }}
         >
-          {t.auth.account}
+          {t.auth.signUpSuccessTitle}
         </Text>
         <Text
           style={{
