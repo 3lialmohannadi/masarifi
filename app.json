@@ -2,7 +2,7 @@
   "expo": {
     "name": "Masarifi",
     "slug": "masarifi",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "masarifi",
@@ -13,7 +13,8 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.masarifi.app"
+      "bundleIdentifier": "com.masarifi.app",
+      "buildNumber": "2"
     },
     "android": {
       "package": "com.masarifi.app",
