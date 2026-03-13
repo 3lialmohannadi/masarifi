@@ -1,0 +1,41 @@
+root@srv1482387:~# cd ~/masarifi && git pull origin main && pm2 restart all
+remote: Enumerating objects: 75, done.
+remote: Counting objects: 100% (75/75), done.
+remote: Compressing objects: 100% (46/46), done.
+remote: Total 48 (delta 38), reused 0 (delta 0), pack-reused 0 (from 0)
+Unpacking objects: 100% (48/48), 5.04 KiB | 143.00 KiB/s, done.
+From https://github.com/3lialmohannadi/masarifi
+ * branch            main       -> FETCH_HEAD
+   4424c37..4307364  main       -> origin/main
+Updating 4424c37..4307364
+Fast-forward
+ app/(modals)/add-transaction.tsx    |  8 +-------
+ app/(modals)/commitment-form.tsx    |  7 +------
+ app/(modals)/debt-form.tsx          | 14 ++++----------
+ app/(modals)/debt-payment.tsx       | 10 ++--------
+ app/(modals)/saving-wallet-form.tsx |  7 +------
+ app/(modals)/transfer-form.tsx      |  8 +-------
+ app/(tabs)/index.tsx                | 63 +++++++++++++++++++++++++++++++++++++++------------------------
+ app/(tabs)/transactions.tsx         | 12 ++++--------
+ app/accounts/[id].tsx               | 12 ++++--------
+ app/contact-support.tsx             |  9 ++-------
+ app/debts/index.tsx                 | 25 ++++++++++++++-----------
+ app/settings/index.tsx              | 95 ++++++++++++++++++++++++++++++++++++-----------------------------------------------------------
+ components/DatePickerModal.tsx      | 10 ++--------
+ components/QuickAddSheet.tsx        |  8 +-------
+ store/DebtsContext.tsx              |  2 +-
+ utils/date.ts                       | 13 +++++++++++++
+ utils/debtSubcategories.ts          |  4 ++--
+ 17 files changed, 128 insertions(+), 179 deletions(-)
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [all](ids: [ 2, 3, 4 ])
+[PM2] [doyoomi-mobile](2) ✓
+[PM2] [doyoomi-api](3) ✓
+[PM2] [masarifi](4) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ doyoomi-api       │ default     │ 0.0.0   │ fork    │ 50694    │ 0s     │ 18   │ online    │ 0%       │ 46.8mb   │ root     │ disabled │
+│ 2  │ doyoomi-mobile    │ default     │ 0.0.0   │ fork    │ 50688    │ 0s     │ 18   │ online    │ 0%       │ 47.6mb   │ root     │ disabled │
+│ 4  │ masarifi          │ default     │ 1.0.0   │ fork    │ 50703    │ 0s     │ 8    │ online    │ 0%       │ 16.7mb   │ root     │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
