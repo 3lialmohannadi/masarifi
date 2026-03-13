@@ -44,7 +44,7 @@ export function getSubcategoryDef(category: DebtCategory, key: string): Subcateg
 }
 
 export const CATEGORY_META: Record<DebtCategory, { icon: string; color: string; nameAr: string; nameEn: string }> = {
-  bank:     { icon: "landmark", color: "#3B82F6", nameAr: "دين بنكي",   nameEn: "Bank Debt" },
-  personal: { icon: "users",    color: "#2F8F83", nameAr: "دين شخصي",   nameEn: "Personal Debt" },
-  company:  { icon: "briefcase", color: "#8B5CF6", nameAr: "دين شركة",  nameEn: "Company Debt" },
+  bank:     { icon: "dollar-sign", color: "#3B82F6", nameAr: "دين بنكي",   nameEn: "Bank Debt" },
+  personal: { icon: "users",       color: "#2F8F83", nameAr: "دين شخصي",   nameEn: "Personal Debt" },
+  company:  { icon: "briefcase",   color: "#8B5CF6", nameAr: "دين شركة",   nameEn: "Company Debt" },
 };

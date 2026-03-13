@@ -14,7 +14,7 @@ export default function DebtDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { theme, language, isRTL, t, isDark, showToast } = useApp();
-  const { debts, deleteDebt, getPaymentsForDebt, deletePayment } = useDebts();
+  const { debts, deleteDebt, updateDebt, getPaymentsForDebt, deletePayment } = useDebts();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const debt = debts.find((d) => d.id === id);
@@ -35,8 +35,10 @@ export default function DebtDetailScreen() {
   const progressPct = Math.round(progress * 100);
 
   const progressColor =
-    debt.status === "completed" ? "#059669" :
-    debt.status === "overdue"   ? "#EF4444" :
+    debt.status === "completed"      ? "#059669" :
+    debt.status === "overdue"        ? "#EF4444" :
+    debt.status === "partially_paid" ? "#D97706" :
+    debt.status === "cancelled"      ? "#6B7280" :
     theme.primary;
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
@@ -177,7 +179,7 @@ export default function DebtDetailScreen() {
           </View>
         )}
 
-        {debt.status !== "completed" && (
+        {debt.status !== "completed" && debt.status !== "cancelled" && (
           <Pressable
             onPress={() => { Haptics.selectionAsync(); router.push({ pathname: "/(modals)/debt-payment" as any, params: { debtId: debt?.id } }); }}
             style={({ pressed }) => ({
@@ -185,7 +187,7 @@ export default function DebtDetailScreen() {
               borderRadius: 16,
               paddingVertical: 14,
               alignItems: "center",
-              marginBottom: 16,
+              marginBottom: 12,
               opacity: pressed ? 0.85 : 1,
               flexDirection: isRTL ? "row-reverse" : "row",
               justifyContent: "center",
@@ -194,6 +196,53 @@ export default function DebtDetailScreen() {
           >
             <Feather name="dollar-sign" size={18} color="#fff" />
             <Text style={{ fontSize: 16, fontWeight: "700", color: "#fff" }}>{t.debts.payNow}</Text>
+          </Pressable>
+        )}
+
+        {debt.status !== "completed" && (
+          <Pressable
+            onPress={() => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+              Alert.alert(
+                debt.status === "cancelled" ? t.debts.reactivateDebt : t.debts.cancelDebt,
+                debt.status === "cancelled" ? "" : t.debts.cancelDebtConfirm,
+                [
+                  { text: t.common.cancel, style: "cancel" },
+                  {
+                    text: debt.status === "cancelled" ? t.debts.reactivateDebt : t.debts.cancelDebt,
+                    style: debt.status === "cancelled" ? "default" : "destructive",
+                    onPress: () => {
+                      const newStatus: import("@/types").DebtStatus = debt.status === "cancelled" ? "active" : "cancelled";
+                      updateDebt(debt.id, { status: newStatus });
+                      showToast(t.toast.saved, "success");
+                      router.back();
+                    },
+                  },
+                ]
+              );
+            }}
+            style={({ pressed }) => ({
+              borderRadius: 16,
+              paddingVertical: 13,
+              alignItems: "center",
+              marginBottom: 16,
+              opacity: pressed ? 0.85 : 1,
+              flexDirection: isRTL ? "row-reverse" : "row",
+              justifyContent: "center",
+              gap: 8,
+              borderWidth: 1,
+              borderColor: debt.status === "cancelled" ? theme.primary : "#6B7280",
+              backgroundColor: debt.status === "cancelled" ? theme.primaryLight : "#6B728012",
+            })}
+          >
+            <Feather
+              name={debt.status === "cancelled" ? "refresh-cw" : "x-circle"}
+              size={16}
+              color={debt.status === "cancelled" ? theme.primary : "#6B7280"}
+            />
+            <Text style={{ fontSize: 15, fontWeight: "700", color: debt.status === "cancelled" ? theme.primary : "#6B7280" }}>
+              {debt.status === "cancelled" ? t.debts.reactivateDebt : t.debts.cancelDebt}
+            </Text>
           </Pressable>
         )}
 

@@ -37,11 +37,15 @@ function refreshDebtStatuses(list: Debt[]): Debt[] {
   today.setHours(0, 0, 0, 0);
   return list.map((d) => {
     if (d.status === "completed") return d;
+    if (d.status === "cancelled") return d;
     if (d.remaining_amount <= 0) return { ...d, status: "completed" as DebtStatus, updated_at: now() };
     if (d.due_date) {
       const due = new Date(d.due_date);
       due.setHours(0, 0, 0, 0);
       if (due < today) return { ...d, status: "overdue" as DebtStatus, updated_at: now() };
+    }
+    if (d.paid_amount > 0 && d.remaining_amount > 0) {
+      return { ...d, status: "partially_paid" as DebtStatus, updated_at: now() };
     }
     if (d.status !== "active") return { ...d, status: "active" as DebtStatus, updated_at: now() };
     return d;

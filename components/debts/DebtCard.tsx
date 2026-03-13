@@ -20,8 +20,10 @@ export function DebtCard({ debt, onPress }: Props) {
   const progressPct = Math.round(progress * 100);
 
   const progressColor =
-    debt.status === "completed" ? "#059669" :
-    debt.status === "overdue"   ? "#EF4444" :
+    debt.status === "completed"      ? "#059669" :
+    debt.status === "overdue"        ? "#EF4444" :
+    debt.status === "partially_paid" ? "#D97706" :
+    debt.status === "cancelled"      ? "#6B7280" :
     theme.primary;
 
   return (

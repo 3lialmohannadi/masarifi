@@ -16,6 +16,7 @@ import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useCommitments } from "@/store/CommitmentsContext";
 import { useSavings } from "@/store/SavingsContext";
+import { useDebts } from "@/store/DebtsContext";
 import { TransactionItem } from "@/components/TransactionItem";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { QuickAddSheet } from "@/components/QuickAddSheet";
@@ -36,6 +37,7 @@ export default function DashboardScreen() {
   const { transactions } = useTransactions();
   const { allocatedMoneyForAccount, upcomingCommitments } = useCommitments();
   const { wallets } = useSavings();
+  const { debts, totalRemaining: debtsTotalRemaining, activeDebts } = useDebts();
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<{ visible: boolean; type: TransactionType }>({ visible: false, type: "expense" });
 
@@ -622,6 +624,37 @@ export default function DashboardScreen() {
                 })}
               </View>
             </View>
+          )}
+
+          {/* ─── Debts Summary ─── */}
+          {debts.length > 0 && (
+            <Pressable
+              onPress={() => { Haptics.selectionAsync(); router.push("/debts" as any); }}
+              style={({ pressed }) => ({
+                backgroundColor: theme.card,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: theme.border,
+                padding: 14,
+                opacity: pressed ? 0.85 : 1,
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                gap: 12,
+              })}
+            >
+              <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="credit-card" size={18} color="#EF4444" />
+              </View>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                  {t.debts.debtSummary}
+                </Text>
+                <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                  {activeDebts.length} {t.debts.filterActive.toLowerCase()} · {t.debts.remaining}: {formatCurrency(debtsTotalRemaining, currency, language)}
+                </Text>
+              </View>
+              <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.textMuted} />
+            </Pressable>
           )}
 
         </View>

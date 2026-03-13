@@ -149,7 +149,7 @@ export interface Commitment {
 }
 
 export type DebtCategory = "bank" | "personal" | "company";
-export type DebtStatus = "active" | "completed" | "overdue";
+export type DebtStatus = "active" | "partially_paid" | "completed" | "overdue" | "cancelled";
 
 export interface Debt {
   id: string;

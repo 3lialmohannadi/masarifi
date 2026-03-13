@@ -57,15 +57,24 @@ export default function ContactSupportScreen() {
     setLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
-      await apiRequest("POST", "/api/contact", {
+      const res = await apiRequest("POST", "/api/contact", {
         type: requestType,
         subject: subject.trim(),
         message: message.trim(),
         email: email.trim() || null,
       });
-      setSent(true);
-    } catch {
-      showToast(t.toast.error, "error");
+      if (res.ok) {
+        setSent(true);
+      } else {
+        showToast(t.toast.error, "error");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("Network") || msg.includes("network") || msg.includes("fetch")) {
+        showToast(t.toast.error, "error");
+      } else {
+        showToast(t.toast.error, "error");
+      }
     } finally {
       setLoading(false);
     }

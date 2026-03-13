@@ -1,0 +1,314 @@
+You are required to perform a full audit, verification, and correction pass on the Masarifi mobile application.
+
+Your task is not only to review the app, but also to identify anything missing, broken, inconsistent, or incorrectly implemented, and then fix it properly.
+
+Do not assume the implementation is complete.
+You must inspect the project carefully and make sure all requested requirements are implemented exactly as intended.
+
+⸻
+
+Part 1 — Verify and complete the Debts feature (المديونيات)
+
+Check the full implementation of the Debts / Liabilities feature and ensure it is correctly integrated into the Masarifi app.
+
+Navigation
+	•	The Debts section must be accessible from:
+More → Debts (المزيد → المديونيات)
+	•	It must NOT appear in the main bottom navigation tabs.
+
+⸻
+
+Main Debts Screen
+
+Ensure the main debts screen includes:
+
+Summary cards:
+	•	Total debts
+	•	Total paid amount
+	•	Remaining amount
+	•	Active debts count
+
+Debts list:
+
+Each debt should appear as a card showing:
+	•	Entity / person name
+	•	Debt type
+	•	Remaining amount
+	•	Debt status
+	•	Repayment progress bar
+
+⸻
+
+Add Debt Form
+
+Ensure the Add Debt form supports:
+	•	Bank debts
+	•	Personal debts
+	•	Company debts
+
+Ensure default subcategories exist for each type.
+
+Also ensure users can:
+	•	Add custom subcategories
+	•	Choose an icon
+	•	Choose a color
+
+⸻
+
+Debt fields
+
+Ensure debt records support:
+	•	Category
+	•	Subcategory
+	•	Entity name
+	•	Original amount
+	•	Remaining amount
+	•	Monthly installment
+	•	Repayment months or due date
+	•	Start date
+	•	End date
+	•	Notes
+	•	Status
+
+⸻
+
+Debt status
+
+Ensure the following statuses exist and work correctly:
+	•	Active
+	•	Partially paid
+	•	Fully paid
+	•	Overdue
+	•	Cancelled
+
+⸻
+
+Debt payment actions
+
+Ensure the following actions work:
+	•	Pay installment
+	•	Partial payment
+	•	Full settlement
+
+And confirm that these actions correctly update:
+	•	paid amount
+	•	remaining amount
+	•	progress percentage
+	•	debt status
+
+⸻
+
+Debt details screen
+
+Ensure tapping a debt card opens a detailed screen showing:
+	•	Entity name
+	•	Debt type
+	•	Original amount
+	•	Paid amount
+	•	Remaining amount
+	•	Monthly installment
+	•	Installment count/details if applicable
+	•	Start date
+	•	End date
+	•	Notes
+	•	Status
+	•	Repayment progress bar
+
+⸻
+
+Filters
+
+Review and improve the debts filters.
+
+Required change:
+
+Do NOT display filters openly in a cluttered way.
+
+Instead:
+	•	Add a Filter button
+	•	When the user taps the Filter button, show the filter categories/options
+	•	Keep the interaction clean and mobile-friendly
+
+Filter options must still support:
+	•	Status
+	•	Type
+
+⸻
+
+Empty state
+
+If there are no debts, display:
+“لا توجد مديونيات حالياً”
+
+And include a clear action button:
+“إضافة مديونية”
+
+⸻
+
+Statistics
+
+Ensure the statistics section includes:
+	•	Total debts
+	•	Total paid
+	•	Total remaining
+	•	Number of debts
+	•	Overall repayment percentage
+
+Use simple cards or lightweight charts only.
+
+⸻
+
+Dashboard integration
+
+Ensure the dashboard includes a small summary card for debts only.
+
+It should remain compact and should not clutter the dashboard.
+
+⸻
+
+Part 2 — UI consistency and design identity
+
+Review the new debts feature and any related screens, and make sure they are visually consistent with the Masarifi app.
+
+Required fixes:
+	•	Unify the design language
+	•	Ensure spacing, cards, typography, icons, colors, buttons, and layout follow the existing app identity
+	•	Fix any visual inconsistency
+	•	Make the feature look like a natural part of the current app, not a separate module
+
+Do NOT redesign the app.
+Only align the feature with the existing Masarifi visual identity.
+
+⸻
+
+Part 3 — Calendar / date picker improvement
+
+Review the date selection experience in the app, especially where the calendar/date picker is used.
+
+Required change:
+
+Make the calendar/date picker easier to use so users can easily select:
+	•	year
+	•	month
+	•	day
+
+The current date selection flow should be improved for easier navigation and better usability.
+
+Apply this improvement wherever relevant in the new feature and related forms.
+
+⸻
+
+Part 4 — Fix missing icon
+
+There is an issue where the Bank Debt icon is not visible.
+
+Required fix:
+	•	Find why the icon for bank debt is not showing
+	•	Fix the issue
+	•	Ensure the correct icon appears consistently wherever bank debt is displayed
+
+⸻
+
+Part 5 — Fix Support page send error
+
+There is an error in the Support page when sending a message.
+
+Required fix:
+	•	Inspect the support/contact page submission flow
+	•	Find the cause of the sending error
+	•	Fix the submission logic
+	•	Ensure messages can be sent successfully
+	•	Ensure success and error handling are clear and correct
+	•	Confirm the page works properly in real use
+
+⸻
+
+Part 6 — Full codebase audit
+
+Perform a full code review of the entire project and check for:
+	•	syntax errors
+	•	runtime errors
+	•	broken imports
+	•	invalid navigation
+	•	incorrect form behavior
+	•	incorrect calculations
+	•	unused code
+	•	duplicated logic
+	•	unstable state updates
+	•	UI inconsistencies
+	•	issues introduced by the debts feature or support page changes
+
+Fix any problems found.
+
+⸻
+
+Part 7 — Logic verification
+
+Verify and correct the logic for:
+	•	debt calculations
+	•	repayment progress calculations
+	•	remaining balance updates
+	•	installment updates
+	•	statistics calculations
+	•	filter behavior
+	•	support page submission behavior
+	•	calendar/date handling
+
+Ensure everything is correct and stable.
+
+⸻
+
+Part 8 — UX and mobile behavior review
+
+Review the affected screens and ensure:
+	•	smooth mobile interaction
+	•	no cluttered layouts
+	•	no broken states
+	•	no confusing flows
+	•	filter interaction is clean
+	•	date selection is user-friendly
+	•	support page works smoothly
+	•	debts screens feel native to the app
+
+⸻
+
+Part 9 — Final testing
+
+After fixes and improvements, test all of the following:
+	1.	Open Debts from More
+	2.	View debts list
+	3.	Use the filter button and apply filters
+	4.	Add debt
+	5.	Edit debt
+	6.	Delete debt
+	7.	Register partial payment
+	8.	Register installment payment
+	9.	Full settlement
+	10.	View debt details
+	11.	Check repayment progress
+	12.	Check statistics
+	13.	Verify dashboard debt summary
+	14.	Test calendar/date selection usability
+	15.	Confirm bank debt icon is visible
+	16.	Test support page submission successfully
+	17.	Confirm no new issues were introduced
+	18.	Confirm overall app stability
+
+⸻
+
+Final requirement
+
+Do not stop at inspection only.
+
+You must:
+	•	identify missing or broken items
+	•	implement fixes
+	•	improve incomplete behavior
+	•	verify the final result
+
+At the end, provide a clear report explaining:
+	1.	what was already correct
+	2.	what was missing or broken
+	3.	what you fixed
+	4.	what you improved
+	5.	confirmation that the app is now stable and the requested changes are fully implemented
