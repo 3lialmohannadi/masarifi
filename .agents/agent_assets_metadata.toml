@@ -1,0 +1,20 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "-Ae_89VzO78eq0OAXl2HJ"
+uri = "file://attached_assets/generated_images/icon_option1_arabic_letter.png"
+type = "image"
+title = "الخيار 1 — حرف م مُعاد تصميمه"
+
+[[outputs]]
+id = "LEPPdtm7A4-C9yhjFwISO"
+uri = "file://attached_assets/generated_images/icon_option2_coin_growth.png"
+type = "image"
+title = "الخيار 2 — عملة مع نمو مالي"
+
+[[outputs]]
+id = "Oo5JsLPDO6kMWaPHRUM41"
+uri = "file://attached_assets/generated_images/icon_option3_wallet.png"
+type = "image"
+title = "الخيار 3 — محفظة مينيمال"
