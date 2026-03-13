@@ -55,7 +55,7 @@ export default function SignUpScreen() {
     setLoading(true);
     setAuthError("");
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
       });
@@ -66,6 +66,9 @@ export default function SignUpScreen() {
           setAuthError(error.message);
         }
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      } else if (data?.session) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        router.replace("/(tabs)");
       } else {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         setDone(true);
