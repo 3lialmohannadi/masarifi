@@ -8,6 +8,7 @@ import { useApp } from "@/store/AppContext";
 import { useDebts } from "@/store/DebtsContext";
 import { DebtCard } from "@/components/debts/DebtCard";
 import { DebtSummaryCards } from "@/components/debts/DebtSummaryCards";
+import { DebtStatistics } from "@/components/debts/DebtStatistics";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { DebtCategory, DebtStatus } from "@/types";
 
@@ -126,6 +127,16 @@ export default function DebtsScreen() {
           totalPaid={totalPaid}
           totalRemaining={totalRemaining}
           activeCount={activeDebts.length}
+          currency={appCurrency || "QAR"}
+        />
+      )}
+
+      {debts.length > 0 && (
+        <DebtStatistics
+          debts={debts}
+          totalOriginal={totalOriginal}
+          totalPaid={totalPaid}
+          totalRemaining={totalRemaining}
           currency={appCurrency || "QAR"}
         />
       )}

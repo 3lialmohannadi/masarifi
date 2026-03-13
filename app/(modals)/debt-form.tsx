@@ -124,7 +124,9 @@ export default function DebtFormModal() {
     const subIcon = isCustomSub ? customSubIcon : (subDef?.icon || "credit-card");
     const subColor = isCustomSub ? customSubColor : (subDef?.color || "#6B7280");
 
-    const status: DebtStatus = remainNum <= 0 ? "completed" : (() => {
+    const status: DebtStatus = (() => {
+      if (isEdit && existingDebt?.status === "cancelled") return "cancelled";
+      if (remainNum <= 0) return "completed";
       if (dueDate) {
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const due = new Date(dueDate); due.setHours(0, 0, 0, 0);
