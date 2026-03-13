@@ -23,6 +23,7 @@ import { TransactionsProvider } from "@/store/TransactionsContext";
 import { CategoriesProvider } from "@/store/CategoriesContext";
 import { SavingsProvider } from "@/store/SavingsContext";
 import { CommitmentsProvider } from "@/store/CommitmentsContext";
+import { DebtsProvider } from "@/store/DebtsContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -54,7 +55,9 @@ function Providers({ children }: { children: React.ReactNode }) {
           <CategoriesProvider>
             <SavingsProvider>
               <CommitmentsProvider>
-                {children}
+                <DebtsProvider>
+                  {children}
+                </DebtsProvider>
               </CommitmentsProvider>
             </SavingsProvider>
           </CategoriesProvider>
@@ -107,6 +110,16 @@ function RootLayoutNav() {
       <Stack.Screen name="commitments/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="settings/index" options={{ headerShown: false }} />
       <Stack.Screen name="categories/index" options={{ headerShown: false }} />
+      <Stack.Screen name="debts/index" options={{ headerShown: false }} />
+      <Stack.Screen name="debts/[id]" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="(modals)/debt-form"
+        options={{ presentation: "modal", headerShown: false }}
+      />
+      <Stack.Screen
+        name="(modals)/debt-payment"
+        options={{ presentation: "modal", headerShown: false }}
+      />
     </Stack>
   );
 }

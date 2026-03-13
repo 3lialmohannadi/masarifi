@@ -560,6 +560,62 @@ export const updateSettingsSchema = createInsertSchema(settings).partial().omit(
   updated_at: true,
 });
 
+// ── Debts ─────────────────────────────────────────────────────────────────────
+
+export const debts = pgTable("debts", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+  user_id: varchar("user_id", { length: 36 }).references(() => users.id, { onDelete: "cascade" }),
+  category: varchar("category", { length: 20 }).notNull().default("personal"),
+  subcategory: varchar("subcategory", { length: 50 }).notNull().default("personal_borrow"),
+  subcategory_ar: text("subcategory_ar").notNull().default(""),
+  subcategory_en: text("subcategory_en").notNull().default(""),
+  subcategory_icon: varchar("subcategory_icon", { length: 60 }).notNull().default("bank"),
+  subcategory_color: varchar("subcategory_color", { length: 20 }).notNull().default("#6B7280"),
+  entity_name: text("entity_name").notNull(),
+  original_amount: numeric("original_amount", { precision: 15, scale: 3 }).notNull().default("0"),
+  remaining_amount: numeric("remaining_amount", { precision: 15, scale: 3 }).notNull().default("0"),
+  paid_amount: numeric("paid_amount", { precision: 15, scale: 3 }).notNull().default("0"),
+  monthly_installment: numeric("monthly_installment", { precision: 15, scale: 3 }).notNull().default("0"),
+  repayment_months: integer("repayment_months").notNull().default(0),
+  total_installments: integer("total_installments").notNull().default(0),
+  completed_installments: integer("completed_installments").notNull().default(0),
+  is_installment_based: boolean("is_installment_based").notNull().default(false),
+  due_date: timestamp("due_date"),
+  start_date: timestamp("start_date"),
+  end_date: timestamp("end_date"),
+  notes: text("notes").notNull().default(""),
+  status: varchar("status", { length: 20 }).notNull().default("active"),
+  currency: varchar("currency", { length: 10 }).notNull().default("QAR"),
+  created_at: timestamp("created_at").defaultNow().notNull(),
+  updated_at: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const debtPayments = pgTable("debt_payments", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+  debt_id: varchar("debt_id", { length: 36 }).notNull().references(() => debts.id, { onDelete: "cascade" }),
+  amount: numeric("amount", { precision: 15, scale: 3 }).notNull().default("0"),
+  date: timestamp("date").notNull().defaultNow(),
+  note: text("note").notNull().default(""),
+  created_at: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertDebtSchema = createInsertSchema(debts).omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
+
+export const updateDebtSchema = createInsertSchema(debts).partial().omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
+
+export const insertDebtPaymentSchema = createInsertSchema(debtPayments).omit({
+  id: true,
+  created_at: true,
+});
+
 // ─── TypeScript Types ─────────────────────────────────────────────────────────
 
 export type Account = typeof accounts.$inferSelect;
@@ -595,3 +651,9 @@ export type Budget = typeof budgets.$inferSelect;
 export type InsertBudget = z.infer<typeof insertBudgetSchema>;
 
 export type Settings = typeof settings.$inferSelect;
+
+export type Debt = typeof debts.$inferSelect;
+export type InsertDebt = z.infer<typeof insertDebtSchema>;
+
+export type DebtPayment = typeof debtPayments.$inferSelect;
+export type InsertDebtPayment = z.infer<typeof insertDebtPaymentSchema>;

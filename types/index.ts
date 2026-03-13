@@ -148,6 +148,45 @@ export interface Commitment {
   updated_at: string;
 }
 
+export type DebtCategory = "bank" | "personal" | "company";
+export type DebtStatus = "active" | "completed" | "overdue";
+
+export interface Debt {
+  id: string;
+  category: DebtCategory;
+  subcategory: string;
+  subcategory_ar: string;
+  subcategory_en: string;
+  subcategory_icon: string;
+  subcategory_color: string;
+  entity_name: string;
+  original_amount: number;
+  remaining_amount: number;
+  paid_amount: number;
+  monthly_installment: number;
+  repayment_months: number;
+  total_installments: number;
+  completed_installments: number;
+  is_installment_based: boolean;
+  due_date: string;
+  start_date: string;
+  end_date: string;
+  notes: string;
+  status: DebtStatus;
+  currency: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DebtPayment {
+  id: string;
+  debt_id: string;
+  amount: number;
+  date: string;
+  note: string;
+  created_at: string;
+}
+
 export interface AppSettings {
   language: Language;
   theme: ThemeMode;

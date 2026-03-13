@@ -9,6 +9,8 @@ export const KEYS = {
   SAVINGS_WALLETS: "@masarifi/savings_wallets",
   SAVINGS_TRANSACTIONS: "@masarifi/savings_transactions",
   COMMITMENTS: "@masarifi/commitments",
+  DEBTS: "@masarifi/debts",
+  DEBT_PAYMENTS: "@masarifi/debt_payments",
 } as const;
 
 export async function loadData<T>(key: string): Promise<T | null> {

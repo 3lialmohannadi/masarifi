@@ -1,0 +1,978 @@
+You are working on the mobile application Masarifi.
+
+
+
+Your task is to implement a new feature called:
+
+
+
+
+
+Debts Management (المديونيات)
+
+
+
+
+
+This feature must be built in a clean, scalable, maintainable way so it can grow later without needing to be rebuilt.
+
+
+
+
+
+
+
+
+
+Important rules
+
+
+
+
+
+Do NOT redesign the application.
+Do NOT change the current color palette, branding, or UI identity.
+The new feature must match the existing Masarifi design system, components, spacing, typography, and navigation style.
+Keep the UX simple, clean, and mobile-friendly.
+Build the feature in a modular and scalable architecture.
+Make sure the code is reusable and future-proof.
+
+
+
+
+
+
+
+
+
+
+Feature location
+
+
+
+
+
+The Debts section must NOT be placed in the main bottom tabs.
+
+
+
+It must be accessible from:
+
+
+
+
+
+More → Debts
+
+
+
+
+
+المزيد → المديونيات
+
+
+
+
+
+
+
+
+
+Main feature goal
+
+
+
+
+
+The Debts section should allow users to:
+
+
+
+Add debts
+View debts
+Edit debts
+Delete debts
+Register payments
+Track repayment progress
+Filter debts
+View simple debt statistics
+
+
+
+
+This is the first version (MVP), but it must be built in a way that supports future expansion.
+
+
+
+
+
+
+
+
+
+Architecture requirements
+
+
+
+
+
+Implement the Debts feature using a clean structure.
+
+
+
+Please ensure the following:
+
+
+
+Separate UI components from business logic
+Use reusable components where possible
+Keep form logic organized
+Keep debt calculation logic centralized
+Make the feature easy to extend later for:
+notifications
+due reminders
+advanced analytics
+integrations
+export/reporting
+
+
+
+
+
+If needed, create a dedicated folder/module for debts.
+
+
+
+Suggested structure example:
+
+
+
+debts/screens
+debts/components
+debts/hooks
+debts/utils
+debts/types
+debts/services
+
+
+
+
+Use whatever matches the app’s existing architecture, but keep it clean and modular.
+
+
+
+
+
+
+
+
+
+Data model requirements
+
+
+
+
+
+Create a structured debt model that supports future growth.
+
+
+
+Each debt should support:
+
+
+
+id
+debtCategory (bank / personal / company)
+subcategory
+customSubcategoryIcon
+customSubcategoryColor
+entityName
+originalAmount
+remainingAmount
+paidAmount
+monthlyInstallment
+repaymentMonths
+dueDate
+startDate
+endDate
+notes
+status
+createdAt
+updatedAt
+
+
+
+
+If useful, also support:
+
+
+
+paymentHistory
+isInstallmentBased
+totalInstallments
+completedInstallments
+
+
+
+
+Keep naming consistent with the project’s existing conventions.
+
+
+
+
+
+
+
+
+
+Debt categories
+
+
+
+
+
+Support the following three main categories:
+
+
+
+
+
+1. Bank Debt
+
+
+
+
+
+Default subcategories:
+
+
+
+Personal loan
+Car loan
+Mortgage
+Credit card
+Installments
+Overdue payments
+Interest
+Commercial loan
+
+
+
+
+
+
+
+
+
+
+2. Personal Debt
+
+
+
+
+
+Default subcategories:
+
+
+
+Friend
+Family
+Personal borrowing
+External borrowing
+
+
+
+
+
+
+
+
+
+
+3. Company Debt
+
+
+
+
+
+Default subcategories:
+
+
+
+Finance company
+Car company
+Service company
+Supplier
+
+
+
+
+
+
+
+
+
+
+Custom subcategories
+
+
+
+
+
+Users must be able to create custom subcategories.
+
+
+
+For custom subcategories, allow the user to:
+
+
+
+Enter subcategory name
+Choose an icon
+Choose a color
+
+
+
+
+This customization should be stored and reused properly.
+
+
+
+
+
+
+
+
+
+Main Debts screen
+
+
+
+
+
+Create a Debts main screen that includes:
+
+
+
+
+
+1. Top summary cards
+
+
+
+
+
+Show the following:
+
+
+
+Total debts
+Total amount paid
+Remaining amount
+Active debts count
+
+
+
+
+These cards must visually match the style already used in Masarifi dashboard cards.
+
+
+
+
+
+
+
+
+
+2. Debt list
+
+
+
+
+
+Show all debts in a clean card-based list.
+
+
+
+Each card must display:
+
+
+
+Entity / person name
+Debt type
+Remaining amount
+Debt status
+Repayment progress bar
+
+
+
+
+Keep cards compact, readable, and consistent with the app’s current style.
+
+
+
+
+
+
+
+
+
+3. Add debt button
+
+
+
+
+
+A clear call-to-action button:
+
+
+
+
+
+إضافة مديونية
+
+
+
+
+
+This should open the Add Debt form.
+
+
+
+
+
+
+
+
+
+Add / Edit Debt form
+
+
+
+
+
+The form must be dynamic and support all required fields.
+
+
+
+
+
+Required / supported fields
+
+
+
+
+
+Debt category
+Subcategory
+Entity / person name
+Original amount
+Remaining amount (optional)
+Monthly installment (optional)
+Repayment duration:
+either number of months
+or due date
+
+Start date (optional)
+End date (optional)
+Notes (optional)
+Status
+
+
+
+
+
+
+
+
+
+
+Validation requirements
+
+
+
+
+
+Implement proper validation:
+
+
+
+Debt category is required
+Entity / person name is required
+Original amount is required and must be valid
+Remaining amount cannot exceed original amount
+Paid amount must be derived correctly
+Dates must be valid
+Payment values must not break balance logic
+
+
+
+
+Make validation user-friendly and clear.
+
+
+
+
+
+
+
+
+
+Payment management
+
+
+
+
+
+Inside each debt, users must be able to:
+
+
+
+
+
+1. Pay installment
+
+
+
+
+
+For installment-based debts.
+
+
+
+
+
+2. Partial payment
+
+
+
+
+
+Allow entering a custom payment amount.
+
+
+
+This must:
+
+
+
+reduce the remaining amount
+increase paid amount
+update repayment progress
+
+
+
+
+
+
+3. Full settlement
+
+
+
+
+
+This must:
+
+
+
+set remaining amount to zero
+mark status as fully paid
+update repayment progress to 100%
+
+
+
+
+If useful, keep a payment history structure for future use.
+
+
+
+
+
+
+
+
+
+Debt details screen
+
+
+
+
+
+When the user taps a debt card, open a Debt Details screen.
+
+
+
+Show:
+
+
+
+Entity name
+Debt type
+Original amount
+Amount paid
+Remaining amount
+Monthly installment
+Total installments
+Start date
+End date
+Notes
+Status
+
+
+
+
+Also show:
+
+
+
+
+
+Repayment progress bar
+
+
+
+
+
+Display percentage repaid based on:
+
+
+
+paidAmount / originalAmount
+
+
+
+Example:
+
+
+
+40% repaid
+
+
+
+
+
+
+
+
+
+Actions on debt details screen
+
+
+
+
+
+Allow users to:
+
+
+
+Edit debt
+Delete debt
+Register payment
+Change status
+
+
+
+
+Before delete, show confirmation dialog.
+
+
+
+
+
+
+
+
+
+Filters
+
+
+
+
+
+On the main debts screen, provide filters for:
+
+
+
+
+
+Status
+
+
+
+
+
+All
+Active
+Partially paid
+Fully paid
+Overdue
+
+
+
+
+
+
+Type
+
+
+
+
+
+Bank
+Personal
+Company
+
+
+
+
+Keep filters simple and mobile-friendly.
+
+
+
+
+
+
+
+
+
+Empty state
+
+
+
+
+
+If there are no debts, show a friendly empty state:
+
+
+
+
+
+“لا توجد مديونيات حالياً”
+
+
+
+
+
+Also include a visible action button:
+
+
+
+إضافة مديونية
+
+
+
+The empty state should match the app’s existing UI tone.
+
+
+
+
+
+
+
+
+
+Statistics section
+
+
+
+
+
+Provide a simple statistics section showing:
+
+
+
+Total debts
+Total paid
+Total remaining
+Number of debts
+Overall repayment percentage
+
+
+
+
+These can be displayed using:
+
+
+
+summary cards
+simple charts
+
+
+
+
+Do not make the charts too complex. Keep them light, clean, and consistent with the rest of the app.
+
+
+
+
+
+
+
+
+
+Dashboard integration
+
+
+
+
+
+Add only a small summary card for debts in the main dashboard.
+
+
+
+Do NOT add the full debts section to the dashboard.
+
+
+
+The dashboard debt card should show a compact summary, such as:
+
+
+
+Remaining debt amount
+Amount due this month
+Repayment progress
+
+
+
+
+Tapping the card should navigate the user to:
+
+
+
+More → Debts
+
+
+
+If there are no debts, the card can show:
+
+
+
+No debts currently
+
+
+
+Keep it minimal and not visually crowded.
+
+
+
+
+
+
+
+
+
+UX requirements
+
+
+
+
+
+Keep the feature simple and intuitive
+Avoid clutter
+Make primary actions obvious
+Ensure the flow feels natural within Masarifi
+Maintain consistency with the existing app
+Make sure it works well on mobile screens
+
+
+
+
+
+
+
+
+
+
+Technical quality requirements
+
+
+
+
+
+After implementation, do a full review and ensure:
+
+
+
+no syntax errors
+no runtime errors
+no broken imports
+no dead code related to the new feature
+no unstable form behavior
+no broken navigation
+no logic issues in debt calculations
+no invalid payment flows
+no inconsistency in status handling
+
+
+
+
+Also make sure:
+
+
+
+the feature does not break existing Masarifi functionality
+the app builds successfully
+the feature is stable and production-ready
+
+
+
+
+
+
+
+
+
+
+Testing checklist
+
+
+
+
+
+Test all of the following:
+
+
+
+Add debt
+Edit debt
+Delete debt
+Open debt details
+Pay installment
+Partial payment
+Full settlement
+Status updates
+Filter by type
+Filter by status
+Empty state behavior
+Dashboard summary card behavior
+Progress calculations
+Statistics calculations
+Navigation from More → Debts
+Navigation from dashboard card → Debts
+Full app stability after implementation
+
+
+
+
+
+
+
+
+
+
+Final instruction
+
+
+
+
+
+Do not just build the UI.
+
+
+
+Build the full Debts feature in a clean, scalable, maintainable way so it can support future upgrades without major refactoring.
+
+
+
+At the end, perform a final complete review of the codebase and confirm that the feature is correctly integrated, stable, and free from major errors.
+

@@ -830,6 +830,175 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ── Debts ────────────────────────────────────────────────────────────────────
+
+  const createDebtSchema = z.object({
+    category: z.enum(["bank", "personal", "company"]).default("personal"),
+    subcategory: z.string().min(1).max(50).default("personal_borrow"),
+    subcategory_ar: z.string().default(""),
+    subcategory_en: z.string().default(""),
+    subcategory_icon: z.string().max(60).default("bank"),
+    subcategory_color: z.string().max(20).default("#6B7280"),
+    entity_name: z.string().min(1),
+    original_amount: z.union([z.string(), z.number()]).transform((v) => String(v)).default("0"),
+    remaining_amount: z.union([z.string(), z.number()]).transform((v) => String(v)).default("0"),
+    paid_amount: z.union([z.string(), z.number()]).transform((v) => String(v)).default("0"),
+    monthly_installment: z.union([z.string(), z.number()]).transform((v) => String(v)).default("0"),
+    repayment_months: z.union([z.string(), z.number()]).transform((v) => Number(v)).default(0),
+    total_installments: z.union([z.string(), z.number()]).transform((v) => Number(v)).default(0),
+    completed_installments: z.union([z.string(), z.number()]).transform((v) => Number(v)).default(0),
+    is_installment_based: z.boolean().default(false),
+    due_date: z.string().optional(),
+    start_date: z.string().optional(),
+    end_date: z.string().optional(),
+    notes: z.string().default(""),
+    status: z.enum(["active", "completed", "overdue"]).default("active"),
+    currency: z.string().max(10).default("QAR"),
+  });
+
+  const updateDebtSchema = createDebtSchema.partial();
+
+  const createDebtPaymentSchema = z.object({
+    debt_id: z.string().min(1),
+    amount: z.union([z.string(), z.number()]).transform((v) => String(v)),
+    date: z.string(),
+    note: z.string().default(""),
+  });
+
+  function normDebt(d: schema.Debt) {
+    return {
+      ...d,
+      original_amount: toNumber(d.original_amount),
+      remaining_amount: toNumber(d.remaining_amount),
+      paid_amount: toNumber(d.paid_amount),
+      monthly_installment: toNumber(d.monthly_installment),
+      due_date: toIsoOrNull(d.due_date),
+      start_date: toIsoOrNull(d.start_date),
+      end_date: toIsoOrNull(d.end_date),
+      created_at: toIso(d.created_at),
+      updated_at: toIso(d.updated_at),
+    };
+  }
+
+  function normDebtPayment(p: schema.DebtPayment) {
+    return {
+      ...p,
+      amount: toNumber(p.amount),
+      date: toIso(p.date),
+      created_at: toIso(p.created_at),
+    };
+  }
+
+  app.get("/api/debts", async (req: Request, res: Response) => {
+    try {
+      const rows = await storage.getDebts(DEFAULT_USER_ID);
+      res.json(rows.map(normDebt));
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.post("/api/debts", async (req: Request, res: Response) => {
+    try {
+      const { id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
+      const validated = createDebtSchema.parse(body);
+      const data = {
+        ...validated,
+        id: id || undefined,
+        user_id: DEFAULT_USER_ID,
+        due_date: toDate(validated.due_date),
+        start_date: toDate(validated.start_date),
+        end_date: toDate(validated.end_date),
+      };
+      const row = await storage.createDebt(data);
+      res.status(201).json(normDebt(row));
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.patch("/api/debts/:id", async (req: Request, res: Response) => {
+    try {
+      const existing = await storage.getDebt(paramId(req));
+      const { id: _id, created_at: _c, updated_at: _u, user_id: _uid, ...body } = req.body;
+      if (!existing || existing.user_id !== DEFAULT_USER_ID) {
+        const validated = createDebtSchema.parse(body);
+        const data = {
+          ...validated,
+          id: paramId(req),
+          user_id: DEFAULT_USER_ID,
+          due_date: toDate(validated.due_date),
+          start_date: toDate(validated.start_date),
+          end_date: toDate(validated.end_date),
+        };
+        const row = await storage.createDebt(data);
+        return res.status(201).json(normDebt(row));
+      }
+      const { due_date, start_date, end_date, ...rest } = updateDebtSchema.parse(body);
+      const data = {
+        ...rest,
+        ...(due_date !== undefined ? { due_date: toDate(due_date) ?? undefined } : {}),
+        ...(start_date !== undefined ? { start_date: toDate(start_date) ?? undefined } : {}),
+        ...(end_date !== undefined ? { end_date: toDate(end_date) ?? undefined } : {}),
+      };
+      const row = await storage.updateDebt(paramId(req), data);
+      if (!row) return res.status(404).json({ message: "Debt not found" });
+      res.json(normDebt(row));
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.delete("/api/debts/:id", async (req: Request, res: Response) => {
+    try {
+      const existing = await storage.getDebt(paramId(req));
+      if (!existing || existing.user_id !== DEFAULT_USER_ID) {
+        return res.status(404).json({ message: "Debt not found" });
+      }
+      await storage.deleteDebt(paramId(req));
+      res.json({ ok: true });
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.get("/api/debts/:id/payments", async (req: Request, res: Response) => {
+    try {
+      const rows = await storage.getDebtPayments(paramId(req));
+      res.json(rows.map(normDebtPayment));
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.post("/api/debts/:id/payments", async (req: Request, res: Response) => {
+    try {
+      const debtId = paramId(req);
+      const existing = await storage.getDebt(debtId);
+      if (!existing || existing.user_id !== DEFAULT_USER_ID) {
+        return res.status(404).json({ message: "Debt not found" });
+      }
+      const { id, created_at: _c, ...body } = req.body;
+      const validated = createDebtPaymentSchema.parse({ ...body, debt_id: debtId });
+      const row = await storage.createDebtPayment({
+        ...validated,
+        date: toDate(validated.date) ?? new Date(),
+      });
+      res.status(201).json(normDebtPayment(row));
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.delete("/api/debt-payments/:id", async (req: Request, res: Response) => {
+    try {
+      await storage.deleteDebtPayment(paramId(req));
+      res.json({ ok: true });
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
   // ── Reset (protected, requires confirmation header) ───────────────────────
 
   app.post("/api/reset", async (req: Request, res: Response) => {

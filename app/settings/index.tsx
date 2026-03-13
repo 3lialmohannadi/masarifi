@@ -335,6 +335,14 @@ export default function SettingsScreen() {
             subtitle={t.settings.categoriesDesc}
             onPress={() => router.push("/categories")}
           />
+          <NavRow
+            testID="settings-manage-debts"
+            icon="credit-card"
+            iconColor="#EF4444"
+            label={t.debts.title}
+            subtitle={t.settings.debtsDesc}
+            onPress={() => { Haptics.selectionAsync(); router.push("/debts"); }}
+          />
         </View>
 
         {/* ── Default Currency ── */}

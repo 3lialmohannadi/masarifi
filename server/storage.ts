@@ -16,6 +16,10 @@ import type {
   InsertSavingsTransaction,
   Commitment,
   InsertCommitment,
+  Debt,
+  InsertDebt,
+  DebtPayment,
+  InsertDebtPayment,
   Settings,
 } from "@database/schema";
 
@@ -74,6 +78,18 @@ export interface IStorage {
   createCommitment(data: InsertCommitment): Promise<Commitment>;
   updateCommitment(id: string, data: Partial<Commitment>): Promise<Commitment>;
   deleteCommitment(id: string): Promise<void>;
+
+  // Debts
+  getDebts(userId?: string): Promise<Debt[]>;
+  getDebt(id: string): Promise<Debt | undefined>;
+  createDebt(data: InsertDebt): Promise<Debt>;
+  updateDebt(id: string, data: Partial<Debt>): Promise<Debt>;
+  deleteDebt(id: string): Promise<void>;
+
+  // Debt Payments
+  getDebtPayments(debtId: string): Promise<DebtPayment[]>;
+  createDebtPayment(data: InsertDebtPayment): Promise<DebtPayment>;
+  deleteDebtPayment(id: string): Promise<void>;
 
 }
 
@@ -345,6 +361,53 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCommitment(id: string): Promise<void> {
     await db.delete(schema.commitments).where(eq(schema.commitments.id, id));
+  }
+
+  async getDebts(userId?: string): Promise<Debt[]> {
+    if (userId) {
+      return db.select().from(schema.debts)
+        .where(eq(schema.debts.user_id, userId))
+        .orderBy(desc(schema.debts.created_at));
+    }
+    return db.select().from(schema.debts).orderBy(desc(schema.debts.created_at));
+  }
+
+  async getDebt(id: string): Promise<Debt | undefined> {
+    const [row] = await db.select().from(schema.debts).where(eq(schema.debts.id, id));
+    return row;
+  }
+
+  async createDebt(data: InsertDebt): Promise<Debt> {
+    const [row] = await db.insert(schema.debts).values(data).returning();
+    return row;
+  }
+
+  async updateDebt(id: string, data: Partial<Debt>): Promise<Debt> {
+    const [row] = await db
+      .update(schema.debts)
+      .set({ ...data, updated_at: new Date() })
+      .where(eq(schema.debts.id, id))
+      .returning();
+    return row;
+  }
+
+  async deleteDebt(id: string): Promise<void> {
+    await db.delete(schema.debts).where(eq(schema.debts.id, id));
+  }
+
+  async getDebtPayments(debtId: string): Promise<DebtPayment[]> {
+    return db.select().from(schema.debtPayments)
+      .where(eq(schema.debtPayments.debt_id, debtId))
+      .orderBy(desc(schema.debtPayments.date));
+  }
+
+  async createDebtPayment(data: InsertDebtPayment): Promise<DebtPayment> {
+    const [row] = await db.insert(schema.debtPayments).values(data).returning();
+    return row;
+  }
+
+  async deleteDebtPayment(id: string): Promise<void> {
+    await db.delete(schema.debtPayments).where(eq(schema.debtPayments.id, id));
   }
 
 }
