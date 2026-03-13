@@ -22,6 +22,7 @@ interface DonutSlice { amount: number; color: string; label: string; }
 function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
   slices: DonutSlice[]; totalAmount: number; currency: string; language: Language; theme: any; isRTL?: boolean;
 }) {
+  const { t } = useApp();
   const R = 70; const r = 44; const cx = 90; const cy = 90; const size = 180;
   const total = slices.reduce((s, d) => s + d.amount, 0);
   if (total === 0) return null;
@@ -61,7 +62,7 @@ function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
           <Circle cx={cx} cy={cy} r={r - 2} fill={theme.card} />
         </G>
         <SvgText x={cx} y={cy - 8} textAnchor="middle" fill={theme.textSecondary} fontSize={9} fontWeight="500">
-          {language === "ar" ? "المجموع" : "Total"}
+          {t.statistics.total}
         </SvgText>
         <SvgText x={cx} y={cy + 10} textAnchor="middle" fill={theme.text} fontSize={11} fontWeight="700">
           {displayTotal}
@@ -78,7 +79,7 @@ function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
           </View>
         ))}
         {slices.length > 6 && (
-          <Text style={{ fontSize: 10, color: theme.textMuted }}>+{slices.length - 6} {language === "ar" ? "أخرى" : "more"}</Text>
+          <Text style={{ fontSize: 10, color: theme.textMuted }}>+{slices.length - 6} {t.statistics.others}</Text>
         )}
       </View>
     </View>

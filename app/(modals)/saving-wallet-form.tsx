@@ -156,7 +156,7 @@ export default function SavingWalletFormModal() {
           label={`${t.common.description} (${t.common.optional})`}
           value={description}
           onChangeText={setDescription}
-          placeholder={language === "ar" ? "وصف المحفظة..." : "Wallet description..."}
+          placeholder={t.savings.descriptionPlaceholder}
           multiline
         />
 

@@ -162,13 +162,13 @@ export default function CommitmentFormModal() {
         {/* Name */}
         <View style={{ gap: 6 }}>
           <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-            {language === "ar" ? "الاسم" : "Name"} <Text style={{ color: theme.expense }}>*</Text>
+            {t.common.name} <Text style={{ color: theme.expense }}>*</Text>
           </Text>
           <View style={{ gap: 8 }}>
             <TextInput
               value={nameAr}
               onChangeText={setNameAr}
-              placeholder={language === "ar" ? "الاسم بالعربي" : "Name in Arabic"}
+              placeholder={t.common.nameAr}
               placeholderTextColor={theme.textMuted}
               textAlign="right"
               style={{
@@ -292,8 +292,8 @@ export default function CommitmentFormModal() {
             )}
             <Text style={{ flex: 1, color: selectedCategory ? theme.text : theme.textMuted, fontSize: 15 }}>
               {selectedCategory
-                ? (language === "ar" ? selectedCategory.name_ar || selectedCategory.name_en : selectedCategory.name_en || selectedCategory.name_ar)
-                : (language === "ar" ? "اختر فئة" : "Select Category")}
+                ? getDisplayName(selectedCategory, language)
+                : t.transactions.selectCategory}
             </Text>
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
@@ -336,7 +336,7 @@ export default function CommitmentFormModal() {
           <TextInput
             value={note}
             onChangeText={setNote}
-            placeholder={language === "ar" ? "ملاحظة..." : "Note..."}
+            placeholder={t.common.notePlaceholder}
             placeholderTextColor={theme.textMuted}
             multiline
             numberOfLines={3}
@@ -433,7 +433,7 @@ export default function CommitmentFormModal() {
         language={language}
         isRTL={isRTL}
         noDataText={t.categories.noCategories}
-        title={language === "ar" ? "اختر التصنيف" : "Select Category"}
+        title={t.transactions.selectCategory}
       />
 
       <DatePickerModal

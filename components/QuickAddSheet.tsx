@@ -189,7 +189,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
           <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
         </Pressable>
         <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
-          {language === "ar" ? "اختر التصنيف" : "Select Category"}
+          {t.transactions.selectCategory}
         </Text>
         <Pressable onPress={goBack} hitSlop={12}>
           <Feather name="x" size={20} color={theme.textSecondary} />
@@ -201,7 +201,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
         <TextInput
           value={categorySearch}
           onChangeText={setCategorySearch}
-          placeholder={language === "ar" ? "بحث..." : "Search..."}
+          placeholder={t.common.searchPlaceholder}
           placeholderTextColor={theme.textMuted}
           style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
         />
@@ -476,7 +476,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
             <TextInput
               value={note}
               onChangeText={setNote}
-              placeholder={language === "ar" ? "ملاحظة... (ستاربكس، أوبر، ...)" : "Note... (starbucks, uber, ...)"}
+              placeholder={t.common.notePlaceholder}
               placeholderTextColor={theme.textMuted}
               style={{ flex: 1, paddingVertical: 11, color: theme.text, fontSize: 13, textAlign: isRTL ? "right" : "left", ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
             />

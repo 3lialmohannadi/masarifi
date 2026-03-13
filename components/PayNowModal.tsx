@@ -96,7 +96,7 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
               <Feather name="check-circle" size={32} color={theme.income} />
             </View>
             <Text style={{ fontSize: 18, fontWeight: "800", color: theme.income }}>
-              {language === "ar" ? "تم الدفع بنجاح" : "Payment Successful"}
+              {t.commitments.paySuccess}
             </Text>
             <Text style={{ fontSize: 14, color: theme.textSecondary, textAlign: "center" }}>
               {language === "ar"
@@ -130,8 +130,8 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
               <Feather name={isOverdue ? "alert-triangle" : "clock"} size={14} color={accentColor} />
               <Text style={{ fontSize: 13, color: accentColor, fontWeight: "600", flex: 1 }}>
                 {isOverdue
-                  ? (language === "ar" ? "هذا الالتزام متأخر" : "This commitment is overdue")
-                  : (language === "ar" ? "هذا الالتزام مستحق اليوم" : "This commitment is due today")}
+                  ? t.commitments.overdueWarning
+                  : t.commitments.dueTodayWarning}
               </Text>
             </View>
           )}
@@ -139,7 +139,7 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
           {/* Info Card */}
           <View style={[styles.infoCard, { backgroundColor: theme.cardSecondary }]}>
             <Row
-              label={language === "ar" ? "الالتزام" : "Commitment"}
+              label={t.commitments.commitment}
               value={getDisplayName(commitment, language)}
               theme={theme} isRTL={isRTL}
             />
@@ -160,7 +160,7 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
             {category && (
               <Row
                 label={t.categories.title}
-                value={language === "ar" ? category.name_ar || category.name_en : category.name_en || category.name_ar}
+                value={getDisplayName(category, language)}
                 theme={theme} isRTL={isRTL}
               />
             )}
@@ -191,7 +191,7 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
 
           {/* Note */}
           <TextInput
-            placeholder={language === "ar" ? "ملاحظة (اختياري)" : "Note (optional)"}
+            placeholder={`${t.common.note} (${t.common.optional})`}
             value={note}
             onChangeText={setNote}
             style={{
@@ -245,7 +245,7 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                   <Feather name="loader" size={16} color="#fff" />
                   <Text style={{ color: "#fff", fontWeight: "700", fontSize: 15 }}>
-                    {language === "ar" ? "جارٍ..." : "Processing..."}
+                    {t.common.processing}
                   </Text>
                 </View>
               ) : (

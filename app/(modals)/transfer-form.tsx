@@ -80,7 +80,7 @@ export default function TransferFormModal() {
         destination_amount: destinationAmount,
         exchange_rate: sameCurrency ? 1 : rate,
         date,
-        note: note || (language === "ar" ? "تحويل" : "Transfer"),
+        note: note || t.transfer.title,
       });
       updateBalance(fromId, -sourceAmount);
       updateBalance(toId, destinationAmount);
@@ -283,7 +283,7 @@ export default function TransferFormModal() {
           label={`${t.common.note} (${t.common.optional})`}
           value={note}
           onChangeText={setNote}
-          placeholder={language === "ar" ? "ملاحظة..." : "Note..."}
+          placeholder={t.common.notePlaceholder}
         />
 
         <AppButton title={t.transfer.confirm} onPress={handleSave} loading={loading} fullWidth size="lg" />

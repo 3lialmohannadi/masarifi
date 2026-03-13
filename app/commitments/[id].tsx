@@ -35,7 +35,7 @@ export default function CommitmentDetailScreen() {
   if (!commitment) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ color: theme.textMuted }}>{language === "ar" ? "الالتزام غير موجود" : "Commitment not found"}</Text>
+        <Text style={{ color: theme.textMuted }}>{t.commitments.notFound}</Text>
       </View>
     );
   }
@@ -180,7 +180,7 @@ export default function CommitmentDetailScreen() {
                       <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: account.color + "20", alignItems: "center", justifyContent: "center" }}>
                         <MaterialCommunityIcons name={(account.icon || "credit-card") as any} size={14} color={account.color} />
                       </View>
-                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{language === "ar" ? "الحساب" : "Account"}</Text>
+                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{t.transactions.account}</Text>
                     </View>
                     <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text }}>
                       {getDisplayName(account, language)}
@@ -195,7 +195,7 @@ export default function CommitmentDetailScreen() {
                       <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: category.color + "20", alignItems: "center", justifyContent: "center" }}>
                         <CategoryIcon name={category.icon || "tag"} size={14} color={category.color} />
                       </View>
-                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{language === "ar" ? "التصنيف" : "Category"}</Text>
+                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{t.transactions.category}</Text>
                     </View>
                     <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text }}>
                       {getDisplayName(category, language)}
@@ -210,7 +210,7 @@ export default function CommitmentDetailScreen() {
                       <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: theme.border, alignItems: "center", justifyContent: "center" }}>
                         <Feather name="message-square" size={14} color={theme.textMuted} />
                       </View>
-                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{language === "ar" ? "ملاحظة" : "Note"}</Text>
+                      <Text style={{ fontSize: 13, color: theme.textMuted }}>{t.common.note}</Text>
                     </View>
                     <Text style={{ fontSize: 14, color: theme.text, flex: 1, textAlign: isRTL ? "left" : "right" }} numberOfLines={3}>
                       {commitment.note}

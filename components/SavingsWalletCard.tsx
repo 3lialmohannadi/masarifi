@@ -93,7 +93,7 @@ export const SavingsWalletCard = React.memo(function SavingsWalletCard({ wallet,
                 {Math.round(progress * 100)}%
               </Text>
               <Text style={{ fontSize: 10, color: theme.textMuted }}>
-                {language === "ar" ? "مكتمل" : "done"}
+                {t.savings.completed}
               </Text>
             </View>
             <View style={{ width: 1, height: 30, backgroundColor: theme.border }} />
@@ -119,7 +119,7 @@ export const SavingsWalletCard = React.memo(function SavingsWalletCard({ wallet,
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
               <Feather name="shield" size={13} color={theme.textMuted} />
               <Text style={{ fontSize: 12, color: theme.textMuted }}>
-                {language === "ar" ? "بدون هدف محدد" : "No target set"}
+                {t.savings.noGoal}
               </Text>
             </View>
             <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={14} color={theme.primary} />

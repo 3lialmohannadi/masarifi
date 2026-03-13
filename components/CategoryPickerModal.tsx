@@ -13,6 +13,7 @@ import { CategoryIcon } from "@/components/CategoryIcon";
 import type { Category, Language } from "@/types";
 import type { Theme } from "@/theme/colors";
 import { getDisplayName } from "@/utils/display";
+import { useApp } from "@/store/AppContext";
 
 interface Props {
   visible: boolean;
@@ -41,6 +42,7 @@ export function CategoryPickerModal({
   noDataText,
   title,
 }: Props) {
+  const { t } = useApp();
   const [search, setSearch] = useState("");
 
   const filtered = search.trim()
@@ -130,7 +132,7 @@ export function CategoryPickerModal({
             <TextInput
               value={search}
               onChangeText={setSearch}
-              placeholder={language === "ar" ? "بحث..." : "Search..."}
+              placeholder={t.common.searchPlaceholder}
               placeholderTextColor={theme.textMuted}
               style={{
                 flex: 1,

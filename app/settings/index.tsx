@@ -309,7 +309,7 @@ export default function SettingsScreen() {
               />
               {manualDailyLimit !== "" && !isNaN(parseFloat(manualDailyLimit)) && (
                 <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left", paddingHorizontal: 4, marginTop: 4 }}>
-                  {language === "ar" ? "يتم الحفظ تلقائياً عند الانتهاء" : "Saved automatically on exit"}
+                  {t.settings.autoSave}
                 </Text>
               )}
             </View>
@@ -550,7 +550,7 @@ export default function SettingsScreen() {
             <Text style={{ fontSize: 11, color: theme.textMuted }}>{t.settings.version} 1.0.0</Text>
           </View>
           <Text style={{ fontSize: 10, color: theme.textMuted }}>
-            {accounts.filter((a) => a.is_active).length} {language === "ar" ? "حسابات" : "accounts"} · {transactions.length} {language === "ar" ? "عمليات" : "transactions"}
+            {accounts.filter((a) => a.is_active).length} {t.settings.accountsCount} · {transactions.length} {t.settings.transactionsCount}
           </Text>
         </View>
       </KeyboardAwareScrollViewCompat>
@@ -605,7 +605,7 @@ export default function SettingsScreen() {
                 })}
               >
                 <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text }}>
-                  {language === "ar" ? "إلغاء" : "Cancel"}
+                  {t.common.cancel}
                 </Text>
               </Pressable>
 

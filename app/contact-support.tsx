@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { Theme } from "@/theme/colors";
 import {
   View,
   Text,
@@ -269,7 +270,7 @@ function Field({
   error?: string;
   required?: boolean;
   isRTL: boolean;
-  theme: any;
+  theme: Theme;
 }) {
   return (
     <View style={{ gap: 6 }}>

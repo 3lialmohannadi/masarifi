@@ -57,7 +57,7 @@ export function DatePickerModal({
   minDate,
   maxDate,
 }: DatePickerModalProps) {
-  const { theme, language, isRTL } = useApp();
+  const { theme, language, isRTL, t } = useApp();
   const insets = useSafeAreaInsets();
 
   const initialDate = parseDate(value) || new Date();
@@ -278,7 +278,7 @@ export function DatePickerModal({
             style={[styles.todayBtn, { backgroundColor: theme.cardSecondary, borderColor: theme.border }]}
           >
             <Text style={{ fontSize: 14, fontWeight: "600", color: theme.textSecondary }}>
-              {language === "ar" ? "اليوم" : "Today"}
+              {t.transactions.today}
             </Text>
           </Pressable>
           <Pressable
@@ -286,7 +286,7 @@ export function DatePickerModal({
             style={[styles.confirmBtn, { backgroundColor: theme.primary, flex: 1 }]}
           >
             <Text style={styles.confirmText}>
-              {language === "ar" ? "تأكيد" : "Confirm"}
+              {t.common.confirm}
             </Text>
           </Pressable>
         </View>

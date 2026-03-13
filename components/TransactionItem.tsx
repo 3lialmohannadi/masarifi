@@ -41,7 +41,7 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
 
   if (isSavingsLinked) {
     const walletColor = linkedWallet?.color || theme.primary;
-    const walletName = linkedWallet ? getDisplayName(linkedWallet, language) : (language === "ar" ? "محفظة ادخار" : "Savings Wallet");
+    const walletName = linkedWallet ? getDisplayName(linkedWallet, language) : t.savings.wallet;
     iconBg = walletColor + "18";
     mainLabel = walletName;
     iconNode = (
@@ -53,7 +53,7 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
     );
   } else if (isTransferLinked) {
     const accountColor = linkedAccount?.color || theme.primary;
-    const accountName = linkedAccount ? getDisplayName(linkedAccount, language) : (language === "ar" ? "حساب" : "Account");
+    const accountName = linkedAccount ? getDisplayName(linkedAccount, language) : t.transactions.account;
     iconBg = accountColor + "18";
     mainLabel = accountName;
     iconNode = (

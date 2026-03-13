@@ -228,7 +228,7 @@ export default function DashboardScreen() {
                 <Text style={{ fontSize: 14, fontWeight: "600", color: "rgba(255,255,255,0.8)" }}>
                   {selectedAccount
                     ? getDisplayName(selectedAccount, language)
-                    : language === "ar" ? "لا يوجد حساب" : "No Account"}
+                    : t.common.noAccount}
                 </Text>
               </View>
               <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" }}>
@@ -265,7 +265,7 @@ export default function DashboardScreen() {
                   <Feather name="bar-chart-2" size={15} color={theme.primary} />
                 </View>
                 <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: "center", fontWeight: "500" }}>
-                  {language === "ar" ? "الرصيد" : "Balance"}
+                  {t.common.balance}
                 </Text>
                 <Text style={{ fontSize: 12, fontWeight: "700", color: theme.text, textAlign: "center" }} numberOfLines={1}>
                   {formatCurrency(totalBalance, currency, language)}
@@ -480,7 +480,7 @@ export default function DashboardScreen() {
                 <EmptyState
                   icon="calendar"
                   title={t.dashboard.noCommitments}
-                  subtitle={language === "ar" ? "أضف التزاماتك لتتبع فواتيرك" : "Add commitments to track your bills"}
+                  subtitle={t.commitments.addFirstCommitment}
                 />
               </View>
             ) : (

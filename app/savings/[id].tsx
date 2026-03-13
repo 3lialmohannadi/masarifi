@@ -38,7 +38,7 @@ export default function SavingsDetailScreen() {
   if (!wallet) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: theme.textMuted }}>{language === "ar" ? "المحفظة غير موجودة" : "Wallet not found"}</Text>
+        <Text style={{ color: theme.textMuted }}>{t.savings.walletNotFound}</Text>
       </View>
     );
   }

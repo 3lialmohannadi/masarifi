@@ -506,7 +506,7 @@ export default function AddTransactionModal() {
             <TextInput
               value={note}
               onChangeText={setNote}
-              placeholder={language === "ar" ? "ملاحظة..." : "Note..."}
+              placeholder={t.common.notePlaceholder}
               placeholderTextColor={theme.textMuted}
               multiline
               style={{

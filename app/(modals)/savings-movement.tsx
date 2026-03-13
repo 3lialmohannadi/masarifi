@@ -123,7 +123,7 @@ export default function SavingsMovementModal() {
             amount: amountNum,
             currency,
             date: today,
-            note: note || (language === "ar" ? `إيداع ← ${walletName}` : `Deposit → ${walletName}`),
+            note: note || `${t.savings.deposit} ← ${walletName}`,
             linked_saving_wallet_id: walletId,
           });
         } else {
@@ -159,7 +159,7 @@ export default function SavingsMovementModal() {
             amount: amountNum,
             currency,
             date: today,
-            note: note || (language === "ar" ? `سحب ← ${walletName}` : `Withdraw ← ${walletName}`),
+            note: note || `${t.savings.withdraw} ← ${walletName}`,
             linked_saving_wallet_id: walletId,
           });
         } else {
@@ -365,9 +365,7 @@ export default function SavingsMovementModal() {
           >
             <Feather name="info" size={14} color={actionColor} />
             <Text style={{ flex: 1, fontSize: 12, color: actionColor, textAlign: isRTL ? "right" : "left", lineHeight: 18 }}>
-              {isDeposit
-                ? (language === "ar" ? "المبلغ يُضاف للمحفظة مباشرةً دون خصم من أي حساب" : "Amount is added to wallet without deducting from any account")
-                : (language === "ar" ? "المبلغ يُخصم من المحفظة دون إضافة لأي حساب داخلي" : "Amount is deducted from wallet without crediting any account")}
+              {isDeposit ? t.savings.manualDepositHint : t.savings.manualWithdrawHint}
             </Text>
           </View>
         )}
@@ -412,9 +410,7 @@ export default function SavingsMovementModal() {
         {needsAccount && (
           <View style={{ gap: 6 }}>
             <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-              {isDeposit
-                ? (language === "ar" ? "الحساب المصدر" : "Source Account")
-                : (language === "ar" ? "الحساب المستلم" : "Destination Account")}{" "}
+              {isDeposit ? t.savings.sourceAccount : t.savings.destinationAccount}{" "}
               <Text style={{ color: theme.expense }}>*</Text>
             </Text>
             <Pressable
@@ -483,7 +479,7 @@ export default function SavingsMovementModal() {
               <>
                 <Feather name="tag" size={16} color={theme.textMuted} />
                 <Text style={{ flex: 1, color: theme.textMuted, fontSize: 15, textAlign: isRTL ? "right" : "left" }}>
-                  {language === "ar" ? "اختر التصنيف" : "Select Category"}
+                  {t.savings.selectCategory}
                 </Text>
                 <Feather name="chevron-down" size={16} color={theme.textMuted} />
               </>
@@ -550,7 +546,7 @@ export default function SavingsMovementModal() {
             <TextInput
               value={note}
               onChangeText={setNote}
-              placeholder={language === "ar" ? "ملاحظة..." : "Note..."}
+              placeholder={t.common.notePlaceholder}
               placeholderTextColor={theme.textMuted}
               multiline
               style={{
@@ -743,7 +739,7 @@ export default function SavingsMovementModal() {
         language={language}
         isRTL={isRTL}
         noDataText={t.categories.noCategories}
-        title={language === "ar" ? "اختر التصنيف" : "Select Category"}
+        title={t.savings.selectCategory}
       />
     </View>
   );
