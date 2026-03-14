@@ -1,0 +1,41 @@
+root@srv1482387:~# cd masarifi && git pull origin main && pm2 restart masarifi
+remote: Enumerating objects: 107, done.
+remote: Counting objects: 100% (70/70), done.
+remote: Compressing objects: 100% (52/52), done.
+remote: Total 107 (delta 41), reused 17 (delta 17), pack-reused 37 (from 1)
+Receiving objects: 100% (107/107), 508.10 KiB | 8.47 MiB/s, done.
+Resolving deltas: 100% (56/56), completed with 13 local objects.
+From https://github.com/3lialmohannadi/masarifi
+ * branch            main       -> FETCH_HEAD
+   3756254..3844ff7  main       -> origin/main
+Updating 3756254..3844ff7
+Fast-forward
+ app/(tabs)/_layout.tsx        |   4 +-
+ app/(tabs)/index.tsx          |  21 +++++--
+ app/profile/index.tsx         | 316 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---------
+ assets/logo.png               | Bin 1106272 -> 293550 bytes
+ assets/logo_transparent.png   | Bin 1069735 -> 288362 bytes
+ i18n/ar.ts                    |   8 +++
+ i18n/en.ts                    |   8 +++
+ server/index.ts               |  17 ++++++
+ server/routes.ts              | 123 ++++++++++++++++++++++++++++-----------
+ server/storage.ts             |   6 ++
+ services/api.ts               |  14 ++++-
+ store/AccountsContext.tsx     |  64 +++++++++++----------
+ store/AuthContext.tsx         |  30 +++++++++-
+ store/CategoriesContext.tsx   |  55 ++++++++++--------
+ store/CommitmentsContext.tsx  |  73 +++++++++++------------
+ store/DebtsContext.tsx        |  65 ++++++++++++---------
+ store/SavingsContext.tsx      |  98 +++++++++++++++----------------
+ store/TransactionsContext.tsx |  81 ++++++++++++++------------
+ 18 files changed, 701 insertions(+), 282 deletions(-)
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [masarifi](ids: [ 4 ])
+[PM2] [masarifi](4) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ doyoomi-api       │ default     │ 0.0.0   │ fork    │ 51917    │ 12h    │ 19   │ online    │ 0%       │ 56.5mb   │ root     │ disabled │
+│ 2  │ doyoomi-mobile    │ default     │ 0.0.0   │ fork    │ 51911    │ 12h    │ 19   │ online    │ 0%       │ 59.6mb   │ root     │ disabled │
+│ 4  │ masarifi          │ default     │ 1.0.0   │ fork    │ 59332    │ 0s     │ 10   │ online    │ 0%       │ 22.6mb   │ root     │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
