@@ -222,6 +222,23 @@ function configureExpoAndLanding(app: express.Application) {
       return serveExpoManifest(platform, req, res);
     }
 
+    // In dev mode, proxy all Metro bundle/asset requests regardless of web export
+    if (isDev) {
+      const qPlatform = (req.query.platform as string) || "";
+      if (
+        qPlatform === "ios" ||
+        qPlatform === "android" ||
+        req.path.endsWith(".bundle") ||
+        req.path.startsWith("/node_modules") ||
+        req.path.startsWith("/__expo") ||
+        req.path.startsWith("/.expo") ||
+        req.path.startsWith("/hot") ||
+        req.path === "/symbolicate"
+      ) {
+        return (metroProxy as express.RequestHandler)(req, res, next);
+      }
+    }
+
     // If web export exists, serve it (skip landing page and Metro proxy)
     if (hasWebExport) {
       return next();
