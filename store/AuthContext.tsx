@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/src/lib/supabase";
+import { setAuthToken } from "@/services/api";
 
 interface AuthContextValue {
   user: User | null;
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setAuthToken(session?.access_token ?? null);
       setIsAuthLoading(false);
     });
 
@@ -35,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setAuthToken(session?.access_token ?? null);
     });
 
     return () => subscription.unsubscribe();
@@ -42,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
+    setAuthToken(null);
   }, []);
 
   return (

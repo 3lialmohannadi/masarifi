@@ -533,6 +533,14 @@ export const en = {
     profilePhone: "Phone",
     profileGender: "Gender",
     memberSince: "Member since",
+    greeting: "Hi",
+    editProfile: "Edit Profile",
+    saveChanges: "Save Changes",
+    namePlaceholder: "Enter your full name",
+    phonePlaceholder: "Enter your phone number",
+    genderMale: "Male",
+    genderFemale: "Female",
+    genderOther: "Other",
   },
 };
 

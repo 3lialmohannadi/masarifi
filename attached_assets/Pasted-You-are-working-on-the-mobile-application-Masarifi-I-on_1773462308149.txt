@@ -1,0 +1,212 @@
+You are working on the mobile application **Masarifi**.
+
+I only need the following fixes and improvements in this round.
+
+Important instructions:
+- Do NOT redesign the app from scratch.
+- Do NOT change the app identity.
+- Keep the current Masarifi style and improve it carefully.
+- Focus only on the items listed below.
+- After finishing, review the related code and make sure everything works correctly.
+
+========================================
+1) FIX ACCOUNT DATA SYNC AND DATA ISOLATION
+========================================
+
+There is a serious problem with account-specific data.
+
+Current problems:
+- Data is not syncing correctly when logging in.
+- If I enter data using one account, then log out, then log in with another account, I still see the first account’s data.
+- Each account must have its own private data only.
+- Data must sync correctly with the currently logged-in account.
+
+Required behavior:
+- Every account must have completely separate data.
+- When logging in, fetch and load only that account’s data.
+- When logging out, clear or properly reset all local state, cache, and persisted user data so no previous account data remains visible.
+- When logging in with another account, only that account’s own data must appear.
+
+Review and fix:
+- authentication state handling
+- session switching
+- local cache / storage behavior
+- persisted state issues
+- account-specific queries / filters / storage keys
+- state hydration after login
+- clearing stale data after logout
+
+This issue must be fully fixed.
+
+========================================
+2) FIX DEBTS SECTION SYNC WITH SERVER
+========================================
+
+There is a sync issue in the **Debts section (المديونيات)**.
+
+Current problem:
+- Debts data is not syncing correctly with the server.
+- Debts data disappears after refresh / update / later app usage.
+
+Required behavior:
+- Debts data must be saved to the server correctly.
+- Debts data must be fetched correctly for the current logged-in user.
+- Debts must persist after refresh, app restart, and relogin.
+- Debts must belong only to the current user.
+- Debts must not disappear after updates.
+
+Review and fix:
+- debts create / update / delete sync
+- debts fetch logic
+- persistence layer
+- stale cache issues
+- account-specific ownership of debts
+- refresh and reload behavior
+
+Make the debts feature stable and correctly synced.
+
+========================================
+3) BOTTOM NAVIGATION ACTIVE COLOR
+========================================
+
+Current problem:
+- In the bottom navigation, when pressing an icon, the active color becomes blue.
+
+Required change:
+- The active tab/icon color must use the Masarifi app brand color: **green**
+- Inactive tabs should remain appropriate and consistent
+
+========================================
+4) PROFILE PAGE CONTENT
+========================================
+
+The profile page / profile section must contain the member’s data:
+
+- Name
+- Email
+- Phone number
+- Gender
+
+Gender options:
+- Male
+- Female
+
+Required behavior:
+- Profile data loads correctly for the logged-in account
+- Profile updates save correctly
+- Profile data remains account-specific
+
+========================================
+5) REPLACE HEADER LOGO
+========================================
+
+Replace the logo shown at the top right of the app header with the attached logo.
+
+Theme behavior:
+- In light mode, use the logo version with dark text
+- In dark mode, use the logo version with light text
+
+Ensure:
+- correct logo is used based on theme
+- logo size and placement fit naturally in the header
+- header remains clean and aligned
+
+========================================
+6) ADD HEADER GREETING
+========================================
+
+If the member is logged in, add a greeting at the top of the header.
+
+Example:
+- مرحبا علي
+
+Requirements:
+- Show only when a member is logged in
+- Use the member’s actual name
+- Handle fallback gracefully if the name is missing
+- Keep the greeting visually clean and aligned
+
+========================================
+7) CHANGE MANUAL LIMIT ICON
+========================================
+
+Change the icon used for the manual limit / daily limit mode.
+
+Requirements:
+- Choose a more suitable icon
+- Keep it consistent with the app’s icon style
+- Ensure it displays properly in all themes
+
+========================================
+8) SETTINGS ACCOUNT CARD
+========================================
+
+In the Settings page, the account card should show the **member name** instead of the email.
+
+Requirements:
+- Member name should be the primary displayed identity
+- Email may remain secondary only if needed
+- Handle missing name gracefully
+
+========================================
+9) UX/UI POLISH AND SECONDARY VISUAL IMPROVEMENTS
+========================================
+
+Apply a careful polish pass across the affected screens and related areas.
+
+Do NOT redesign the app.
+Only improve and refine it.
+
+Focus on:
+- better spacing
+- cleaner alignment
+- more consistent typography
+- more consistent icon sizing
+- better section grouping
+- cleaner card presentation
+- clearer visual hierarchy
+- better balance between sections
+- improved labels if wording feels awkward
+- better light/dark mode consistency
+- cleaner and more polished overall feel
+
+These are secondary visual and UX improvements only.
+Keep everything consistent with the current Masarifi identity.
+
+========================================
+10) FINAL REVIEW AND CODE CHECK
+========================================
+
+After implementing the changes above:
+
+- review the related code carefully
+- fix any issues connected to these changes
+- make sure there are no broken flows
+- make sure account switching works correctly
+- make sure debts sync works correctly
+- make sure the UI changes are stable
+- clean up any related dead or conflicting code if needed
+
+Test the following:
+1. Login with account A
+2. Add or edit data
+3. Logout
+4. Login with account B
+5. Confirm account B does NOT see account A data
+6. Confirm account B sees only its own data
+7. Test debts syncing and persistence
+8. Refresh app and confirm debts do not disappear
+9. Confirm bottom navigation active color is green
+10. Confirm profile shows name, email, phone, gender
+11. Confirm header greeting appears correctly
+12. Confirm correct logo appears in light mode
+13. Confirm correct logo appears in dark mode
+14. Confirm manual limit icon is updated
+15. Confirm settings account card shows member name instead of email
+16. Confirm UI polish is applied cleanly
+
+At the end, provide a short summary of:
+- what was fixed
+- what was causing the sync problem
+- what was improved in the UI/UX
+- confirmation that the requested items are completed

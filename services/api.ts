@@ -2,13 +2,17 @@ import { fetch } from "expo/fetch";
 import { Platform } from "react-native";
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+let _authToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+  _authToken = token;
+}
+
 export function getApiUrl(): string {
-  // On web, use the current page origin so API calls go to the same server
   if (Platform.OS === "web" && typeof window !== "undefined" && window.location) {
     return window.location.origin + "/";
   }
 
-  // On mobile (iOS/Android), use the configured domain
   let host = process.env.EXPO_PUBLIC_DOMAIN;
 
   if (!host) {
@@ -58,6 +62,7 @@ export async function apiRequest(
   async function doFetch(): Promise<Response> {
     const headers: Record<string, string> = {};
     if (data) headers["Content-Type"] = "application/json";
+    if (_authToken) headers["Authorization"] = `Bearer ${_authToken}`;
     if (extraHeaders) Object.assign(headers, extraHeaders);
 
     return fetch(url.toString(), {
@@ -91,7 +96,10 @@ const defaultQueryFn: QueryFunction = async ({ queryKey }) => {
   const baseUrl = getApiUrl();
   const url = new URL(queryKey.join("/") as string, baseUrl);
 
-  const res = await fetch(url.toString(), {});
+  const headers: Record<string, string> = {};
+  if (_authToken) headers["Authorization"] = `Bearer ${_authToken}`;
+
+  const res = await fetch(url.toString(), { headers });
   await throwIfResNotOk(res);
   return await res.json();
 };

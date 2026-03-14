@@ -11,6 +11,9 @@ import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { apiRequest } from "@/services/api";
 import { createSyncFn } from "@/utils/syncHelper";
+import { useAuth } from "@/store/AuthContext";
+
+const GUEST_ID = "guest";
 
 interface TransactionsContextValue {
   transactions: Transaction[];
@@ -30,52 +33,48 @@ interface TransactionsContextValue {
 const TransactionsContext = createContext<TransactionsContextValue | null>(null);
 
 export function TransactionsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id || GUEST_ID;
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const sync = createSyncFn();
 
   useEffect(() => {
+    setTransactions([]);
+    setTransfers([]);
+    setIsLoaded(false);
+    let cancelled = false;
+    const txKey = `${KEYS.TRANSACTIONS}_${userId}`;
+    const tfKey = `${KEYS.TRANSFERS}_${userId}`;
+
     async function hydrate() {
-      const localTx = await loadData<Transaction[]>(KEYS.TRANSACTIONS) || [];
-      const localTf = await loadData<Transfer[]>(KEYS.TRANSFERS) || [];
-      const hasLocal = localTx.length > 0 || localTf.length > 0;
-      if (hasLocal) {
+      const localTx = await loadData<Transaction[]>(txKey) || [];
+      const localTf = await loadData<Transfer[]>(tfKey) || [];
+      if (cancelled) return;
+
+      if (localTx.length > 0 || localTf.length > 0) {
         setTransactions(localTx);
         setTransfers(localTf);
         setIsLoaded(true);
-        // Delay transaction sync to let accounts sync first (avoids FK race condition)
-        setTimeout(() => {
-          Promise.all([
-            apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
-            apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
-          ]).then(([apiTx, apiTf]) => {
+        setTimeout(async () => {
+          if (cancelled) return;
+          try {
+            const [apiTx, apiTf] = await Promise.all([
+              apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
+              apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
+            ]);
+            if (cancelled) return;
             if (Array.isArray(apiTx)) {
-              const serverMap = new Map(apiTx.map((t) => [t.id, t]));
-              const localIds = new Set(localTx.map((t) => t.id));
-              localTx.forEach((t) => {
-                const onServer = serverMap.get(t.id);
-                if (!onServer) {
-                  apiRequest("POST", "/api/transactions", t).catch(() => {});
-                } else if (onServer.updated_at !== t.updated_at) {
-                  apiRequest("PATCH", `/api/transactions/${t.id}`, t).catch(() => {});
-                }
-              });
-              apiTx.filter((t) => !localIds.has(t.id)).forEach((t) =>
-                apiRequest("DELETE", `/api/transactions/${t.id}`).catch(() => {})
-              );
+              setTransactions(apiTx);
+              saveData(txKey, apiTx);
             }
             if (Array.isArray(apiTf)) {
-              const serverIds = new Set(apiTf.map((t) => t.id));
-              const localTfIds = new Set(localTf.map((t) => t.id));
-              localTf.filter((t) => !serverIds.has(t.id)).forEach((t) =>
-                apiRequest("POST", "/api/transfers", t).catch(() => {})
-              );
-              apiTf.filter((t) => !localTfIds.has(t.id)).forEach((t) =>
-                apiRequest("DELETE", `/api/transfers/${t.id}`).catch(() => {})
-              );
+              setTransfers(apiTf);
+              saveData(tfKey, apiTf);
             }
-          }).catch(() => {});
+          } catch { /* ignore */ }
         }, 2000);
       } else {
         try {
@@ -83,31 +82,37 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
             apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
             apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
           ]);
+          if (cancelled) return;
           if (Array.isArray(apiTx) && apiTx.length > 0) {
             setTransactions(apiTx);
-            saveData(KEYS.TRANSACTIONS, apiTx);
+            saveData(txKey, apiTx);
           }
           if (Array.isArray(apiTf) && apiTf.length > 0) {
             setTransfers(apiTf);
-            saveData(KEYS.TRANSFERS, apiTf);
+            saveData(tfKey, apiTf);
           }
         } catch {
           // server unavailable — start with empty state
         }
-        setIsLoaded(true);
+        if (!cancelled) setIsLoaded(true);
       }
     }
+
     hydrate();
-  }, []);
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const txKey = `${KEYS.TRANSACTIONS}_${userId}`;
+  const tfKey = `${KEYS.TRANSFERS}_${userId}`;
 
   const persistTx = (data: Transaction[]) => {
     setTransactions(data);
-    saveData(KEYS.TRANSACTIONS, data);
+    saveData(txKey, data);
   };
 
   const persistTf = (data: Transfer[]) => {
     setTransfers(data);
-    saveData(KEYS.TRANSFERS, data);
+    saveData(tfKey, data);
   };
 
   const addTransaction = (tx: Omit<Transaction, "id" | "created_at" | "updated_at">): Transaction => {

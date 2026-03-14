@@ -12,6 +12,9 @@ import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { isReservedOn28th, isPastDate, isToday } from "@/utils/date";
 import { apiRequest } from "@/services/api";
+import { useAuth } from "@/store/AuthContext";
+
+const GUEST_ID = "guest";
 
 interface CommitmentsContextValue {
   commitments: Commitment[];
@@ -46,60 +49,63 @@ function refreshCommitmentStatuses(list: Commitment[]): Commitment[] {
 }
 
 export function CommitmentsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id || GUEST_ID;
+
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    setCommitments([]);
+    setIsLoaded(false);
+    let cancelled = false;
+    const storageKey = `${KEYS.COMMITMENTS}_${userId}`;
+
     async function hydrate() {
-      const local = await loadData<Commitment[]>(KEYS.COMMITMENTS) || [];
+      const local = await loadData<Commitment[]>(storageKey) || [];
+      if (cancelled) return;
       if (local.length > 0) {
         const refreshed = refreshCommitmentStatuses(local);
         setCommitments(refreshed);
         setIsLoaded(true);
-        // Delay commitments sync to let accounts sync first (commitments reference account_id FK)
-        setTimeout(() => {
-          apiRequest("GET", "/api/commitments")
-            .then((r) => r.json())
-            .then((apiData: Commitment[]) => {
-              if (Array.isArray(apiData)) {
-                const serverMap = new Map(apiData.map((c) => [c.id, c]));
-                const localIds = new Set(refreshed.map((c) => c.id));
-                refreshed.forEach((c) => {
-                  const onServer = serverMap.get(c.id);
-                  if (!onServer) {
-                    apiRequest("POST", "/api/commitments", c).catch(() => {});
-                  } else if (onServer.updated_at !== c.updated_at) {
-                    apiRequest("PATCH", `/api/commitments/${c.id}`, c).catch(() => {});
-                  }
-                });
-                apiData.filter((c) => !localIds.has(c.id)).forEach((c) =>
-                  apiRequest("DELETE", `/api/commitments/${c.id}`).catch(() => {})
-                );
-              }
-            })
-            .catch(() => {});
+        setTimeout(async () => {
+          if (cancelled) return;
+          try {
+            const res = await apiRequest("GET", "/api/commitments");
+            const apiData: Commitment[] = await res.json();
+            if (cancelled) return;
+            if (Array.isArray(apiData)) {
+              const refreshedApi = refreshCommitmentStatuses(apiData);
+              setCommitments(refreshedApi);
+              saveData(storageKey, refreshedApi);
+            }
+          } catch { /* keep local */ }
         }, 3000);
       } else {
         try {
           const res = await apiRequest("GET", "/api/commitments");
           const apiData: Commitment[] = await res.json();
+          if (cancelled) return;
           if (Array.isArray(apiData) && apiData.length > 0) {
             const refreshed = refreshCommitmentStatuses(apiData);
             setCommitments(refreshed);
-            saveData(KEYS.COMMITMENTS, refreshed);
+            saveData(storageKey, refreshed);
           }
         } catch {
           // server unavailable — start with empty state
         }
-        setIsLoaded(true);
+        if (!cancelled) setIsLoaded(true);
       }
     }
     hydrate();
-  }, []);
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const storageKey = `${KEYS.COMMITMENTS}_${userId}`;
 
   const persist = (data: Commitment[]) => {
     setCommitments(data);
-    saveData(KEYS.COMMITMENTS, data);
+    saveData(storageKey, data);
   };
 
   const addCommitment = (c: Omit<Commitment, "id" | "created_at" | "updated_at" | "status">): Commitment => {
@@ -148,23 +154,12 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
     if (paidRecord) apiRequest("PATCH", `/api/commitments/${id}`, paidRecord).catch((e: unknown) => console.warn("[Sync]", e));
   };
 
-  /**
-   * Returns the total amount reserved for unpaid commitments on the given account.
-   * Subtracted from the account balance to compute the "available" funds shown
-   * on the dashboard. Includes ALL non-paid commitments (upcoming, due today, overdue).
-   */
   const allocatedMoneyForAccount = useCallback((accountId: string): number => {
     return commitments
       .filter((c) => c.account_id === accountId && c.status !== "paid")
       .reduce((sum, c) => sum + c.amount, 0);
   }, [commitments]);
 
-  /**
-   * Returns committed money that must be excluded from the daily spending limit.
-   * Stricter than allocatedMoneyForAccount — only includes urgent items:
-   * - Overdue or due today (must be paid immediately)
-   * - Upcoming commitments reserved early via the 28th-day rule (see isReservedOn28th)
-   */
   const reservedMoneyForDailyLimit = useCallback((accountId: string): number => {
     return commitments
       .filter(
@@ -179,8 +174,6 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
   const refreshStatuses = () => {
     const refreshed = refreshCommitmentStatuses(commitments);
     persist(refreshed);
-
-    // Sync only the commitments whose status actually changed (compare by ID, not index)
     const previousStatusById = new Map(commitments.map((c) => [c.id, c.status]));
     refreshed
       .filter((c) => c.status !== previousStatusById.get(c.id))

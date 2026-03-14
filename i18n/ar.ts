@@ -533,6 +533,14 @@ export const ar = {
     profilePhone: "رقم الهاتف",
     profileGender: "الجنس",
     memberSince: "عضو منذ",
+    greeting: "مرحباً",
+    editProfile: "تعديل الملف الشخصي",
+    saveChanges: "حفظ التغييرات",
+    namePlaceholder: "أدخل اسمك الكامل",
+    phonePlaceholder: "أدخل رقم هاتفك",
+    genderMale: "ذكر",
+    genderFemale: "أنثى",
+    genderOther: "آخر",
   },
 };
 

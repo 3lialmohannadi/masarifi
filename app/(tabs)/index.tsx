@@ -12,6 +12,7 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
+import { useAuth } from "@/store/AuthContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useCommitments } from "@/store/CommitmentsContext";
@@ -38,6 +39,10 @@ export default function DashboardScreen() {
   const { allocatedMoneyForAccount, upcomingCommitments } = useCommitments();
   const { wallets } = useSavings();
   const { debts, totalRemaining: debtsTotalRemaining, activeDebts } = useDebts();
+  const { user } = useAuth();
+  const firstName = user
+    ? (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] || user.email?.split("@")[0] || null
+    : null;
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<{ visible: boolean; type: TransactionType }>({ visible: false, type: "expense" });
 
@@ -139,11 +144,18 @@ export default function DashboardScreen() {
             justifyContent: "space-between",
           }}
         >
-          <Image
-            source={require("@/assets/logo_transparent.png")}
-            resizeMode="contain"
-            style={{ width: 110, height: 38 }}
-          />
+          <View style={{ gap: 2 }}>
+            <Image
+              source={isDark ? require("@/assets/logo_transparent.png") : require("@/assets/logo.png")}
+              resizeMode="contain"
+              style={{ width: 110, height: 38 }}
+            />
+            {firstName ? (
+              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                {t.auth.greeting}، {firstName}!
+              </Text>
+            ) : null}
+          </View>
           <Pressable
             onPress={() => router.push("/settings")}
             style={{
@@ -318,7 +330,7 @@ export default function DashboardScreen() {
               }}
             >
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 7 }}>
-                <Feather name="sun" size={13} color={theme.textMuted} />
+                <Feather name="activity" size={13} color={theme.textMuted} />
                 <Text style={{ fontSize: 12, color: theme.textMuted }}>
                   {t.dashboard.dailyLimit}
                   <Text style={{ color: theme.textMuted, fontSize: 11 }}> · {remainingDays} {t.dashboard.remainingDays}</Text>

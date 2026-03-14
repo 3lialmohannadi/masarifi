@@ -11,6 +11,9 @@ import type { Debt, DebtPayment, DebtStatus } from "@/types";
 import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { apiRequest } from "@/services/api";
+import { useAuth } from "@/store/AuthContext";
+
+const GUEST_ID = "guest";
 
 interface DebtsContextValue {
   debts: Debt[];
@@ -53,14 +56,25 @@ function refreshDebtStatuses(list: Debt[]): Debt[] {
 }
 
 export function DebtsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id || GUEST_ID;
+
   const [debts, setDebts] = useState<Debt[]>([]);
   const [debtPayments, setDebtPayments] = useState<DebtPayment[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    setDebts([]);
+    setDebtPayments([]);
+    setIsLoaded(false);
+    let cancelled = false;
+    const debtsKey = `${KEYS.DEBTS}_${userId}`;
+    const paymentsKey = `${KEYS.DEBT_PAYMENTS}_${userId}`;
+
     async function hydrate() {
-      const localDebts = await loadData<Debt[]>(KEYS.DEBTS) || [];
-      const localPayments = await loadData<DebtPayment[]>(KEYS.DEBT_PAYMENTS) || [];
+      const localDebts = await loadData<Debt[]>(debtsKey) || [];
+      const localPayments = await loadData<DebtPayment[]>(paymentsKey) || [];
+      if (cancelled) return;
 
       if (localDebts.length > 0 || localPayments.length > 0) {
         const refreshed = refreshDebtStatuses(localDebts);
@@ -68,53 +82,50 @@ export function DebtsProvider({ children }: { children: ReactNode }) {
         setDebtPayments(localPayments);
         setIsLoaded(true);
 
-        setTimeout(() => {
-          apiRequest("GET", "/api/debts")
-            .then((r) => r.json())
-            .then((apiData: Debt[]) => {
-              if (!Array.isArray(apiData)) return;
-              const serverMap = new Map(apiData.map((d) => [d.id, d]));
-              const localIds = new Set(refreshed.map((d) => d.id));
-              refreshed.forEach((d) => {
-                const onServer = serverMap.get(d.id);
-                if (!onServer) {
-                  apiRequest("POST", "/api/debts", d).catch(() => {});
-                } else if (onServer.updated_at !== d.updated_at) {
-                  apiRequest("PATCH", `/api/debts/${d.id}`, d).catch(() => {});
-                }
-              });
-              apiData.filter((d) => !localIds.has(d.id)).forEach((d) =>
-                apiRequest("DELETE", `/api/debts/${d.id}`).catch(() => {})
-              );
-            })
-            .catch(() => {});
+        setTimeout(async () => {
+          if (cancelled) return;
+          try {
+            const res = await apiRequest("GET", "/api/debts");
+            const apiData: Debt[] = await res.json();
+            if (cancelled) return;
+            if (Array.isArray(apiData)) {
+              const merged = refreshDebtStatuses(apiData);
+              setDebts(merged);
+              saveData(debtsKey, merged);
+            }
+          } catch { /* keep local */ }
         }, 4000);
       } else {
         try {
           const res = await apiRequest("GET", "/api/debts");
           const apiData: Debt[] = await res.json();
+          if (cancelled) return;
           if (Array.isArray(apiData) && apiData.length > 0) {
             const refreshed = refreshDebtStatuses(apiData);
             setDebts(refreshed);
-            saveData(KEYS.DEBTS, refreshed);
+            saveData(debtsKey, refreshed);
           }
         } catch {
           // server unavailable
         }
-        setIsLoaded(true);
+        if (!cancelled) setIsLoaded(true);
       }
     }
     hydrate();
-  }, []);
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const debtsKey = `${KEYS.DEBTS}_${userId}`;
+  const paymentsKey = `${KEYS.DEBT_PAYMENTS}_${userId}`;
 
   const persistDebts = (data: Debt[]) => {
     setDebts(data);
-    saveData(KEYS.DEBTS, data);
+    saveData(debtsKey, data);
   };
 
   const persistPayments = (data: DebtPayment[]) => {
     setDebtPayments(data);
-    saveData(KEYS.DEBT_PAYMENTS, data);
+    saveData(paymentsKey, data);
   };
 
   const addDebt = useCallback((d: Omit<Debt, "id" | "created_at" | "updated_at">): Debt => {

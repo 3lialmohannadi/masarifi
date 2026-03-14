@@ -11,6 +11,9 @@ import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { apiRequest } from "@/services/api";
 import { createSyncFn } from "@/utils/syncHelper";
+import { useAuth } from "@/store/AuthContext";
+
+const GUEST_ID = "guest";
 
 interface AccountsContextValue {
   accounts: Account[];
@@ -27,61 +30,64 @@ interface AccountsContextValue {
 const AccountsContext = createContext<AccountsContextValue | null>(null);
 
 export function AccountsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id || GUEST_ID;
+
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const sync = createSyncFn((msg) => setSyncError(msg));
 
   useEffect(() => {
+    setAccounts([]);
+    setIsLoaded(false);
+    let cancelled = false;
+    const storageKey = `${KEYS.ACCOUNTS}_${userId}`;
+
     async function hydrate() {
-      const local = await loadData<Account[]>(KEYS.ACCOUNTS) || [];
+      const local = await loadData<Account[]>(storageKey) || [];
+      if (cancelled) return;
+
       if (local.length > 0) {
         setAccounts(local);
         setIsLoaded(true);
-        apiRequest("GET", "/api/accounts")
-          .then((r) => r.json())
-          .then((apiData: Account[]) => {
-            if (Array.isArray(apiData)) {
-              const serverMap = new Map(apiData.map((a) => [a.id, a]));
-              const localIds = new Set(local.map((a) => a.id));
-              local.forEach((a) => {
-                const onServer = serverMap.get(a.id);
-                if (!onServer) {
-                  // Don't re-create soft-deleted (archived) accounts that were
-                  // already removed from the server via deleteAccount().
-                  if (a.is_active !== false) {
-                    apiRequest("POST", "/api/accounts", a).catch(() => {});
-                  }
-                } else if (onServer.updated_at !== a.updated_at) {
-                  apiRequest("PATCH", `/api/accounts/${a.id}`, a).catch(() => {});
-                }
-              });
-              apiData.filter((a) => !localIds.has(a.id)).forEach((a) =>
-                apiRequest("DELETE", `/api/accounts/${a.id}`).catch(() => {})
-              );
-            }
-          })
-          .catch(() => {});
+        try {
+          const res = await apiRequest("GET", "/api/accounts");
+          const apiData: Account[] = await res.json();
+          if (cancelled) return;
+          if (Array.isArray(apiData)) {
+            const merged = apiData;
+            setAccounts(merged);
+            saveData(storageKey, merged);
+          }
+        } catch {
+          // server unavailable — keep local
+        }
       } else {
         try {
           const res = await apiRequest("GET", "/api/accounts");
           const apiData: Account[] = await res.json();
+          if (cancelled) return;
           if (Array.isArray(apiData) && apiData.length > 0) {
             setAccounts(apiData);
-            saveData(KEYS.ACCOUNTS, apiData);
+            saveData(storageKey, apiData);
           }
         } catch {
           // server unavailable — start with empty state
         }
-        setIsLoaded(true);
+        if (!cancelled) setIsLoaded(true);
       }
     }
+
     hydrate();
-  }, []);
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const storageKey = `${KEYS.ACCOUNTS}_${userId}`;
 
   const persist = (data: Account[]) => {
     setAccounts(data);
-    saveData(KEYS.ACCOUNTS, data);
+    saveData(storageKey, data);
   };
 
   const addAccount = (account: Omit<Account, "id" | "created_at" | "updated_at">): Account => {

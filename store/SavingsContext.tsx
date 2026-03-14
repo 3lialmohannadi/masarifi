@@ -11,6 +11,9 @@ import { loadData, saveData, KEYS } from "@/utils/storage";
 import { generateId, now } from "@/utils/id";
 import { createDefaultSavingsWallet } from "@/utils/defaults";
 import { apiRequest } from "@/services/api";
+import { useAuth } from "@/store/AuthContext";
+
+const GUEST_ID = "guest";
 
 interface SavingsContextValue {
   wallets: SavingsWallet[];
@@ -29,51 +32,47 @@ interface SavingsContextValue {
 const SavingsContext = createContext<SavingsContextValue | null>(null);
 
 export function SavingsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id || GUEST_ID;
+
   const [wallets, setWallets] = useState<SavingsWallet[]>([]);
   const [savingsTransactions, setSavingsTransactions] = useState<SavingsTransaction[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    setWallets([]);
+    setSavingsTransactions([]);
+    setIsLoaded(false);
+    let cancelled = false;
+    const walletsKey = `${KEYS.SAVINGS_WALLETS}_${userId}`;
+    const txKey = `${KEYS.SAVINGS_TRANSACTIONS}_${userId}`;
+
     async function hydrate() {
-      const localWallets = await loadData<SavingsWallet[]>(KEYS.SAVINGS_WALLETS) || [];
-      const localTxs = await loadData<SavingsTransaction[]>(KEYS.SAVINGS_TRANSACTIONS) || [];
-      const hasLocal = localWallets.length > 0;
-      if (hasLocal) {
+      const localWallets = await loadData<SavingsWallet[]>(walletsKey) || [];
+      const localTxs = await loadData<SavingsTransaction[]>(txKey) || [];
+      if (cancelled) return;
+
+      if (localWallets.length > 0) {
         setWallets(localWallets);
         setSavingsTransactions(localTxs);
         setIsLoaded(true);
-        // Sync wallets first (immediately)
-        apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).then((apiWallets) => {
-          if (Array.isArray(apiWallets)) {
-            const serverMap = new Map(apiWallets.map((w) => [w.id, w]));
-            const localIds = new Set(localWallets.map((w) => w.id));
-            localWallets.forEach((w) => {
-              const onServer = serverMap.get(w.id);
-              if (!onServer) {
-                apiRequest("POST", "/api/savings-wallets", w).catch(() => {});
-              } else if (onServer.updated_at !== w.updated_at) {
-                apiRequest("PATCH", `/api/savings-wallets/${w.id}`, w).catch(() => {});
-              }
-            });
-            apiWallets.filter((w) => !localIds.has(w.id)).forEach((w) =>
-              apiRequest("DELETE", `/api/savings-wallets/${w.id}`).catch(() => {})
-            );
-          }
-        }).catch(() => {});
-        // Delay savings transactions sync to let wallets sync first (avoids FK race condition)
-        setTimeout(() => {
-          apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).then((apiTxs) => {
-            if (Array.isArray(apiTxs)) {
-              const serverIds = new Set(apiTxs.map((t) => t.id));
-              const localTxIds = new Set(localTxs.map((t) => t.id));
-              localTxs.filter((t) => !serverIds.has(t.id)).forEach((t) =>
-                apiRequest("POST", "/api/savings-transactions", t).catch(() => {})
-              );
-              apiTxs.filter((t) => !localTxIds.has(t.id)).forEach((t) =>
-                apiRequest("DELETE", `/api/savings-transactions/${t.id}`).catch(() => {})
-              );
+        setTimeout(async () => {
+          if (cancelled) return;
+          try {
+            const [apiWallets, apiTxs] = await Promise.all([
+              apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).catch(() => null),
+              apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
+            ]);
+            if (cancelled) return;
+            if (Array.isArray(apiWallets)) {
+              setWallets(apiWallets);
+              saveData(walletsKey, apiWallets);
             }
-          }).catch(() => {});
+            if (Array.isArray(apiTxs)) {
+              setSavingsTransactions(apiTxs);
+              saveData(txKey, apiTxs);
+            }
+          } catch { /* keep local */ }
         }, 2000);
       } else {
         try {
@@ -81,38 +80,45 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
             apiRequest("GET", "/api/savings-wallets").then((r) => r.json()).catch(() => null),
             apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
           ]);
+          if (cancelled) return;
           if (Array.isArray(apiWallets) && apiWallets.length > 0) {
             setWallets(apiWallets);
-            saveData(KEYS.SAVINGS_WALLETS, apiWallets);
+            saveData(walletsKey, apiWallets);
           } else {
             const defaultWallet = createDefaultSavingsWallet();
             setWallets([defaultWallet]);
-            saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
+            saveData(walletsKey, [defaultWallet]);
             apiRequest("POST", "/api/savings-wallets", defaultWallet).catch(() => {});
           }
           if (Array.isArray(apiTxs) && apiTxs.length > 0) {
             setSavingsTransactions(apiTxs);
-            saveData(KEYS.SAVINGS_TRANSACTIONS, apiTxs);
+            saveData(txKey, apiTxs);
           }
         } catch {
           const defaultWallet = createDefaultSavingsWallet();
-          setWallets([defaultWallet]);
-          saveData(KEYS.SAVINGS_WALLETS, [defaultWallet]);
+          if (!cancelled) {
+            setWallets([defaultWallet]);
+            saveData(walletsKey, [defaultWallet]);
+          }
         }
-        setIsLoaded(true);
+        if (!cancelled) setIsLoaded(true);
       }
     }
     hydrate();
-  }, []);
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const walletsKey = `${KEYS.SAVINGS_WALLETS}_${userId}`;
+  const txKey = `${KEYS.SAVINGS_TRANSACTIONS}_${userId}`;
 
   const persistWallets = (data: SavingsWallet[]) => {
     setWallets(data);
-    saveData(KEYS.SAVINGS_WALLETS, data);
+    saveData(walletsKey, data);
   };
 
   const persistTransactions = (data: SavingsTransaction[]) => {
     setSavingsTransactions(data);
-    saveData(KEYS.SAVINGS_TRANSACTIONS, data);
+    saveData(txKey, data);
   };
 
   const addWallet = (w: Omit<SavingsWallet, "id" | "created_at" | "updated_at">): SavingsWallet => {
@@ -146,12 +152,6 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
 
   const getWallet = (id: string) => wallets.find((w) => w.id === id);
 
-  /**
-   * Records a savings transaction and immediately updates the wallet's current_amount.
-   * - deposit_internal / deposit_external → adds to balance (positive delta)
-   * - withdrawal / transfer_out → subtracts from balance (negative delta)
-   * The wallet balance is floored at 0 to prevent negative savings balances.
-   */
   const addSavingsTransaction = (tx: Omit<SavingsTransaction, "id" | "created_at">): SavingsTransaction => {
     const newTx: SavingsTransaction = { ...tx, id: generateId(), created_at: now() };
     persistTransactions([...savingsTransactions, newTx]);

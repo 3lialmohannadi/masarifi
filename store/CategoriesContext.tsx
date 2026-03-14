@@ -12,6 +12,9 @@ import { generateId, now } from "@/utils/id";
 import { apiRequest } from "@/services/api";
 import { createSyncFn } from "@/utils/syncHelper";
 import { useTransactions } from "@/store/TransactionsContext";
+import { useAuth } from "@/store/AuthContext";
+
+const GUEST_ID = "guest";
 
 interface CategoriesContextValue {
   categories: Category[];
@@ -28,56 +31,58 @@ const CategoriesContext = createContext<CategoriesContextValue | null>(null);
 
 export function CategoriesProvider({ children }: { children: ReactNode }) {
   const { categoryIdsInUse } = useTransactions();
+  const { user } = useAuth();
+  const userId = user?.id || GUEST_ID;
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const sync = createSyncFn();
 
   useEffect(() => {
+    setCategories([]);
+    setIsLoaded(false);
+    let cancelled = false;
+    const storageKey = `${KEYS.CATEGORIES}_${userId}`;
+
     async function hydrate() {
-      const local = await loadData<Category[]>(KEYS.CATEGORIES) || [];
+      const local = await loadData<Category[]>(storageKey) || [];
+      if (cancelled) return;
       if (local.length > 0) {
         setCategories(local);
         setIsLoaded(true);
-        apiRequest("GET", "/api/categories")
-          .then((r) => r.json())
-          .then((apiData: Category[]) => {
-            if (Array.isArray(apiData)) {
-              const serverMap = new Map(apiData.map((c) => [c.id, c]));
-              const localIds = new Set(local.map((c) => c.id));
-              local.forEach((c) => {
-                const onServer = serverMap.get(c.id);
-                if (!onServer) {
-                  apiRequest("POST", "/api/categories", c).catch(() => {});
-                } else if (onServer.updated_at !== c.updated_at) {
-                  apiRequest("PATCH", `/api/categories/${c.id}`, c).catch(() => {});
-                }
-              });
-              apiData.filter((c) => !localIds.has(c.id)).forEach((c) =>
-                apiRequest("DELETE", `/api/categories/${c.id}`).catch(() => {})
-              );
-            }
-          })
-          .catch(() => {});
+        try {
+          const res = await apiRequest("GET", "/api/categories");
+          const apiData: Category[] = await res.json();
+          if (cancelled) return;
+          if (Array.isArray(apiData)) {
+            setCategories(apiData);
+            saveData(storageKey, apiData);
+          }
+        } catch { /* keep local */ }
       } else {
         try {
           const res = await apiRequest("GET", "/api/categories");
           const apiData: Category[] = await res.json();
+          if (cancelled) return;
           if (Array.isArray(apiData) && apiData.length > 0) {
             setCategories(apiData);
-            saveData(KEYS.CATEGORIES, apiData);
+            saveData(storageKey, apiData);
           }
         } catch {
           // server unavailable — start with empty state
         }
-        setIsLoaded(true);
+        if (!cancelled) setIsLoaded(true);
       }
     }
     hydrate();
-  }, []);
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const storageKey = `${KEYS.CATEGORIES}_${userId}`;
 
   const persist = (data: Category[]) => {
     setCategories(data);
-    saveData(KEYS.CATEGORIES, data);
+    saveData(storageKey, data);
   };
 
   const addCategory = (cat: Omit<Category, "id" | "created_at" | "updated_at">): Category => {
