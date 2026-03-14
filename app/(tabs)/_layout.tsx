@@ -8,9 +8,9 @@ import { Feather } from "@expo/vector-icons";
 import { useApp } from "@/store/AppContext";
 
 function NativeTabLayout() {
-  const { t } = useApp();
+  const { t, theme } = useApp();
   return (
-    <NativeTabs>
+    <NativeTabs tintColor={theme.primary}>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "house", selected: "house.fill" }} />
         <Label>{t.tabs.dashboard}</Label>
