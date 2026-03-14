@@ -1,0 +1,65 @@
+root@srv1482387:~/masarifi# eas build --platform ios --profile production --auto-submit
+
+⚠️ Detected that your app uses Expo Go for development, this is not recommended when building production apps.
+Learn more: https://expo.fyi/why-not-build-expo-go-for-production
+To suppress this warning, set EAS_BUILD_NO_EXPO_GO_WARNING=true.
+
+EAS project not configured.
+✔ Existing EAS project found for @alialmohannadi/masarifi (id = 784a17b3-c2a8-4038-8c9c-f01e60c45424). Configure this project? … yes
+✔ Linked local project to EAS project 784a17b3-c2a8-4038-8c9c-f01e60c45424
+Resolved "production" environment for the build. Learn more: https://docs.expo.dev/eas/environment-variables/#setting-the-environment-for-your-builds
+No environment variables with visibility "Plain text" and "Sensitive" found for the "production" environment on EAS.
+Environment variables loaded from the "production" build profile "env" configuration: EXPO_PUBLIC_DOMAIN, EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY.
+
+✔ iOS app only uses standard/exempt encryption? Learn more: https://developer.apple.com/documentation/Security/complying-with-encryption-export-regulations … no
+✖ Are you sure your app uses non-exempt encryption? Selecting 'Yes' will require annual self-classification reports for the US government. … yes
+root@srv1482387:~/masarifi# cd /root/masarifi && git checkout app.json && bash update.sh
+Updated 1 path from the index
+🔄 جاري التحديث...
+Already up to date.
+
+> expo-app@1.0.0 postinstall
+> patch-package && node scripts/fix-missing-modules.js
+
+patch-package 8.0.1
+Applying patches...
+expo-asset@12.0.12 ✔
+
+up to date, audited 1133 packages in 3s
+
+212 packages are looking for funding
+  run `npm fund` for details
+
+11 vulnerabilities (1 low, 5 moderate, 5 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> expo-app@1.0.0 server:build
+> esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=server_dist
+
+
+  server_dist/index.js  84.6kb
+
+⚡ Done in 22ms
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [masarifi](ids: [ 4 ])
+[PM2] [masarifi](4) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ doyoomi-api       │ default     │ 0.0.0   │ fork    │ 51917    │ 14h    │ 19   │ online    │ 0%       │ 56.6mb   │ root     │ disabled │
+│ 2  │ doyoomi-mobile    │ default     │ 0.0.0   │ fork    │ 51911    │ 14h    │ 19   │ online    │ 0%       │ 59.6mb   │ root     │ disabled │
+│ 4  │ masarifi          │ default     │ 1.0.0   │ fork    │ 64714    │ 0s     │ 15   │ online    │ 0%       │ 16.9mb   │ root     │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Building static Expo Go deployment...
+Preparing build directories...
+Build: 1773471080149-64728
+Clearing Metro cache...
+Build failed: fs.globSync is not a function or its return value is not iterable
+✅ تم التحديث!
