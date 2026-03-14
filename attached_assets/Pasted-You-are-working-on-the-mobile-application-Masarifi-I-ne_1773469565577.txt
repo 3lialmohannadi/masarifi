@@ -1,0 +1,155 @@
+You are working on the mobile application **Masarifi**.
+
+I need you to apply the following fixes and improvements carefully.
+
+Important instructions:
+- Do NOT redesign the app from scratch.
+- Do NOT change the app identity.
+- Keep the current Masarifi design style.
+- Focus on fixing the problems properly, especially the account sync and user data isolation issue.
+- After implementing the changes, verify that everything works correctly.
+
+==================================================
+1) IMPROVE THE HEADER GREETING DESIGN
+==================================================
+
+The greeting message at the top is good, but it needs to feel more natural and better integrated with the app design.
+
+Current example:
+- مرحبا علي
+
+Required improvement:
+- Keep the greeting feature
+- Improve its visual placement and styling so it feels more polished and better aligned with the current header design
+- It should not feel awkward, crowded, or disconnected from the rest of the header
+- Keep it simple, elegant, and consistent with the Masarifi identity
+- Make sure it works well in both light mode and dark mode
+
+Do not remove it.  
+Just refine it visually and improve how it fits into the header layout.
+
+==================================================
+2) FIX ACCOUNT SYNC, USER DATA PERSISTENCE, AND FULL DATA ISOLATION
+==================================================
+
+There is still a serious issue with accounts, data sync, and persistence.
+
+I need you to fully fix this.
+
+Current problem:
+- I log in with an account
+- I enter some data
+- Then I log out
+- Then I log in again
+- The data is missing
+
+This is wrong.
+
+The app must work as a real user-based system where each member has:
+- their own profile
+- their own financial data
+- their own transactions
+- their own debts
+- their own settings
+- their own saved content in all sections of the app
+
+Nothing should disappear after logout/login if it belongs to that account and was saved correctly.
+
+Also:
+- One user must never see another user’s data
+- If user A logs out and user B logs in, user B should only see user B’s own data
+- If user A logs in again later, user A should see all of user A’s previously saved data
+
+Required behavior:
+- Every member must have a completely separate app space/data scope
+- All app data must be linked to the authenticated user account
+- When the user logs in, the app must fetch and load that user’s saved data from the correct source
+- When the user logs out, local state/cache must reset correctly
+- When the user logs in again, their data must be restored correctly
+- Transactions, debts, profile data, settings, and all other user-specific app data must persist correctly per account
+- Nothing should disappear after app restart, logout/login, refresh, or account switch unless it was actually deleted
+
+Please inspect and fix the full flow, including:
+- authentication state handling
+- session persistence
+- loading user-specific data after login
+- saving user-specific data correctly
+- syncing user-specific data to the server/database
+- clearing only temporary local state on logout without losing saved account data
+- stale cache issues
+- wrong shared storage keys
+- user ID linking issues
+- incorrect fetch queries
+- hydration after login
+- restoring state after app restart
+- account switching logic
+
+This is the most important part of this task.
+
+Think of the app as a multi-user system:
+each user should have their own private and persistent data environment.
+
+Fix this properly across the app, not only in one page.
+
+==================================================
+3) SETTINGS ACCOUNT SECTION / PROFILE DETAILS
+==================================================
+
+In the Settings page, the external account card should display:
+
+- the member name
+
+Not the email.
+
+Then, when the user presses that account/profile section, it should open the full member profile page.
+
+The profile page must contain:
+
+- Name
+- Email
+- Phone number
+- Gender
+
+Gender options:
+- Male
+- Female
+
+Required behavior:
+- The outer settings account card shows the member name clearly
+- Tapping it opens the member profile/details page
+- The profile data must load correctly for the logged-in member
+- The profile data must be account-specific
+- Profile edits, if supported, must save correctly to that member’s account
+- The layout should be clean and consistent with the app design
+
+==================================================
+4) FINAL REVIEW AND TESTING
+==================================================
+
+After implementing the fixes above, test these cases carefully:
+
+1. Log in with account A
+2. Add some data in the app
+3. Log out
+4. Log in again with account A
+5. Confirm all account A data is still there
+6. Log out
+7. Log in with account B
+8. Confirm account B does NOT see account A data
+9. Add data to account B
+10. Log out
+11. Log in again with account B
+12. Confirm account B data is still there
+13. Log in again with account A
+14. Confirm account A still has its own original data
+15. Confirm profile data loads correctly
+16. Confirm settings account card shows member name
+17. Confirm tapping the account section opens the profile page
+18. Confirm the greeting still appears and looks better in the header
+
+At the end, provide a short summary explaining:
+- what was causing the account/data problem
+- what was fixed
+- how user-specific persistence is now handled
+- what was improved in the greeting design
+- confirmation that the settings account/profile section now works correctly
