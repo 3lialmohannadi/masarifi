@@ -39,10 +39,7 @@ export default function DashboardScreen() {
   const { allocatedMoneyForAccount, upcomingCommitments } = useCommitments();
   const { wallets } = useSavings();
   const { debts, totalRemaining: debtsTotalRemaining, activeDebts } = useDebts();
-  const { user } = useAuth();
-  const firstName = user
-    ? (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] || user.email?.split("@")[0] || null
-    : null;
+  const { user, displayName: firstName } = useAuth();
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
   const [quickAdd, setQuickAdd] = useState<{ visible: boolean; type: TransactionType }>({ visible: false, type: "expense" });
 

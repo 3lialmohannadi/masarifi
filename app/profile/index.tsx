@@ -160,7 +160,7 @@ const GENDER_OPTIONS = ["male", "female", "other"] as const;
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, isRTL, isDark } = useApp();
-  const { user, isAuthLoading, signOut } = useAuth();
+  const { user, isAuthLoading, signOut, setDisplayName } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -229,6 +229,7 @@ export default function ProfileScreen() {
       });
       if (updated) {
         setProfile(updated);
+        setDisplayName(updated.full_name?.split(" ")[0] || null);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       setIsEditing(false);
