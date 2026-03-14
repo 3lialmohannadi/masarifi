@@ -270,29 +270,30 @@ export default function SettingsScreen() {
                 </Text>
               </View>
               <View style={{ flex: 1 }}>
-                {profile?.full_name ? (
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "700",
-                      color: theme.text,
-                      textAlign: isRTL ? "right" : "left",
-                    }}
-                    numberOfLines={1}
-                  >
-                    {profile.full_name}
-                  </Text>
-                ) : null}
                 <Text
                   style={{
-                    fontSize: 13,
-                    color: theme.textSecondary,
+                    fontSize: 16,
+                    fontWeight: "700",
+                    color: theme.text,
                     textAlign: isRTL ? "right" : "left",
                   }}
                   numberOfLines={1}
                 >
-                  {user.email}
+                  {profile?.full_name || user.email}
                 </Text>
+                {profile?.full_name ? (
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: theme.textMuted,
+                      textAlign: isRTL ? "right" : "left",
+                      marginTop: 2,
+                    }}
+                    numberOfLines={1}
+                  >
+                    {user.email}
+                  </Text>
+                ) : null}
               </View>
               <Feather
                 name={isRTL ? "chevron-left" : "chevron-right"}

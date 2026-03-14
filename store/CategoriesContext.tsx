@@ -54,7 +54,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
           const res = await apiRequest("GET", "/api/categories");
           const apiData: Category[] = await res.json();
           if (cancelled) return;
-          if (Array.isArray(apiData)) {
+          if (Array.isArray(apiData) && apiData.length > 0) {
             setCategories(apiData);
             saveData(storageKey, apiData);
           }

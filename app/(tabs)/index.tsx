@@ -141,16 +141,19 @@ export default function DashboardScreen() {
             justifyContent: "space-between",
           }}
         >
-          <View style={{ gap: 2 }}>
+          <View style={{ gap: 5 }}>
             <Image
               source={isDark ? require("@/assets/logo_transparent.png") : require("@/assets/logo.png")}
               resizeMode="contain"
               style={{ width: 110, height: 38 }}
             />
             {firstName ? (
-              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                {t.auth.greeting}{isRTL ? "،" : ","} {firstName}!
-              </Text>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
+                <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: theme.primary }} />
+                <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
+                  {t.auth.greeting}{isRTL ? "،" : ","} {firstName}
+                </Text>
+              </View>
             ) : null}
           </View>
           <Pressable

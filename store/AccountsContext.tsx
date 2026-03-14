@@ -55,10 +55,9 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
           const res = await apiRequest("GET", "/api/accounts");
           const apiData: Account[] = await res.json();
           if (cancelled) return;
-          if (Array.isArray(apiData)) {
-            const merged = apiData;
-            setAccounts(merged);
-            saveData(storageKey, merged);
+          if (Array.isArray(apiData) && apiData.length > 0) {
+            setAccounts(apiData);
+            saveData(storageKey, apiData);
           }
         } catch {
           // server unavailable — keep local

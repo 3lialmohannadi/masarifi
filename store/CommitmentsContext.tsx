@@ -74,7 +74,7 @@ export function CommitmentsProvider({ children }: { children: ReactNode }) {
             const res = await apiRequest("GET", "/api/commitments");
             const apiData: Commitment[] = await res.json();
             if (cancelled) return;
-            if (Array.isArray(apiData)) {
+            if (Array.isArray(apiData) && apiData.length > 0) {
               const refreshedApi = refreshCommitmentStatuses(apiData);
               setCommitments(refreshedApi);
               saveData(storageKey, refreshedApi);

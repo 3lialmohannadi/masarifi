@@ -155,7 +155,7 @@ function EditRow({
   );
 }
 
-const GENDER_OPTIONS = ["male", "female", "other"] as const;
+const GENDER_OPTIONS = ["male", "female"] as const;
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -244,7 +244,7 @@ export default function ProfileScreen() {
     if (!g) return null;
     if (g === "male") return t.auth.genderMale;
     if (g === "female") return t.auth.genderFemale;
-    return t.auth.genderOther;
+    return null;
   };
 
   const initials = profile?.full_name
@@ -547,7 +547,7 @@ export default function ProfileScreen() {
                           color: editGender === g ? "#fff" : theme.textSecondary,
                         }}
                       >
-                        {g === "male" ? t.auth.genderMale : g === "female" ? t.auth.genderFemale : t.auth.genderOther}
+                        {g === "male" ? t.auth.genderMale : t.auth.genderFemale}
                       </Text>
                     </Pressable>
                   ))}

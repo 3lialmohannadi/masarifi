@@ -64,11 +64,11 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
               apiRequest("GET", "/api/savings-transactions").then((r) => r.json()).catch(() => null),
             ]);
             if (cancelled) return;
-            if (Array.isArray(apiWallets)) {
+            if (Array.isArray(apiWallets) && apiWallets.length > 0) {
               setWallets(apiWallets);
               saveData(walletsKey, apiWallets);
             }
-            if (Array.isArray(apiTxs)) {
+            if (Array.isArray(apiTxs) && apiTxs.length > 0) {
               setSavingsTransactions(apiTxs);
               saveData(txKey, apiTxs);
             }

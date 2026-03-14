@@ -66,11 +66,11 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
               apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
             ]);
             if (cancelled) return;
-            if (Array.isArray(apiTx)) {
+            if (Array.isArray(apiTx) && apiTx.length > 0) {
               setTransactions(apiTx);
               saveData(txKey, apiTx);
             }
-            if (Array.isArray(apiTf)) {
+            if (Array.isArray(apiTf) && apiTf.length > 0) {
               setTransfers(apiTf);
               saveData(tfKey, apiTf);
             }

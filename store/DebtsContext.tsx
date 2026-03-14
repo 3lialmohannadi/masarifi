@@ -88,7 +88,7 @@ export function DebtsProvider({ children }: { children: ReactNode }) {
             const res = await apiRequest("GET", "/api/debts");
             const apiData: Debt[] = await res.json();
             if (cancelled) return;
-            if (Array.isArray(apiData)) {
+            if (Array.isArray(apiData) && apiData.length > 0) {
               const merged = refreshDebtStatuses(apiData);
               setDebts(merged);
               saveData(debtsKey, merged);
