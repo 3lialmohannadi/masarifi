@@ -87,6 +87,7 @@ export interface IStorage {
   deleteDebt(id: string): Promise<void>;
 
   // Debt Payments
+  getDebtPayment(id: string): Promise<DebtPayment | undefined>;
   getDebtPayments(debtId: string): Promise<DebtPayment[]>;
   createDebtPayment(data: InsertDebtPayment): Promise<DebtPayment>;
   deleteDebtPayment(id: string): Promise<void>;
@@ -393,6 +394,11 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDebt(id: string): Promise<void> {
     await db.delete(schema.debts).where(eq(schema.debts.id, id));
+  }
+
+  async getDebtPayment(id: string): Promise<DebtPayment | undefined> {
+    const [row] = await db.select().from(schema.debtPayments).where(eq(schema.debtPayments.id, id));
+    return row;
   }
 
   async getDebtPayments(debtId: string): Promise<DebtPayment[]> {

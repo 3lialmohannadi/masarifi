@@ -1004,7 +1004,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/debts/:id/payments", async (req: Request, res: Response) => {
     try {
-      const rows = await storage.getDebtPayments(paramId(req));
+      const userId = getUserId(req); await ensureUser(userId);
+      const debtId = paramId(req);
+      const existing = await storage.getDebt(debtId);
+      if (!existing || existing.user_id !== userId) {
+        return res.status(404).json({ message: "Debt not found" });
+      }
+      const rows = await storage.getDebtPayments(debtId);
       res.json(rows.map(normDebtPayment));
     } catch (e: unknown) {
       handleError(res, e);
@@ -1033,6 +1039,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/debt-payments/:id", async (req: Request, res: Response) => {
     try {
+      const userId = getUserId(req); await ensureUser(userId);
+      const payment = await storage.getDebtPayment(paramId(req));
+      if (payment) {
+        const debt = await storage.getDebt(payment.debt_id);
+        if (!debt || debt.user_id !== userId) {
+          return res.status(404).json({ message: "Payment not found" });
+        }
+      }
       await storage.deleteDebtPayment(paramId(req));
       res.json({ ok: true });
     } catch (e: unknown) {

@@ -152,7 +152,7 @@ export default function DashboardScreen() {
             />
             {firstName ? (
               <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                {t.auth.greeting}، {firstName}!
+                {t.auth.greeting}{isRTL ? "،" : ","} {firstName}!
               </Text>
             ) : null}
           </View>
