@@ -647,6 +647,7 @@ export default function AddTransactionModal() {
       <DatePickerModal
         visible={showDatePicker}
         value={date}
+        maxDate={todayISOString()}
         onConfirm={(d) => { setDate(d); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
         onClose={() => setShowDatePicker(false)}
       />
