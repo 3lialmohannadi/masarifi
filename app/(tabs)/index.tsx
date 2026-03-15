@@ -145,7 +145,7 @@ export default function DashboardScreen() {
             <Image
               source={isDark ? require("@/assets/logo_transparent.png") : language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo.png")}
               resizeMode="contain"
-              style={{ width: 130, height: 45 }}
+              style={{ width: 160, height: 55 }}
             />
             {firstName ? (
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
