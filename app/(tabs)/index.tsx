@@ -714,11 +714,13 @@ export default function DashboardScreen() {
         <PayNowModal commitmentId={payingCommitment} onClose={() => setPayingCommitment(null)} />
       )}
 
-      <QuickAddSheet
-        visible={quickAdd.visible}
-        initialType={quickAdd.type}
-        onClose={() => setQuickAdd((s) => ({ ...s, visible: false }))}
-      />
+      {quickAdd.visible && (
+        <QuickAddSheet
+          visible={quickAdd.visible}
+          initialType={quickAdd.type}
+          onClose={() => setQuickAdd((s) => ({ ...s, visible: false }))}
+        />
+      )}
     </View>
   );
 }
