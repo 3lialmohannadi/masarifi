@@ -100,7 +100,15 @@ export function DatePickerModal({
     else setViewMonth(m => m - 1);
   };
 
+  const isNextMonthBlocked = (() => {
+    if (!maxD) return false;
+    const nextY = viewMonth === 11 ? viewYear + 1 : viewYear;
+    const nextM = viewMonth === 11 ? 0 : viewMonth + 1;
+    return nextY > maxD.getFullYear() || (nextY === maxD.getFullYear() && nextM > maxD.getMonth());
+  })();
+
   const nextMonth = () => {
+    if (isNextMonthBlocked) return;
     Haptics.selectionAsync();
     if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
     else setViewMonth(m => m + 1);
@@ -244,7 +252,8 @@ export function DatePickerModal({
         <Pressable
           onPress={isRTL ? nextMonth : prevMonth}
           hitSlop={12}
-          style={[styles.navBtn, { backgroundColor: theme.cardSecondary }]}
+          disabled={isRTL ? isNextMonthBlocked : false}
+          style={[styles.navBtn, { backgroundColor: theme.cardSecondary, opacity: (isRTL && isNextMonthBlocked) ? 0.3 : 1 }]}
         >
           <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
         </Pressable>
@@ -267,7 +276,8 @@ export function DatePickerModal({
         <Pressable
           onPress={isRTL ? prevMonth : nextMonth}
           hitSlop={12}
-          style={[styles.navBtn, { backgroundColor: theme.cardSecondary }]}
+          disabled={isRTL ? false : isNextMonthBlocked}
+          style={[styles.navBtn, { backgroundColor: theme.cardSecondary, opacity: (!isRTL && isNextMonthBlocked) ? 0.3 : 1 }]}
         >
           <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={18} color={theme.text} />
         </Pressable>
