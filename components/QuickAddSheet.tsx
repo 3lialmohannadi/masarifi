@@ -47,7 +47,7 @@ function getSmartSuggestion(note: string, categories: Category[], language: stri
   return null;
 }
 
-type Step = "main" | "account" | "date" | "category";
+type Step = "main" | "account" | "category";
 
 export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetProps) {
   const insets = useSafeAreaInsets();
@@ -291,40 +291,6 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     </View>
   );
 
-  // ─── Step: Date Picker ────────────────────────────────────────────────────
-
-  const renderDateStep = () => (
-    <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: insets.bottom + 24, padding: 20, gap: 16 }}>
-      <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginBottom: 4 }} />
-      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
-        <Pressable onPress={goBack} hitSlop={12}>
-          <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={22} color={theme.textSecondary} />
-        </Pressable>
-        <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>{t.common.date}</Text>
-        <View style={{ width: 22 }} />
-      </View>
-      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
-        {[{ label: t.transactions.today, val: today }, { label: t.transactions.yesterday, val: yesterday }].map(({ label, val }) => (
-          <Pressable
-            key={val}
-            onPress={() => { setDate(val); setDateError(""); setStep("main"); }}
-            style={{ flex: 1, padding: 14, borderRadius: 14, alignItems: "center", backgroundColor: date === val ? typeColor + "18" : theme.background, borderWidth: 1.5, borderColor: date === val ? typeColor : theme.border }}
-          >
-            <Text style={{ fontWeight: "700", color: date === val ? typeColor : theme.textSecondary }}>{label}</Text>
-          </Pressable>
-        ))}
-      </View>
-      <Pressable
-        onPress={() => setShowDatePicker(true)}
-        style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, backgroundColor: theme.input, borderRadius: 12, borderWidth: 1.5, borderColor: theme.inputBorder, paddingHorizontal: 14, paddingVertical: 13 }}
-      >
-        <Feather name="calendar" size={16} color={theme.primary} />
-        <Text style={{ flex: 1, fontSize: 15, color: theme.text, textAlign: isRTL ? "right" : "left" }}>{date}</Text>
-        <Feather name="chevron-down" size={14} color={theme.textMuted} />
-      </Pressable>
-    </View>
-  );
-
   // ─── Step: Main ───────────────────────────────────────────────────────────
 
   const renderMainStep = () => (
@@ -455,7 +421,7 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               <Feather name="chevron-down" size={13} color={theme.textMuted} />
             </Pressable>
             <Pressable
-              onPress={() => setStep("date")}
+              onPress={() => setShowDatePicker(true)}
               style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, backgroundColor: theme.background, borderRadius: 12, padding: 11, borderWidth: 1, borderColor: dateError ? "#EF4444" : theme.border }}
             >
               <Feather name="calendar" size={14} color={dateError ? "#EF4444" : theme.textMuted} />
@@ -516,18 +482,13 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               {renderAccountStep()}
             </>
           )}
-          {step === "date" && (
-            <>
-              <Pressable style={{ flex: 1 }} onPress={goBack} />
-              {renderDateStep()}
-            </>
-          )}
         </View>
       </Modal>
 
       <DatePickerModal
         visible={showDatePicker}
         value={date}
+        maxDate={today}
         onConfirm={(d) => { setDate(d); setDateError(""); setShowDatePicker(false); setStep("main"); }}
         onClose={() => setShowDatePicker(false)}
       />
