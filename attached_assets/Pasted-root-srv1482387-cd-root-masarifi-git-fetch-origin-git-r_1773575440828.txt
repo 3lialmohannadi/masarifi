@@ -1,0 +1,160 @@
+root@srv1482387:~# cd /root/masarifi && git fetch origin && git reset --hard origin/main && bash update.sh
+remote: Enumerating objects: 134, done.
+remote: Counting objects: 100% (134/134), done.
+remote: Compressing objects: 100% (32/32), done.
+remote: Total 114 (delta 91), reused 101 (delta 78), pack-reused 0 (from 0)
+Receiving objects: 100% (114/114), 3.63 MiB | 10.63 MiB/s, done.
+Resolving deltas: 100% (91/91), completed with 15 local objects.
+From https://github.com/3lialmohannadi/masarifi
+   07ea81d..ea668d5  main       -> origin/main
+HEAD is now at ea668d5 Limit date selection to today on dashboard transaction forms
+🔄 جاري التحديث...
+Already up to date.
+
+> expo-app@1.0.0 postinstall
+> patch-package && node scripts/fix-missing-modules.js
+
+patch-package 8.0.1
+Applying patches...
+expo-asset@12.0.12 ✔
+
+up to date, audited 1133 packages in 6s
+
+212 packages are looking for funding
+  run `npm fund` for details
+
+11 vulnerabilities (1 low, 5 moderate, 5 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> expo-app@1.0.0 server:build
+> esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=server_dist
+
+
+  server_dist/index.js  84.6kb
+
+⚡ Done in 75ms
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [masarifi](ids: [ 4 ])
+[PM2] [masarifi](4) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ doyoomi-api       │ default     │ 0.0.0   │ fork    │ 70001    │ 20h    │ 21   │ online    │ 0%       │ 68.5mb   │ root     │ disabled │
+│ 2  │ doyoomi-mobile    │ default     │ 0.0.0   │ fork    │ 70093    │ 20h    │ 21   │ online    │ 0%       │ 59.9mb   │ root     │ disabled │
+│ 4  │ masarifi          │ default     │ 1.0.0   │ fork    │ 79376    │ 0s     │ 20   │ online    │ 0%       │ 22.4mb   │ root     │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Building static Expo Go deployment...
+Preparing build directories...
+Build: 1773575399939-79390
+Clearing Metro cache...
+Cache cleared
+Starting Metro...
+Setting EXPO_PUBLIC_DOMAIN=masarifiapp.com
+[Metro] > expo-app@1.0.0 expo:start:static:build
+> npx expo start --no-dev --minify --localhost
+[Metro] env: load .env
+[Metro] env: export DATABASE_URL JWT_SECRET PORT DEFAULT_USER_ID
+[Metro] Starting project at /root/masarifi
+[Metro] React Compiler enabled
+[Metro] Starting Metro Bundler
+Metro ready
+Downloading bundles and manifests...
+This may take several minutes for production builds...
+Fetching ios bundle...
+Downloading: http://localhost:8081/node_modules/expo-router/entry.bundle?platform=ios&dev=false&hot=false&lazy=false&minify=true
+Fetching android bundle...
+Downloading: http://localhost:8081/node_modules/expo-router/entry.bundle?platform=android&dev=false&hot=false&lazy=false&minify=true
+Fetching ios manifest...
+Fetching android manifest...
+ios manifest ready
+android manifest ready
+[Metro Error] The following packages should be updated for best compatibility with the installed expo version:
+[Metro Error] expo@54.0.32 - expected version: ~54.0.33
+  expo-glass-effect@0.1.8 - expected version: ~0.1.9
+  expo-router@6.0.22 - expected version: ~6.0.23
+[Metro Error] react-native-keyboard-controller@1.20.6 - expected version: 1.18.5
+Your project may not work correctly until you install the expected versions of the packages.
+[Metro] Waiting on http://localhost:8081
+Logs for your project will appear below.
+[Metro] iOS node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+[Metro] iOS node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  3.2% ( 44/264)
+Android node_modules/expo-router/entry.js ▓▓░░░░░░░░░░░░░░ 14.3% (127/350)
+[Metro] iOS node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 49.2% ( 727/1036)
+Android node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 53.0% ( 816/1121)
+[Metro] iOS Bundled 9497ms node_modules/expo-router/entry.js (1842 modules)
+[Metro] Android Bundled 10063ms node_modules/expo-router/entry.js (1837 modules)
+ios bundle ready
+android bundle ready
+All downloads completed successfully
+Processing assets...
+Found 55 unique asset(s)
+Downloading assets...
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/AntDesign.ttf?platform=ios&hash=3f78af31cca60105799838a1a7a59fbd
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Entypo.ttf?platform=ios&hash=31b5ffea3daddc69dd01a1f3d6cf63c5
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/EvilIcons.ttf?platform=ios&hash=140c53a7643ea949007aa9a282153849
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Feather.ttf?platform=ios&hash=ca4b48e04dc1ce10bfbddb262c8b835f
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Fontisto.ttf?platform=ios&hash=b49ae8ab2dbccb02c4d11caaacf09eab
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome.ttf?platform=ios&hash=b06871f281fee6b241d60582ae9369b9
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf?platform=ios&hash=1f77739ca9ff2188b539c36f30ffa2be
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf?platform=ios&hash=605ed7926cf39a2ad5ec2d1f9d391d3d
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf?platform=ios&hash=3b89dd103490708d19a95adcae52210e
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Regular.ttf?platform=ios&hash=370dd5af19f8364907b6e2c41f45dbbf
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Solid.ttf?platform=ios&hash=adec7d6f310bc577f05e8fe06a5daccf
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Brands.ttf?platform=ios&hash=56c8d80832e37783f12c05db7c8849e2
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Foundation.ttf?platform=ios&hash=e20945d7c929279ef7a6f1db184a4470
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf?platform=ios&hash=b4eb097d35f44ed943676fd56f6bdc51
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf?platform=ios&hash=6e435534bd35da5fef04168860a9b8fa
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf?platform=ios&hash=4e85bc9ebe07e0340c9c4fc2f6c38908
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Octicons.ttf?platform=ios&hash=871378c6eab492a3e689a9385dc45a12
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/SimpleLineIcons.ttf?platform=ios&hash=d2285965fe34b05465047401b8595dd0
+Downloading: http://localhost:8081/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Zocial.ttf?platform=ios&hash=1681f34aaca71b8dfb70756bca331eb2
+Downloading: http://localhost:8081/assets/node_modules/@react-navigation/elements/lib/module/assets/back-icon.png?platform=ios&hash=c560d7e01660506cdb3be1e07257053e
+Downloading: http://localhost:8081/assets/node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.png?platform=ios&hash=0a328cd9c1afd0afe8e3b1ec5165b1b4
+Downloading: http://localhost:8081/assets/node_modules/@react-navigation/elements/lib/module/assets/clear-icon.png?platform=ios&hash=61378328a719f21f093de82dd89ecfb0
+Downloading: http://localhost:8081/assets/node_modules/@react-navigation/elements/lib/module/assets/close-icon.png?platform=ios&hash=3162e8a244d8f6fbd259e79043e23ce4
+Downloading: http://localhost:8081/assets/node_modules/@react-navigation/elements/lib/module/assets/search-icon.png?platform=ios&hash=7842eab38ac1ef8af0adf4f8147ed837
+Downloading: http://localhost:8081/assets/node_modules/expo-router/assets/error.png?platform=ios&hash=d1ea1496f9057eb392d5bbf3732a61b7
+Downloading: http://localhost:8081/assets/node_modules/expo-router/assets/file.png?platform=ios&hash=19eeb73b9593a38f8e9f418337fc7d10
+Downloading: http://localhost:8081/assets/node_modules/expo-router/assets/pkg.png?platform=ios&hash=ab19f4cbc543357183a20571f68380a3
+Downloading: http://localhost:8081/assets/node_modules/expo-router/assets/forward.png?platform=ios&hash=d8b800c443b8972542883e0b9de2bdc6
+Downloading: http://localhost:8081/assets/node_modules/expo-router/assets/sitemap.png?platform=ios&hash=412dd9275b6b48ad28f5e3d81bb1f626
+Downloading: http://localhost:8081/assets/node_modules/expo-router/assets/arrow_down.png?platform=ios&hash=017bc6ba3fc25503e5eb5e53826d48a8
+Downloading: http://localhost:8081/assets/node_modules/expo-router/assets/unmatched.png?platform=ios&hash=20e71bdf79e3a97bf55fd9e164041578
+Downloading: http://localhost:8081/assets/assets/logo_ar_dark.png?platform=ios&hash=23e313bbf3cc638508f2ae857ea7df2b
+Downloading: http://localhost:8081/assets/assets/logo_en_dark.png?platform=ios&hash=85b4eebbc2a054f5f4adc87276952737
+Downloading: http://localhost:8081/assets/assets/logo_ar_light.png?platform=ios&hash=c1e6bd25b57e5cfeedb6fbcf01efad23
+Downloading: http://localhost:8081/assets/assets/logo_en_light.png?platform=ios&hash=0f6ae6e2155e1e5cbde3d91e8674c9e8
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/100Thin/Inter_100Thin.ttf?platform=ios&hash=ddbb1cd55ad509e82377bd10beed6506
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/200ExtraLight/Inter_200ExtraLight.ttf?platform=ios&hash=e1f33daee21eb5998b13d3e05264d9a3
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/300Light/Inter_300Light.ttf?platform=ios&hash=d2994e3dea3856e1834395ad6cce32af
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf?platform=ios&hash=51b6ad87261f18b6433ec52871ddfabc
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/500Medium/Inter_500Medium.ttf?platform=ios&hash=137ab18bace28dd0bd83eb3b8ed2bc54
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf?platform=ios&hash=a5f35888d2da465de352e0dcfaf33324
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/700Bold/Inter_700Bold.ttf?platform=ios&hash=6e237de4f1f413afa2fcc45c77ac343a
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/800ExtraBold/Inter_800ExtraBold.ttf?platform=ios&hash=6016034293c084aa0c056e83938bf1cc
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/900Black/Inter_900Black.ttf?platform=ios&hash=bcec6eda9700a81ba92c483a2f2c02c1
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/100Thin_Italic/Inter_100Thin_Italic.ttf?platform=ios&hash=1b97f7df9b976cfe530c18c09598e6f6
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/200ExtraLight_Italic/Inter_200ExtraLight_Italic.ttf?platform=ios&hash=3d0662838915a7a16d01c262735d3d29
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/300Light_Italic/Inter_300Light_Italic.ttf?platform=ios&hash=17f8f23a2852bfa14ce5bf590c2a0e2c
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/400Regular_Italic/Inter_400Regular_Italic.ttf?platform=ios&hash=36cad9f97595b7759264b945d64502b4
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/500Medium_Italic/Inter_500Medium_Italic.ttf?platform=ios&hash=155406bfbfb023eb104728edfe62c0e9
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/600SemiBold_Italic/Inter_600SemiBold_Italic.ttf?platform=ios&hash=a349d1ac188e1a67689432f44de99849
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/700Bold_Italic/Inter_700Bold_Italic.ttf?platform=ios&hash=3398006c80026f0508aaaf4808950d56
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/800ExtraBold_Italic/Inter_800ExtraBold_Italic.ttf?platform=ios&hash=7ca909a56537d965feef41abe58b87e0
+Downloading: http://localhost:8081/assets/node_modules/@expo-google-fonts/inter/900Black_Italic/Inter_900Black_Italic.ttf?platform=ios&hash=d5f78c24de59ce5e4bad405e10e71941
+Downloading: http://localhost:8081/assets/assets/videos/splash.mp4?platform=ios&hash=722d6a263c0b111674ec401a1d0cc015
+Downloading: http://localhost:8081/assets/assets/images/icon.png?platform=ios&hash=212238bbe5ead929af8ce0d09939c449
+Downloaded 55 assets
+Updated bundle URLs
+Updating manifests and creating landing page...
+Manifests updated
+Build complete! Deploy to: https://masarifiapp.com
+✅ تم التحديث!
