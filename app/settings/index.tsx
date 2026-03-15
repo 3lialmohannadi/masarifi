@@ -647,9 +647,9 @@ export default function SettingsScreen() {
         {/* ── App Info ── */}
         <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 20, alignItems: "center", gap: 8, borderWidth: 1, borderColor: theme.border, marginTop: 8 }}>
           <Image
-            source={require("@/assets/logo_transparent.png")}
+            source={require("@/assets/images/icon.png")}
             resizeMode="contain"
-            style={{ width: 160, height: 56 }}
+            style={{ width: 72, height: 72, borderRadius: 16 }}
           />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.income }} />
