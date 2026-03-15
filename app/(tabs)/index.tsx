@@ -143,7 +143,7 @@ export default function DashboardScreen() {
         >
           <View style={{ gap: 5 }}>
             <Image
-              source={isDark ? require("@/assets/logo_transparent.png") : require("@/assets/logo.png")}
+              source={isDark ? require("@/assets/logo_transparent.png") : language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo.png")}
               resizeMode="contain"
               style={{ width: 110, height: 38 }}
             />
