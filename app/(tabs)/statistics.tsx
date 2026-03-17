@@ -10,6 +10,7 @@ import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useSavings } from "@/store/SavingsContext";
+import { useBudgets } from "@/store/BudgetsContext";
 import * as Haptics from "expo-haptics";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
@@ -21,7 +22,7 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 const CHART_WIDTH = Math.min(SCREEN_WIDTH - 64, 340);
 
 // ─── Donut / Pie Chart ───────────────────────────────────────────────────────
-interface DonutSlice { amount: number; color: string; label: string; }
+interface DonutSlice { amount: number; color: string; label: string; budget?: number; currency?: string; language?: Language; }
 function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
   slices: DonutSlice[]; totalAmount: number; currency: string; language: Language; theme: any; isRTL?: boolean;
 }) {
@@ -71,16 +72,33 @@ function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
           {displayTotal}
         </SvgText>
       </Svg>
-      <View style={{ flex: 1, gap: 7 }}>
-        {slices.slice(0, 6).map((s, i) => (
-          <View key={i} style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-            <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: s.color }} />
-            <Text style={{ flex: 1, fontSize: 11, color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>{s.label}</Text>
-            <Text style={{ fontSize: 11, fontWeight: "700", color: theme.text }}>
-              {Math.round((s.amount / total) * 100)}%
-            </Text>
-          </View>
-        ))}
+      <View style={{ flex: 1, gap: 8 }}>
+        {slices.slice(0, 6).map((s, i) => {
+          const hasBudget = s.budget != null && s.budget > 0;
+          const budgetPct = hasBudget ? Math.min(s.amount / s.budget!, 1) : 0;
+          const budgetColor = budgetPct >= 1 ? "#EF4444" : budgetPct >= 0.75 ? "#F59E0B" : theme.primary;
+          return (
+            <View key={i} style={{ gap: 2 }}>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: s.color }} />
+                <Text style={{ flex: 1, fontSize: 11, color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>{s.label}</Text>
+                <Text style={{ fontSize: 11, fontWeight: "700", color: theme.text }}>
+                  {Math.round((s.amount / total) * 100)}%
+                </Text>
+              </View>
+              {hasBudget && (
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4, paddingStart: 16 }}>
+                  <View style={{ flex: 1, height: 3, backgroundColor: theme.border, borderRadius: 2, overflow: "hidden" }}>
+                    <View style={{ width: `${budgetPct * 100}%`, height: "100%", backgroundColor: budgetColor, borderRadius: 2 }} />
+                  </View>
+                  <Text style={{ fontSize: 9, color: budgetColor, fontWeight: "600", minWidth: 28, textAlign: "right" }}>
+                    {Math.round(budgetPct * 100)}%
+                  </Text>
+                </View>
+              )}
+            </View>
+          );
+        })}
         {slices.length > 6 && (
           <Text style={{ fontSize: 10, color: theme.textMuted }}>+{slices.length - 6} {t.statistics.others}</Text>
         )}
@@ -191,6 +209,7 @@ export default function StatisticsTab() {
   const { getCategory, categories } = useCategories();
   const { accounts } = useAccounts();
   const { savingsTransactions, isLoaded: savingsLoaded } = useSavings();
+  const { getBudgetForCategory } = useBudgets();
   const { month: selectedMonth, year: selectedYear, monthName, monthKey, goToPrev, goToNext } = useMonthPicker(language);
 
   const monthTxs = useMemo(() =>
@@ -244,12 +263,16 @@ export default function StatisticsTab() {
 
   // Donut chart slices
   const pieSlices = useMemo<DonutSlice[]>(() =>
-    categorySpending.map(({ id, amount, category }) => ({
-      amount,
-      color: category?.color || theme.expense,
-      label: category ? getDisplayName(category, language) : id,
-    })),
-    [categorySpending, language, theme.expense]
+    categorySpending.map(({ id, amount, category }) => {
+      const budgetEntry = getBudgetForCategory(id, monthKey);
+      return {
+        amount,
+        color: category?.color || theme.expense,
+        label: category ? getDisplayName(category, language) : id,
+        budget: budgetEntry?.amount,
+      };
+    }),
+    [categorySpending, language, theme.expense, getBudgetForCategory, monthKey]
   );
 
   // Last 6 months data (for bar + line charts)

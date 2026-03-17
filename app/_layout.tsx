@@ -25,6 +25,7 @@ import { CategoriesProvider } from "@/store/CategoriesContext";
 import { SavingsProvider } from "@/store/SavingsContext";
 import { CommitmentsProvider } from "@/store/CommitmentsContext";
 import { DebtsProvider } from "@/store/DebtsContext";
+import { BudgetsProvider } from "@/store/BudgetsContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -67,7 +68,9 @@ function Providers({ children }: { children: React.ReactNode }) {
             <SavingsProvider>
               <CommitmentsProvider>
                 <DebtsProvider>
-                  {children}
+                  <BudgetsProvider>
+                    {children}
+                  </BudgetsProvider>
                 </DebtsProvider>
               </CommitmentsProvider>
             </SavingsProvider>
@@ -138,6 +141,10 @@ function RootLayoutNav() {
       <Stack.Screen name="profile/index" options={{ headerShown: false }} />
       <Stack.Screen name="contact-support" options={{ headerShown: false }} />
       <Stack.Screen name="report/index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="(modals)/budget-form"
+        options={{ presentation: "modal", headerShown: false }}
+      />
     </Stack>
   );
 }

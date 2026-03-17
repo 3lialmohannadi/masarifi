@@ -1077,6 +1077,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ── Budgets ────────────────────────────────────────────────────────────────
+
+  const upsertBudgetSchema = z.object({
+    category_id: z.string().min(1, "Category ID is required"),
+    amount: z.union([z.string(), z.number()]).transform((v) => String(v)),
+    month: z.string().regex(/^\d{4}-\d{2}$/, "Month must be YYYY-MM"),
+  });
+
+  type BudgetRow = typeof schema.budgets.$inferSelect;
+  function normBudget(b: BudgetRow) {
+    return {
+      ...b,
+      amount: toNumber(b.amount),
+      created_at: toIso(b.created_at),
+      updated_at: toIso(b.updated_at),
+    };
+  }
+
+  app.get("/api/budgets", async (req: Request, res: Response) => {
+    try {
+      const userId = getUserId(req); await ensureUser(userId);
+      const rows = await storage.getBudgets(userId);
+      res.json(rows.map(normBudget));
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.post("/api/budgets", async (req: Request, res: Response) => {
+    try {
+      const userId = getUserId(req); await ensureUser(userId);
+      const validated = upsertBudgetSchema.parse(req.body);
+      const row = await storage.upsertBudget({ ...validated, user_id: userId });
+      res.json(normBudget(row));
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.delete("/api/budgets/:id", async (req: Request, res: Response) => {
+    try {
+      const userId = getUserId(req); await ensureUser(userId);
+      await storage.deleteBudget(paramId(req));
+      res.json({ ok: true });
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
   // ── Reset (protected, requires confirmation header) ───────────────────────
 
   app.post("/api/reset", async (req: Request, res: Response) => {

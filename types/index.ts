@@ -187,6 +187,15 @@ export interface DebtPayment {
   created_at: string;
 }
 
+export interface Budget {
+  id: string;
+  category_id: string;
+  amount: number;
+  month: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AppSettings {
   language: Language;
   theme: ThemeMode;

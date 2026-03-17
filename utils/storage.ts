@@ -11,6 +11,7 @@ export const KEYS = {
   COMMITMENTS: "@masarifi/commitments",
   DEBTS: "@masarifi/debts",
   DEBT_PAYMENTS: "@masarifi/debt_payments",
+  BUDGETS: "@masarifi/budgets",
 } as const;
 
 export async function loadData<T>(key: string): Promise<T | null> {

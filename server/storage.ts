@@ -20,6 +20,7 @@ import type {
   InsertDebt,
   DebtPayment,
   InsertDebtPayment,
+  Budget,
   Settings,
 } from "@database/schema";
 
@@ -91,6 +92,11 @@ export interface IStorage {
   getDebtPayments(debtId: string): Promise<DebtPayment[]>;
   createDebtPayment(data: InsertDebtPayment): Promise<DebtPayment>;
   deleteDebtPayment(id: string): Promise<void>;
+
+  // Budgets
+  getBudgets(userId?: string): Promise<Budget[]>;
+  upsertBudget(data: { category_id: string; amount: string; month: string; user_id: string }): Promise<Budget>;
+  deleteBudget(id: string): Promise<void>;
 
 }
 
@@ -414,6 +420,44 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDebtPayment(id: string): Promise<void> {
     await db.delete(schema.debtPayments).where(eq(schema.debtPayments.id, id));
+  }
+
+  // ── Budgets ────────────────────────────────────────────────────────────────
+
+  async getBudgets(userId?: string): Promise<Budget[]> {
+    if (userId) {
+      return db.select().from(schema.budgets)
+        .where(eq(schema.budgets.user_id, userId))
+        .orderBy(asc(schema.budgets.month));
+    }
+    return db.select().from(schema.budgets).orderBy(asc(schema.budgets.month));
+  }
+
+  async upsertBudget(data: { category_id: string; amount: string; month: string; user_id: string }): Promise<Budget> {
+    const conditions = [
+      eq(schema.budgets.category_id, data.category_id),
+      eq(schema.budgets.month, data.month),
+    ];
+    const [existing] = await db.select().from(schema.budgets).where(and(...conditions)).limit(1);
+    if (existing) {
+      const [row] = await db
+        .update(schema.budgets)
+        .set({ amount: data.amount, updated_at: new Date() })
+        .where(eq(schema.budgets.id, existing.id))
+        .returning();
+      return row;
+    }
+    const [row] = await db.insert(schema.budgets).values({
+      category_id: data.category_id,
+      amount: data.amount,
+      month: data.month,
+      user_id: data.user_id,
+    }).returning();
+    return row;
+  }
+
+  async deleteBudget(id: string): Promise<void> {
+    await db.delete(schema.budgets).where(eq(schema.budgets.id, id));
   }
 
 }

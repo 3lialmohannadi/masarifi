@@ -7,32 +7,56 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useCategories } from "@/store/CategoriesContext";
+import { useTransactions } from "@/store/TransactionsContext";
+import { useBudgets } from "@/store/BudgetsContext";
 import { getDisplayName } from "@/utils/display";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CategoriesSkeleton } from "@/components/ui/Skeleton";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import type { Category } from "@/types";
+
+function getCurrentMonthKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+const CURRENT_MONTH_KEY = getCurrentMonthKey();
 
 export default function CategoriesScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL, isDark } = useApp();
   const { categories, deleteCategory, isLoaded } = useCategories();
+  const { transactions } = useTransactions();
+  const { getBudgetForCategory } = useBudgets();
 
   const activeCategories = useMemo(
     () => [...categories],
     [categories]
   );
 
+  const spendingByCategory = useMemo(() => {
+    const result: Record<string, number> = {};
+    transactions
+      .filter((tx) => tx.type === "expense" && tx.date.startsWith(CURRENT_MONTH_KEY) && tx.category_id)
+      .forEach((tx) => {
+        const id = tx.category_id!;
+        result[id] = (result[id] || 0) + tx.amount;
+      });
+    return result;
+  }, [transactions]);
+
   const paddedData = useMemo(() => {
     const remainder = activeCategories.length % 3;
-    if (remainder === 0) return activeCategories as (typeof activeCategories[0] | null)[];
-    return [...activeCategories, ...Array(3 - remainder).fill(null)] as (typeof activeCategories[0] | null)[];
+    if (remainder === 0) return activeCategories as (Category | null)[];
+    return [...activeCategories, ...Array(3 - remainder).fill(null)] as (Category | null)[];
   }, [activeCategories]);
 
   const cardShadow = isDark ? {} : Platform.OS === "web"
     ? { boxShadow: "0 2px 8px rgba(47,143,131,0.07)" }
     : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 };
 
-  const handleDelete = (item: typeof activeCategories[0]) => {
-    Alert.alert(t.common.areYouSure, t.categories.deleteConfirm, [
+  const handleDelete = (item: Category) => {
+    Alert.alert(t.categories.title, t.categories.deleteConfirm, [
       { text: t.common.cancel, style: "cancel" },
       {
         text: t.common.delete,
@@ -156,6 +180,12 @@ export default function CategoriesScreen() {
           if (!item) {
             return <View style={{ flex: 1 }} />;
           }
+
+          const isExpense = item.type === "expense";
+          const budget = isExpense ? getBudgetForCategory(item.id, CURRENT_MONTH_KEY) : undefined;
+          const spent = isExpense ? (spendingByCategory[item.id] || 0) : 0;
+          const budgetProgress = budget && budget.amount > 0 ? spent / budget.amount : 0;
+
           return (
             <View
               style={{
@@ -172,7 +202,7 @@ export default function CategoriesScreen() {
               <View
                 style={{
                   paddingTop: 14,
-                  paddingBottom: 10,
+                  paddingBottom: budget ? 6 : 10,
                   paddingHorizontal: 8,
                   alignItems: "center",
                   justifyContent: "center",
@@ -205,6 +235,27 @@ export default function CategoriesScreen() {
                 >
                   {getDisplayName(item, language)}
                 </Text>
+
+                {/* Budget progress bar for expense categories */}
+                {isExpense && budget && (
+                  <View style={{ width: "100%", paddingHorizontal: 4, gap: 2 }}>
+                    <ProgressBar
+                      progress={budgetProgress}
+                      height={4}
+                      animated={false}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 9,
+                        color: budgetProgress >= 1 ? "#EF4444" : budgetProgress >= 0.75 ? "#F59E0B" : theme.textMuted,
+                        textAlign: "center",
+                      }}
+                      numberOfLines={1}
+                    >
+                      {Math.round(budgetProgress * 100)}%
+                    </Text>
+                  </View>
+                )}
               </View>
 
               {/* Action row */}
@@ -234,6 +285,31 @@ export default function CategoriesScreen() {
                 >
                   <Feather name="edit-2" size={12} color={theme.primary} />
                 </Pressable>
+
+                {/* Budget button — expense categories only */}
+                {isExpense && (
+                  <Pressable
+                    onPress={() => {
+                      Haptics.selectionAsync();
+                      router.push(`/(modals)/budget-form?categoryId=${item.id}`);
+                    }}
+                    style={({ pressed }) => ({
+                      flex: 1,
+                      paddingVertical: 7,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: pressed ? theme.cardSecondary : "transparent",
+                      borderRightWidth: 1,
+                      borderColor: theme.border,
+                    })}
+                  >
+                    <Feather
+                      name="target"
+                      size={12}
+                      color={budget ? theme.primary : theme.textMuted}
+                    />
+                  </Pressable>
+                )}
 
                 {/* Delete button */}
                 <Pressable
