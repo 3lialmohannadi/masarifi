@@ -85,6 +85,7 @@ export const en = {
     accountsSubtitle: "Manage Accounts",
     categoriesSubtitle: "Transaction Categories",
     transferSubtitle: "Transfer Between Accounts",
+    statisticsSubtitle: "Charts & Reports",
     settingsSubtitle: "Language, Theme & More",
   },
   accounts: {

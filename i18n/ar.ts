@@ -85,6 +85,7 @@ export const ar = {
     accountsSubtitle: "إدارة حساباتك",
     categoriesSubtitle: "تصنيفات المعاملات",
     transferSubtitle: "تحويل بين الحسابات",
+    statisticsSubtitle: "تقارير ورسوم بيانية",
     settingsSubtitle: "اللغة، المظهر، والمزيد",
   },
   accounts: {

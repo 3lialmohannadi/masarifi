@@ -219,12 +219,7 @@ export default function TabLayout() {
         />
         <Tabs.Screen
           name="statistics"
-          options={{
-            title: t.tabs.statistics,
-            tabBarIcon: ({ color, size }) => (
-              <Feather name="bar-chart-2" size={size} color={color} />
-            ),
-          }}
+          options={{ href: null }}
         />
         <Tabs.Screen
           name="more"

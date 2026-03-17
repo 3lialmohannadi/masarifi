@@ -111,7 +111,7 @@ export default function MoreTab() {
           {t.tabs.more}
         </Text>
 
-        {/* ── Financial section ── */}
+        {/* ── Financial Management section ── */}
         <SectionHeader title={t.more.financial} />
         <View style={{ gap: 8 }}>
           <MenuItem
@@ -119,7 +119,7 @@ export default function MoreTab() {
             label={t.debts.title}
             subtitle={t.more.debtsSubtitle}
             color="#EF4444"
-            onPress={() => router.push("/debts" as any)}
+            onPress={() => router.push("/debts")}
           />
           <MenuItem
             icon="calendar"
@@ -127,6 +127,13 @@ export default function MoreTab() {
             subtitle={t.more.commitmentsSubtitle}
             color="#F59E0B"
             onPress={() => router.push("/commitments")}
+          />
+          <MenuItem
+            icon="shuffle"
+            label={t.transfer.title}
+            subtitle={t.more.transferSubtitle}
+            color="#06B6D4"
+            onPress={() => router.push("/(modals)/transfer-form")}
           />
         </View>
 
@@ -150,11 +157,11 @@ export default function MoreTab() {
             onPress={() => router.push("/categories")}
           />
           <MenuItem
-            icon="shuffle"
-            label={t.transfer.title}
-            subtitle={t.more.transferSubtitle}
-            color="#06B6D4"
-            onPress={() => router.push("/(modals)/transfer-form")}
+            icon="bar-chart-2"
+            label={t.tabs.statistics}
+            subtitle={t.more.statisticsSubtitle}
+            color="#8B5CF6"
+            onPress={() => router.push("/(tabs)/statistics")}
           />
         </View>
 
