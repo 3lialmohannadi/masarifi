@@ -57,8 +57,8 @@ export default function SavingsTab() {
         {/* Hero */}
         <LinearGradient
           colors={isDark
-            ? ["#1A3630", "#0D2520", "#081A16"] as const
-            : ["#35A89C", "#2F8F83", "#1A6B63"] as const}
+            ? ["#1A3630", "#0F2820", "#0A1C16"] as const
+            : ["#2D8F83", "#1E6B63", "#165550"] as const}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{

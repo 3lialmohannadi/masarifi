@@ -229,7 +229,7 @@ export default function DashboardScreen() {
           <LinearGradient
             colors={isDark
               ? ["#1A3630", "#0F2820", "#0A1C16"] as const
-              : ["#35A89C", "#2F8F83", "#1E6B63"] as const}
+              : ["#2D8F83", "#1E6B63", "#165550"] as const}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
@@ -379,9 +379,8 @@ export default function DashboardScreen() {
                 tx.date.startsWith(mk) && (!selectedAccount || tx.account_id === selectedAccount?.id)
               );
               const mExpense = monthTxs2.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
-              const mIncome = monthTxs2.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
-              const spendTotal = mIncome > 0 ? mExpense / mIncome : 0;
-              const spendRatio = Math.min(spendTotal, 1);
+              const showBar = realAvailable > 0 || mExpense > 0;
+              const spendRatio = (realAvailable + mExpense) > 0 ? Math.min(mExpense / (realAvailable + mExpense), 1) : 0;
               const spendColor = spendRatio >= 0.9 ? "#EF4444" : spendRatio >= 0.7 ? "#F59E0B" : theme.income;
               return (
                 <View>
@@ -394,7 +393,7 @@ export default function DashboardScreen() {
                       borderTopColor: theme.border,
                       paddingHorizontal: 16,
                       paddingTop: 11,
-                      paddingBottom: mIncome > 0 ? 8 : 11,
+                      paddingBottom: showBar ? 8 : 11,
                     }}
                   >
                     <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 7 }}>
@@ -408,13 +407,13 @@ export default function DashboardScreen() {
                       {formatCurrency(Math.max(0, dailyLimit), currency, language)}
                     </Text>
                   </View>
-                  {mIncome > 0 && (
+                  {showBar && (
                     <View style={{ paddingHorizontal: 16, paddingBottom: 12, gap: 4 }}>
                       <View style={{ height: 4, backgroundColor: theme.border, borderRadius: 2, overflow: "hidden" }}>
                         <View style={{ width: `${Math.round(spendRatio * 100)}%` as any, height: "100%", backgroundColor: spendColor, borderRadius: 2 }} />
                       </View>
-                      <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                        {Math.round(spendRatio * 100)}% {language === "ar" ? "من الدخل الشهري" : "of monthly income"}
+                      <Text style={{ fontSize: 10, color: spendColor, textAlign: isRTL ? "right" : "left" }}>
+                        {Math.round(spendRatio * 100)}% {language === "ar" ? "من الرصيد المتاح" : "of available balance"}
                       </Text>
                     </View>
                   )}
