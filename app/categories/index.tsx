@@ -299,6 +299,8 @@ export default function CategoriesScreen() {
                       paddingVertical: 7,
                       alignItems: "center",
                       justifyContent: "center",
+                      flexDirection: "row",
+                      gap: 2,
                       backgroundColor: pressed ? theme.cardSecondary : "transparent",
                       borderRightWidth: 1,
                       borderColor: theme.border,
@@ -306,9 +308,14 @@ export default function CategoriesScreen() {
                   >
                     <Feather
                       name="target"
-                      size={12}
+                      size={11}
                       color={budget ? theme.primary : theme.textMuted}
                     />
+                    {!budget && (
+                      <Text style={{ fontSize: 9, color: theme.textMuted, fontWeight: "600" }}>
+                        {language === "ar" ? "ميزانية" : "Budget"}
+                      </Text>
+                    )}
                   </Pressable>
                 )}
 

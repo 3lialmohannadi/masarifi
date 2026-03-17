@@ -1119,7 +1119,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/budgets/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req); await ensureUser(userId);
+      const id = paramId(req);
       const validated = upsertBudgetSchema.parse(req.body);
+      // Verify ownership before updating
+      const [existing] = await db
+        .select()
+        .from(schema.budgets)
+        .where(and(eq(schema.budgets.id, id), eq(schema.budgets.user_id, userId)))
+        .limit(1);
+      if (!existing) return res.status(404).json({ message: "Budget not found" });
       const row = await storage.upsertBudget({ ...validated, user_id: userId });
       res.json(normBudget(row));
     } catch (e: unknown) {
