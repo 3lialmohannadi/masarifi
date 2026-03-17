@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/store/AppContext";
 import { apiRequest } from "@/services/api";
 import type { Language } from "@/types";
+import type { TranslationKeys } from "@/i18n/en";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -36,7 +37,7 @@ const CURRENCIES = [
   { code: "EUR", flag: "🇪🇺" },
 ];
 
-function Slide1({ t, language, isDark }: { t: any; language: Language; isDark: boolean }) {
+function Slide1({ t, language, isDark }: { t: TranslationKeys; language: Language; isDark: boolean }) {
   return (
     <View style={{ width: SCREEN_W, flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, gap: 28 }}>
       <Image
@@ -66,7 +67,7 @@ function Slide1({ t, language, isDark }: { t: any; language: Language; isDark: b
   );
 }
 
-function Slide2({ t }: { t: any }) {
+function Slide2({ t }: { t: TranslationKeys }) {
   const features = [
     { icon: "credit-card" as const, title: t.onboarding.feature1Title, desc: t.onboarding.feature1Desc },
     { icon: "repeat" as const, title: t.onboarding.feature2Title, desc: t.onboarding.feature2Desc },
@@ -98,7 +99,7 @@ function Slide2({ t }: { t: any }) {
 }
 
 function Slide3({ t, language, setLanguage, defaultCurrency, setCurrency }: {
-  t: any; language: Language; setLanguage: (l: Language) => void;
+  t: TranslationKeys; language: Language; setLanguage: (l: Language) => void;
   defaultCurrency: string; setCurrency: (c: string) => void;
 }) {
   return (
@@ -162,7 +163,7 @@ function Slide3({ t, language, setLanguage, defaultCurrency, setCurrency }: {
   );
 }
 
-function Slide4({ t }: { t: any }) {
+function Slide4({ t }: { t: TranslationKeys }) {
   return (
     <View style={{ width: SCREEN_W, flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, gap: 32 }}>
       <View style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" }}>
