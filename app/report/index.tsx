@@ -43,15 +43,21 @@ export default function MonthlyReportScreen() {
   );
   const netBalance = totalIncome - totalExpense;
 
-  const monthSavingsDeposited = useMemo(() =>
-    savingsTransactions
+  const monthSavingsNet = useMemo(() => {
+    const deposited = savingsTransactions
       .filter((tx) =>
         tx.date.startsWith(monthKey) &&
         (tx.type === "deposit_internal" || tx.type === "deposit_external")
       )
-      .reduce((s, tx) => s + tx.amount, 0),
-    [savingsTransactions, monthKey]
-  );
+      .reduce((s, tx) => s + tx.amount, 0);
+    const withdrawn = savingsTransactions
+      .filter((tx) =>
+        tx.date.startsWith(monthKey) &&
+        (tx.type === "withdraw_internal" || tx.type === "withdraw_external")
+      )
+      .reduce((s, tx) => s + tx.amount, 0);
+    return deposited - withdrawn;
+  }, [savingsTransactions, monthKey]);
 
   const monthTransfers = useMemo(() =>
     transfers.filter((tf) => tf.date.startsWith(monthKey)),
@@ -69,7 +75,7 @@ export default function MonthlyReportScreen() {
     return Object.entries(spending)
       .map(([id, data]) => ({ id, ...data, category: getCategory(id) }))
       .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5);
+      .slice(0, 3);
   }, [monthTxs, getCategory]);
 
   const handleExportCSV = useCallback(async () => {
@@ -102,7 +108,7 @@ export default function MonthlyReportScreen() {
     { label: t.statistics.income, value: totalIncome, color: "#22C55E", icon: "arrow-down-left" },
     { label: t.statistics.expense, value: totalExpense, color: "#EF4444", icon: "arrow-up-right" },
     { label: t.statistics.netSavings, value: netBalance, color: netBalance >= 0 ? "#3B82F6" : "#F59E0B", icon: netBalanceIcon },
-    { label: t.statistics.savings, value: monthSavingsDeposited, color: theme.primary, icon: "archive" },
+    { label: t.statistics.savings, value: monthSavingsNet, color: monthSavingsNet >= 0 ? theme.primary : "#F59E0B", icon: "archive" },
   ];
 
   return (
