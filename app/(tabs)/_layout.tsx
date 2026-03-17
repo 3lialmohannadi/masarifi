@@ -1,8 +1,7 @@
-import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Tabs, router } from "expo-router";
-import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { BlurView } from "expo-blur";
 import { Platform, StyleSheet, View, Pressable, Text } from "react-native";
+import type { ViewStyle } from "react-native";
 import React, { useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,35 +18,31 @@ import { useApp } from "@/store/AppContext";
 import { QuickAddSheet } from "@/components/QuickAddSheet";
 import type { TransactionType } from "@/types";
 
-function NativeTabLayout() {
-  const { t, theme } = useApp();
-  return (
-    <NativeTabs tintColor={theme.primary}>
-      <NativeTabs.Trigger name="index">
-        <Icon sf={{ default: "house", selected: "house.fill" }} />
-        <Label>{t.tabs.dashboard}</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="transactions">
-        <Icon sf={{ default: "arrow.left.arrow.right", selected: "arrow.left.arrow.right.circle.fill" }} />
-        <Label>{t.tabs.transactions}</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="savings">
-        <Icon sf={{ default: "banknote", selected: "banknote.fill" }} />
-        <Label>{t.tabs.savings}</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="statistics">
-        <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
-        <Label>{t.tabs.statistics}</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="more">
-        <Icon sf={{ default: "ellipsis.circle", selected: "ellipsis.circle.fill" }} />
-        <Label>{t.tabs.more}</Label>
-      </NativeTabs.Trigger>
-    </NativeTabs>
-  );
+function circleShadow(color: string): ViewStyle {
+  return Platform.OS === "web"
+    ? ({ boxShadow: `0 4px 12px ${color}60` } as ViewStyle)
+    : {
+        shadowColor: color,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.45,
+        shadowRadius: 8,
+        elevation: 8,
+      };
 }
 
-function ClassicTabLayout() {
+function fabShadow(): ViewStyle {
+  return Platform.OS === "web"
+    ? ({ boxShadow: "0 4px 16px rgba(47,143,131,0.50)" } as ViewStyle)
+    : {
+        shadowColor: "#2F8F83",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 12,
+        elevation: 10,
+      };
+}
+
+export default function TabLayout() {
   const { theme, isDark, t, isRTL } = useApp();
   const insets = useSafeAreaInsets();
   const isIOS = Platform.OS === "ios";
@@ -135,27 +130,21 @@ function ClassicTabLayout() {
         justifyContent: "flex-end",
         paddingBottom: isIOS ? insets.bottom + 8 : isWeb ? 14 : 6,
         overflow: "visible",
-      } as any}
+      }}
     >
       <View
-        style={{
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: theme.primary,
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: fabRise,
-          ...(Platform.OS === "web"
-            ? { boxShadow: `0 4px 16px rgba(47,143,131,0.50)` }
-            : {
-                shadowColor: "#2F8F83",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.5,
-                shadowRadius: 12,
-                elevation: 10,
-              }),
-        } as any}
+        style={[
+          {
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: theme.primary,
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: fabRise,
+          },
+          fabShadow(),
+        ]}
       >
         <Animated.View style={fabIconStyle}>
           <Feather name="plus" size={26} color="#fff" />
@@ -179,7 +168,7 @@ function ClassicTabLayout() {
             elevation: 0,
             overflow: "visible",
             ...(isWeb ? { height: 84 } : {}),
-          } as any,
+          } satisfies ViewStyle,
           tabBarBackground: () =>
             isIOS ? (
               <BlurView
@@ -267,6 +256,7 @@ function ClassicTabLayout() {
       {/* Mini action menu */}
       {isMenuOpen && (
         <View
+          pointerEvents="box-none"
           style={{
             position: "absolute",
             bottom: tabBarH + insets.bottom + fabRise + 8,
@@ -275,8 +265,7 @@ function ClassicTabLayout() {
             alignItems: "center",
             gap: 12,
             zIndex: 21,
-            pointerEvents: "box-none",
-          } as any}
+          }}
         >
           {[...menuItems].reverse().map((item) => (
             <Animated.View key={item.label} style={item.animStyle}>
@@ -299,17 +288,17 @@ function ClassicTabLayout() {
                   <Text style={{ fontSize: 13, fontWeight: "700", color: "#fff" }}>{item.label}</Text>
                 </View>
                 <View
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 24,
-                    backgroundColor: item.color,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    ...(Platform.OS === "web"
-                      ? { boxShadow: `0 4px 12px ${item.color}60` }
-                      : { shadowColor: item.color, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.45, shadowRadius: 8, elevation: 8 }),
-                  } as any}
+                  style={[
+                    {
+                      width: 48,
+                      height: 48,
+                      borderRadius: 24,
+                      backgroundColor: item.color,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    },
+                    circleShadow(item.color),
+                  ]}
                 >
                   <Feather name={item.icon} size={20} color="#fff" />
                 </View>
@@ -326,11 +315,4 @@ function ClassicTabLayout() {
       />
     </View>
   );
-}
-
-export default function TabLayout() {
-  if (isLiquidGlassAvailable()) {
-    return <NativeTabLayout />;
-  }
-  return <ClassicTabLayout />;
 }

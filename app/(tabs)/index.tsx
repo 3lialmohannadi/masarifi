@@ -410,7 +410,7 @@ export default function DashboardScreen() {
                   {showBar && (
                     <View style={{ paddingHorizontal: 16, paddingBottom: 12, gap: 4 }}>
                       <View style={{ height: 4, backgroundColor: theme.border, borderRadius: 2, overflow: "hidden" }}>
-                        <View style={{ width: `${Math.round(spendRatio * 100)}%` as any, height: "100%", backgroundColor: spendColor, borderRadius: 2 }} />
+                        <View style={{ width: `${Math.round(spendRatio * 100)}%`, height: "100%", backgroundColor: spendColor, borderRadius: 2 }} />
                       </View>
                       <Text style={{ fontSize: 10, color: spendColor, textAlign: isRTL ? "right" : "left" }}>
                         {Math.round(spendRatio * 100)}% {language === "ar" ? "من الرصيد المتاح" : "of available balance"}
@@ -720,7 +720,7 @@ export default function DashboardScreen() {
                       >
                         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
                           <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: walletColor + "18", alignItems: "center", justifyContent: "center" }}>
-                            <MaterialCommunityIcons name={(w.icon || "piggy-bank") as any} size={17} color={walletColor} />
+                            <MaterialCommunityIcons name={(w.icon || "piggy-bank") as React.ComponentProps<typeof MaterialCommunityIcons>["name"]} size={17} color={walletColor} />
                           </View>
                           <View style={{ flex: 1 }}>
                             <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
@@ -742,7 +742,7 @@ export default function DashboardScreen() {
                           <View style={{ height: 5, backgroundColor: theme.border, borderRadius: 3, overflow: "hidden" }}>
                             <View
                               style={{
-                                width: `${percentage}%` as any,
+                                width: `${percentage}%`,
                                 height: "100%",
                                 backgroundColor: walletColor,
                                 borderRadius: 3,
@@ -766,7 +766,7 @@ export default function DashboardScreen() {
                   {t.debts.debtSummary}
                 </Text>
                 <Pressable
-                  onPress={() => { Haptics.selectionAsync(); router.push("/debts" as any); }}
+                  onPress={() => { Haptics.selectionAsync(); router.push("/debts"); }}
                   style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}
                 >
                   <Text style={{ fontSize: 13, color: "#EF4444", fontWeight: "600" }}>{t.dashboard.showAll}</Text>
@@ -774,7 +774,7 @@ export default function DashboardScreen() {
                 </Pressable>
               </View>
               <Pressable
-                onPress={() => { Haptics.selectionAsync(); router.push("/debts" as any); }}
+                onPress={() => { Haptics.selectionAsync(); router.push("/debts"); }}
                 style={({ pressed }) => ({
                   backgroundColor: theme.card,
                   borderRadius: 16,

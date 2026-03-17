@@ -166,7 +166,8 @@ export default function TransactionsTab() {
   const keyExtractor = useCallback((item: ListItem, i: number) => {
     if (item.type === "header") return `h-${item.date}`;
     if (item.type === "tx") return `tx-${item.tx.id}`;
-    return `tf-${(item as any).transfer.id}`;
+    if (item.type === "transfer") return `tf-${item.transfer.id}`;
+    return `item-${i}`;
   }, []);
 
   const renderItem = useCallback(({ item }: { item: ListItem }) => {
