@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { View, Text, Pressable, Switch, Share, Platform, Image, Modal, ActivityIndicator } from "react-native";
+import { buildTransactionsCSV, shareCSV, buildCSVFilename } from "@/utils/export";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -9,6 +10,7 @@ import { useApp } from "@/store/AppContext";
 import { useAuth } from "@/store/AuthContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
+import { useCategories } from "@/store/CategoriesContext";
 import { useSavings } from "@/store/SavingsContext";
 import { useCommitments } from "@/store/CommitmentsContext";
 import { AppButton } from "@/components/ui/AppButton";
@@ -73,11 +75,14 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, setLanguage, themeMode, setThemeMode, settings, updateSettings, isRTL, showToast, isDark } = useApp();
   const { accounts, clearAll: clearAccounts } = useAccounts();
-  const { transactions, clearAll: clearTransactions } = useTransactions();
+  const { transactions, transfers, clearAll: clearTransactions } = useTransactions();
+  const { categories } = useCategories();
   const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
   const { commitments, clearAll: clearCommitments } = useCommitments();
   const [exporting, setExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
+  const [exportingCSV, setExportingCSV] = useState(false);
+  const [exportCSVDone, setExportCSVDone] = useState(false);
   const [showCurrencies, setShowCurrencies] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -150,6 +155,22 @@ export default function SettingsScreen() {
       setExporting(false);
     }
   }, [accounts, transactions, savingsWallets, savingsTransactions, commitments, settings, showToast, t.toast.error]);
+
+  const handleExportCSV = useCallback(async () => {
+    setExportingCSV(true);
+    try {
+      const csv = buildTransactionsCSV(transactions, transfers, accounts, categories, t, language);
+      const filename = buildCSVFilename();
+      await shareCSV(csv, filename);
+      setExportCSVDone(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setTimeout(() => setExportCSVDone(false), 3000);
+    } catch {
+      showToast(t.toast.error, "error");
+    } finally {
+      setExportingCSV(false);
+    }
+  }, [transactions, transfers, accounts, categories, t, language, showToast]);
 
   const handleReset = useCallback(async () => {
     setResetting(true);
@@ -622,6 +643,39 @@ export default function SettingsScreen() {
             </Text>
           </View>
           {!exportDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.border} />}
+        </Pressable>
+        <Pressable
+          testID="settings-export-csv-btn"
+          onPress={handleExportCSV}
+          disabled={exportingCSV}
+          style={({ pressed }) => ({
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "center",
+            gap: 14,
+            padding: 14,
+            borderRadius: 16,
+            backgroundColor: exportCSVDone ? theme.incomeBackground : pressed ? theme.cardSecondary : theme.card,
+            borderWidth: 1,
+            borderColor: exportCSVDone ? theme.income : theme.border,
+            marginBottom: 8,
+          })}
+        >
+          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: exportCSVDone ? theme.incomeBackground : "#10B98118", alignItems: "center", justifyContent: "center" }}>
+            <Feather
+              name={exportCSVDone ? "check-circle" : exportingCSV ? "loader" : "grid"}
+              size={18}
+              color={exportCSVDone ? theme.income : "#10B981"}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 15, fontWeight: "600", color: exportCSVDone ? theme.income : theme.text, textAlign: isRTL ? "right" : "left" }}>
+              {exportCSVDone ? t.settings.exportCSVSuccess : t.settings.exportCSV}
+            </Text>
+            <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+              {t.settings.exportCSVDesc}
+            </Text>
+          </View>
+          {!exportCSVDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.border} />}
         </Pressable>
 
         {/* ── 7. Danger Zone ── */}

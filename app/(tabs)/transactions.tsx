@@ -16,6 +16,8 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
+import { useAccounts } from "@/store/AccountsContext";
+import { buildTransactionsCSV, shareCSV, buildCSVFilename } from "@/utils/export";
 import { TransactionItem } from "@/components/TransactionItem";
 import { TransferItem } from "@/components/TransferItem";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -38,12 +40,14 @@ type ListItem =
 
 export default function TransactionsTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, selectedAccountId, isRTL } = useApp();
+  const { theme, t, language, selectedAccountId, isRTL, showToast } = useApp();
   const { transactions, transfers, isLoaded } = useTransactions();
-  const { getCategory } = useCategories();
+  const { getCategory, categories } = useCategories();
+  const { accounts } = useAccounts();
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
+  const [exportingCSV, setExportingCSV] = useState(false);
   const debouncedSearch = useDebounce(search, 250);
 
   const [chipLayouts, setChipLayouts] = useState<Partial<Record<Filter, { x: number; width: number }>>>({});
@@ -156,6 +160,21 @@ export default function TransactionsTab() {
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
+  const handleExportCSV = useCallback(async () => {
+    setExportingCSV(true);
+    try {
+      const csv = buildTransactionsCSV(transactions, transfers, accounts, categories, t, language);
+      const filename = buildCSVFilename();
+      await shareCSV(csv, filename);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      showToast(t.settings.exportCSVSuccess, "success");
+    } catch {
+      showToast(t.toast.error, "error");
+    } finally {
+      setExportingCSV(false);
+    }
+  }, [transactions, transfers, accounts, categories, t, language, showToast]);
+
   const FILTERS = useMemo<{ key: Filter; label: string; color?: string }[]>(() => [
     { key: "all", label: t.transactions.filterAll },
     { key: "income", label: t.transactions.filterIncome, color: theme.income },
@@ -228,6 +247,15 @@ export default function TransactionsTab() {
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text }}>{t.transactions.title}</Text>
           <View style={{ flexDirection: "row", gap: 8 }}>
+            <Pressable
+              testID="btn-export-csv"
+              accessibilityLabel={t.settings.exportCSV}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); handleExportCSV(); }}
+              disabled={exportingCSV}
+              style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: theme.card, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: theme.border }}
+            >
+              <Feather name="share" size={16} color={theme.primary} />
+            </Pressable>
             <Pressable
               testID="btn-new-transfer"
               accessibilityLabel={t.transfer.title}

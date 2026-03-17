@@ -87,6 +87,7 @@ export const ar = {
     transferSubtitle: "تحويل بين الحسابات",
     statisticsSubtitle: "تقارير ورسوم بيانية",
     settingsSubtitle: "اللغة، المظهر، والمزيد",
+    monthlyReportSubtitle: "ملخص شهري تفصيلي",
   },
   accounts: {
     title: "الحسابات",
@@ -283,6 +284,9 @@ export const ar = {
     accountsOverview: "نظرة عامة على الحسابات",
     total: "المجموع",
     others: "أخرى",
+    monthlyReport: "التقرير الشهري",
+    monthlyReportSubtitle: "ملخص تفصيلي للشهر",
+    viewReport: "عرض التقرير",
   },
   settings: {
     title: "الإعدادات",
@@ -313,6 +317,9 @@ export const ar = {
     exportDesc: "تصدير جميع بياناتك بصيغة JSON",
     exportSuccess: "تم تصدير البيانات بنجاح",
     exportError: "حدث خطأ أثناء التصدير",
+    exportCSV: "تصدير المعاملات (CSV)",
+    exportCSVDesc: "تنزيل المعاملات كجدول بيانات",
+    exportCSVSuccess: "تم التصدير بنجاح",
     about: "حول التطبيق",
     version: "الإصدار",
     manage: "الإدارة",

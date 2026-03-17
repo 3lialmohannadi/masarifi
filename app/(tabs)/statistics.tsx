@@ -10,6 +10,8 @@ import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useSavings } from "@/store/SavingsContext";
+import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { useMonthPicker, MONTH_NAMES_AR, MONTH_NAMES_EN } from "@/hooks/useMonthPicker";
@@ -369,6 +371,34 @@ export default function StatisticsTab() {
               ))}
             </View>
           </View>
+
+          {/* ── View Monthly Report ── */}
+          <Pressable
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/report"); }}
+            style={({ pressed }) => ({
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              gap: 12,
+              padding: 14,
+              borderRadius: 16,
+              backgroundColor: pressed ? theme.cardSecondary : theme.card,
+              borderWidth: 1,
+              borderColor: theme.border,
+            })}
+          >
+            <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: theme.primary + "18", alignItems: "center", justifyContent: "center" }}>
+              <Feather name="file-text" size={18} color={theme.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                {t.statistics.monthlyReport}
+              </Text>
+              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                {t.statistics.monthlyReportSubtitle}
+              </Text>
+            </View>
+            <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.border} />
+          </Pressable>
 
           {/* ── Expense by Category (Donut/Pie Chart) ── */}
           <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14 }}>

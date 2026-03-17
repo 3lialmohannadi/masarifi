@@ -87,6 +87,7 @@ export const en = {
     transferSubtitle: "Transfer Between Accounts",
     statisticsSubtitle: "Charts & Reports",
     settingsSubtitle: "Language, Theme & More",
+    monthlyReportSubtitle: "Detailed monthly summary",
   },
   accounts: {
     title: "Accounts",
@@ -283,6 +284,9 @@ export const en = {
     accountsOverview: "Accounts Overview",
     total: "Total",
     others: "more",
+    monthlyReport: "Monthly Report",
+    monthlyReportSubtitle: "Detailed summary for the month",
+    viewReport: "View Report",
   },
   settings: {
     title: "Settings",
@@ -313,6 +317,9 @@ export const en = {
     exportDesc: "Export all your data as JSON",
     exportSuccess: "Data exported successfully",
     exportError: "Error occurred during export",
+    exportCSV: "Export Transactions (CSV)",
+    exportCSVDesc: "Download transactions as a spreadsheet",
+    exportCSVSuccess: "CSV exported successfully",
     about: "About",
     version: "Version",
     manage: "Manage",

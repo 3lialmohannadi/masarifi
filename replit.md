@@ -70,12 +70,15 @@ utils/                Utility functions
   date.ts             Date helpers, isReservedOn28th, formatDate
   defaults.ts         Default data generators
   display.ts          Display/label helpers
+  export.ts           CSV export: buildTransactionsCSV, shareCSV, buildCSVFilename
   id.ts               generateId, now
   storage.ts          AsyncStorage helpers with KEYS
   translate.ts        MyMemory auto-translation
 ```
 
 ## Feature Status (Current)
+- **CSV Export**: `utils/export.ts` provides `buildTransactionsCSV` (UTF-8 BOM, bilingual headers), `shareCSV` (native: expo-file-system/legacy + expo-sharing; web: Blob download), `buildCSVFilename`. Accessible from Transactions header (share button), Settings Data section, and Monthly Report screen.
+- **Monthly Report Screen**: `app/report/index.tsx` — per-month summary with income/expense/net/savings cards, top-5 spending categories with progress bars, transaction count, and CSV export. Accessible from Statistics tab (card button), More tab (menu item), and directly via `/report`.
 - **Plans/Budget**: Permanently removed — no UI, no routes, no translations, no backend endpoints.
 - **Favorites on Categories**: Permanently removed from UI. `is_favorite: false` is still sent to DB on category create (schema unchanged for backward-compat). No star badges, no sorting by favorite, no toggleFavorite function.
 - **Commitments**: Always manual. `recurrence_type` always `"none"`. `is_manual` always `true`. No recurring auto-generation.
