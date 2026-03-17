@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { View, Text, ScrollView, Pressable, Platform, Dimensions } from "react-native";
+import React, { useMemo, useState, useCallback } from "react";
+import { View, Text, ScrollView, Pressable, Platform, Dimensions, ActivityIndicator } from "react-native";
 import { StatisticsSkeleton } from "@/components/ui/Skeleton";
 import Svg, { Circle, Path, G, Line, Rect, Defs, LinearGradient, Stop, Polyline, Polygon, Text as SvgText } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,10 +10,10 @@ import { useTransactions } from "@/store/TransactionsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useSavings } from "@/store/SavingsContext";
-import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
+import { buildTransactionsCSV, shareCSV, buildCSVFilename } from "@/utils/export";
 import { useMonthPicker, MONTH_NAMES_AR, MONTH_NAMES_EN } from "@/hooks/useMonthPicker";
 import type { Language } from "@/types";
 
@@ -186,9 +186,9 @@ function LineChart({ data, color, theme, isRTL }: { data: LineMonth[]; color: st
 // ─── Main Statistics Screen ──────────────────────────────────────────────────
 export default function StatisticsTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL, isDark, settings } = useApp();
-  const { transactions, isLoaded: txLoaded } = useTransactions();
-  const { getCategory } = useCategories();
+  const { theme, t, language, isRTL, isDark, settings, showToast } = useApp();
+  const { transactions, transfers, isLoaded: txLoaded } = useTransactions();
+  const { getCategory, categories } = useCategories();
   const { accounts } = useAccounts();
   const { savingsTransactions, isLoaded: savingsLoaded } = useSavings();
   const { month: selectedMonth, year: selectedYear, monthName, monthKey, goToPrev, goToNext } = useMonthPicker(language);
@@ -215,6 +215,19 @@ export default function StatisticsTab() {
     [savingsTransactions, monthKey]
   );
   const monthRemaining = netSavings - monthSavingsDeposited;
+
+  const monthSavingsWithdrawn = useMemo(() =>
+    savingsTransactions
+      .filter((tx) => tx.date.startsWith(monthKey) && (tx.type === "withdraw_internal" || tx.type === "withdraw_external"))
+      .reduce((s, tx) => s + tx.amount, 0),
+    [savingsTransactions, monthKey]
+  );
+  const monthSavingsNet = monthSavingsDeposited - monthSavingsWithdrawn;
+
+  const monthTransfers = useMemo(() =>
+    transfers.filter((tf) => tf.date.startsWith(monthKey)),
+    [transfers, monthKey]
+  );
 
   // Category spending for pie chart + top list
   const categorySpending = useMemo(() => {
@@ -264,6 +277,23 @@ export default function StatisticsTab() {
   const primaryCurrency = settings.default_currency || accounts.find((a) => a.is_active)?.currency || "QAR";
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
   const hasExpenses = totalExpense > 0;
+
+  const [exporting, setExporting] = useState(false);
+  const handleExportCSV = useCallback(async () => {
+    if (exporting) return;
+    setExporting(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    try {
+      const csv = buildTransactionsCSV(monthTxs, monthTransfers, accounts, categories, t, language);
+      const filename = buildCSVFilename(`masarifi-${monthKey}`);
+      await shareCSV(csv, filename);
+      showToast(t.settings.exportCSVSuccess, "success");
+    } catch {
+      showToast(language === "ar" ? "تعذّر تصدير الملف" : "Export failed", "error");
+    } finally {
+      setExporting(false);
+    }
+  }, [exporting, monthTxs, monthTransfers, accounts, categories, language, monthName, selectedYear, showToast, t]);
 
   if (!txLoaded || !savingsLoaded) {
     return (
@@ -372,33 +402,108 @@ export default function StatisticsTab() {
             </View>
           </View>
 
-          {/* ── View Monthly Report ── */}
-          <Pressable
-            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/report"); }}
-            style={({ pressed }) => ({
-              flexDirection: isRTL ? "row-reverse" : "row",
-              alignItems: "center",
-              gap: 12,
-              padding: 14,
-              borderRadius: 16,
-              backgroundColor: pressed ? theme.cardSecondary : theme.card,
-              borderWidth: 1,
-              borderColor: theme.border,
-            })}
-          >
-            <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: theme.primary + "18", alignItems: "center", justifyContent: "center" }}>
-              <Feather name="file-text" size={18} color={theme.primary} />
+          {/* ── Monthly Report Section ── */}
+          <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14 }}>
+            {/* Header row */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.primary + "18", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="file-text" size={16} color={theme.primary} />
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text }}>{t.statistics.monthlyReport}</Text>
+              </View>
+              {/* CSV export button */}
+              <Pressable
+                onPress={handleExportCSV}
+                disabled={exporting}
+                style={({ pressed }) => ({
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  gap: 5,
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  borderRadius: 10,
+                  backgroundColor: pressed ? theme.primary + "30" : theme.primary + "18",
+                })}
+              >
+                {exporting
+                  ? <ActivityIndicator size={13} color={theme.primary} />
+                  : <Feather name="download" size={13} color={theme.primary} />}
+                <Text style={{ fontSize: 12, fontWeight: "600", color: theme.primary }}>CSV</Text>
+              </Pressable>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-                {t.statistics.monthlyReport}
-              </Text>
-              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                {t.statistics.monthlyReportSubtitle}
-              </Text>
+
+            {/* Metrics row: savings net + transaction count */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+              <View style={{ flex: 1, backgroundColor: theme.background, borderRadius: 12, padding: 12, gap: 4 }}>
+                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                  {language === "ar" ? "صافي التوفير" : "Savings Net"}
+                </Text>
+                <Text style={{ fontSize: 15, fontWeight: "700", color: monthSavingsNet >= 0 ? theme.primary : "#F59E0B", textAlign: isRTL ? "right" : "left" }}>
+                  {formatCurrency(Math.abs(monthSavingsNet), primaryCurrency, language)}
+                </Text>
+                {monthSavingsNet < 0 && (
+                  <Text style={{ fontSize: 10, color: "#F59E0B", textAlign: isRTL ? "right" : "left" }}>
+                    {language === "ar" ? "سحب أكثر من الإيداع" : "More withdrawn"}
+                  </Text>
+                )}
+              </View>
+              <View style={{ flex: 1, backgroundColor: theme.background, borderRadius: 12, padding: 12, gap: 4 }}>
+                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                  {language === "ar" ? "المعاملات" : "Transactions"}
+                </Text>
+                <Text style={{ fontSize: 15, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                  {monthTxs.length + monthTransfers.length}
+                </Text>
+                <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                  {monthTxs.length}{language === "ar" ? " عملية + " : " txn + "}{monthTransfers.length}{language === "ar" ? " تحويل" : " tr"}
+                </Text>
+              </View>
             </View>
-            <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.border} />
-          </Pressable>
+
+            {/* Top 3 spending categories */}
+            {categorySpending.length > 0 ? (
+              <View style={{ gap: 10 }}>
+                <Text style={{ fontSize: 12, fontWeight: "600", color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                  {language === "ar" ? "أعلى 3 تصنيفات إنفاق" : "Top 3 Spending Categories"}
+                </Text>
+                {categorySpending.slice(0, 3).map(({ id, amount, category }) => {
+                  const pct = totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
+                  const catName = category ? getDisplayName(category, language) : id;
+                  const catColor = category?.color || theme.expense;
+                  return (
+                    <View key={id} style={{ gap: 5 }}>
+                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+                        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 7, flex: 1 }}>
+                          {category && (
+                            <CategoryIcon
+                              name={category.icon}
+                              color={catColor}
+                              size={14}
+                            />
+                          )}
+                          <Text style={{ fontSize: 12, color: theme.text, fontWeight: "500" }} numberOfLines={1}>{catName}</Text>
+                        </View>
+                        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                          <Text style={{ fontSize: 11, color: theme.textMuted }}>{pct.toFixed(1)}%</Text>
+                          <Text style={{ fontSize: 12, color: theme.text, fontWeight: "600" }}>
+                            {formatCurrency(amount, primaryCurrency, language)}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={{ height: 5, backgroundColor: theme.border, borderRadius: 3, overflow: "hidden" }}>
+                        <View style={{ width: `${pct}%`, height: "100%", backgroundColor: catColor, borderRadius: 3 }} />
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            ) : (
+              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: "center", paddingVertical: 4 }}>
+                {language === "ar" ? "لا توجد مصروفات هذا الشهر" : "No expenses this month"}
+              </Text>
+            )}
+          </View>
 
           {/* ── Expense by Category (Donut/Pie Chart) ── */}
           <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14 }}>
