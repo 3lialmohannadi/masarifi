@@ -379,26 +379,15 @@ export default function StatisticsTab() {
     [categorySpending, language, theme.expense, getBudgetForCategory, monthKey]
   );
 
-  // Last 6 months data (for bar + line charts)
-  const trend6 = useMemo(() => {
-    const months: BarMonth[] = [];
-    for (let i = 5; i >= 0; i--) {
-      let m = selectedMonth - i;
-      let y = selectedYear;
-      while (m <= 0) { m += 12; y--; }
-      const key = `${y}-${String(m).padStart(2, "0")}`;
-      const txs = transactions.filter((tx) => tx.date.startsWith(key));
-      const inc = txs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
-      const exp = txs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
-      const label = language === "ar" ? MONTH_NAMES_AR[m - 1].slice(0, 3) : MONTH_NAMES_EN[m - 1].slice(0, 3);
-      months.push({ label, income: inc, expense: exp });
-    }
-    return months;
-  }, [transactions, selectedMonth, selectedYear, language]);
+  // Last 6 months data — derived from useTrendData hook (single source of truth)
+  const trend6: BarMonth[] = useMemo(
+    () => trendData.map((d) => ({ label: d.label, income: d.income, expense: d.expense })),
+    [trendData]
+  );
 
   const lineData = useMemo<LineMonth[]>(() =>
-    trend6.map((d) => ({ label: d.label, value: d.expense })),
-    [trend6]
+    trendData.map((d) => ({ label: d.label, value: d.expense })),
+    [trendData]
   );
 
   // ── Previous month baselines ─────────────────────────────────────────────────
