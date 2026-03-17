@@ -17,7 +17,7 @@ async function getPermissions(): Promise<{ status: PermissionStatus }> {
 }
 
 export async function requestPermission(): Promise<PermissionStatus> {
-  if (Platform.OS === "web") return "denied";
+  if (Platform.OS !== "ios") return "granted";
   try {
     const Notifications = await import("expo-notifications");
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
