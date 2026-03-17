@@ -124,13 +124,17 @@ function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
 
 // ─── Bar Chart (Income vs Expense) ──────────────────────────────────────────
 interface BarMonth { label: string; income: number; expense: number; }
-function BarChart({ data, theme, isRTL }: { data: BarMonth[]; theme: any; isRTL: boolean }) {
+function BarChart({ data, theme, isRTL, forecastLine }: { data: BarMonth[]; theme: any; isRTL: boolean; forecastLine?: number | null }) {
   const chartH = 130; const chartW = CHART_WIDTH; const paddingBottom = 24; const paddingTop = 10;
   const barH = chartH - paddingBottom - paddingTop;
   const groupW = chartW / data.length;
   const barW = Math.max(groupW * 0.28, 6);
-  const maxVal = Math.max(...data.flatMap((d) => [d.income, d.expense]), 1);
+  const maxVal = Math.max(...data.flatMap((d) => [d.income, d.expense]), forecastLine ?? 0, 1);
   const displayData = isRTL ? [...data].reverse() : data;
+
+  const forecastY = forecastLine != null && forecastLine > 0
+    ? paddingTop + barH * (1 - forecastLine / maxVal)
+    : null;
 
   return (
     <Svg width={chartW} height={chartH}>
@@ -158,6 +162,18 @@ function BarChart({ data, theme, isRTL }: { data: BarMonth[]; theme: any; isRTL:
           </G>
         );
       })}
+      {forecastY != null && (
+        <G>
+          <Line
+            x1={0} y1={forecastY}
+            x2={chartW} y2={forecastY}
+            stroke="#F59E0B" strokeWidth={1.5} strokeDasharray="5,4"
+          />
+          <SvgText x={4} y={forecastY - 3} fill="#F59E0B" fontSize={8} fontWeight="600">
+            ▸
+          </SvgText>
+        </G>
+      )}
     </Svg>
   );
 }
@@ -386,6 +402,8 @@ export default function StatisticsTab() {
   );
 
   // ── Previous month data for MoM delta ──────────────────────────────────────
+  // For current month: compare only through the same elapsed day in the prior month.
+  // For historical months: compare the full selected month vs the full prior month.
   const prevMonthKey = useMemo(() => {
     let m = selectedMonth - 1;
     let y = selectedYear;
@@ -393,10 +411,20 @@ export default function StatisticsTab() {
     return `${y}-${String(m).padStart(2, "0")}`;
   }, [selectedMonth, selectedYear]);
 
-  const prevMonthTxs = useMemo(() =>
-    transactions.filter((tx) => tx.date.startsWith(prevMonthKey)),
-    [transactions, prevMonthKey]
-  );
+  const prevMonthTxs = useMemo(() => {
+    const todayNow = new Date();
+    const isCurrent = selectedMonth === (todayNow.getMonth() + 1) && selectedYear === todayNow.getFullYear();
+    if (isCurrent) {
+      // Limit to the same day-of-month range as elapsed so far
+      const cutoffDay = todayNow.getDate();
+      return transactions.filter((tx) => {
+        if (!tx.date.startsWith(prevMonthKey)) return false;
+        const day = parseInt(tx.date.slice(8, 10), 10);
+        return day <= cutoffDay;
+      });
+    }
+    return transactions.filter((tx) => tx.date.startsWith(prevMonthKey));
+  }, [transactions, prevMonthKey, selectedMonth, selectedYear]);
 
   const prevMonthIncome = useMemo(() =>
     prevMonthTxs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0),
@@ -416,7 +444,7 @@ export default function StatisticsTab() {
 
   // ── Savings Rate ────────────────────────────────────────────────────────────
   const savingsRate = totalIncome > 0
-    ? Math.max(((totalIncome - totalExpense) / totalIncome) * 100, 0)
+    ? ((totalIncome - totalExpense) / totalIncome) * 100
     : 0;
   const savingsRateColor = savingsRate >= 20 ? "#22C55E" : savingsRate >= 10 ? "#F59E0B" : "#EF4444";
 
@@ -614,6 +642,7 @@ export default function StatisticsTab() {
               </View>
               {forecastedExpense !== null ? (
                 <>
+                  <Text style={{ fontSize: 9, color: theme.textSecondary, marginTop: 2 }}>{t.statistics.forecastLabel}</Text>
                   <Text style={{ fontSize: 14, fontWeight: "800", color: forecastHigher ? "#EF4444" : theme.text }} numberOfLines={1}>
                     {formatCurrency(forecastedExpense, primaryCurrency, language)}
                   </Text>
@@ -790,7 +819,7 @@ export default function StatisticsTab() {
               <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text }}>{t.statistics.incomeVsExpense}</Text>
             </View>
             <View style={{ alignItems: "center" }}>
-              <BarChart data={trend6} theme={theme} isRTL={isRTL} />
+              <BarChart data={trend6} theme={theme} isRTL={isRTL} forecastLine={isCurrentMonth ? forecastedExpense : null} />
             </View>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 16 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
