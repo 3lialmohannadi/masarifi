@@ -9,11 +9,12 @@ import { useAccounts } from "@/store/AccountsContext";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { AccountsSkeleton } from "@/components/ui/Skeleton";
 
 export default function AccountsListScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL, isDark } = useApp();
-  const { accounts } = useAccounts();
+  const { accounts, isLoaded } = useAccounts();
 
   const activeAccounts = accounts.filter((a) => a.is_active);
   const archivedAccounts = accounts.filter((a) => !a.is_active);
@@ -23,6 +24,18 @@ export default function AccountsListScreen() {
     return acc;
   }, {});
   const currencyEntries = Object.entries(currencyTotals);
+
+  if (!isLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16, paddingBottom: 12, paddingHorizontal: 20, backgroundColor: theme.background, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border }} />
+          <View style={{ flex: 1, height: 24, borderRadius: 8, backgroundColor: theme.card }} />
+        </View>
+        <AccountsSkeleton />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>

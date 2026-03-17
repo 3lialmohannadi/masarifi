@@ -6,7 +6,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -29,7 +29,16 @@ import { DebtsProvider } from "@/store/DebtsContext";
 SplashScreen.preventAutoHideAsync();
 
 function AppLoadingGate({ children }: { children: React.ReactNode }) {
-  const { isLoaded, isDark } = useApp();
+  const { isLoaded, isDark, settings } = useApp();
+  const onboardingChecked = useRef(false);
+
+  useEffect(() => {
+    if (!isLoaded || onboardingChecked.current) return;
+    onboardingChecked.current = true;
+    if (!settings.onboarded) {
+      router.replace("/onboarding");
+    }
+  }, [isLoaded, settings.onboarded]);
 
   if (!isLoaded) {
     return (
@@ -73,6 +82,7 @@ function Providers({ children }: { children: React.ReactNode }) {
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="onboarding" options={{ headerShown: false, animation: "fade" }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
         name="(modals)/add-transaction"

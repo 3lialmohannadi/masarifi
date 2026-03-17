@@ -9,6 +9,7 @@ import { useCommitments } from "@/store/CommitmentsContext";
 import { CommitmentItem } from "@/components/CommitmentItem";
 import PayNowModal from "@/components/PayNowModal";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CommitmentsSkeleton } from "@/components/ui/Skeleton";
 import type { CommitmentStatus } from "@/types";
 
 type Filter = "all" | CommitmentStatus;
@@ -16,7 +17,7 @@ type Filter = "all" | CommitmentStatus;
 export default function CommitmentsScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, isRTL } = useApp();
-  const { commitments } = useCommitments();
+  const { commitments, isLoaded } = useCommitments();
   const [filter, setFilter] = useState<Filter>("all");
   const [payingId, setPayingId] = useState<string | null>(null);
 
@@ -35,6 +36,18 @@ export default function CommitmentsScreen() {
     { key: "overdue", label: t.commitments.status.overdue, count: overdueCount || undefined },
     { key: "paid", label: t.commitments.status.paid },
   ];
+
+  if (!isLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16, paddingHorizontal: 20, paddingBottom: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border }} />
+          <View style={{ flex: 1, height: 24, borderRadius: 8, backgroundColor: theme.card }} />
+        </View>
+        <CommitmentsSkeleton />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>

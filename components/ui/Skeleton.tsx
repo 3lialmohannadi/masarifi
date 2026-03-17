@@ -135,3 +135,99 @@ export function SavingsSkeleton() {
     </View>
   );
 }
+
+export function AccountsSkeleton() {
+  return (
+    <View style={{ paddingHorizontal: 20, gap: 12, paddingTop: 16 }}>
+      <Skeleton height={100} borderRadius={18} />
+      {[0, 1, 2, 3].map((i) => (
+        <SkeletonCard key={i}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <Skeleton width={44} height={44} borderRadius={12} />
+            <View style={{ flex: 1, gap: 6 }}>
+              <Skeleton width="55%" height={14} borderRadius={6} />
+              <Skeleton width="35%" height={11} borderRadius={5} />
+            </View>
+            <View style={{ gap: 5, alignItems: "flex-end" }}>
+              <Skeleton width={80} height={14} borderRadius={6} />
+              <Skeleton width={30} height={10} borderRadius={4} />
+            </View>
+          </View>
+        </SkeletonCard>
+      ))}
+    </View>
+  );
+}
+
+export function CommitmentsSkeleton() {
+  return (
+    <View style={{ paddingHorizontal: 20, gap: 12, paddingTop: 16 }}>
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} width={80} height={32} borderRadius={20} />
+        ))}
+      </View>
+      {[0, 1, 2, 3].map((i) => (
+        <SkeletonCard key={i}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <Skeleton width={42} height={42} borderRadius={12} />
+            <View style={{ flex: 1, gap: 6 }}>
+              <Skeleton width="60%" height={14} borderRadius={6} />
+              <Skeleton width="40%" height={11} borderRadius={5} />
+            </View>
+            <View style={{ gap: 5, alignItems: "flex-end" }}>
+              <Skeleton width={70} height={14} borderRadius={6} />
+              <Skeleton width={50} height={10} borderRadius={4} />
+            </View>
+          </View>
+        </SkeletonCard>
+      ))}
+    </View>
+  );
+}
+
+export function DebtsSkeleton() {
+  return (
+    <View style={{ paddingHorizontal: 20, gap: 12, paddingTop: 16 }}>
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        <Skeleton height={80} borderRadius={14} style={{ flex: 1 }} />
+        <Skeleton height={80} borderRadius={14} style={{ flex: 1 }} />
+      </View>
+      {[0, 1, 2].map((i) => (
+        <SkeletonCard key={i}>
+          <View style={{ gap: 10 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <Skeleton width={44} height={44} borderRadius={12} />
+              <View style={{ flex: 1, gap: 6 }}>
+                <Skeleton width="65%" height={14} borderRadius={6} />
+                <Skeleton width="40%" height={11} borderRadius={5} />
+              </View>
+              <Skeleton width={80} height={14} borderRadius={6} />
+            </View>
+            <Skeleton height={6} borderRadius={4} />
+          </View>
+        </SkeletonCard>
+      ))}
+    </View>
+  );
+}
+
+export function CategoriesSkeleton() {
+  return (
+    <View style={{ paddingHorizontal: 20, gap: 12, paddingTop: 16 }}>
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} width={80} height={32} borderRadius={20} />
+        ))}
+      </View>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+        {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+          <View key={i} style={{ width: "30%", gap: 8, alignItems: "center", padding: 12, borderRadius: 16 }}>
+            <Skeleton width={48} height={48} borderRadius={14} />
+            <Skeleton width="80%" height={11} borderRadius={5} />
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}

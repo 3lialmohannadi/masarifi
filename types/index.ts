@@ -196,4 +196,5 @@ export interface AppSettings {
   last_used_category_id: string;
   notification_enabled: boolean;
   default_currency: string;
+  onboarded?: boolean;
 }

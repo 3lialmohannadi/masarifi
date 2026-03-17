@@ -10,6 +10,7 @@ import { DebtCard } from "@/components/debts/DebtCard";
 import { DebtSummaryCards } from "@/components/debts/DebtSummaryCards";
 import { DebtStatistics } from "@/components/debts/DebtStatistics";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { DebtsSkeleton } from "@/components/ui/Skeleton";
 import type { DebtCategory, DebtStatus } from "@/types";
 
 type StatusFilter = "all" | DebtStatus;
@@ -19,7 +20,7 @@ export default function DebtsScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, isRTL, settings } = useApp();
   const appCurrency = settings.default_currency;
-  const { debts, totalOriginal, totalPaid, totalRemaining, activeDebts } = useDebts();
+  const { debts, totalOriginal, totalPaid, totalRemaining, activeDebts, isLoaded } = useDebts();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
@@ -77,6 +78,18 @@ export default function DebtsScreen() {
   }
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
+
+  if (!isLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ paddingTop: topPadding, paddingHorizontal: 20, paddingBottom: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border }} />
+          <View style={{ flex: 1, height: 24, borderRadius: 8, backgroundColor: theme.card }} />
+        </View>
+        <DebtsSkeleton />
+      </View>
+    );
+  }
 
   const renderHeader = () => (
     <View style={{ gap: 16 }}>

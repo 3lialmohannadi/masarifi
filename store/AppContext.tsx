@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   last_used_category_id: "",
   notification_enabled: true,
   default_currency: "QAR",
+  onboarded: false,
 };
 
 export type ToastType = "success" | "error" | "info";
@@ -65,7 +66,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadData<AppSettings>(KEYS.SETTINGS)
       .then((saved) => {
         if (saved) {
-          setSettings({ ...DEFAULT_SETTINGS, ...saved });
+          const onboarded = saved.onboarded ?? true;
+          setSettings({ ...DEFAULT_SETTINGS, ...saved, onboarded });
         }
       })
       .catch(() => {})

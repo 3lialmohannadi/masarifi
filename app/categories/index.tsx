@@ -9,11 +9,12 @@ import { useApp } from "@/store/AppContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { getDisplayName } from "@/utils/display";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CategoriesSkeleton } from "@/components/ui/Skeleton";
 
 export default function CategoriesScreen() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL, isDark } = useApp();
-  const { categories, deleteCategory } = useCategories();
+  const { categories, deleteCategory, isLoaded } = useCategories();
 
   const activeCategories = useMemo(
     () => [...categories],
@@ -48,6 +49,18 @@ export default function CategoriesScreen() {
   };
 
   const topPad = Platform.OS === "web" ? insets.top + 51 : insets.top;
+
+  if (!isLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ paddingTop: topPad + 16, paddingHorizontal: 20, paddingBottom: 12, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border }} />
+          <View style={{ flex: 1, height: 24, borderRadius: 8, backgroundColor: theme.card }} />
+        </View>
+        <CategoriesSkeleton />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
