@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Swipeable } from "react-native-gesture-handler";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { useApp } from "@/store/AppContext";
 import { useCategories } from "@/store/CategoriesContext";
@@ -15,11 +16,30 @@ import * as Haptics from "expo-haptics";
 interface TransactionItemProps {
   transaction: Transaction;
   onPress?: () => void;
+  onDelete?: (id: string) => void;
   showDate?: boolean;
   flat?: boolean;
 }
 
-export const TransactionItem = React.memo(function TransactionItem({ transaction, onPress, showDate = true, flat = false }: TransactionItemProps) {
+function formatTime(isoString: string): string {
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return "";
+    const h = d.getHours().toString().padStart(2, "0");
+    const m = d.getMinutes().toString().padStart(2, "0");
+    return `${h}:${m}`;
+  } catch {
+    return "";
+  }
+}
+
+export const TransactionItem = React.memo(function TransactionItem({
+  transaction,
+  onPress,
+  onDelete,
+  showDate = true,
+  flat = false,
+}: TransactionItemProps) {
   const { theme, language, isRTL, t, isDark } = useApp();
   const { getCategory } = useCategories();
   const { getWallet } = useSavings();
@@ -42,35 +62,31 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
   if (isSavingsLinked) {
     const walletColor = linkedWallet?.color || theme.primary;
     const walletName = linkedWallet ? getDisplayName(linkedWallet, language) : t.savings.wallet;
-    iconBg = walletColor + "18";
+    iconBg = walletColor + "20";
     mainLabel = walletName;
     iconNode = (
       <MaterialCommunityIcons
         name={(linkedWallet?.icon as any) || "piggy-bank"}
-        size={20}
+        size={22}
         color={walletColor}
       />
     );
   } else if (isTransferLinked) {
     const accountColor = linkedAccount?.color || theme.primary;
     const accountName = linkedAccount ? getDisplayName(linkedAccount, language) : t.transactions.account;
-    iconBg = accountColor + "18";
+    iconBg = accountColor + "20";
     mainLabel = accountName;
     iconNode = (
-      <Feather
-        name="repeat"
-        size={20}
-        color={accountColor}
-      />
+      <Feather name="repeat" size={22} color={accountColor} />
     );
   } else {
     const catColor = category?.color || amountColor;
-    iconBg = `${catColor}18`;
+    iconBg = `${catColor}20`;
     mainLabel = getDisplayName(category, language) || (isIncome ? t.transactions.income : t.transactions.expense);
     iconNode = (
       <CategoryIcon
         name={category?.icon || (isIncome ? "arrow-bottom-left" : "arrow-top-right")}
-        size={20}
+        size={22}
         color={catColor}
       />
     );
@@ -81,7 +97,37 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
     onPress?.();
   };
 
-  return (
+  const timeStr = transaction.created_at ? formatTime(transaction.created_at) : "";
+
+  const subParts: string[] = [];
+  if (showDate) subParts.push(formatDateShort(transaction.date, language));
+  if (timeStr) subParts.push(timeStr);
+  if (transaction.note) subParts.push(transaction.note);
+  const subText = subParts.join(" · ");
+
+  const renderRightActions = () => {
+    if (!onDelete) return null;
+    return (
+      <Pressable
+        onPress={() => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          onDelete(transaction.id);
+        }}
+        style={{
+          backgroundColor: "#EF4444",
+          justifyContent: "center",
+          alignItems: "center",
+          width: 72,
+          borderRadius: flat ? 0 : 16,
+          marginBottom: flat ? 0 : 8,
+        }}
+      >
+        <Feather name="trash-2" size={20} color="#fff" />
+      </Pressable>
+    );
+  };
+
+  const content = (
     <Pressable
       onPress={handlePress}
       style={({ pressed }) => ({
@@ -102,9 +148,9 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
     >
       <View
         style={{
-          width: 46,
-          height: 46,
-          borderRadius: 14,
+          width: 48,
+          height: 48,
+          borderRadius: 15,
           backgroundColor: iconBg,
           alignItems: "center",
           justifyContent: "center",
@@ -112,27 +158,39 @@ export const TransactionItem = React.memo(function TransactionItem({ transaction
       >
         {iconNode}
       </View>
-      <View style={{ flex: 1, gap: 2 }}>
+      <View style={{ flex: 1, gap: 3 }}>
         <Text
           style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}
           numberOfLines={1}
         >
           {mainLabel}
         </Text>
-        {(showDate || transaction.note) && (
+        {subText.length > 0 && (
           <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
-            {showDate ? formatDateShort(transaction.date, language) : ""}
-            {showDate && transaction.note ? " · " : ""}
-            {transaction.note || ""}
+            {subText}
           </Text>
         )}
       </View>
-      <View style={{ alignItems: "flex-end", gap: 2 }}>
-        <Text style={{ fontSize: 16, fontWeight: "700", color: amountColor }}>
+      <View style={{ alignItems: isRTL ? "flex-start" : "flex-end", gap: 2 }}>
+        <Text style={{ fontSize: 18, fontWeight: "800", color: amountColor }}>
           {isIncome ? "+" : "-"}
           {formatCurrency(transaction.amount, transaction.currency, language)}
         </Text>
       </View>
     </Pressable>
+  );
+
+  if (!onDelete) return content;
+
+  return (
+    <Swipeable
+      renderRightActions={isRTL ? undefined : renderRightActions}
+      renderLeftActions={isRTL ? renderRightActions : undefined}
+      friction={2}
+      overshootRight={false}
+      overshootLeft={false}
+    >
+      {content}
+    </Swipeable>
   );
 });

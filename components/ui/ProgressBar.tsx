@@ -1,5 +1,5 @@
-import React from "react";
-import { View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Animated } from "react-native";
 import { useApp } from "@/store/AppContext";
 
 export interface ProgressBarProps {
@@ -17,16 +17,40 @@ export function ProgressBar({
   color,
   backgroundColor,
   trackColor,
+  animated = true,
 }: ProgressBarProps) {
   const { theme } = useApp();
   const clampedProgress = Math.min(Math.max(progress, 0), 1);
-  const barColor = color || theme.primary;
+  const widthAnim = useRef(new Animated.Value(0)).current;
 
-  const getColor = () => {
-    if (clampedProgress >= 1) return "#EF4444";
-    if (clampedProgress >= 0.8) return "#F59E0B";
-    return barColor;
-  };
+  const isComplete = clampedProgress >= 1;
+  const isWarning = clampedProgress >= 0.8 && !isComplete;
+
+  const barColor = color != null
+    ? color
+    : isComplete
+    ? "#EF4444"
+    : isWarning
+    ? "#F59E0B"
+    : theme.primary;
+
+  useEffect(() => {
+    if (animated) {
+      Animated.spring(widthAnim, {
+        toValue: clampedProgress,
+        useNativeDriver: false,
+        tension: 60,
+        friction: 12,
+      }).start();
+    } else {
+      widthAnim.setValue(clampedProgress);
+    }
+  }, [clampedProgress, animated, widthAnim]);
+
+  const animatedWidth = widthAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
 
   return (
     <View
@@ -37,11 +61,11 @@ export function ProgressBar({
         overflow: "hidden",
       }}
     >
-      <View
+      <Animated.View
         style={{
           height: "100%",
-          width: `${clampedProgress * 100}%`,
-          backgroundColor: getColor(),
+          width: animatedWidth,
+          backgroundColor: barColor,
           borderRadius: height / 2,
         }}
       />

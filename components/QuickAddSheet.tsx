@@ -8,8 +8,8 @@ import {
   FlatList,
   Keyboard,
   Platform,
+  ActivityIndicator,
 } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
@@ -291,17 +291,80 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     </View>
   );
 
+  // ─── Custom Keypad helper ─────────────────────────────────────────────────
+
+  const handleKeypadPress = (key: string) => {
+    Haptics.selectionAsync();
+    if (amountError) setAmountError("");
+    setAmount((prev) => {
+      if (key === "backspace") return prev.slice(0, -1);
+      if (key === ".") {
+        if (prev.includes(".")) return prev;
+        return prev === "" ? "0." : prev + ".";
+      }
+      const next = prev + key;
+      const parts = next.split(".");
+      if (parts.length === 2 && parts[1].length > 2) return prev;
+      if (parts[0].length > 9) return prev;
+      return next;
+    });
+  };
+
+  const keypadRows: string[][] = [
+    ["1", "2", "3"],
+    ["4", "5", "6"],
+    ["7", "8", "9"],
+    [".", "0", "backspace"],
+  ];
+
+  const renderKeypad = () => (
+    <View style={{ paddingHorizontal: 12, paddingTop: 4, gap: 6 }}>
+      {keypadRows.map((row, ri) => (
+        <View key={ri} style={{ flexDirection: "row", gap: 6 }}>
+          {row.map((key) => (
+            <Pressable
+              key={key}
+              onPress={() => handleKeypadPress(key)}
+              style={({ pressed }) => ({
+                flex: 1,
+                height: 52,
+                borderRadius: 14,
+                backgroundColor: pressed
+                  ? theme.border
+                  : key === "backspace"
+                  ? theme.cardSecondary
+                  : theme.background,
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: 1,
+                borderColor: theme.border,
+              })}
+            >
+              {key === "backspace" ? (
+                <Feather name="delete" size={20} color={theme.textSecondary} />
+              ) : (
+                <Text style={{ fontSize: 22, fontWeight: "600", color: theme.text }}>
+                  {key}
+                </Text>
+              )}
+            </Pressable>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+
   // ─── Step: Main ───────────────────────────────────────────────────────────
 
   const renderMainStep = () => (
-    <KeyboardAvoidingView behavior="padding" style={{ flex: 1, justifyContent: "flex-end" }}>
+    <View style={{ flex: 1, justifyContent: "flex-end" }}>
       <Pressable style={{ flex: 1 }} onPress={() => { Keyboard.dismiss(); onClose(); }} />
-      <Pressable onPress={() => {}} style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingBottom: insets.bottom + 16 }}>
+      <Pressable onPress={() => {}} style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingBottom: insets.bottom + 8 }}>
         {/* Handle */}
         <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: "center", marginTop: 10 }} />
 
         {/* Type Toggle */}
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", margin: 16, backgroundColor: theme.background, borderRadius: 16, padding: 4, gap: 4 }}>
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", margin: 16, marginBottom: 8, backgroundColor: theme.background, borderRadius: 16, padding: 4, gap: 4 }}>
           {(["expense", "income"] as TransactionType[]).map((ty) => {
             const isActive = type === ty;
             const col = ty === "income" ? theme.income : theme.expense;
@@ -320,9 +383,9 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
           })}
         </View>
 
-        {/* Amount */}
-        <View style={{ alignItems: "center", paddingHorizontal: 20, marginBottom: 4 }}>
-          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+        {/* Amount Display */}
+        <View style={{ alignItems: "center", paddingHorizontal: 20, paddingVertical: 4 }}>
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "center", gap: 6 }}>
             <TextInput
               ref={amountRef}
               testID="quick-amount-input"
@@ -330,21 +393,33 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               onChangeText={(v) => { setAmount(v); if (amountError) setAmountError(""); }}
               keyboardType="decimal-pad"
               placeholder="0.00"
-              placeholderTextColor={theme.textMuted}
-              style={{ fontSize: 44, fontWeight: "800", color: typeColor, textAlign: "center", minWidth: 120, ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
+              placeholderTextColor={theme.textMuted + "80"}
+              showSoftInputOnFocus={false}
+              caretHidden={Platform.OS !== "web"}
+              style={{ fontSize: 52, fontWeight: "800", color: typeColor, textAlign: "center", minWidth: 140, ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
             />
             {selectedAccount && (
-              <Text style={{ fontSize: 14, color: theme.textMuted, alignSelf: "flex-end", paddingBottom: 8 }}>
+              <Text style={{ fontSize: 16, fontWeight: "600", color: theme.textMuted, alignSelf: "flex-end", paddingBottom: 10 }}>
                 {selectedAccount.currency}
               </Text>
             )}
           </View>
-          {!!amountError && <Text style={{ fontSize: 12, color: "#EF4444", marginTop: 2 }}>{amountError}</Text>}
+          {!!amountError && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 }}>
+              <Feather name="alert-circle" size={12} color="#EF4444" />
+              <Text style={{ fontSize: 12, color: "#EF4444" }}>{amountError}</Text>
+            </View>
+          )}
         </View>
 
         {/* Category */}
         <View style={{ paddingHorizontal: 16, marginBottom: 6 }}>
-          {!!categoryError && <Text style={{ fontSize: 12, color: "#EF4444", marginBottom: 6, textAlign: isRTL ? "right" : "left" }}>{categoryError}</Text>}
+          {!!categoryError && (
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4, marginBottom: 4 }}>
+              <Feather name="alert-circle" size={12} color="#EF4444" />
+              <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{categoryError}</Text>
+            </View>
+          )}
           <Pressable
             testID="cat-selector-btn"
             onPress={() => { Haptics.selectionAsync(); setStep("category"); }}
@@ -357,13 +432,13 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               borderWidth: 1.5,
               borderColor: categoryError ? "#EF4444" : selectedCategory ? selectedCategory.color + "80" : theme.border,
               paddingHorizontal: 14,
-              paddingVertical: 12,
+              paddingVertical: 10,
             })}
           >
             {selectedCategory ? (
               <>
-                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: selectedCategory.color + "20", alignItems: "center", justifyContent: "center" }}>
-                  <CategoryIcon name={selectedCategory.icon} size={18} color={selectedCategory.color} />
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: selectedCategory.color + "20", alignItems: "center", justifyContent: "center" }}>
+                  <CategoryIcon name={selectedCategory.icon} size={17} color={selectedCategory.color} />
                 </View>
                 <Text style={{ flex: 1, fontSize: 15, fontWeight: "600", color: selectedCategory.color, textAlign: isRTL ? "right" : "left" }}>
                   {getDisplayName(selectedCategory, language)}
@@ -372,8 +447,8 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
               </>
             ) : (
               <>
-                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.border + "60", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="tag" size={18} color={theme.textMuted} />
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: theme.border + "60", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="tag" size={17} color={theme.textMuted} />
                 </View>
                 <Text style={{ flex: 1, fontSize: 15, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
                   {t.transactions.selectCategory}
@@ -400,61 +475,77 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
           </Pressable>
         )}
 
-        {/* Bottom Row */}
-        <View style={{ paddingHorizontal: 16, gap: 10 }}>
-          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
-            <Pressable
-              onPress={() => setStep("account")}
-              style={{ flex: 1, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, backgroundColor: theme.background, borderRadius: 12, padding: 11, borderWidth: 1, borderColor: theme.border }}
-            >
-              {selectedAccount ? (
-                <>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: selectedAccount.color }} />
-                  <Text style={{ color: theme.text, fontSize: 13, fontWeight: "600", flex: 1 }} numberOfLines={1}>{getDisplayName(selectedAccount, language)}</Text>
-                </>
-              ) : (
-                <>
-                  <Feather name="credit-card" size={14} color={theme.textMuted} />
-                  <Text style={{ color: theme.textMuted, fontSize: 13, flex: 1 }}>{t.transactions.account}</Text>
-                </>
-              )}
-              <Feather name="chevron-down" size={13} color={theme.textMuted} />
-            </Pressable>
-            <Pressable
-              onPress={() => setShowDatePicker(true)}
-              style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, backgroundColor: theme.background, borderRadius: 12, padding: 11, borderWidth: 1, borderColor: dateError ? "#EF4444" : theme.border }}
-            >
-              <Feather name="calendar" size={14} color={dateError ? "#EF4444" : theme.textMuted} />
-              <Text style={{ color: date === today ? typeColor : theme.textSecondary, fontSize: 13, fontWeight: "600" }}>
-                {date === today ? t.transactions.today : date === yesterday ? t.transactions.yesterday : date}
-              </Text>
-            </Pressable>
-          </View>
+        {/* Account + Date row */}
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8, paddingHorizontal: 16, marginBottom: 8 }}>
+          <Pressable
+            onPress={() => setStep("account")}
+            style={{ flex: 1, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, backgroundColor: theme.background, borderRadius: 12, padding: 10, borderWidth: 1, borderColor: theme.border }}
+          >
+            {selectedAccount ? (
+              <>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: selectedAccount.color }} />
+                <Text style={{ color: theme.text, fontSize: 13, fontWeight: "600", flex: 1 }} numberOfLines={1}>{getDisplayName(selectedAccount, language)}</Text>
+              </>
+            ) : (
+              <>
+                <Feather name="credit-card" size={14} color={theme.textMuted} />
+                <Text style={{ color: theme.textMuted, fontSize: 13, flex: 1 }}>{t.transactions.account}</Text>
+              </>
+            )}
+            <Feather name="chevron-down" size={13} color={theme.textMuted} />
+          </Pressable>
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
+            style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, backgroundColor: theme.background, borderRadius: 12, padding: 10, borderWidth: 1, borderColor: dateError ? "#EF4444" : theme.border }}
+          >
+            <Feather name="calendar" size={14} color={dateError ? "#EF4444" : theme.textMuted} />
+            <Text style={{ color: date === today ? typeColor : theme.textSecondary, fontSize: 13, fontWeight: "600" }}>
+              {date === today ? t.transactions.today : date === yesterday ? t.transactions.yesterday : date}
+            </Text>
+          </Pressable>
+        </View>
 
-          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, backgroundColor: theme.background, borderRadius: 12, paddingHorizontal: 12, borderWidth: 1, borderColor: theme.border }}>
-            <Feather name="message-square" size={14} color={theme.textMuted} />
-            <TextInput
-              value={note}
-              onChangeText={setNote}
-              placeholder={t.common.notePlaceholder}
-              placeholderTextColor={theme.textMuted}
-              style={{ flex: 1, paddingVertical: 11, color: theme.text, fontSize: 13, textAlign: isRTL ? "right" : "left", ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
-            />
-          </View>
+        {/* Note row */}
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, marginHorizontal: 16, marginBottom: 6, backgroundColor: theme.background, borderRadius: 12, paddingHorizontal: 12, borderWidth: 1, borderColor: theme.border }}>
+          <Feather name="message-square" size={14} color={theme.textMuted} />
+          <TextInput
+            value={note}
+            onChangeText={setNote}
+            placeholder={t.common.notePlaceholder}
+            placeholderTextColor={theme.textMuted}
+            style={{ flex: 1, paddingVertical: 10, color: theme.text, fontSize: 13, textAlign: isRTL ? "right" : "left", ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
+          />
+        </View>
 
+        {/* Custom Numeric Keypad (native only) */}
+        {Platform.OS !== "web" && renderKeypad()}
+
+        {/* Save Button */}
+        <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
           <Pressable
             onPress={handleSave}
             disabled={saving}
             testID="quick-save-btn"
-            style={{ backgroundColor: typeColor, borderRadius: 16, paddingVertical: 16, alignItems: "center", opacity: saving ? 0.7 : 1 }}
+            style={({ pressed }) => ({
+              backgroundColor: typeColor,
+              borderRadius: 18,
+              paddingVertical: 16,
+              alignItems: "center",
+              opacity: saving ? 0.7 : pressed ? 0.88 : 1,
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+            })}
           >
-            <Text style={{ color: "#fff", fontSize: 17, fontWeight: "800" }}>
-              {t.common.add}{amount ? ` ${amount} ${selectedAccount?.currency || ""}` : ""}
-            </Text>
+            {saving ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={{ color: "#fff", fontSize: 17, fontWeight: "800", letterSpacing: 0.2 }}>
+                {t.common.add}{amount ? ` ${amount} ${selectedAccount?.currency || ""}` : ""}
+              </Text>
+            )}
           </Pressable>
         </View>
       </Pressable>
-    </KeyboardAvoidingView>
+    </View>
   );
 
   // ─── Single Modal with all steps ─────────────────────────────────────────

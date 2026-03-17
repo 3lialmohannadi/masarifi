@@ -13,27 +13,46 @@ interface EmptyStateProps {
 export function EmptyState({ icon, title, subtitle, action }: EmptyStateProps) {
   const { theme } = useApp();
   return (
-    <View style={{ alignItems: "center", justifyContent: "center", padding: 40, gap: 12 }}>
+    <View style={{ alignItems: "center", justifyContent: "center", padding: 40, gap: 14 }}>
       <View
         style={{
-          width: 64,
-          height: 64,
-          borderRadius: 32,
-          backgroundColor: theme.cardSecondary,
+          width: 84,
+          height: 84,
+          borderRadius: 42,
+          backgroundColor: theme.primaryLight || `${theme.primary}15`,
+          borderWidth: 1.5,
+          borderColor: `${theme.primary}20`,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <Feather name={icon as any} size={28} color={theme.textMuted} />
+        <Feather name={icon as any} size={36} color={theme.primary} />
       </View>
-      <Text style={{ fontSize: 17, fontWeight: "600", color: theme.text, textAlign: "center" }}>
-        {title}
-      </Text>
-      {subtitle && (
-        <Text style={{ fontSize: 14, color: theme.textSecondary, textAlign: "center" }}>
-          {subtitle}
+      <View style={{ alignItems: "center", gap: 6 }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "700",
+            color: theme.text,
+            textAlign: "center",
+          }}
+        >
+          {title}
         </Text>
-      )}
+        {subtitle && (
+          <Text
+            style={{
+              fontSize: 14,
+              color: theme.textSecondary,
+              textAlign: "center",
+              lineHeight: 20,
+              maxWidth: 280,
+            }}
+          >
+            {subtitle}
+          </Text>
+        )}
+      </View>
       {action}
     </View>
   );
