@@ -140,7 +140,12 @@ export default function CommitmentFormModal() {
         text: t.common.delete,
         style: "destructive",
         onPress: () => {
-          if (existing) deleteCommitment(existing.id);
+          if (existing) {
+            deleteCommitment(existing.id);
+            import("@/utils/notifications").then(({ cancelCommitmentReminder }) => {
+              cancelCommitmentReminder(existing.id).catch(() => {});
+            });
+          }
           showToast(t.toast.deleted, "info");
           router.back();
         },

@@ -345,6 +345,9 @@ export default function CommitmentDetailScreen() {
                 <Pressable
                   onPress={() => {
                     deleteCommitment(commitment.id);
+                    import("@/utils/notifications").then(({ cancelCommitmentReminder }) => {
+                      cancelCommitmentReminder(commitment.id).catch(() => {});
+                    });
                     router.back();
                   }}
                   style={{ flex: 1, backgroundColor: theme.expense, borderRadius: 10, paddingVertical: 11, alignItems: "center" }}
