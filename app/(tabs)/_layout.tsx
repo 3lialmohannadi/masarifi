@@ -95,7 +95,7 @@ export default function TabLayout() {
   }));
 
   const tabBarH = isWeb ? 84 : isIOS ? 83 : 56;
-  const fabRise = isAndroid ? 12 : 18;
+  const fabRise = isAndroid ? 4 : 8;
 
   const menuItems = [
     {
