@@ -807,29 +807,6 @@ export default function DashboardScreen() {
         </View>
       </ScrollView>
 
-      {/* FAB */}
-      <Pressable
-        testID="fab-add"
-        accessibilityLabel={t.transactions.add}
-        onPress={() => openQuickAdd("expense")}
-        style={{
-          position: "absolute",
-          bottom: insets.bottom + (Platform.OS === "web" ? 34 : 90),
-          right: 20,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: theme.primary,
-          alignItems: "center",
-          justifyContent: "center",
-          ...(Platform.OS === "web"
-            ? { boxShadow: "0 4px 12px rgba(0,0,0,0.30)" }
-            : { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 }),
-        }}
-      >
-        <Feather name="plus" size={26} color="#fff" />
-      </Pressable>
-
       {payingCommitment && (
         <PayNowModal commitmentId={payingCommitment} onClose={() => setPayingCommitment(null)} />
       )}
