@@ -11,6 +11,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useApp } from "@/store/AppContext";
 import { useAuth } from "@/store/AuthContext";
 import { useAccounts } from "@/store/AccountsContext";
@@ -223,10 +225,15 @@ export default function DashboardScreen() {
         <View style={{ paddingHorizontal: 20, gap: 14 }}>
 
           {/* ─── Account Card (Bank Card Style) ─── */}
-          <View
+          <Animated.View entering={FadeInDown.delay(0).springify()}>
+          <LinearGradient
+            colors={isDark
+              ? ["#1A3630", "#0F2820", "#0A1C16"] as const
+              : ["#35A89C", "#2F8F83", "#1E6B63"] as const}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={{
               borderRadius: 24,
-              backgroundColor: isDark ? "#1A3630" : theme.primary,
               padding: 22,
               overflow: "hidden",
               ...(Platform.OS === "web"
@@ -304,9 +311,11 @@ export default function DashboardScreen() {
                 </View>
               );
             })()}
-          </View>
+          </LinearGradient>
+          </Animated.View>
 
           {/* ─── Financial Metrics Card ─── */}
+          <Animated.View entering={FadeInDown.delay(80).springify()}>
           <View
             style={{
               backgroundColor: theme.card,
@@ -362,32 +371,61 @@ export default function DashboardScreen() {
               </View>
             </View>
 
-            {/* Daily Limit Row */}
-            <View
-              style={{
-                flexDirection: isRTL ? "row-reverse" : "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderTopWidth: 1,
-                borderTopColor: theme.border,
-                paddingHorizontal: 16,
-                paddingVertical: 11,
-              }}
-            >
-              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 7 }}>
-                <Feather name="activity" size={13} color={theme.textMuted} />
-                <Text style={{ fontSize: 12, color: theme.textMuted }}>
-                  {t.dashboard.dailyLimit}
-                  <Text style={{ color: theme.textMuted, fontSize: 11 }}> · {remainingDays} {t.dashboard.remainingDays}</Text>
-                </Text>
-              </View>
-              <Text style={{ fontSize: 14, fontWeight: "700", color: theme.income }}>
-                {formatCurrency(Math.max(0, dailyLimit), currency, language)}
-              </Text>
-            </View>
+            {/* Daily Limit Row + Spending Progress */}
+            {(() => {
+              const today2 = new Date();
+              const mk = `${today2.getFullYear()}-${String(today2.getMonth() + 1).padStart(2, "0")}`;
+              const monthTxs2 = transactions.filter((tx) =>
+                tx.date.startsWith(mk) && (!selectedAccount || tx.account_id === selectedAccount?.id)
+              );
+              const mExpense = monthTxs2.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
+              const mIncome = monthTxs2.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
+              const spendTotal = mIncome > 0 ? mExpense / mIncome : 0;
+              const spendRatio = Math.min(spendTotal, 1);
+              const spendColor = spendRatio >= 0.9 ? "#EF4444" : spendRatio >= 0.7 ? "#F59E0B" : theme.income;
+              return (
+                <View>
+                  <View
+                    style={{
+                      flexDirection: isRTL ? "row-reverse" : "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      borderTopWidth: 1,
+                      borderTopColor: theme.border,
+                      paddingHorizontal: 16,
+                      paddingTop: 11,
+                      paddingBottom: mIncome > 0 ? 8 : 11,
+                    }}
+                  >
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 7 }}>
+                      <Feather name="activity" size={13} color={theme.textMuted} />
+                      <Text style={{ fontSize: 12, color: theme.textMuted }}>
+                        {t.dashboard.dailyLimit}
+                        <Text style={{ color: theme.textMuted, fontSize: 11 }}> · {remainingDays} {t.dashboard.remainingDays}</Text>
+                      </Text>
+                    </View>
+                    <Text style={{ fontSize: 14, fontWeight: "700", color: theme.income }}>
+                      {formatCurrency(Math.max(0, dailyLimit), currency, language)}
+                    </Text>
+                  </View>
+                  {mIncome > 0 && (
+                    <View style={{ paddingHorizontal: 16, paddingBottom: 12, gap: 4 }}>
+                      <View style={{ height: 4, backgroundColor: theme.border, borderRadius: 2, overflow: "hidden" }}>
+                        <View style={{ width: `${Math.round(spendRatio * 100)}%` as any, height: "100%", backgroundColor: spendColor, borderRadius: 2 }} />
+                      </View>
+                      <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                        {Math.round(spendRatio * 100)}% {language === "ar" ? "من الدخل الشهري" : "of monthly income"}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })()}
           </View>
+          </Animated.View>
 
           {/* ─── Quick Add ─── */}
+          <Animated.View entering={FadeInDown.delay(160).springify()}>
           <View
             style={{
               backgroundColor: theme.card,
@@ -496,8 +534,10 @@ export default function DashboardScreen() {
               </Pressable>
             </View>
           </View>
+          </Animated.View>
 
           {/* ─── Recent Transactions ─── */}
+          <Animated.View entering={FadeInDown.delay(240).springify()}>
           <View style={{ gap: 12 }}>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
               <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
@@ -551,8 +591,10 @@ export default function DashboardScreen() {
               </View>
             )}
           </View>
+          </Animated.View>
 
           {/* ─── Upcoming Commitments ─── */}
+          <Animated.View entering={FadeInDown.delay(320).springify()}>
           <View style={{ gap: 12 }}>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
               <Text style={{ fontSize: 16, fontWeight: "700", color: theme.text }}>
@@ -643,6 +685,7 @@ export default function DashboardScreen() {
               </View>
             )}
           </View>
+          </Animated.View>
 
           {/* ─── Savings Wallets ─── */}
           {shownWallets.length > 0 && (

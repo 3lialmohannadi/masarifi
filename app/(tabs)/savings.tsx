@@ -6,6 +6,7 @@ import {
   Pressable,
   Platform,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -54,9 +55,13 @@ export default function SavingsTab() {
         showsVerticalScrollIndicator={false}
       >
         {/* Hero */}
-        <View
+        <LinearGradient
+          colors={isDark
+            ? ["#1A3630", "#0D2520", "#081A16"] as const
+            : ["#35A89C", "#2F8F83", "#1A6B63"] as const}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={{
-            backgroundColor: isDark ? "#132825" : theme.primary,
             paddingTop: topPadding,
             paddingHorizontal: 20,
             paddingBottom: 32,
@@ -120,7 +125,7 @@ export default function SavingsTab() {
               </View>
             </View>
           )}
-        </View>
+        </LinearGradient>
 
         <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 24 }}>
           {/* General Savings */}

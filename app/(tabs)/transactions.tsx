@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TextInput,
   Platform,
 } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate, Extrapolation } from "react-native-reanimated";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -44,6 +45,37 @@ export default function TransactionsTab() {
   const [search, setSearch] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const debouncedSearch = useDebounce(search, 250);
+
+  const scaleAll = useSharedValue(1);
+  const scaleIncome = useSharedValue(1);
+  const scaleExpense = useSharedValue(1);
+  const scaleTransfer = useSharedValue(1);
+
+  const activeAll = useSharedValue(1);
+  const activeIncome = useSharedValue(0);
+  const activeExpense = useSharedValue(0);
+  const activeTransfer = useSharedValue(0);
+
+  useEffect(() => {
+    activeAll.value = withSpring(filter === "all" ? 1 : 0, { damping: 18, stiffness: 280 });
+    activeIncome.value = withSpring(filter === "income" ? 1 : 0, { damping: 18, stiffness: 280 });
+    activeExpense.value = withSpring(filter === "expense" ? 1 : 0, { damping: 18, stiffness: 280 });
+    activeTransfer.value = withSpring(filter === "transfer" ? 1 : 0, { damping: 18, stiffness: 280 });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
+  const allStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(activeAll.value, [0, 1], [1, 1.03], Extrapolation.CLAMP) * scaleAll.value }],
+  }));
+  const incomeStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(activeIncome.value, [0, 1], [1, 1.03], Extrapolation.CLAMP) * scaleIncome.value }],
+  }));
+  const expenseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(activeExpense.value, [0, 1], [1, 1.03], Extrapolation.CLAMP) * scaleExpense.value }],
+  }));
+  const transferStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(activeTransfer.value, [0, 1], [1, 1.03], Extrapolation.CLAMP) * scaleTransfer.value }],
+  }));
 
   const filterCounts = useMemo(() => {
     const counts: Record<Filter, number> = { all: 0, income: 0, expense: 0, transfer: 0 };
@@ -269,40 +301,55 @@ export default function TransactionsTab() {
             const isActive = filter === f.key;
             const activeColor = f.color || theme.primary;
             const count = filterCounts[f.key];
+            const animStyle = f.key === "all" ? allStyle : f.key === "income" ? incomeStyle : f.key === "expense" ? expenseStyle : transferStyle;
+            const scaleVal = f.key === "all" ? scaleAll : f.key === "income" ? scaleIncome : f.key === "expense" ? scaleExpense : scaleTransfer;
             return (
               <Pressable
                 key={f.key}
-                onPress={() => { Haptics.selectionAsync(); setFilter(f.key); }}
-                style={{
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  gap: 5,
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                  borderRadius: 20,
-                  backgroundColor: isActive ? activeColor + "20" : theme.card,
-                  borderWidth: 1,
-                  borderColor: isActive ? activeColor : theme.border,
+                onPress={() => {
+                  Haptics.selectionAsync();
+                  scaleVal.value = withSpring(0.93, { damping: 15, stiffness: 400 }, () => {
+                    scaleVal.value = withSpring(1, { damping: 15, stiffness: 400 });
+                  });
+                  setFilter(f.key);
                 }}
+                style={{ flexDirection: isRTL ? "row-reverse" : "row" }}
               >
-                <Text style={{ fontSize: 12, fontWeight: "600", color: isActive ? activeColor : theme.textSecondary }}>
-                  {f.label}
-                </Text>
-                {count > 0 && (
-                  <View style={{
-                    minWidth: 18,
-                    height: 18,
-                    borderRadius: 9,
-                    backgroundColor: isActive ? activeColor : theme.textMuted + "25",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingHorizontal: 4,
-                  }}>
-                    <Text style={{ fontSize: 10, fontWeight: "700", color: isActive ? "#fff" : theme.textMuted }}>
-                      {count > 99 ? "99+" : count}
-                    </Text>
-                  </View>
-                )}
+                <Animated.View
+                  style={[
+                    {
+                      flexDirection: isRTL ? "row-reverse" : "row",
+                      alignItems: "center",
+                      gap: 5,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 20,
+                      backgroundColor: isActive ? activeColor + "20" : theme.card,
+                      borderWidth: 1,
+                      borderColor: isActive ? activeColor : theme.border,
+                    },
+                    animStyle,
+                  ]}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: "600", color: isActive ? activeColor : theme.textSecondary }}>
+                    {f.label}
+                  </Text>
+                  {count > 0 && (
+                    <View style={{
+                      minWidth: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      backgroundColor: isActive ? activeColor : theme.textMuted + "25",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      paddingHorizontal: 4,
+                    }}>
+                      <Text style={{ fontSize: 10, fontWeight: "700", color: isActive ? "#fff" : theme.textMuted }}>
+                        {count > 99 ? "99+" : count}
+                      </Text>
+                    </View>
+                  )}
+                </Animated.View>
               </Pressable>
             );
           })}
