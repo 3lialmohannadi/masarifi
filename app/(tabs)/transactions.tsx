@@ -18,6 +18,7 @@ import { useCategories } from "@/store/CategoriesContext";
 import { TransactionItem } from "@/components/TransactionItem";
 import { TransferItem } from "@/components/TransferItem";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { TransactionSkeleton } from "@/components/ui/Skeleton";
 import { getDisplayName } from "@/utils/display";
 import { todayISOString, formatDateShort } from "@/utils/date";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -41,7 +42,26 @@ export default function TransactionsTab() {
   const { getCategory } = useCategories();
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
   const debouncedSearch = useDebounce(search, 250);
+
+  const filterCounts = useMemo(() => {
+    const counts: Record<Filter, number> = { all: 0, income: 0, expense: 0, transfer: 0 };
+    for (const tx of transactions) {
+      if (selectedAccountId && tx.account_id !== selectedAccountId) continue;
+      counts.all++;
+      if (tx.type === "income") counts.income++;
+      else if (tx.type === "expense") counts.expense++;
+    }
+    for (const tf of transfers) {
+      const isSource = tf.source_account_id === selectedAccountId;
+      const isDest = tf.destination_account_id === selectedAccountId;
+      if (selectedAccountId && !isSource && !isDest) continue;
+      counts.transfer++;
+      counts.all++;
+    }
+    return counts;
+  }, [transactions, transfers, selectedAccountId]);
 
   const combined = useMemo<CombinedEntry[]>(() => {
     const entries: CombinedEntry[] = [];
@@ -129,11 +149,23 @@ export default function TransactionsTab() {
   const renderItem = useCallback(({ item }: { item: ListItem }) => {
     if (item.type === "header") {
       return (
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8, gap: 10 }}>
-          <Text style={{ fontSize: 13, fontWeight: "700", color: theme.textSecondary }}>
+        <View style={{
+          flexDirection: isRTL ? "row-reverse" : "row",
+          alignItems: "center",
+          paddingHorizontal: 20,
+          paddingTop: 18,
+          paddingBottom: 8,
+          gap: 10,
+        }}>
+          <Text style={{
+            fontSize: 13,
+            fontWeight: "700",
+            color: theme.textSecondary,
+            letterSpacing: 0.2,
+          }}>
             {formatGroupDate(item.date)}
           </Text>
-          <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+          <View style={{ flex: 1, height: 1, backgroundColor: theme.border, opacity: 0.7 }} />
         </View>
       );
     }
@@ -162,7 +194,13 @@ export default function TransactionsTab() {
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1, backgroundColor: theme.background }}>
-      <View style={{ paddingTop: topPadding, paddingHorizontal: 20, paddingBottom: 12, backgroundColor: theme.background, gap: 12 }}>
+      <View style={{
+        paddingTop: topPadding,
+        paddingHorizontal: 20,
+        paddingBottom: 12,
+        backgroundColor: theme.background,
+        gap: 14,
+      }}>
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text }}>{t.transactions.title}</Text>
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -186,58 +224,111 @@ export default function TransactionsTab() {
         </View>
 
         {/* Search */}
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", backgroundColor: theme.card, borderRadius: 14, paddingHorizontal: 14, gap: 10, borderWidth: 1, borderColor: theme.border }}>
-          <Feather name="search" size={15} color={theme.textMuted} />
+        <View style={{
+          flexDirection: isRTL ? "row-reverse" : "row",
+          alignItems: "center",
+          backgroundColor: theme.card,
+          borderRadius: 14,
+          paddingHorizontal: 14,
+          gap: 10,
+          borderWidth: 1.5,
+          borderColor: searchFocused ? theme.primary : theme.border,
+          ...(Platform.OS === "web" && searchFocused ? ({ boxShadow: `0 0 0 3px ${theme.primary}18` } as object) : {}),
+        }}>
+          <Feather name="search" size={16} color={searchFocused ? theme.primary : theme.textMuted} />
           <TextInput
             value={search}
             onChangeText={setSearch}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
             placeholder={t.transactions.searchPlaceholder}
             placeholderTextColor={theme.textMuted}
-            style={{ flex: 1, paddingVertical: 12, color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left" }}
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              color: theme.text,
+              fontSize: 14,
+              textAlign: isRTL ? "right" : "left",
+              ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
+            }}
           />
           {search.length > 0 && (
-            <Pressable onPress={() => setSearch("")} hitSlop={8}>
-              <Feather name="x" size={15} color={theme.textMuted} />
+            <Pressable
+              onPress={() => setSearch("")}
+              hitSlop={8}
+              style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: theme.textMuted + "20", alignItems: "center", justifyContent: "center" }}
+            >
+              <Feather name="x" size={12} color={theme.textMuted} />
             </Pressable>
           )}
         </View>
 
-        {/* Filter pills */}
+        {/* Filter chips */}
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8 }}>
           {FILTERS.map((f) => {
             const isActive = filter === f.key;
             const activeColor = f.color || theme.primary;
+            const count = filterCounts[f.key];
             return (
               <Pressable
                 key={f.key}
                 onPress={() => { Haptics.selectionAsync(); setFilter(f.key); }}
-                style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: isActive ? activeColor + "20" : theme.card, borderWidth: 1, borderColor: isActive ? activeColor : theme.border }}
+                style={{
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  gap: 5,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  borderRadius: 20,
+                  backgroundColor: isActive ? activeColor + "20" : theme.card,
+                  borderWidth: 1,
+                  borderColor: isActive ? activeColor : theme.border,
+                }}
               >
                 <Text style={{ fontSize: 12, fontWeight: "600", color: isActive ? activeColor : theme.textSecondary }}>
                   {f.label}
                 </Text>
+                {count > 0 && (
+                  <View style={{
+                    minWidth: 18,
+                    height: 18,
+                    borderRadius: 9,
+                    backgroundColor: isActive ? activeColor : theme.textMuted + "25",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 4,
+                  }}>
+                    <Text style={{ fontSize: 10, fontWeight: "700", color: isActive ? "#fff" : theme.textMuted }}>
+                      {count > 99 ? "99+" : count}
+                    </Text>
+                  </View>
+                )}
               </Pressable>
             );
           })}
         </View>
       </View>
 
-      <FlatList
-        data={listData}
-        keyExtractor={keyExtractor}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110) }}
-        ListEmptyComponent={
-          !isLoaded ? null : (
+      {!isLoaded ? (
+        <View style={{ paddingHorizontal: 20, paddingTop: 16 }}>
+          <TransactionSkeleton />
+        </View>
+      ) : (
+        <FlatList
+          data={listData}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110) }}
+          ListEmptyComponent={
             <EmptyState
               icon="repeat"
               title={filter === "transfer" ? t.transfer.noTransfers : t.transactions.noTransactions}
               subtitle={filter === "transfer" ? t.transfer.addFirstTransfer : t.transactions.addFirst}
             />
-          )
-        }
-        showsVerticalScrollIndicator={false}
-      />
+          }
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </KeyboardAvoidingView>
   );
 }

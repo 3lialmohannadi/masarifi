@@ -7,6 +7,7 @@ import {
   Alert,
   Modal,
   FlatList,
+  TextInput,
   Platform,
 } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
@@ -16,6 +17,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
+import { SuccessOverlay } from "@/components/ui/SuccessOverlay";
 import { AppButton } from "@/components/ui/AppButton";
 import { AppInput } from "@/components/ui/AppInput";
 import { BilingualNameInput } from "@/components/BilingualNameInput";
@@ -43,6 +45,7 @@ export default function AccountFormModal() {
   const [showColor, setShowColor] = useState(false);
   const [showCurrency, setShowCurrency] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const ACCOUNT_TYPES: AccountType[] = ["current", "cash", "travel", "savings_bank", "wallet", "credit", "investment"];
@@ -75,8 +78,11 @@ export default function AccountFormModal() {
       } else {
         addAccount(data);
       }
-      showToast(t.toast.saved);
-      router.back();
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        router.back();
+      }, 700);
     } catch {
       showToast(t.toast.error, "error");
     } finally {
@@ -217,14 +223,40 @@ export default function AccountFormModal() {
           </ScrollView>
         </View>
 
-        {/* Balance */}
-        <AppInput
-          label={existing ? t.accounts.balance : t.accounts.openingBalance}
-          value={balance}
-          onChangeText={setBalance}
-          keyboardType="decimal-pad"
-          placeholder="0.00"
-        />
+        {/* Balance — styled amount card */}
+        <View style={{
+          backgroundColor: color + "18",
+          borderRadius: 20,
+          padding: 20,
+          alignItems: "center",
+          gap: 6,
+          borderWidth: 1.5,
+          borderColor: color + "40",
+        }}>
+          <Text style={{ fontSize: 12, fontWeight: "600", color: color, letterSpacing: 0.3 }}>
+            {existing ? t.accounts.balance : t.accounts.openingBalance}
+          </Text>
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+            <Text style={{ fontSize: 18, fontWeight: "700", color: color }}>
+              {CURRENCIES.find((c) => c.code === currency)?.symbol || currency}
+            </Text>
+            <TextInput
+              value={balance}
+              onChangeText={setBalance}
+              keyboardType="decimal-pad"
+              placeholder="0.00"
+              placeholderTextColor={color + "60"}
+              style={{
+                fontSize: 40,
+                fontWeight: "800",
+                color,
+                textAlign: "center",
+                minWidth: 80,
+                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
+              }}
+            />
+          </View>
+        </View>
 
         {/* Currency */}
         <View style={{ gap: 6 }}>
@@ -261,6 +293,12 @@ export default function AccountFormModal() {
 
         <AppButton title={t.common.save} onPress={handleSave} loading={loading} fullWidth size="lg" />
       </KeyboardAwareScrollViewCompat>
+
+      <SuccessOverlay
+        visible={showSuccess}
+        message={t.toast.saved}
+        color={color}
+      />
 
       <IconPicker selectedIcon={icon} onSelect={setIcon} visible={showIcon} onClose={() => setShowIcon(false)} />
       <ColorPicker selectedColor={color} onSelect={setColor} visible={showColor} onClose={() => setShowColor(false)} />

@@ -8,6 +8,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useSavings } from "@/store/SavingsContext";
 import { AppButton } from "@/components/ui/AppButton";
+import { SuccessOverlay } from "@/components/ui/SuccessOverlay";
 import { AppInput } from "@/components/ui/AppInput";
 import { BilingualNameInput } from "@/components/BilingualNameInput";
 import { IconPicker } from "@/components/IconPicker";
@@ -35,6 +36,7 @@ export default function SavingWalletFormModal() {
   const [showIcon, setShowIcon] = useState(false);
   const [showColor, setShowColor] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -71,8 +73,11 @@ export default function SavingWalletFormModal() {
       } else {
         addWallet(data);
       }
-      showToast(t.toast.saved);
-      router.back();
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        router.back();
+      }, 700);
     } catch {
       showToast(t.toast.error, "error");
     } finally {
@@ -203,6 +208,11 @@ export default function SavingWalletFormModal() {
         <AppButton title={t.common.save} onPress={handleSave} loading={loading} fullWidth size="lg" />
       </KeyboardAwareScrollViewCompat>
 
+      <SuccessOverlay
+        visible={showSuccess}
+        message={t.toast.saved}
+        color={color}
+      />
       <IconPicker selectedIcon={icon} onSelect={setIcon} visible={showIcon} onClose={() => setShowIcon(false)} />
       <ColorPicker selectedColor={color} onSelect={setColor} visible={showColor} onClose={() => setShowColor(false)} />
     </View>

@@ -1,25 +1,24 @@
-import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useEffect, useRef } from "react";
-import { StyleSheet, View } from "react-native";
-
-const videoSource = require("@/assets/videos/splash.mp4");
+import { Platform, StyleSheet, View } from "react-native";
 
 interface Props {
   onFinish: () => void;
   onReady?: () => void;
 }
 
-export function VideoSplash({ onFinish, onReady }: Props) {
+function VideoSplashNative({ onFinish, onReady }: Props) {
+  const { VideoView, useVideoPlayer } = require("expo-video");
   const readyCalled = useRef(false);
+  const videoSource = require("@/assets/videos/splash.mp4");
 
-  const player = useVideoPlayer(videoSource, (p) => {
+  const player = useVideoPlayer(videoSource, (p: any) => {
     p.loop = false;
     p.muted = false;
     p.play();
   });
 
   useEffect(() => {
-    const playSub = player.addListener("playingChange", ({ isPlaying }) => {
+    const playSub = player.addListener("playingChange", ({ isPlaying }: { isPlaying: boolean }) => {
       if (isPlaying && !readyCalled.current) {
         readyCalled.current = true;
         onReady?.();
@@ -48,6 +47,21 @@ export function VideoSplash({ onFinish, onReady }: Props) {
       />
     </View>
   );
+}
+
+export function VideoSplash({ onFinish, onReady }: Props) {
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      onReady?.();
+      onFinish();
+    }
+  }, [onFinish, onReady]);
+
+  if (Platform.OS === "web") {
+    return <View style={styles.container} />;
+  }
+
+  return <VideoSplashNative onFinish={onFinish} onReady={onReady} />;
 }
 
 const styles = StyleSheet.create({

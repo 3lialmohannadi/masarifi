@@ -20,6 +20,7 @@ import { useSavings } from "@/store/SavingsContext";
 import { useDebts } from "@/store/DebtsContext";
 import { TransactionItem } from "@/components/TransactionItem";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { QuickAddSheet } from "@/components/QuickAddSheet";
 import { formatCurrency } from "@/utils/currency";
 import { getRemainingDaysInMonth, formatDateShort } from "@/utils/date";
@@ -34,8 +35,8 @@ export default function DashboardScreen() {
     selectedAccountId, setSelectedAccountId,
     isRTL, isDark,
   } = useApp();
-  const { accounts } = useAccounts();
-  const { transactions } = useTransactions();
+  const { accounts, isLoaded: accountsLoaded } = useAccounts();
+  const { transactions, isLoaded: txLoaded } = useTransactions();
   const { allocatedMoneyForAccount, upcomingCommitments } = useCommitments();
   const { wallets } = useSavings();
   const { debts, totalRemaining: debtsTotalRemaining, activeDebts } = useDebts();
@@ -121,6 +122,17 @@ export default function DashboardScreen() {
           },
     [isDark]
   );
+
+  if (!accountsLoaded || !txLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ paddingTop: topPadding, paddingHorizontal: 20, paddingBottom: 16 }}>
+          <View style={{ width: 160, height: 48, borderRadius: 8, backgroundColor: theme.card }} />
+        </View>
+        <DashboardSkeleton />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -214,51 +226,84 @@ export default function DashboardScreen() {
           <View
             style={{
               borderRadius: 24,
-              backgroundColor: isDark ? "#1E3A37" : theme.primary,
+              backgroundColor: isDark ? "#1A3630" : theme.primary,
               padding: 22,
-              minHeight: 158,
               overflow: "hidden",
               ...(Platform.OS === "web"
-                ? { boxShadow: `0 8px 24px rgba(47,143,131,${isDark ? 0.2 : 0.35})` }
+                ? { boxShadow: `0 8px 32px rgba(47,143,131,${isDark ? 0.25 : 0.40})` }
                 : {
                     shadowColor: "#2F8F83",
                     shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: isDark ? 0.2 : 0.35,
-                    shadowRadius: 16,
-                    elevation: 12,
+                    shadowOpacity: isDark ? 0.25 : 0.40,
+                    shadowRadius: 20,
+                    elevation: 14,
                   }),
             }}
           >
             {/* Decorative circles */}
-            <View style={{ position: "absolute", top: -50, right: -30, width: 160, height: 160, borderRadius: 80, backgroundColor: "rgba(255,255,255,0.06)" }} />
-            <View style={{ position: "absolute", bottom: -30, left: -20, width: 110, height: 110, borderRadius: 55, backgroundColor: "rgba(255,255,255,0.04)" }} />
+            <View style={{ position: "absolute", top: -60, right: -40, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(255,255,255,0.07)" }} />
+            <View style={{ position: "absolute", bottom: -40, left: -30, width: 140, height: 140, borderRadius: 70, backgroundColor: "rgba(255,255,255,0.05)" }} />
+            <View style={{ position: "absolute", top: 30, right: 80, width: 60, height: 60, borderRadius: 30, backgroundColor: "rgba(255,255,255,0.04)" }} />
 
             {/* Account name + icon row */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
                 {selectedAccount && (
                   <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: selectedAccount.color || "rgba(255,255,255,0.6)" }} />
                 )}
-                <Text style={{ fontSize: 14, fontWeight: "600", color: "rgba(255,255,255,0.8)" }}>
+                <Text style={{ fontSize: 14, fontWeight: "600", color: "rgba(255,255,255,0.85)" }}>
                   {selectedAccount
                     ? getDisplayName(selectedAccount, language)
                     : t.common.noAccount}
                 </Text>
               </View>
-              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" }}>
-                <Feather name="credit-card" size={16} color="rgba(255,255,255,0.7)" />
+              <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.14)", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="credit-card" size={17} color="rgba(255,255,255,0.8)" />
               </View>
             </View>
 
             {/* Balance */}
-            <View style={{ marginTop: 28, gap: 4 }}>
+            <View style={{ gap: 3, marginBottom: 20 }}>
               <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: "500", textAlign: isRTL ? "right" : "left" }}>
                 {t.dashboard.totalBalance}
               </Text>
-              <Text style={{ fontSize: 34, fontWeight: "800", color: "#fff", letterSpacing: -0.5, textAlign: isRTL ? "right" : "left" }}>
+              <Text style={{ fontSize: 36, fontWeight: "800", color: "#fff", letterSpacing: -1, textAlign: isRTL ? "right" : "left" }}>
                 {formatCurrency(totalBalance, currency, language)}
               </Text>
             </View>
+
+            {/* Monthly Income / Expense */}
+            {(() => {
+              const today = new Date();
+              const monthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+              const monthTxs = transactions.filter((tx) =>
+                tx.date.startsWith(monthKey) && (!selectedAccount || tx.account_id === selectedAccount.id)
+              );
+              const monthIncome = monthTxs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
+              const monthExpense = monthTxs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
+              return (
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
+                  <View style={{ flex: 1, backgroundColor: "rgba(34,197,94,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(34,197,94,0.2)" }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                      <Feather name="arrow-down-left" size={11} color="rgba(34,197,94,0.9)" />
+                      <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.transactions.income}</Text>
+                    </View>
+                    <Text style={{ fontSize: 14, fontWeight: "700", color: "#4ADE80", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+                      {formatCurrency(monthIncome, currency, language)}
+                    </Text>
+                  </View>
+                  <View style={{ flex: 1, backgroundColor: "rgba(239,68,68,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(239,68,68,0.2)" }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                      <Feather name="arrow-up-right" size={11} color="rgba(239,68,68,0.9)" />
+                      <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.transactions.expense}</Text>
+                    </View>
+                    <Text style={{ fontSize: 14, fontWeight: "700", color: "#F87171", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+                      {formatCurrency(monthExpense, currency, language)}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })()}
           </View>
 
           {/* ─── Financial Metrics Card ─── */}
@@ -347,73 +392,106 @@ export default function DashboardScreen() {
             style={{
               backgroundColor: theme.card,
               borderRadius: 20,
-              paddingVertical: 18,
-              paddingHorizontal: 12,
+              padding: 14,
               borderWidth: 1,
               borderColor: theme.border,
+              gap: 10,
               ...cardShadow,
             }}
           >
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 4 }}>
-              {/* Income */}
+            {/* Primary actions - Income + Expense */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
               <Pressable
                 testID="quick-add-income"
                 accessibilityLabel={t.transactions.income}
                 onPress={() => openQuickAdd("income")}
-                style={{ flex: 1, alignItems: "center", gap: 8 }}
+                style={({ pressed }) => ({
+                  flex: 1,
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  paddingVertical: 14,
+                  borderRadius: 14,
+                  backgroundColor: pressed ? theme.income + "25" : theme.income + "18",
+                  borderWidth: 1,
+                  borderColor: theme.income + "30",
+                })}
               >
-                <View style={{ width: 50, height: 50, borderRadius: 16, backgroundColor: `${theme.income}18`, alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="arrow-down-circle" size={22} color={theme.income} />
-                </View>
-                <Text style={{ fontSize: 11, fontWeight: "600", color: theme.income, textAlign: "center" }}>
+                <Feather name="arrow-down-left" size={18} color={theme.income} />
+                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.income }}>
                   {t.transactions.income}
                 </Text>
               </Pressable>
 
-              {/* Expense */}
               <Pressable
                 testID="quick-add-expense"
                 accessibilityLabel={t.transactions.expense}
                 onPress={() => openQuickAdd("expense")}
-                style={{ flex: 1, alignItems: "center", gap: 8 }}
+                style={({ pressed }) => ({
+                  flex: 1,
+                  flexDirection: isRTL ? "row-reverse" : "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  paddingVertical: 14,
+                  borderRadius: 14,
+                  backgroundColor: pressed ? theme.expense + "25" : theme.expense + "18",
+                  borderWidth: 1,
+                  borderColor: theme.expense + "30",
+                })}
               >
-                <View style={{ width: 50, height: 50, borderRadius: 16, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="arrow-up-circle" size={22} color={theme.expense} />
-                </View>
-                <Text style={{ fontSize: 11, fontWeight: "600", color: theme.expense, textAlign: "center" }}>
+                <Feather name="arrow-up-right" size={18} color={theme.expense} />
+                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.expense }}>
                   {t.transactions.expense}
                 </Text>
               </Pressable>
+            </View>
 
-              {/* Commitment */}
+            {/* Secondary actions - Commitment + Savings */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
               <Pressable
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   router.push("/(modals)/commitment-form");
                 }}
-                style={{ flex: 1, alignItems: "center", gap: 8 }}
+                style={{ flex: 1, alignItems: "center", gap: 6, paddingVertical: 10 }}
               >
-                <View style={{ width: 50, height: 50, borderRadius: 16, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="repeat" size={22} color="#F59E0B" />
+                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="repeat" size={18} color="#F59E0B" />
                 </View>
                 <Text style={{ fontSize: 11, fontWeight: "600", color: "#F59E0B", textAlign: "center" }}>
                   {t.commitments.title}
                 </Text>
               </Pressable>
 
-              {/* Savings */}
               <Pressable
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   router.push("/(modals)/savings-movement");
                 }}
-                style={{ flex: 1, alignItems: "center", gap: 8 }}
+                style={{ flex: 1, alignItems: "center", gap: 6, paddingVertical: 10 }}
               >
-                <View style={{ width: 50, height: 50, borderRadius: 16, backgroundColor: "#3B82F618", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="pocket" size={22} color="#3B82F6" />
+                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "#3B82F618", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="pocket" size={18} color="#3B82F6" />
                 </View>
                 <Text style={{ fontSize: 11, fontWeight: "600", color: "#3B82F6", textAlign: "center" }}>
                   {t.tabs.savings}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  router.push("/(modals)/transfer-form");
+                }}
+                style={{ flex: 1, alignItems: "center", gap: 6, paddingVertical: 10 }}
+              >
+                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: `${theme.transfer}18`, alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="shuffle" size={18} color={theme.transfer} />
+                </View>
+                <Text style={{ fontSize: 11, fontWeight: "600", color: theme.transfer, textAlign: "center" }}>
+                  {t.transfer.title}
                 </Text>
               </Pressable>
             </View>

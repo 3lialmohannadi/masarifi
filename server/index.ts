@@ -132,7 +132,9 @@ const metroProxy = createProxyMiddleware({
   ws: true,
   on: {
     error: (_err: unknown, _req: unknown, res: unknown) => {
-      (res as Response).status(503).send("Metro bundler not available. Please wait for it to start.");
+      if (res && typeof (res as Response).status === "function") {
+        (res as Response).status(503).send("Metro bundler not available. Please wait for it to start.");
+      }
     },
   },
 });

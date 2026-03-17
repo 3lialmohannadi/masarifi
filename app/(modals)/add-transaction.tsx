@@ -21,6 +21,7 @@ import { useTransactions } from "@/store/TransactionsContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useCategories } from "@/store/CategoriesContext";
 import { AppButton } from "@/components/ui/AppButton";
+import { SuccessOverlay } from "@/components/ui/SuccessOverlay";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString, isValidDate } from "@/utils/date";
@@ -88,6 +89,7 @@ export default function AddTransactionModal() {
   const [showCategories, setShowCategories] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const relevantCategories = useMemo(
@@ -183,8 +185,12 @@ export default function AddTransactionModal() {
           note,
         });
       }
-      showToast(existingTx ? t.toast.transactionUpdated : t.toast.transactionSaved);
-      router.back();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        router.back();
+      }, 700);
     } catch {
       showToast(t.toast.error, "error");
     } finally {
@@ -318,44 +324,51 @@ export default function AddTransactionModal() {
         </View>
 
         {/* ── Amount ── */}
-        <TxField label={t.common.amount} error={errors.amount} required>
-          <View
-            style={{
-              backgroundColor: theme.input,
-              borderRadius: 12,
-              borderWidth: 1.5,
-              borderColor: errors.amount ? "#EF4444" : theme.inputBorder,
-              paddingVertical: 8,
-              paddingHorizontal: 16,
-              alignItems: "center",
+        <View style={{
+          backgroundColor: errors.amount ? "#EF444408" : (type === "income" ? theme.income + "08" : theme.expense + "08"),
+          borderRadius: 20,
+          borderWidth: 1.5,
+          borderColor: errors.amount ? "#EF4444" : (type === "income" ? theme.income + "30" : theme.expense + "30"),
+          paddingVertical: 20,
+          paddingHorizontal: 16,
+          alignItems: "center",
+          gap: 6,
+        }}>
+          <Text style={{ fontSize: 12, fontWeight: "600", color: type === "income" ? theme.income : theme.expense, letterSpacing: 0.5 }}>
+            {type === "income" ? t.transactions.income : t.transactions.expense}
+          </Text>
+          <TextInput
+            testID="amount-input"
+            value={amount}
+            onChangeText={(v) => {
+              setAmount(v);
+              if (errors.amount) setErrors((e) => ({ ...e, amount: "" }));
             }}
-          >
-            <TextInput
-              testID="amount-input"
-              value={amount}
-              onChangeText={(v) => {
-                setAmount(v);
-                if (errors.amount) setErrors((e) => ({ ...e, amount: "" }));
-              }}
-              keyboardType="decimal-pad"
-              placeholder="0.00"
-              placeholderTextColor={theme.textMuted}
-              style={{
-                fontSize: 32,
-                fontWeight: "800",
-                color: type === "income" ? theme.income : theme.expense,
-                textAlign: "center",
-                width: "100%",
-                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
-              }}
-            />
-            {selectedAccount && (
-              <Text style={{ fontSize: 12, color: theme.textMuted, marginTop: 2 }}>
-                {t.transactions.account}: {formatCurrency(selectedAccount.balance, selectedAccount.currency, language)}
-              </Text>
-            )}
-          </View>
-        </TxField>
+            keyboardType="decimal-pad"
+            placeholder="0.00"
+            placeholderTextColor={(type === "income" ? theme.income : theme.expense) + "50"}
+            style={{
+              fontSize: 48,
+              fontWeight: "800",
+              color: type === "income" ? theme.income : theme.expense,
+              textAlign: "center",
+              width: "100%",
+              letterSpacing: -1,
+              ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
+            }}
+          />
+          {selectedAccount && (
+            <Text style={{ fontSize: 12, color: theme.textMuted, marginTop: 2 }}>
+              {t.transactions.account}: {formatCurrency(selectedAccount.balance, selectedAccount.currency, language)}
+            </Text>
+          )}
+          {!!errors.amount && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+              <Feather name="alert-circle" size={12} color="#EF4444" />
+              <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.amount}</Text>
+            </View>
+          )}
+        </View>
 
         {/* ── Account ── */}
         <TxField label={t.transactions.account} error={errors.account} required>
@@ -572,6 +585,12 @@ export default function AddTransactionModal() {
           </Pressable>
         )}
       </KeyboardAwareScrollViewCompat>
+
+      <SuccessOverlay
+        visible={showSuccess}
+        message={existingTx ? t.toast.transactionUpdated : t.toast.transactionSaved}
+        color={type === "income" ? theme.income : theme.expense}
+      />
 
       {/* ── Account Picker ── */}
       <SelectorModal

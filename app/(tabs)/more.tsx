@@ -16,7 +16,7 @@ interface MenuItemProps {
 }
 
 function MenuItem({ icon, label, color, subtitle, onPress }: MenuItemProps) {
-  const { theme, isRTL, isDark } = useApp();
+  const { theme, isRTL } = useApp();
   return (
     <Pressable
       onPress={() => { Haptics.selectionAsync(); onPress(); }}
@@ -24,19 +24,15 @@ function MenuItem({ icon, label, color, subtitle, onPress }: MenuItemProps) {
         flexDirection: isRTL ? "row-reverse" : "row",
         alignItems: "center",
         gap: 14,
-        paddingVertical: 14,
+        paddingVertical: 13,
         paddingHorizontal: 16,
         backgroundColor: pressed ? theme.cardSecondary : theme.card,
         borderRadius: 16,
-        marginBottom: 6,
         borderWidth: 1,
         borderColor: theme.border,
-        ...(isDark ? {} : Platform.OS === "web"
-          ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
-          : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
       })}
     >
-      <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: color + "18", alignItems: "center", justifyContent: "center" }}>
+      <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: color + "15", alignItems: "center", justifyContent: "center" }}>
         <Feather name={icon as any} size={20} color={color} />
       </View>
       <View style={{ flex: 1 }}>
@@ -44,12 +40,14 @@ function MenuItem({ icon, label, color, subtitle, onPress }: MenuItemProps) {
           {label}
         </Text>
         {subtitle && (
-          <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+          <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left", marginTop: 2 }}>
             {subtitle}
           </Text>
         )}
       </View>
-      <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.textMuted} />
+      <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: theme.background, alignItems: "center", justifyContent: "center" }}>
+        <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={15} color={theme.textMuted} />
+      </View>
     </Pressable>
   );
 }
@@ -57,9 +55,26 @@ function MenuItem({ icon, label, color, subtitle, onPress }: MenuItemProps) {
 function SectionHeader({ title }: { title: string }) {
   const { theme, isRTL } = useApp();
   return (
-    <Text style={{ fontSize: 12, fontWeight: "700", color: theme.textMuted, textTransform: "uppercase", letterSpacing: 0.8, paddingHorizontal: 4, marginBottom: 8, marginTop: 4, textAlign: isRTL ? "right" : "left" }}>
-      {title}
-    </Text>
+    <View style={{
+      flexDirection: isRTL ? "row-reverse" : "row",
+      alignItems: "center",
+      gap: 8,
+      paddingHorizontal: 4,
+      marginBottom: 10,
+      marginTop: 6,
+    }}>
+      <View style={{ width: 3, height: 12, borderRadius: 2, backgroundColor: theme.primary }} />
+      <Text style={{ fontSize: 11, fontWeight: "700", color: theme.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>
+        {title}
+      </Text>
+    </View>
+  );
+}
+
+function SectionSeparator() {
+  const { theme } = useApp();
+  return (
+    <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 16, marginHorizontal: 4, opacity: 0.5 }} />
   );
 }
 
@@ -89,114 +104,128 @@ export default function MoreTab() {
           paddingTop: topPadding,
           paddingHorizontal: 20,
           paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110),
-          gap: 4,
         }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left", marginBottom: 20 }}>
+        <Text style={{ fontSize: 22, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left", marginBottom: 24 }}>
           {t.tabs.more}
         </Text>
 
+        {/* ── Financial section ── */}
         <SectionHeader title={t.more.financial} />
-        <MenuItem
-          icon="credit-card"
-          label={t.debts.title}
-          subtitle={t.more.debtsSubtitle}
-          color="#EF4444"
-          onPress={() => router.push("/debts" as any)}
-        />
-        <MenuItem
-          icon="calendar"
-          label={t.commitments.title}
-          subtitle={t.more.commitmentsSubtitle}
-          color="#F59E0B"
-          onPress={() => router.push("/commitments")}
-        />
+        <View style={{ gap: 8 }}>
+          <MenuItem
+            icon="credit-card"
+            label={t.debts.title}
+            subtitle={t.more.debtsSubtitle}
+            color="#EF4444"
+            onPress={() => router.push("/debts" as any)}
+          />
+          <MenuItem
+            icon="calendar"
+            label={t.commitments.title}
+            subtitle={t.more.commitmentsSubtitle}
+            color="#F59E0B"
+            onPress={() => router.push("/commitments")}
+          />
+        </View>
 
-        <View style={{ height: 12 }} />
+        <SectionSeparator />
 
         {/* ── Accounts section ── */}
         <SectionHeader title={t.more.accounts} />
-        <MenuItem
-          icon="credit-card"
-          label={t.accounts.title}
-          subtitle={t.more.accountsSubtitle}
-          color={theme.primary}
-          onPress={() => router.push("/accounts/list")}
-        />
-        <MenuItem
-          icon="tag"
-          label={t.categories.title}
-          subtitle={t.more.categoriesSubtitle}
-          color="#EC4899"
-          onPress={() => router.push("/categories")}
-        />
-        <MenuItem
-          icon="shuffle"
-          label={t.transfer.title}
-          subtitle={t.more.transferSubtitle}
-          color="#06B6D4"
-          onPress={() => router.push("/(modals)/transfer-form")}
-        />
+        <View style={{ gap: 8 }}>
+          <MenuItem
+            icon="credit-card"
+            label={t.accounts.title}
+            subtitle={t.more.accountsSubtitle}
+            color={theme.primary}
+            onPress={() => router.push("/accounts/list")}
+          />
+          <MenuItem
+            icon="tag"
+            label={t.categories.title}
+            subtitle={t.more.categoriesSubtitle}
+            color="#EC4899"
+            onPress={() => router.push("/categories")}
+          />
+          <MenuItem
+            icon="shuffle"
+            label={t.transfer.title}
+            subtitle={t.more.transferSubtitle}
+            color="#06B6D4"
+            onPress={() => router.push("/(modals)/transfer-form")}
+          />
+        </View>
 
-        {/* ── Daily Limit Mode (inline under الحسابات) ── */}
+        <SectionSeparator />
+
+        {/* ── Daily Limit Mode ── */}
+        <SectionHeader title={t.settings.dailyLimitMode} />
         <View
           style={{
             backgroundColor: theme.card,
-            borderRadius: 16,
+            borderRadius: 18,
             borderWidth: 1,
             borderColor: theme.border,
-            padding: 14,
-            marginBottom: 6,
-            gap: 10,
+            padding: 16,
+            gap: 12,
+            marginBottom: 8,
           }}
         >
-          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, marginBottom: 2 }}>
-            <View style={{ width: 36, height: 36, borderRadius: 11, backgroundColor: theme.primary + "18", alignItems: "center", justifyContent: "center" }}>
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10 }}>
+            <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: theme.primary + "18", alignItems: "center", justifyContent: "center" }}>
               <Feather name="sliders" size={18} color={theme.primary} />
             </View>
-            <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-              {t.settings.dailyLimitMode}
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                {t.settings.dailyLimitMode}
+              </Text>
+              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                {settings.daily_limit_mode === "smart" ? t.settings.smartLimitDesc : t.settings.manualLimitDesc}
+              </Text>
+            </View>
           </View>
 
-          {LIMIT_MODES.map((opt) => {
-            const active = settings.daily_limit_mode === opt.key;
-            return (
-              <Pressable
-                key={opt.key}
-                testID={`limit-${opt.key}`}
-                onPress={() => { Haptics.selectionAsync(); updateSettings({ daily_limit_mode: opt.key }); }}
-                style={{
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: 12,
-                  borderRadius: 12,
-                  backgroundColor: active ? theme.primaryLight : theme.background,
-                  borderWidth: 1.5,
-                  borderColor: active ? theme.primary : theme.border,
-                }}
-              >
-                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: active ? theme.primary + "25" : theme.border + "50", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name={opt.icon as any} size={18} color={active ? theme.primary : theme.textSecondary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>{opt.label}</Text>
-                  <Text style={{ fontSize: 11, color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>{opt.desc}</Text>
-                </View>
-                <View style={{
-                  width: 20, height: 20, borderRadius: 10,
-                  borderWidth: 2,
-                  borderColor: active ? theme.primary : theme.border,
-                  backgroundColor: active ? theme.primary : "transparent",
-                  alignItems: "center", justifyContent: "center",
-                }}>
-                  {active && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#fff" }} />}
-                </View>
-              </Pressable>
-            );
-          })}
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8 }}>
+            {LIMIT_MODES.map((opt) => {
+              const active = settings.daily_limit_mode === opt.key;
+              return (
+                <Pressable
+                  key={opt.key}
+                  testID={`limit-${opt.key}`}
+                  onPress={() => { Haptics.selectionAsync(); updateSettings({ daily_limit_mode: opt.key }); }}
+                  style={{
+                    flex: 1,
+                    flexDirection: isRTL ? "row-reverse" : "row",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: 12,
+                    borderRadius: 12,
+                    backgroundColor: active ? theme.primaryLight : theme.background,
+                    borderWidth: 1.5,
+                    borderColor: active ? theme.primary : theme.border,
+                  }}
+                >
+                  <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: active ? theme.primary + "25" : theme.border + "50", alignItems: "center", justifyContent: "center" }}>
+                    <Feather name={opt.icon as any} size={16} color={active ? theme.primary : theme.textSecondary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 13, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>{opt.label}</Text>
+                  </View>
+                  <View style={{
+                    width: 20, height: 20, borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: active ? theme.primary : theme.border,
+                    backgroundColor: active ? theme.primary : "transparent",
+                    alignItems: "center", justifyContent: "center",
+                  }}>
+                    {active && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#fff" }} />}
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
 
           {settings.daily_limit_mode === "manual" && (
             <View style={{ paddingTop: 2 }}>
@@ -219,17 +248,21 @@ export default function MoreTab() {
           )}
         </View>
 
-        <View style={{ height: 12 }} />
-        <SectionHeader title={t.more.settings} />
-        <MenuItem
-          icon="settings"
-          label={t.settings.title}
-          subtitle={t.more.settingsSubtitle}
-          color="#6B7280"
-          onPress={() => router.push("/settings")}
-        />
+        <SectionSeparator />
 
-        <View style={{ height: 12 }} />
+        {/* ── App settings ── */}
+        <SectionHeader title={t.more.settings} />
+        <View style={{ gap: 8 }}>
+          <MenuItem
+            icon="settings"
+            label={t.settings.title}
+            subtitle={t.more.settingsSubtitle}
+            color="#6B7280"
+            onPress={() => router.push("/settings")}
+          />
+        </View>
+
+        <View style={{ height: 8 }} />
       </ScrollView>
     </View>
   );

@@ -452,6 +452,7 @@ export const en = {
     error: "Something went wrong, try again",
     transferred: "Transfer complete",
     deposited: "Deposit successful",
+    withdrawn: "Withdrawal successful",
     transactionSaved: "Transaction saved successfully",
     transactionUpdated: "Transaction updated successfully",
     transactionDeleted: "Transaction deleted successfully",

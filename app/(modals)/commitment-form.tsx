@@ -201,31 +201,41 @@ export default function CommitmentFormModal() {
         </View>
 
         {/* Amount */}
-        <View style={{ gap: 6 }}>
-          <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-            {t.common.amount} <Text style={{ color: theme.expense }}>*</Text>
+        <View style={{
+          backgroundColor: errors.amount ? "#EF444408" : theme.expense + "08",
+          borderRadius: 20,
+          borderWidth: 1.5,
+          borderColor: errors.amount ? "#EF4444" : theme.expense + "30",
+          paddingVertical: 20,
+          paddingHorizontal: 16,
+          alignItems: "center",
+          gap: 6,
+        }}>
+          <Text style={{ fontSize: 12, fontWeight: "600", color: theme.expense, letterSpacing: 0.5 }}>
+            {t.common.amount}
           </Text>
           <TextInput
             value={amount}
-            onChangeText={setAmount}
+            onChangeText={(v) => { setAmount(v); if (errors.amount) setErrors((e) => ({ ...e, amount: "" })); }}
             keyboardType="decimal-pad"
             placeholder="0.00"
-            placeholderTextColor={theme.textMuted}
+            placeholderTextColor={theme.expense + "50"}
             style={{
-              backgroundColor: theme.input,
-              borderRadius: 12,
-              borderWidth: 1.5,
-              borderColor: errors.amount ? "#EF4444" : theme.inputBorder,
-              paddingHorizontal: 14,
-              paddingVertical: 13,
-              fontSize: 18,
-              fontWeight: "700",
+              width: "100%",
+              fontSize: 48,
+              fontWeight: "800",
               color: theme.expense,
               textAlign: "center",
+              letterSpacing: -1,
               ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
             }}
           />
-          {!!errors.amount && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.amount}</Text>}
+          {!!errors.amount && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+              <Feather name="alert-circle" size={12} color="#EF4444" />
+              <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.amount}</Text>
+            </View>
+          )}
         </View>
 
         {/* Account Picker */}

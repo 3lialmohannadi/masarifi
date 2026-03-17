@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { SuccessOverlay } from "@/components/ui/SuccessOverlay";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import {
   View,
@@ -56,6 +57,7 @@ export default function SavingsMovementModal() {
   const [showCategories, setShowCategories] = useState(false);
   const [categoryId, setCategoryId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const allCategories = [...categories];
@@ -95,7 +97,6 @@ export default function SavingsMovementModal() {
       return;
     }
     setLoading(true);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     try {
       const amountNum = parseFloat(amount);
       const today = todayISOString();
@@ -175,8 +176,12 @@ export default function SavingsMovementModal() {
           // No account balance change
         }
       }
-      showToast(t.toast.deposited);
-      router.back();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        router.back();
+      }, 700);
     } catch {
       showToast(t.toast.error, "error");
     } finally {
@@ -488,40 +493,42 @@ export default function SavingsMovementModal() {
         </View>
 
         {/* Amount */}
-        <View style={{ gap: 6 }}>
-          <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-            {t.common.amount} <Text style={{ color: theme.expense }}>*</Text>
+        <View style={{
+          backgroundColor: errors.amount ? "#EF444408" : actionColor + "08",
+          borderRadius: 20,
+          borderWidth: 1.5,
+          borderColor: errors.amount ? "#EF4444" : actionColor + "30",
+          paddingVertical: 20,
+          paddingHorizontal: 16,
+          alignItems: "center",
+          gap: 6,
+        }}>
+          <Text style={{ fontSize: 12, fontWeight: "600", color: actionColor, letterSpacing: 0.5 }}>
+            {isDeposit ? t.savings.deposit : t.savings.withdraw}
           </Text>
-          <View
+          <TextInput
+            value={amount}
+            onChangeText={(v) => { setAmount(v); if (errors.amount) setErrors((e) => ({ ...e, amount: "" })); }}
+            keyboardType="decimal-pad"
+            placeholder="0.00"
+            placeholderTextColor={actionColor + "50"}
             style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
-              alignItems: "center",
-              backgroundColor: theme.input,
-              borderRadius: 12,
-              borderWidth: 1.5,
-              borderColor: errors.amount ? "#EF4444" : theme.inputBorder,
-              paddingHorizontal: 14,
+              width: "100%",
+              fontSize: 48,
+              fontWeight: "800",
+              color: actionColor,
+              textAlign: "center",
+              letterSpacing: -1,
+              ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
             }}
-          >
-            <TextInput
-              value={amount}
-              onChangeText={(v) => { setAmount(v); if (errors.amount) setErrors((e) => ({ ...e, amount: "" })); }}
-              keyboardType="decimal-pad"
-              placeholder="0.00"
-              placeholderTextColor={theme.textMuted}
-              style={{
-                flex: 1,
-                paddingVertical: 14,
-                fontSize: 22,
-                fontWeight: "700",
-                color: actionColor,
-                textAlign: "center",
-                ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
-              }}
-            />
-          </View>
+          />
+          {selectedWallet && (
+            <Text style={{ fontSize: 12, color: theme.textMuted }}>
+              {formatCurrency(selectedWallet.current_amount, settings.default_currency, language)}
+            </Text>
+          )}
           {!!errors.amount && (
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
               <Feather name="alert-circle" size={12} color="#EF4444" />
               <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.amount}</Text>
             </View>
@@ -591,6 +598,12 @@ export default function SavingsMovementModal() {
           </Text>
         </Pressable>
       </KeyboardAwareScrollViewCompat>
+
+      <SuccessOverlay
+        visible={showSuccess}
+        message={isDeposit ? t.toast.deposited : t.toast.withdrawn}
+        color={actionColor}
+      />
 
       {/* Wallet Selector Modal */}
       <Modal visible={showWallets} transparent animationType="slide" statusBarTranslucent>

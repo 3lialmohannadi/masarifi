@@ -6,6 +6,7 @@ import {
   ScrollView,
   Platform,
   KeyboardAvoidingView,
+  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -18,7 +19,7 @@ import { AppButton } from "@/components/ui/AppButton";
 
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, isRTL, isDark, showToast } = useApp();
+  const { theme, t, isRTL, isDark, language, showToast } = useApp();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,17 +68,6 @@ export default function SignInScreen() {
     }
   };
 
-  const cardShadow =
-    Platform.OS !== "web" && !isDark
-      ? {
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.06,
-          shadowRadius: 10,
-          elevation: 2,
-        }
-      : {};
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -93,9 +83,9 @@ export default function SignInScreen() {
             right: isRTL ? undefined : 20,
             left: isRTL ? 20 : undefined,
             zIndex: 10,
-            width: 36,
-            height: 36,
-            borderRadius: 18,
+            width: 38,
+            height: 38,
+            borderRadius: 19,
             backgroundColor: theme.card,
             borderWidth: 1,
             borderColor: theme.border,
@@ -109,62 +99,63 @@ export default function SignInScreen() {
           contentContainerStyle={{
             flexGrow: 1,
             paddingHorizontal: 24,
-            paddingTop: insets.top + 48,
+            paddingTop: insets.top + 56,
             paddingBottom: insets.bottom + 32,
-            gap: 28,
+            gap: 24,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ alignItems: "center", gap: 10 }}>
-            <View
-              style={{
-                width: 72,
-                height: 72,
-                borderRadius: 22,
-                backgroundColor: theme.primary,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Feather name="dollar-sign" size={36} color="#fff" />
-            </View>
-            <Text style={{ fontSize: 26, fontWeight: "800", color: theme.text }}>
-              {t.app.name}
-            </Text>
-            <Text
-              style={{
+          {/* Logo & Title */}
+          <View style={{ alignItems: "center", gap: 16, paddingTop: 8 }}>
+            <Image
+              source={isDark
+                ? (language === "ar" ? require("@/assets/logo_ar_dark.png") : require("@/assets/logo_en_dark.png"))
+                : (language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo_en_light.png"))
+              }
+              resizeMode="contain"
+              style={{ width: language === "ar" ? 200 : 160, height: language === "ar" ? 72 : 56 }}
+            />
+            <View style={{ alignItems: "center", gap: 6 }}>
+              <Text style={{
+                fontSize: 24,
+                fontWeight: "800",
+                color: theme.text,
+                textAlign: "center",
+              }}>
+                {t.auth.signIn}
+              </Text>
+              <Text style={{
                 fontSize: 14,
                 color: theme.textSecondary,
                 textAlign: "center",
-              }}
-            >
-              {t.auth.signInSubtitle}
-            </Text>
+                lineHeight: 20,
+              }}>
+                {t.auth.signInSubtitle}
+              </Text>
+            </View>
           </View>
 
+          {/* Form Card */}
           <View
             style={{
               backgroundColor: theme.card,
-              borderRadius: 20,
-              padding: 20,
-              gap: 16,
+              borderRadius: 24,
+              padding: 22,
+              gap: 18,
               borderWidth: 1,
               borderColor: theme.border,
-              ...cardShadow,
+              ...(Platform.OS === "web"
+                ? ({ boxShadow: isDark ? "none" : "0 4px 20px rgba(47,143,131,0.10)" } as object)
+                : isDark ? {} : {
+                    shadowColor: "#2F8F83",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.10,
+                    shadowRadius: 16,
+                    elevation: 4,
+                  }),
             }}
           >
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "800",
-                color: theme.text,
-                textAlign: isRTL ? "right" : "left",
-              }}
-            >
-              {t.auth.signIn}
-            </Text>
-
             {authError ? (
               <View
                 style={{
@@ -174,6 +165,8 @@ export default function SignInScreen() {
                   flexDirection: isRTL ? "row-reverse" : "row",
                   alignItems: "center",
                   gap: 8,
+                  borderWidth: 1,
+                  borderColor: "#EF444430",
                 }}
               >
                 <Feather name="alert-circle" size={15} color="#EF4444" />

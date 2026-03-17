@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, FlatList, Modal, Platform } from "react-native";
+import { View, Text, Pressable, FlatList, Modal, Platform, TextInput } from "react-native";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -9,6 +9,7 @@ import { useApp } from "@/store/AppContext";
 import { useAccounts } from "@/store/AccountsContext";
 import { useTransactions } from "@/store/TransactionsContext";
 import { AppButton } from "@/components/ui/AppButton";
+import { SuccessOverlay } from "@/components/ui/SuccessOverlay";
 import { AppInput } from "@/components/ui/AppInput";
 import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
@@ -37,6 +38,7 @@ export default function TransferFormModal() {
   const [showTo, setShowTo] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const fromAccount = accounts.find((a) => a.id === fromId);
@@ -78,8 +80,12 @@ export default function TransferFormModal() {
       });
       updateBalance(fromId, -sourceAmount);
       updateBalance(toId, destinationAmount);
-      showToast(t.toast.transferred);
-      router.back();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        router.back();
+      }, 700);
     } catch {
       showToast(t.toast.error, "error");
     } finally {
@@ -206,16 +212,50 @@ export default function TransferFormModal() {
         </View>
 
         {/* Source Amount */}
-        <AppInput
-          label={sameCurrency ? t.common.amount : t.transfer.sourceAmount}
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="decimal-pad"
-          placeholder="0.00"
-          error={errors.amount}
-          textAlign="center"
-          style={{ fontSize: 24, fontWeight: "700" }}
-        />
+        <View style={{
+          backgroundColor: errors.amount ? "#EF444408" : theme.transfer + "08",
+          borderRadius: 20,
+          borderWidth: 1.5,
+          borderColor: errors.amount ? "#EF4444" : theme.transfer + "30",
+          paddingVertical: 20,
+          paddingHorizontal: 16,
+          alignItems: "center",
+          gap: 6,
+        }}>
+          <Text style={{ fontSize: 12, fontWeight: "600", color: theme.transfer, letterSpacing: 0.5 }}>
+            {sameCurrency ? t.common.amount : t.transfer.sourceAmount}
+          </Text>
+          <TextInput
+            value={amount}
+            onChangeText={(v) => {
+              setAmount(v);
+              if (errors.amount) setErrors((e) => ({ ...e, amount: "" }));
+            }}
+            keyboardType="decimal-pad"
+            placeholder="0.00"
+            placeholderTextColor={theme.transfer + "50"}
+            style={{
+              fontSize: 48,
+              fontWeight: "800",
+              color: theme.transfer,
+              textAlign: "center",
+              width: "100%",
+              letterSpacing: -1,
+              ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
+            }}
+          />
+          {fromAccount && (
+            <Text style={{ fontSize: 12, color: theme.textMuted }}>
+              {formatCurrency(fromAccount.balance, fromAccount.currency, language)}
+            </Text>
+          )}
+          {!!errors.amount && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+              <Feather name="alert-circle" size={12} color="#EF4444" />
+              <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.amount}</Text>
+            </View>
+          )}
+        </View>
 
         {/* Exchange Rate — only when currencies differ */}
         {!sameCurrency && fromAccount && toAccount && (
@@ -306,6 +346,8 @@ export default function TransferFormModal() {
         onConfirm={(d) => { setDate(d); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
         onClose={() => setShowDatePicker(false)}
       />
+
+      <SuccessOverlay visible={showSuccess} message={t.toast.transferred} color={theme.transfer} />
     </View>
   );
 }

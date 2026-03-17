@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { View, Text, ScrollView, Pressable, Platform, Dimensions } from "react-native";
+import { StatisticsSkeleton } from "@/components/ui/Skeleton";
 import Svg, { Circle, Path, G, Line, Rect, Defs, LinearGradient, Stop, Polyline, Polygon, Text as SvgText } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -184,10 +185,10 @@ function LineChart({ data, color, theme, isRTL }: { data: LineMonth[]; color: st
 export default function StatisticsTab() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL, isDark, settings } = useApp();
-  const { transactions } = useTransactions();
+  const { transactions, isLoaded: txLoaded } = useTransactions();
   const { getCategory } = useCategories();
   const { accounts } = useAccounts();
-  const { savingsTransactions } = useSavings();
+  const { savingsTransactions, isLoaded: savingsLoaded } = useSavings();
   const { month: selectedMonth, year: selectedYear, monthName, monthKey, goToPrev, goToNext } = useMonthPicker(language);
 
   const monthTxs = useMemo(() =>
@@ -261,6 +262,17 @@ export default function StatisticsTab() {
   const primaryCurrency = settings.default_currency || accounts.find((a) => a.is_active)?.currency || "QAR";
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
   const hasExpenses = totalExpense > 0;
+
+  if (!txLoaded || !savingsLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ paddingTop: topPadding, paddingHorizontal: 20, paddingBottom: 16 }}>
+          <View style={{ width: 140, height: 30, borderRadius: 8, backgroundColor: theme.card }} />
+        </View>
+        <StatisticsSkeleton />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>

@@ -452,6 +452,7 @@ export const ar = {
     error: "حدث خطأ، حاول مجدداً",
     transferred: "تم التحويل بنجاح",
     deposited: "تم الإيداع بنجاح",
+    withdrawn: "تم السحب بنجاح",
     transactionSaved: "تم حفظ المعاملة بنجاح",
     transactionUpdated: "تم تحديث المعاملة بنجاح",
     transactionDeleted: "تم حذف المعاملة بنجاح",

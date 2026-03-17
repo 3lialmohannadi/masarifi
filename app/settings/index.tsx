@@ -71,7 +71,7 @@ function NavRow({ icon, iconColor, label, subtitle, onPress, testID }: {
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, setLanguage, themeMode, setThemeMode, settings, updateSettings, isRTL, showToast } = useApp();
+  const { theme, t, language, setLanguage, themeMode, setThemeMode, settings, updateSettings, isRTL, showToast, isDark } = useApp();
   const { accounts, clearAll: clearAccounts } = useAccounts();
   const { transactions, clearAll: clearTransactions } = useTransactions();
   const { wallets: savingsWallets, savingsTransactions, clearAll: clearSavings } = useSavings();
@@ -182,24 +182,54 @@ export default function SettingsScreen() {
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       {/* Header */}
       <View style={{
-        flexDirection: isRTL ? "row-reverse" : "row",
-        alignItems: "center",
-        gap: 12,
         paddingTop: topPadding,
-        paddingBottom: 12,
+        paddingBottom: 14,
         paddingHorizontal: 20,
         backgroundColor: theme.background,
+        gap: 12,
       }}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
-        >
-          <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
-        </Pressable>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-          {t.settings.title}
-        </Text>
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={8}
+            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+          >
+            <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={18} color={theme.text} />
+          </Pressable>
+          <Text style={{ flex: 1, fontSize: 22, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+            {t.settings.title}
+          </Text>
+        </View>
+
+        {/* App identity banner */}
+        <View style={{
+          flexDirection: isRTL ? "row-reverse" : "row",
+          alignItems: "center",
+          gap: 12,
+          backgroundColor: theme.card,
+          borderRadius: 16,
+          padding: 12,
+          borderWidth: 1,
+          borderColor: theme.border,
+        }}>
+          <Image
+            source={isDark
+              ? (language === "ar" ? require("@/assets/logo_ar_dark.png") : require("@/assets/logo_en_dark.png"))
+              : (language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo_en_light.png"))
+            }
+            resizeMode="contain"
+            style={{ height: 36, width: 110 }}
+          />
+          <View style={{ flex: 1, alignItems: isRTL ? "flex-end" : "flex-start", gap: 2 }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.income }} />
+              <Text style={{ fontSize: 11, color: theme.textMuted, fontWeight: "500" }}>{t.settings.version} 1.1.0</Text>
+            </View>
+            <Text style={{ fontSize: 10, color: theme.textMuted }}>
+              {accounts.filter((a) => a.is_active).length} {t.settings.accountsCount}
+            </Text>
+          </View>
+        </View>
       </View>
 
       <KeyboardAwareScrollViewCompat

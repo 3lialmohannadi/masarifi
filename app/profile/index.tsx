@@ -392,8 +392,8 @@ export default function ProfileScreen() {
         <View
           style={{
             backgroundColor: theme.card,
-            borderRadius: 20,
-            padding: 20,
+            borderRadius: 24,
+            padding: 24,
             alignItems: "center",
             gap: 12,
             borderWidth: 1,
@@ -401,29 +401,32 @@ export default function ProfileScreen() {
             ...cardShadow,
           }}
         >
-          <View
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 36,
-              backgroundColor: theme.primary,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text
-              style={{ color: "#fff", fontSize: 26, fontWeight: "800" }}
+          {/* Avatar with ring */}
+          <View style={{ width: 86, height: 86, borderRadius: 43, padding: 3, backgroundColor: theme.primary + "25" }}>
+            <View
+              style={{
+                flex: 1,
+                borderRadius: 40,
+                backgroundColor: theme.primary,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              {initials}
-            </Text>
+              <Text
+                style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}
+              >
+                {initials}
+              </Text>
+            </View>
           </View>
           {profile?.full_name ? (
             <Text
               style={{
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: "800",
                 color: theme.text,
                 textAlign: "center",
+                letterSpacing: -0.3,
               }}
             >
               {profile.full_name}
@@ -444,7 +447,9 @@ export default function ProfileScreen() {
                 backgroundColor: theme.primary + "15",
                 borderRadius: 10,
                 paddingHorizontal: 12,
-                paddingVertical: 5,
+                paddingVertical: 6,
+                borderWidth: 1,
+                borderColor: theme.primary + "25",
               }}
             >
               <Text

@@ -14,6 +14,7 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 import { useDebts } from "@/store/DebtsContext";
 import { DatePickerModal } from "@/components/DatePickerModal";
+import { SuccessOverlay } from "@/components/ui/SuccessOverlay";
 import { dateToISO } from "@/utils/date";
 import type { DebtCategory, DebtStatus } from "@/types";
 import {
@@ -61,6 +62,7 @@ export default function DebtFormModal() {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const CATEGORIES: { key: DebtCategory; label: string; icon: string; color: string }[] = [
@@ -155,13 +157,15 @@ export default function DebtFormModal() {
 
     if (isEdit && existingDebt) {
       updateDebt(existingDebt.id, payload);
-      showToast(t.toast.saved, "success");
     } else {
       addDebt(payload);
-      showToast(t.toast.saved, "success");
     }
 
-    router.back();
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      router.back();
+    }, 700);
   }
 
   const textAlign = (isRTL ? "right" : "left") as "right" | "left";
@@ -331,21 +335,42 @@ export default function DebtFormModal() {
             {errors.entityName && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.entityName}</Text>}
           </View>
 
-          <View style={{ gap: 6 }}>
-            <LabelText text={t.debts.originalAmount} required />
-            <View style={[rowStyle, { borderColor: errors.originalAmount ? "#EF4444" : theme.border }]}>
-              <Feather name="dollar-sign" size={16} color={theme.textMuted} />
-              <TextInput
-                value={originalAmount}
-                onChangeText={(v) => { setOriginalAmount(v); setErrors((e) => ({ ...e, originalAmount: "" })); }}
-                placeholder="0.000"
-                placeholderTextColor={theme.textMuted}
-                keyboardType="decimal-pad"
-                style={{ ...inputStyle, fontSize: 16, fontWeight: "600" }}
-              />
-              <Text style={{ fontSize: 13, color: theme.textMuted }}>{currency}</Text>
-            </View>
-            {errors.originalAmount && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.originalAmount}</Text>}
+          <View style={{
+            backgroundColor: errors.originalAmount ? "#EF444408" : theme.primary + "08",
+            borderRadius: 20,
+            borderWidth: 1.5,
+            borderColor: errors.originalAmount ? "#EF4444" : theme.primary + "30",
+            paddingVertical: 20,
+            paddingHorizontal: 16,
+            alignItems: "center",
+            gap: 6,
+          }}>
+            <Text style={{ fontSize: 12, fontWeight: "600", color: theme.primary, letterSpacing: 0.5 }}>
+              {t.debts.originalAmount}
+            </Text>
+            <TextInput
+              value={originalAmount}
+              onChangeText={(v) => { setOriginalAmount(v); setErrors((e) => ({ ...e, originalAmount: "" })); }}
+              placeholder="0.000"
+              placeholderTextColor={theme.primary + "50"}
+              keyboardType="decimal-pad"
+              style={{
+                width: "100%",
+                fontSize: 48,
+                fontWeight: "800",
+                color: theme.primary,
+                textAlign: "center",
+                letterSpacing: -1,
+                ...webStyle,
+              }}
+            />
+            <Text style={{ fontSize: 12, color: theme.textMuted }}>{currency}</Text>
+            {errors.originalAmount && (
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <Feather name="alert-circle" size={12} color="#EF4444" />
+                <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.originalAmount}</Text>
+              </View>
+            )}
           </View>
 
           {isEdit && (
@@ -520,6 +545,12 @@ export default function DebtFormModal() {
         value={endDate}
         onConfirm={(d) => { setEndDate(d); setShowEndDatePicker(false); }}
         onClose={() => setShowEndDatePicker(false)}
+      />
+
+      <SuccessOverlay
+        visible={showSuccess}
+        message={t.toast.saved}
+        color={theme.primary}
       />
     </View>
   );
