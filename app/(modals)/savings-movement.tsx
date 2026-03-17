@@ -116,17 +116,29 @@ export default function SavingsMovementModal() {
             note,
           });
           updateBalance(accountId, -amountNum);
-          // Record as expense on the account (money moved to savings)
-          addTransaction({
-            account_id: accountId,
-            category_id: linkCategoryId,
-            type: "expense",
-            amount: amountNum,
-            currency,
-            date: today,
-            note: note || `${t.savings.deposit} ← ${walletName}`,
-            linked_saving_wallet_id: walletId,
-          });
+          {
+            const acctSM = accounts.find((a) => a.id === accountId);
+            const daysInMonthSM = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+            const remainingDaysSM = daysInMonthSM - new Date().getDate() + 1;
+            const smartLimitSM = (acctSM?.balance || 0) > 0 ? (acctSM?.balance || 0) / remainingDaysSM : 0;
+            const dailyLimitSM = settings.daily_limit_mode === "manual" && settings.manual_daily_limit > 0
+              ? settings.manual_daily_limit
+              : smartLimitSM;
+            // Record as expense on the account (money moved to savings)
+            addTransaction(
+              {
+                account_id: accountId,
+                category_id: linkCategoryId,
+                type: "expense",
+                amount: amountNum,
+                currency,
+                date: today,
+                note: note || `${t.savings.deposit} ← ${walletName}`,
+                linked_saving_wallet_id: walletId,
+              },
+              { enabled: settings.notification_enabled, dailyLimit: dailyLimitSM }
+            );
+          }
         } else {
           // Deposit from external source → add to wallet only, no account change
           addSavingsTransaction({

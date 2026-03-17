@@ -159,7 +159,17 @@ export function QuickAddSheet({ visible, initialType, onClose }: QuickAddSheetPr
     const acctId = accountId || defaultAccount?.id || "";
 
     updateBalance(acctId, delta);
-    addTransaction({ type, amount: amountNum, account_id: acctId, category_id: categoryId, currency, date, note });
+    const daysInMonthQA = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+    const remainingDaysQA = daysInMonthQA - new Date().getDate() + 1;
+    const acctBalanceQA = accounts.find((a) => a.id === acctId)?.balance || 0;
+    const smartLimitQA = acctBalanceQA > 0 ? acctBalanceQA / remainingDaysQA : 0;
+    const dailyLimitQA = settings.daily_limit_mode === "manual" && settings.manual_daily_limit > 0
+      ? settings.manual_daily_limit
+      : smartLimitQA;
+    addTransaction(
+      { type, amount: amountNum, account_id: acctId, category_id: categoryId, currency, date, note },
+      { enabled: settings.notification_enabled && type === "expense", dailyLimit: dailyLimitQA }
+    );
     if (categoryId) updateSettings({ last_used_category_id: categoryId });
 
     setSaving(false);
