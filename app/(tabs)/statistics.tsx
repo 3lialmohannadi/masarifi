@@ -401,9 +401,13 @@ export default function StatisticsTab() {
     [trend6]
   );
 
-  // ── Previous month data for MoM delta ──────────────────────────────────────
-  // For current month: compare only through the same elapsed day in the prior month.
-  // For historical months: compare the full selected month vs the full prior month.
+  // ── Previous month baselines ─────────────────────────────────────────────────
+  // Two separate baselines:
+  //   prevMonthKey: the YYYY-MM string of the prior month
+  //   prevMonthExpenseSamePeriod: prior month spending through same day-of-month
+  //     (for MoM badge comparison while current month is in progress)
+  //   prevMonthExpenseFullMonth: full prior month spending
+  //     (for forecast comparison — always compare against complete prior month)
   const prevMonthKey = useMemo(() => {
     let m = selectedMonth - 1;
     let y = selectedYear;
@@ -411,20 +415,24 @@ export default function StatisticsTab() {
     return `${y}-${String(m).padStart(2, "0")}`;
   }, [selectedMonth, selectedYear]);
 
+  const prevMonthAllTxs = useMemo(() =>
+    transactions.filter((tx) => tx.date.startsWith(prevMonthKey)),
+    [transactions, prevMonthKey]
+  );
+
+  // Same-period slice (used for MoM badges on current month)
   const prevMonthTxs = useMemo(() => {
     const todayNow = new Date();
     const isCurrent = selectedMonth === (todayNow.getMonth() + 1) && selectedYear === todayNow.getFullYear();
     if (isCurrent) {
-      // Limit to the same day-of-month range as elapsed so far
       const cutoffDay = todayNow.getDate();
-      return transactions.filter((tx) => {
-        if (!tx.date.startsWith(prevMonthKey)) return false;
+      return prevMonthAllTxs.filter((tx) => {
         const day = parseInt(tx.date.slice(8, 10), 10);
         return day <= cutoffDay;
       });
     }
-    return transactions.filter((tx) => tx.date.startsWith(prevMonthKey));
-  }, [transactions, prevMonthKey, selectedMonth, selectedYear]);
+    return prevMonthAllTxs;
+  }, [prevMonthAllTxs, selectedMonth, selectedYear]);
 
   const prevMonthIncome = useMemo(() =>
     prevMonthTxs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0),
@@ -433,6 +441,12 @@ export default function StatisticsTab() {
   const prevMonthExpense = useMemo(() =>
     prevMonthTxs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0),
     [prevMonthTxs]
+  );
+
+  // Full prior month total — used exclusively for forecast comparison
+  const prevMonthExpenseFullMonth = useMemo(() =>
+    prevMonthAllTxs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0),
+    [prevMonthAllTxs]
   );
 
   const incomeDelta: number | null = prevMonthIncome > 0
@@ -456,7 +470,8 @@ export default function StatisticsTab() {
   const forecastedExpense = isCurrentMonth && elapsedDays > 0
     ? (totalExpense / elapsedDays) * daysInMonth
     : null;
-  const forecastHigher = forecastedExpense !== null && prevMonthExpense > 0 && forecastedExpense > prevMonthExpense;
+  // Compare forecast vs FULL prior month (not same-period slice)
+  const forecastHigher = forecastedExpense !== null && prevMonthExpenseFullMonth > 0 && forecastedExpense > prevMonthExpenseFullMonth;
 
   const primaryCurrency = settings.default_currency || accounts.find((a) => a.is_active)?.currency || "QAR";
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
@@ -477,7 +492,7 @@ export default function StatisticsTab() {
     } finally {
       setExporting(false);
     }
-  }, [exporting, monthTxs, monthTransfers, accounts, categories, language, monthName, selectedYear, showToast, t]);
+  }, [exporting, monthTxs, monthTransfers, accounts, categories, language, monthKey, monthName, selectedYear, showToast, t]);
 
   if (!txLoaded || !savingsLoaded) {
     return (
