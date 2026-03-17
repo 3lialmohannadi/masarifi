@@ -159,6 +159,21 @@ export default function RootLayout() {
   const [videoSplashDone, setVideoSplashDone] = useState(false);
   const hideAsyncCalledRef = useRef(false);
 
+  // Set up foreground notification handler so local notifications are
+  // shown even when the app is in the foreground (required for iOS).
+  useEffect(() => {
+    import("expo-notifications").then((Notifications) => {
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+        }),
+      });
+    }).catch(() => {});
+  }, []);
+
   const handleSplashHide = useCallback(() => {
     if (!hideAsyncCalledRef.current) {
       hideAsyncCalledRef.current = true;

@@ -15,10 +15,15 @@ import { useAuth } from "@/store/AuthContext";
 
 const GUEST_ID = "guest";
 
+export interface DailyLimitOpts {
+  enabled: boolean;
+  dailyLimit: number;
+}
+
 interface TransactionsContextValue {
   transactions: Transaction[];
   transfers: Transfer[];
-  addTransaction: (tx: Omit<Transaction, "id" | "created_at" | "updated_at">) => Transaction;
+  addTransaction: (tx: Omit<Transaction, "id" | "created_at" | "updated_at">, dailyLimitOpts?: DailyLimitOpts) => Transaction;
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
   addTransfer: (tf: Omit<Transfer, "id" | "created_at">) => Transfer;
@@ -115,15 +120,35 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     saveData(tfKey, data);
   };
 
-  const addTransaction = (tx: Omit<Transaction, "id" | "created_at" | "updated_at">): Transaction => {
+  const addTransaction = (
+    tx: Omit<Transaction, "id" | "created_at" | "updated_at">,
+    dailyLimitOpts?: DailyLimitOpts
+  ): Transaction => {
     const newTx: Transaction = {
       ...tx,
       id: generateId(),
       created_at: now(),
       updated_at: now(),
     };
-    persistTx([...transactions, newTx]);
+    const updatedTransactions = [...transactions, newTx];
+    persistTx(updatedTransactions);
     sync(apiRequest("POST", "/api/transactions", newTx), "create transaction");
+
+    // Trigger daily limit alert for expense transactions
+    if (
+      tx.type === "expense" &&
+      dailyLimitOpts?.enabled &&
+      dailyLimitOpts.dailyLimit > 0
+    ) {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const todaySpend = updatedTransactions
+        .filter((t) => t.type === "expense" && t.date.startsWith(todayStr))
+        .reduce((s, t) => s + t.amount, 0);
+      import("@/utils/notifications").then(({ checkDailyLimitAlert }) => {
+        checkDailyLimitAlert(todaySpend, dailyLimitOpts.dailyLimit).catch(() => {});
+      });
+    }
+
     return newTx;
   };
 

@@ -62,35 +62,29 @@ export default function PayNowModal({ commitmentId, onClose }: PayNowModalProps)
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     try {
-      addTransaction({
-        account_id: commitment.account_id,
-        category_id: commitment.category_id,
-        type: "expense",
-        amount: commitment.amount,
-        currency: account.currency,
-        date: todayISOString(),
-        note: note.trim() || getDisplayName(commitment, language),
-        linked_commitment_id: commitment.id,
-      });
+      const remainingDays = new Date(
+        new Date().getFullYear(), new Date().getMonth() + 1, 0
+      ).getDate() - new Date().getDate() + 1;
+      const smartLimit = account.balance > 0 ? account.balance / remainingDays : 0;
+      const dailyLimit = settings.daily_limit_mode === "manual" && settings.manual_daily_limit > 0
+        ? settings.manual_daily_limit
+        : smartLimit;
+      addTransaction(
+        {
+          account_id: commitment.account_id,
+          category_id: commitment.category_id,
+          type: "expense",
+          amount: commitment.amount,
+          currency: account.currency,
+          date: todayISOString(),
+          note: note.trim() || getDisplayName(commitment, language),
+          linked_commitment_id: commitment.id,
+        },
+        { enabled: settings.notification_enabled, dailyLimit }
+      );
 
       updateBalance(commitment.account_id, -commitment.amount);
       payCommitment(commitment.id);
-
-      // Daily limit alert — fires for commitment pay same as manual expense
-      if (settings.notification_enabled) {
-        import("@/utils/notifications").then(({ checkDailyLimitAlert }) => {
-          const remainingDays = new Date(
-            new Date().getFullYear(), new Date().getMonth() + 1, 0
-          ).getDate() - new Date().getDate() + 1;
-          const smartLimit = account.balance > 0 ? account.balance / remainingDays : 0;
-          const dailyLimit = settings.daily_limit_mode === "manual" && settings.manual_daily_limit > 0
-            ? settings.manual_daily_limit
-            : smartLimit;
-          if (dailyLimit > 0) {
-            checkDailyLimitAlert(commitment.amount, dailyLimit).catch(() => {});
-          }
-        });
-      }
       setPaid(true);
 
       setTimeout(() => {
