@@ -185,7 +185,7 @@ function Slide4({ t }: { t: TranslationKeys }) {
 
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
-  const { t, settings, language, setLanguage, updateSettings, isDark, isRTL } = useApp();
+  const { t, settings, language, setLanguage, updateSettings, isDark } = useApp();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [localCurrency, setLocalCurrency] = useState(settings.default_currency || "QAR");
   const flatRef = useRef<FlatList>(null);
@@ -194,11 +194,7 @@ export default function OnboardingScreen() {
   const gradient = isDark ? DARK_GRADIENT : GRADIENT;
 
   const goTo = (index: number) => {
-    if (isRTL) {
-      flatRef.current?.scrollToIndex({ index: TOTAL - 1 - index, animated: true });
-    } else {
-      flatRef.current?.scrollToIndex({ index, animated: true });
-    }
+    flatRef.current?.scrollToIndex({ index, animated: true });
     setCurrentIndex(index);
   };
 
@@ -234,14 +230,13 @@ export default function OnboardingScreen() {
 
   const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = e.nativeEvent.contentOffset.x;
-    const rawIndex = Math.round(offsetX / SCREEN_W);
-    const index = isRTL ? TOTAL - 1 - rawIndex : rawIndex;
+    const index = Math.round(offsetX / SCREEN_W);
     setCurrentIndex(Math.max(0, Math.min(TOTAL - 1, index)));
   };
 
   const isLast = currentIndex === TOTAL - 1;
 
-  const forwardSlides = [
+  const slides = [
     <Slide1 key="1" t={t} language={language} isDark={isDark} />,
     <Slide2 key="2" t={t} />,
     <Slide3
@@ -254,8 +249,6 @@ export default function OnboardingScreen() {
     />,
     <Slide4 key="4" t={t} />,
   ];
-
-  const slides = isRTL ? [...forwardSlides].reverse() : forwardSlides;
 
   const topPad = insets.top + (Platform.OS === "android" ? 8 : 0);
 
