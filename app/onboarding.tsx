@@ -17,6 +17,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "@/store/AppContext";
+import { apiRequest } from "@/services/api";
 import type { Language } from "@/types";
 
 const { width: SCREEN_W } = Dimensions.get("window");
@@ -209,16 +210,21 @@ export default function OnboardingScreen() {
     }
   };
 
+  const finishOnboarding = (lang: Language, currency: string) => {
+    updateSettings({ onboarded: true, language: lang, default_currency: currency });
+    apiRequest("PATCH", "/api/settings", { onboarded: true, language: lang, default_currency: currency })
+      .catch((e: unknown) => console.warn("[Onboarding] settings sync failed:", e));
+    router.replace("/(tabs)");
+  };
+
   const handleStart = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    updateSettings({ onboarded: true, language, default_currency: localCurrency });
-    router.replace("/(tabs)");
+    finishOnboarding(language, localCurrency);
   };
 
   const handleSkip = () => {
     Haptics.selectionAsync();
-    updateSettings({ onboarded: true, language, default_currency: localCurrency });
-    router.replace("/(tabs)");
+    finishOnboarding(language, localCurrency);
   };
 
   const handleCurrencyChange = (code: string) => {

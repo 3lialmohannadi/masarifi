@@ -1054,6 +1054,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ── Settings ──────────────────────────────────────────────────────────────
+
+  app.get("/api/settings", async (req: Request, res: Response) => {
+    try {
+      const userId = getUserId(req); await ensureUser(userId);
+      const row = await storage.getSettings(userId);
+      res.json(row ?? {});
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
+  app.patch("/api/settings", async (req: Request, res: Response) => {
+    try {
+      const userId = getUserId(req); await ensureUser(userId);
+      const parsed = schema.updateSettingsSchema.parse({ ...req.body, user_id: userId });
+      const row = await storage.upsertSettings(parsed);
+      res.json(row);
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
   // ── Reset (protected, requires confirmation header) ───────────────────────
 
   app.post("/api/reset", async (req: Request, res: Response) => {
