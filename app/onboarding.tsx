@@ -185,7 +185,7 @@ function Slide4({ t }: { t: TranslationKeys }) {
 
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
-  const { t, settings, language, setLanguage, updateSettings, isDark } = useApp();
+  const { t, settings, language, setLanguage, updateSettings, isDark, isRTL } = useApp();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [localCurrency, setLocalCurrency] = useState(settings.default_currency || "QAR");
   const flatRef = useRef<FlatList>(null);
@@ -193,9 +193,10 @@ export default function OnboardingScreen() {
 
   const gradient = isDark ? DARK_GRADIENT : GRADIENT;
 
-  const goTo = (index: number) => {
-    flatRef.current?.scrollToIndex({ index, animated: true });
-    setCurrentIndex(index);
+  const goTo = (logicalIndex: number) => {
+    const dataIndex = isRTL ? TOTAL - 1 - logicalIndex : logicalIndex;
+    flatRef.current?.scrollToIndex({ index: dataIndex, animated: true });
+    setCurrentIndex(logicalIndex);
   };
 
   const handleNext = () => {
@@ -230,13 +231,14 @@ export default function OnboardingScreen() {
 
   const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = e.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / SCREEN_W);
-    setCurrentIndex(Math.max(0, Math.min(TOTAL - 1, index)));
+    const rawIndex = Math.round(offsetX / SCREEN_W);
+    const logicalIndex = isRTL ? TOTAL - 1 - rawIndex : rawIndex;
+    setCurrentIndex(Math.max(0, Math.min(TOTAL - 1, logicalIndex)));
   };
 
   const isLast = currentIndex === TOTAL - 1;
 
-  const slides = [
+  const forwardSlides = [
     <Slide1 key="1" t={t} language={language} isDark={isDark} />,
     <Slide2 key="2" t={t} />,
     <Slide3
@@ -249,6 +251,8 @@ export default function OnboardingScreen() {
     />,
     <Slide4 key="4" t={t} />,
   ];
+
+  const slides = isRTL ? [...forwardSlides].reverse() : forwardSlides;
 
   const topPad = insets.top + (Platform.OS === "android" ? 8 : 0);
 
@@ -276,6 +280,7 @@ export default function OnboardingScreen() {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           scrollEnabled
+          initialScrollIndex={isRTL ? TOTAL - 1 : 0}
           onMomentumScrollEnd={handleScrollEnd}
           renderItem={({ item }) => item}
           style={{ flex: 1 }}
