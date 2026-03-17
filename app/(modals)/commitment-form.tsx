@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import {
   View,
@@ -10,6 +10,7 @@ import {
   Platform,
   TextInput,
   ActivityIndicator,
+  Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -25,6 +26,9 @@ import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { todayISOString, isValidDate } from "@/utils/date";
 import { DatePickerModal } from "@/components/DatePickerModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const REMINDER_KEYS_STORAGE = "commitment_reminder_flags";
 
 export default function CommitmentFormModal() {
   const insets = useSafeAreaInsets();
@@ -52,6 +56,18 @@ export default function CommitmentFormModal() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+
+  useEffect(() => {
+    if (!existing?.id) return;
+    AsyncStorage.getItem(REMINDER_KEYS_STORAGE).then((raw) => {
+      if (!raw) return;
+      try {
+        const flags = JSON.parse(raw) as Record<string, boolean>;
+        setReminderEnabled(flags[existing.id] ?? false);
+      } catch { /* ignore */ }
+    }).catch(() => {});
+  }, [existing?.id]);
 
   const validate = () => {
     const err: Record<string, string> = {};
@@ -84,11 +100,30 @@ export default function CommitmentFormModal() {
         is_manual: true,
         note: note || "",
       };
+      let savedId: string;
       if (existing) {
         updateCommitment(existing.id, data);
+        savedId = existing.id;
       } else {
-        addCommitment(data);
+        const added = addCommitment(data);
+        savedId = added.id;
       }
+
+      // Persist reminder flag and schedule/cancel notification
+      const { scheduleCommitmentReminder, cancelCommitmentReminder, requestPermission } = await import("@/utils/notifications");
+      const rawFlags = await AsyncStorage.getItem(REMINDER_KEYS_STORAGE).catch(() => null);
+      const flags: Record<string, boolean> = rawFlags ? JSON.parse(rawFlags) : {};
+      flags[savedId] = reminderEnabled;
+      await AsyncStorage.setItem(REMINDER_KEYS_STORAGE, JSON.stringify(flags)).catch(() => {});
+
+      if (reminderEnabled) {
+        await requestPermission();
+        const displayName = nameAr || nameEn || "";
+        await scheduleCommitmentReminder(savedId, displayName, dueDate);
+      } else {
+        await cancelCommitmentReminder(savedId);
+      }
+
       showToast(t.toast.saved);
       router.back();
     } catch {
@@ -361,6 +396,40 @@ export default function CommitmentFormModal() {
             }}
           />
         </View>
+
+        {/* Reminder Toggle */}
+        {Platform.OS !== "web" && (
+          <View style={{
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            backgroundColor: theme.card,
+            borderRadius: 14,
+            borderWidth: 1.5,
+            borderColor: reminderEnabled ? theme.primary + "60" : theme.inputBorder,
+            padding: 14,
+            gap: 12,
+          }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, flex: 1 }}>
+              <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="bell" size={16} color="#F59E0B" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                  {t.commitments.reminderToggle}
+                </Text>
+                <Text style={{ fontSize: 11, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                  {t.commitments.reminderDesc}
+                </Text>
+              </View>
+            </View>
+            <Switch
+              value={reminderEnabled}
+              onValueChange={(v) => { Haptics.selectionAsync(); setReminderEnabled(v); }}
+              trackColor={{ true: theme.primary, false: theme.border }}
+            />
+          </View>
+        )}
 
         {/* Save Button */}
         <Pressable

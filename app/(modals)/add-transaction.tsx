@@ -184,6 +184,25 @@ export default function AddTransactionModal() {
           date,
           note,
         });
+
+        // Daily limit alert (expense only, current day, notifications enabled)
+        if (type === "expense" && settings.notification_enabled) {
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const todaySpend = transactions
+            .filter((tx) => tx.type === "expense" && tx.date.startsWith(todayStr))
+            .reduce((s, tx) => s + tx.amount, 0) + amountNum;
+          const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+          const remainingDays = daysInMonth - new Date().getDate() + 1;
+          const smartLimit = parseFloat(String(accounts.find((a) => a.id === accountId)?.balance || 0)) / remainingDays;
+          const dailyLimit = settings.daily_limit_mode === "manual" && settings.manual_daily_limit > 0
+            ? settings.manual_daily_limit
+            : smartLimit;
+          if (dailyLimit > 0) {
+            import("@/utils/notifications").then(({ checkDailyLimitAlert }) => {
+              checkDailyLimitAlert(todaySpend, dailyLimit).catch(() => {});
+            });
+          }
+        }
       }
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setShowSuccess(true);

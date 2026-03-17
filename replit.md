@@ -72,6 +72,8 @@ utils/                Utility functions
   display.ts          Display/label helpers
   export.ts           CSV export: buildTransactionsCSV, shareCSV, buildCSVFilename
   id.ts               generateId, now
+  notifications.ts    Local notifications: requestPermission, scheduleCommitmentReminder,
+                      cancelCommitmentReminder, checkDailyLimitAlert (no-op on web)
   storage.ts          AsyncStorage helpers with KEYS
   translate.ts        MyMemory auto-translation
 ```

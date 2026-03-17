@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, Pressable, Switch, Share, Platform, Image, Modal, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, Switch, Share, Platform, Image, Modal, ActivityIndicator, Linking } from "react-native";
 import { buildTransactionsCSV, shareCSV, buildCSVFilename } from "@/utils/export";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -87,6 +87,7 @@ export default function SettingsScreen() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetDone, setResetDone] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<"granted" | "denied" | "undetermined" | null>(null);
 
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -98,6 +99,13 @@ export default function SettingsScreen() {
       setProfile(null);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    import("@/utils/notifications").then(({ getNotificationPermissionStatus }) => {
+      getNotificationPermissionStatus().then(setNotifPermission).catch(() => {});
+    });
+  }, []);
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -497,35 +505,75 @@ export default function SettingsScreen() {
         {/* ── 4. Notifications ── */}
         <SectionLabel title={t.settings.notifications} />
         <View style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: 14,
           borderRadius: 16,
           backgroundColor: theme.card,
           borderWidth: 1,
           borderColor: theme.border,
           marginBottom: 8,
+          overflow: "hidden",
         }}>
-          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, flex: 1 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
-              <Feather name="bell" size={20} color="#F59E0B" />
+          <View style={{
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: 14,
+          }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, flex: 1 }}>
+              <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="bell" size={20} color="#F59E0B" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                  {t.settings.notifications}
+                </Text>
+                <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                  {t.settings.notificationsDesc}
+                </Text>
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 15, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-                {t.settings.notifications}
-              </Text>
-              <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
-                {t.settings.notificationsDesc}
-              </Text>
-            </View>
+            <Switch
+              testID="notifications-toggle"
+              value={settings.notification_enabled}
+              onValueChange={(v) => { Haptics.selectionAsync(); updateSettings({ notification_enabled: v }); }}
+              trackColor={{ true: theme.primary, false: theme.border }}
+            />
           </View>
-          <Switch
-            testID="notifications-toggle"
-            value={settings.notification_enabled}
-            onValueChange={(v) => { Haptics.selectionAsync(); updateSettings({ notification_enabled: v }); }}
-            trackColor={{ true: theme.primary, false: theme.border }}
-          />
+
+          {/* Permission status row (native only) */}
+          {Platform.OS !== "web" && notifPermission !== null && (
+            <View style={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingHorizontal: 14,
+              paddingBottom: 12,
+              paddingTop: 0,
+              gap: 10,
+            }}>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                <Feather
+                  name={notifPermission === "granted" ? "check-circle" : notifPermission === "denied" ? "x-circle" : "info"}
+                  size={13}
+                  color={notifPermission === "granted" ? "#22C55E" : notifPermission === "denied" ? "#EF4444" : "#F59E0B"}
+                />
+                <Text style={{ fontSize: 12, color: notifPermission === "granted" ? "#22C55E" : notifPermission === "denied" ? "#EF4444" : "#F59E0B" }}>
+                  {notifPermission === "granted"
+                    ? t.settings.notifPermGranted
+                    : notifPermission === "denied"
+                    ? t.settings.notifPermDenied
+                    : t.settings.notifPermUndetermined}
+                </Text>
+              </View>
+              {notifPermission === "denied" && (
+                <Pressable
+                  onPress={() => Linking.openSettings()}
+                  style={{ backgroundColor: "#EF444415", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: "#EF444430" }}
+                >
+                  <Text style={{ fontSize: 11, color: "#EF4444", fontWeight: "600" }}>{t.settings.notifOpenSettings}</Text>
+                </Pressable>
+              )}
+            </View>
+          )}
         </View>
 
         {/* ── 5. Default Currency ── */}
