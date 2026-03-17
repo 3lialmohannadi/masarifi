@@ -96,7 +96,7 @@ export interface IStorage {
   // Budgets
   getBudgets(userId?: string): Promise<Budget[]>;
   upsertBudget(data: { category_id: string; amount: string; month: string; user_id: string }): Promise<Budget>;
-  deleteBudget(id: string): Promise<void>;
+  deleteBudget(id: string, userId: string): Promise<void>;
 
 }
 
@@ -435,6 +435,7 @@ export class DatabaseStorage implements IStorage {
 
   async upsertBudget(data: { category_id: string; amount: string; month: string; user_id: string }): Promise<Budget> {
     const conditions = [
+      eq(schema.budgets.user_id, data.user_id),
       eq(schema.budgets.category_id, data.category_id),
       eq(schema.budgets.month, data.month),
     ];
@@ -443,7 +444,7 @@ export class DatabaseStorage implements IStorage {
       const [row] = await db
         .update(schema.budgets)
         .set({ amount: data.amount, updated_at: new Date() })
-        .where(eq(schema.budgets.id, existing.id))
+        .where(and(eq(schema.budgets.id, existing.id), eq(schema.budgets.user_id, data.user_id)))
         .returning();
       return row;
     }
@@ -456,8 +457,10 @@ export class DatabaseStorage implements IStorage {
     return row;
   }
 
-  async deleteBudget(id: string): Promise<void> {
-    await db.delete(schema.budgets).where(eq(schema.budgets.id, id));
+  async deleteBudget(id: string, userId: string): Promise<void> {
+    await db.delete(schema.budgets).where(
+      and(eq(schema.budgets.id, id), eq(schema.budgets.user_id, userId))
+    );
   }
 
 }

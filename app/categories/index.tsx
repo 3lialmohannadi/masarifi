@@ -243,6 +243,7 @@ export default function CategoriesScreen() {
                       progress={budgetProgress}
                       height={4}
                       animated={false}
+                      color={budgetProgress >= 1 ? "#EF4444" : budgetProgress >= 0.75 ? "#F59E0B" : theme.primary}
                     />
                     <Text
                       style={{

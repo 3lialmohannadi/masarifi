@@ -77,8 +77,12 @@ function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
           const hasBudget = s.budget != null && s.budget > 0;
           const budgetPct = hasBudget ? Math.min(s.amount / s.budget!, 1) : 0;
           const budgetColor = budgetPct >= 1 ? "#EF4444" : budgetPct >= 0.75 ? "#F59E0B" : theme.primary;
+          const shortAmount = (v: number) => {
+            const fmt = formatCurrency(v, currency, language);
+            return fmt.length > 9 ? fmt.slice(0, 9) + "…" : fmt;
+          };
           return (
-            <View key={i} style={{ gap: 2 }}>
+            <View key={i} style={{ gap: 3 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
                 <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: s.color }} />
                 <Text style={{ flex: 1, fontSize: 11, color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>{s.label}</Text>
@@ -87,13 +91,23 @@ function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
                 </Text>
               </View>
               {hasBudget && (
-                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4, paddingStart: 16 }}>
-                  <View style={{ flex: 1, height: 3, backgroundColor: theme.border, borderRadius: 2, overflow: "hidden" }}>
+                <View style={{ paddingStart: 16, gap: 2 }}>
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                    <Text style={{ fontSize: 9, fontWeight: "700", color: budgetColor }}>
+                      {shortAmount(s.amount)}
+                    </Text>
+                    <Text style={{ fontSize: 9, color: theme.textMuted }}>/</Text>
+                    <Text style={{ fontSize: 9, color: theme.textMuted }}>
+                      {shortAmount(s.budget!)}
+                    </Text>
+                    <View style={{ flex: 1 }} />
+                    <Text style={{ fontSize: 9, color: budgetColor, fontWeight: "700" }}>
+                      {Math.round(budgetPct * 100)}%
+                    </Text>
+                  </View>
+                  <View style={{ height: 3, backgroundColor: theme.border, borderRadius: 2, overflow: "hidden" }}>
                     <View style={{ width: `${budgetPct * 100}%`, height: "100%", backgroundColor: budgetColor, borderRadius: 2 }} />
                   </View>
-                  <Text style={{ fontSize: 9, color: budgetColor, fontWeight: "600", minWidth: 28, textAlign: "right" }}>
-                    {Math.round(budgetPct * 100)}%
-                  </Text>
                 </View>
               )}
             </View>

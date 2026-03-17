@@ -1116,10 +1116,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/budgets/:id", async (req: Request, res: Response) => {
+    try {
+      const userId = getUserId(req); await ensureUser(userId);
+      const validated = upsertBudgetSchema.parse(req.body);
+      const row = await storage.upsertBudget({ ...validated, user_id: userId });
+      res.json(normBudget(row));
+    } catch (e: unknown) {
+      handleError(res, e);
+    }
+  });
+
   app.delete("/api/budgets/:id", async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req); await ensureUser(userId);
-      await storage.deleteBudget(paramId(req));
+      await storage.deleteBudget(paramId(req), userId);
       res.json({ ok: true });
     } catch (e: unknown) {
       handleError(res, e);
