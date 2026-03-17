@@ -537,12 +537,18 @@ export default function SettingsScreen() {
               onValueChange={(v) => {
                 Haptics.selectionAsync();
                 updateSettings({ notification_enabled: v });
-                if (v && Platform.OS !== "web") {
-                  import("@/utils/notifications").then(({ requestPermission, getNotificationPermissionStatus }) => {
-                    requestPermission().then(() =>
-                      getNotificationPermissionStatus().then(setNotifPermission).catch(() => {})
-                    ).catch(() => {});
-                  });
+                if (Platform.OS !== "web") {
+                  if (v) {
+                    import("@/utils/notifications").then(({ requestPermission, getNotificationPermissionStatus }) => {
+                      requestPermission().then(() =>
+                        getNotificationPermissionStatus().then(setNotifPermission).catch(() => {})
+                      ).catch(() => {});
+                    });
+                  } else {
+                    import("@/utils/notifications").then(({ cancelAllCommitmentReminders }) => {
+                      cancelAllCommitmentReminders().catch(() => {});
+                    });
+                  }
                 }
               }}
               trackColor={{ true: theme.primary, false: theme.border }}

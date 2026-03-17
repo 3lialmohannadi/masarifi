@@ -107,6 +107,22 @@ export async function cancelCommitmentReminder(commitmentId: string): Promise<vo
   }
 }
 
+export async function cancelAllCommitmentReminders(): Promise<void> {
+  if (Platform.OS === "web") return;
+  try {
+    const Notifications = await import("expo-notifications");
+    const map = await loadNotifIdMap();
+    await Promise.all(
+      Object.values(map).map((id) =>
+        Notifications.cancelScheduledNotificationAsync(id).catch(() => {})
+      )
+    );
+    await saveNotifIdMap({});
+  } catch {
+    // silent
+  }
+}
+
 let _lastAlertedAt80: string | null = null;
 let _lastAlertedAt100: string | null = null;
 
