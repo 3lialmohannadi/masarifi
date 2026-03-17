@@ -95,7 +95,7 @@ export default function TabLayout() {
   }));
 
   const tabBarH = isWeb ? 84 : isIOS ? 83 : 56;
-  const fabRise = isAndroid ? 4 : 8;
+  const fabRise = 0;
 
   const menuItems = [
     {
@@ -127,8 +127,8 @@ export default function TabLayout() {
       style={{
         flex: 1,
         alignItems: "center",
-        justifyContent: "flex-end",
-        paddingBottom: isIOS ? insets.bottom + 8 : isWeb ? 14 : 6,
+        justifyContent: "center",
+        paddingBottom: isIOS ? insets.bottom : 0,
         overflow: "visible",
       }}
     >
@@ -141,7 +141,6 @@ export default function TabLayout() {
             backgroundColor: theme.primary,
             alignItems: "center",
             justifyContent: "center",
-            marginBottom: fabRise,
           },
           fabShadow(),
         ]}
