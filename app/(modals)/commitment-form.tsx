@@ -32,7 +32,7 @@ const REMINDER_KEYS_STORAGE = "commitment_reminder_flags";
 
 export default function CommitmentFormModal() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL, showToast } = useApp();
+  const { theme, t, language, isRTL, showToast, settings } = useApp();
   const { commitments, addCommitment, updateCommitment, deleteCommitment } = useCommitments();
   const { accounts } = useAccounts();
   const { categories } = useCategories();
@@ -116,7 +116,7 @@ export default function CommitmentFormModal() {
       flags[savedId] = reminderEnabled;
       await AsyncStorage.setItem(REMINDER_KEYS_STORAGE, JSON.stringify(flags)).catch(() => {});
 
-      if (reminderEnabled) {
+      if (reminderEnabled && settings.notification_enabled) {
         await requestPermission();
         const displayName = nameAr || nameEn || "";
         await scheduleCommitmentReminder(savedId, displayName, dueDate);

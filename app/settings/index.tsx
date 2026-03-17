@@ -534,7 +534,17 @@ export default function SettingsScreen() {
             <Switch
               testID="notifications-toggle"
               value={settings.notification_enabled}
-              onValueChange={(v) => { Haptics.selectionAsync(); updateSettings({ notification_enabled: v }); }}
+              onValueChange={(v) => {
+                Haptics.selectionAsync();
+                updateSettings({ notification_enabled: v });
+                if (v && Platform.OS !== "web") {
+                  import("@/utils/notifications").then(({ requestPermission, getNotificationPermissionStatus }) => {
+                    requestPermission().then(() =>
+                      getNotificationPermissionStatus().then(setNotifPermission).catch(() => {})
+                    ).catch(() => {});
+                  });
+                }
+              }}
               trackColor={{ true: theme.primary, false: theme.border }}
             />
           </View>

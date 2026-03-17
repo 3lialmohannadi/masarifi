@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   ScrollView,
   Pressable,
   Platform,
+  Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import * as Haptics from "expo-haptics";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useApp } from "@/store/AppContext";
 import { useCommitments } from "@/store/CommitmentsContext";
 import { useAccounts } from "@/store/AccountsContext";
@@ -20,15 +22,47 @@ import { formatDateShort } from "@/utils/date";
 import { getDisplayName } from "@/utils/display";
 import PayNowModal from "@/components/PayNowModal";
 
+const REMINDER_KEYS_STORAGE = "commitment_reminder_flags";
+
 export default function CommitmentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const { theme, language, isRTL, t, isDark } = useApp();
+  const { theme, language, isRTL, t, isDark, settings } = useApp();
   const { commitments, deleteCommitment } = useCommitments();
   const { getAccount } = useAccounts();
   const { getCategory } = useCategories();
   const [paying, setPaying] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    AsyncStorage.getItem(REMINDER_KEYS_STORAGE).then((raw) => {
+      if (!raw) return;
+      try {
+        const flags = JSON.parse(raw) as Record<string, boolean>;
+        setReminderEnabled(flags[id] ?? false);
+      } catch { /* ignore */ }
+    }).catch(() => {});
+  }, [id]);
+
+  const handleReminderToggle = useCallback(async (value: boolean) => {
+    Haptics.selectionAsync();
+    setReminderEnabled(value);
+    const raw = await AsyncStorage.getItem(REMINDER_KEYS_STORAGE).catch(() => null);
+    const flags: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+    flags[id] = value;
+    await AsyncStorage.setItem(REMINDER_KEYS_STORAGE, JSON.stringify(flags)).catch(() => {});
+    const { scheduleCommitmentReminder, cancelCommitmentReminder, requestPermission } = await import("@/utils/notifications");
+    const commitment = commitments.find((c) => c.id === id);
+    if (value && settings.notification_enabled && commitment) {
+      await requestPermission();
+      const displayName = getDisplayName(commitment, language);
+      await scheduleCommitmentReminder(id, displayName, commitment.due_date);
+    } else {
+      await cancelCommitmentReminder(id);
+    }
+  }, [id, commitments, language, settings.notification_enabled]);
 
   const commitment = commitments.find((c) => c.id === id);
 
@@ -220,6 +254,42 @@ export default function CommitmentDetailScreen() {
               </View>
             </View>
           </View>
+
+          {/* ─── Reminder Toggle (native only) ─── */}
+          {Platform.OS !== "web" && (
+            <View
+              style={{
+                backgroundColor: theme.card,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: theme.border,
+                padding: 14,
+                flexDirection: isRTL ? "row-reverse" : "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                ...cardShadow,
+              }}
+            >
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, flex: 1 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="bell" size={17} color="#F59E0B" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: "600", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+                    {t.commitments.reminderToggle}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
+                    {t.commitments.reminderDesc}
+                  </Text>
+                </View>
+              </View>
+              <Switch
+                value={reminderEnabled}
+                onValueChange={handleReminderToggle}
+                trackColor={{ true: theme.primary, false: theme.border }}
+              />
+            </View>
+          )}
 
           {/* ─── Action Buttons ─── */}
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
