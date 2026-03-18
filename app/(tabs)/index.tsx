@@ -326,31 +326,33 @@ export default function DashboardScreen() {
               ...cardShadow,
             }}
           >
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row" }}>
-              {/* Allocated Money */}
-              <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 10, alignItems: "center", gap: 8 }}>
-                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="lock" size={15} color="#EF4444" />
-                </View>
-                <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: "center", fontWeight: "500" }}>
+            {/* Allocated Money Row */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
+              <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: "#EF444415", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="lock" size={16} color="#EF4444" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 10, color: theme.textMuted, fontWeight: "500", textAlign: isRTL ? "right" : "left" }}>
                   {t.dashboard.allocatedMoney}
                 </Text>
-                <Text style={{ fontSize: 12, fontWeight: "700", color: "#EF4444", textAlign: "center" }} numberOfLines={1}>
+                <Text style={{ fontSize: 15, fontWeight: "700", color: "#EF4444", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
                   {formatCurrency(allocatedMoney, currency, language)}
                 </Text>
               </View>
+            </View>
 
-              <View style={{ width: 1, backgroundColor: theme.border, marginVertical: 14 }} />
+            <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: 16 }} />
 
-              {/* Daily Limit */}
-              <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 10, alignItems: "center", gap: 8 }}>
-                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${theme.income}18`, alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="activity" size={15} color={theme.income} />
-                </View>
-                <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: "center", fontWeight: "500" }}>
+            {/* Daily Limit Row */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
+              <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: `${theme.income}15`, alignItems: "center", justifyContent: "center" }}>
+                <Feather name="activity" size={16} color={theme.income} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 10, color: theme.textMuted, fontWeight: "500", textAlign: isRTL ? "right" : "left" }}>
                   {t.dashboard.dailyLimit}
                 </Text>
-                <Text style={{ fontSize: 12, fontWeight: "700", color: theme.income, textAlign: "center" }} numberOfLines={1}>
+                <Text style={{ fontSize: 15, fontWeight: "700", color: theme.income, textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
                   {formatCurrency(Math.max(0, dailyLimit), currency, language)}
                 </Text>
               </View>
