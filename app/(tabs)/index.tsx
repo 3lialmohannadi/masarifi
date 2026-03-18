@@ -233,7 +233,7 @@ export default function DashboardScreen() {
         <View style={{ paddingHorizontal: 20, gap: 14 }}>
 
           {/* ─── Account Card (Bank Card Style) ─── */}
-          <Animated.View entering={FadeInDown.delay(0).springify()}>
+          <Animated.View entering={FadeInDown.delay(0).springify()} style={{ zIndex: 1 }}>
           <LinearGradient
             colors={isDark
               ? ["#1A3630", "#0F2820", "#0A1C16"] as const
@@ -242,7 +242,9 @@ export default function DashboardScreen() {
             end={{ x: 1, y: 1 }}
             style={{
               borderRadius: 24,
-              padding: 22,
+              paddingTop: 22,
+              paddingHorizontal: 22,
+              paddingBottom: 42,
               overflow: "hidden",
               ...(Platform.OS === "web"
                 ? { boxShadow: `0 8px 32px rgba(47,143,131,${isDark ? 0.25 : 0.40})` }
@@ -331,7 +333,7 @@ export default function DashboardScreen() {
           </Animated.View>
 
           {/* ─── Quick Actions ─── */}
-          <Animated.View entering={FadeInDown.delay(80).springify()}>
+          <Animated.View entering={FadeInDown.delay(80).springify()} style={{ marginTop: -28, zIndex: 2 }}>
           <View
             style={{
               backgroundColor: theme.card,
