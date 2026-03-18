@@ -5,6 +5,7 @@ import {
   FlatList,
   Pressable,
   TextInput,
+  ScrollView,
   Platform,
 } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
@@ -40,7 +41,7 @@ type ListItem =
 
 export default function TransactionsTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, selectedAccountId, isRTL, showToast } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { transactions, transfers, isLoaded } = useTransactions();
   const { getCategory, categories } = useCategories();
   const { accounts } = useAccounts();
@@ -48,6 +49,7 @@ export default function TransactionsTab() {
   const [search, setSearch] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [exportingCSV, setExportingCSV] = useState(false);
+  const [localAccountId, setLocalAccountId] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 250);
 
   const [chipLayouts, setChipLayouts] = useState<Partial<Record<Filter, { x: number; width: number }>>>({});
@@ -75,26 +77,26 @@ export default function TransactionsTab() {
   const filterCounts = useMemo(() => {
     const counts: Record<Filter, number> = { all: 0, income: 0, expense: 0, transfer: 0 };
     for (const tx of transactions) {
-      if (selectedAccountId && tx.account_id !== selectedAccountId) continue;
+      if (localAccountId && tx.account_id !== localAccountId) continue;
       counts.all++;
       if (tx.type === "income") counts.income++;
       else if (tx.type === "expense") counts.expense++;
     }
     for (const tf of transfers) {
-      const isSource = tf.source_account_id === selectedAccountId;
-      const isDest = tf.destination_account_id === selectedAccountId;
-      if (selectedAccountId && !isSource && !isDest) continue;
+      const isSource = tf.source_account_id === localAccountId;
+      const isDest = tf.destination_account_id === localAccountId;
+      if (localAccountId && !isSource && !isDest) continue;
       counts.transfer++;
       counts.all++;
     }
     return counts;
-  }, [transactions, transfers, selectedAccountId]);
+  }, [transactions, transfers, localAccountId]);
 
   const combined = useMemo<CombinedEntry[]>(() => {
     const entries: CombinedEntry[] = [];
 
     for (const tx of transactions) {
-      if (selectedAccountId && tx.account_id !== selectedAccountId) continue;
+      if (localAccountId && tx.account_id !== localAccountId) continue;
       if (filter === "income" && tx.type !== "income") continue;
       if (filter === "expense" && tx.type !== "expense") continue;
       if (filter === "transfer") continue;
@@ -109,9 +111,9 @@ export default function TransactionsTab() {
 
     if (filter !== "income" && filter !== "expense") {
       for (const tf of transfers) {
-        const isSource = tf.source_account_id === selectedAccountId;
-        const isDest = tf.destination_account_id === selectedAccountId;
-        if (selectedAccountId && !isSource && !isDest) continue;
+        const isSource = tf.source_account_id === localAccountId;
+        const isDest = tf.destination_account_id === localAccountId;
+        if (localAccountId && !isSource && !isDest) continue;
         if (debouncedSearch.trim()) {
           const q = debouncedSearch.toLowerCase();
           if (!(tf.note || "").toLowerCase().includes(q)) continue;
@@ -125,7 +127,7 @@ export default function TransactionsTab() {
       const dateB = b.kind === "tx" ? b.tx.date : b.transfer.date;
       return new Date(dateB).getTime() - new Date(dateA).getTime();
     });
-  }, [transactions, transfers, filter, debouncedSearch, selectedAccountId, language]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [transactions, transfers, filter, debouncedSearch, localAccountId, language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const listData = useMemo<ListItem[]>(() => {
     const items: ListItem[] = [];
@@ -139,16 +141,16 @@ export default function TransactionsTab() {
       if (entry.kind === "tx") {
         items.push({ type: "tx", tx: entry.tx });
       } else {
-        const isSource = entry.transfer.source_account_id === selectedAccountId;
-        const isDest = entry.transfer.destination_account_id === selectedAccountId;
-        const perspective = selectedAccountId
+        const isSource = entry.transfer.source_account_id === localAccountId;
+        const isDest = entry.transfer.destination_account_id === localAccountId;
+        const perspective = localAccountId
           ? isSource ? "source" : isDest ? "destination" : "both"
           : "both";
         items.push({ type: "transfer", transfer: entry.transfer, perspective });
       }
     }
     return items;
-  }, [combined, selectedAccountId]);
+  }, [combined, localAccountId]);
 
   const formatGroupDate = useCallback((dateStr: string): string => {
     const today = todayISOString();
@@ -314,6 +316,67 @@ export default function TransactionsTab() {
             </Pressable>
           )}
         </View>
+
+        {/* Account Picker */}
+        {accounts.length > 1 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              gap: 8,
+              paddingHorizontal: 2,
+            }}
+          >
+            {/* الكل */}
+            <Pressable
+              onPress={() => { Haptics.selectionAsync(); setLocalAccountId(null); }}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 6,
+                paddingHorizontal: 14,
+                paddingVertical: 7,
+                borderRadius: 20,
+                backgroundColor: localAccountId === null ? theme.primary : theme.card,
+                borderWidth: 1,
+                borderColor: localAccountId === null ? theme.primary : theme.border,
+              }}
+            >
+              <Feather name="layers" size={12} color={localAccountId === null ? "#fff" : theme.textSecondary} />
+              <Text style={{ fontSize: 12, fontWeight: "700", color: localAccountId === null ? "#fff" : theme.textSecondary }}>
+                {t.common.all}
+              </Text>
+            </Pressable>
+
+            {accounts.map((acc) => {
+              const isSelected = localAccountId === acc.id;
+              const color = acc.color || theme.primary;
+              return (
+                <Pressable
+                  key={acc.id}
+                  onPress={() => { Haptics.selectionAsync(); setLocalAccountId(acc.id); }}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingHorizontal: 14,
+                    paddingVertical: 7,
+                    borderRadius: 20,
+                    backgroundColor: isSelected ? color + "18" : theme.card,
+                    borderWidth: 1,
+                    borderColor: isSelected ? color : theme.border,
+                  }}
+                >
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color }} />
+                  <Text style={{ fontSize: 12, fontWeight: "700", color: isSelected ? color : theme.textSecondary }} numberOfLines={1}>
+                    {getDisplayName(acc, language)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        )}
 
         {/* Segmented Filter Control */}
         <View
