@@ -327,22 +327,7 @@ export default function DashboardScreen() {
             }}
           >
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row" }}>
-              {/* Total Balance */}
-              <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 10, alignItems: "center", gap: 8 }}>
-                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${theme.primary}18`, alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="bar-chart-2" size={15} color={theme.primary} />
-                </View>
-                <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: "center", fontWeight: "500" }}>
-                  {t.common.balance}
-                </Text>
-                <Text style={{ fontSize: 12, fontWeight: "700", color: theme.text, textAlign: "center" }} numberOfLines={1}>
-                  {formatCurrency(totalBalance, currency, language)}
-                </Text>
-              </View>
-
-              <View style={{ width: 1, backgroundColor: theme.border, marginVertical: 14 }} />
-
-              {/* Allocated */}
+              {/* Allocated Money */}
               <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 10, alignItems: "center", gap: 8 }}>
                 <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
                   <Feather name="lock" size={15} color="#EF4444" />
@@ -357,69 +342,19 @@ export default function DashboardScreen() {
 
               <View style={{ width: 1, backgroundColor: theme.border, marginVertical: 14 }} />
 
-              {/* Real Available */}
+              {/* Daily Limit */}
               <View style={{ flex: 1, paddingVertical: 16, paddingHorizontal: 10, alignItems: "center", gap: 8 }}>
-                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${realAvailable < 0 ? "#EF4444" : theme.income}18`, alignItems: "center", justifyContent: "center" }}>
-                  <Feather name={realAvailable < 0 ? "alert-circle" : "check-circle"} size={15} color={realAvailable < 0 ? "#EF4444" : theme.income} />
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${theme.income}18`, alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="activity" size={15} color={theme.income} />
                 </View>
                 <Text style={{ fontSize: 10, color: theme.textMuted, textAlign: "center", fontWeight: "500" }}>
-                  {t.dashboard.realAvailable}
+                  {t.dashboard.dailyLimit}
                 </Text>
-                <Text style={{ fontSize: 12, fontWeight: "700", color: realAvailable < 0 ? "#EF4444" : theme.income, textAlign: "center" }} numberOfLines={1}>
-                  {formatCurrency(realAvailable, currency, language)}
+                <Text style={{ fontSize: 12, fontWeight: "700", color: theme.income, textAlign: "center" }} numberOfLines={1}>
+                  {formatCurrency(Math.max(0, dailyLimit), currency, language)}
                 </Text>
               </View>
             </View>
-
-            {/* Daily Limit Row + Spending Progress */}
-            {(() => {
-              const today2 = new Date();
-              const mk = `${today2.getFullYear()}-${String(today2.getMonth() + 1).padStart(2, "0")}`;
-              const monthTxs2 = transactions.filter((tx) =>
-                tx.date.startsWith(mk) && (!selectedAccount || tx.account_id === selectedAccount?.id)
-              );
-              const mExpense = monthTxs2.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
-              const showBar = realAvailable > 0 || mExpense > 0;
-              const spendRatio = (realAvailable + mExpense) > 0 ? Math.min(mExpense / (realAvailable + mExpense), 1) : 0;
-              const spendColor = spendRatio >= 0.9 ? "#EF4444" : spendRatio >= 0.7 ? "#F59E0B" : theme.income;
-              return (
-                <View>
-                  <View
-                    style={{
-                      flexDirection: isRTL ? "row-reverse" : "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      borderTopWidth: 1,
-                      borderTopColor: theme.border,
-                      paddingHorizontal: 16,
-                      paddingTop: 11,
-                      paddingBottom: showBar ? 8 : 11,
-                    }}
-                  >
-                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 7 }}>
-                      <Feather name="activity" size={13} color={theme.textMuted} />
-                      <Text style={{ fontSize: 12, color: theme.textMuted }}>
-                        {t.dashboard.dailyLimit}
-                        <Text style={{ color: theme.textMuted, fontSize: 11 }}> · {remainingDays} {t.dashboard.remainingDays}</Text>
-                      </Text>
-                    </View>
-                    <Text style={{ fontSize: 14, fontWeight: "700", color: theme.income }}>
-                      {formatCurrency(Math.max(0, dailyLimit), currency, language)}
-                    </Text>
-                  </View>
-                  {showBar && (
-                    <View style={{ paddingHorizontal: 16, paddingBottom: 12, gap: 4 }}>
-                      <View style={{ height: 4, backgroundColor: theme.border, borderRadius: 2, overflow: "hidden" }}>
-                        <View style={{ width: `${Math.round(spendRatio * 100)}%`, height: "100%", backgroundColor: spendColor, borderRadius: 2 }} />
-                      </View>
-                      <Text style={{ fontSize: 10, color: spendColor, textAlign: isRTL ? "right" : "left" }}>
-                        {Math.round(spendRatio * 100)}% {language === "ar" ? "من الرصيد المتاح" : "of available balance"}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              );
-            })()}
           </View>
           </Animated.View>
 
