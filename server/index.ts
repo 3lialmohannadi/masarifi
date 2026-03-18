@@ -127,7 +127,7 @@ function getAppName(): string {
 }
 
 const metroProxy = createProxyMiddleware({
-  target: "http://localhost:8081",
+  target: "http://[::1]:8081",
   changeOrigin: true,
   ws: true,
   on: {
