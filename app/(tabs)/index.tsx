@@ -371,7 +371,7 @@ export default function DashboardScreen() {
           </LinearGradient>
           </Animated.View>
 
-          {/* ─── Summary Card ─── */}
+          {/* ─── Summary + Quick Add (merged) ─── */}
           <Animated.View entering={FadeInDown.delay(80).springify()}>
           <View
             style={{
@@ -384,8 +384,8 @@ export default function DashboardScreen() {
               ...cardShadow,
             }}
           >
+            {/* مصروف | الأموال المخصصة | المبلغ المتاح */}
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8 }}>
-              {/* مصروف */}
               <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
                 <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
                   {t.transactions.expense}
@@ -395,7 +395,6 @@ export default function DashboardScreen() {
                 </Text>
               </View>
               <View style={{ width: 1, backgroundColor: theme.border }} />
-              {/* الأموال المخصصة */}
               <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
                 <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
                   {t.dashboard.allocatedMoney}
@@ -405,7 +404,6 @@ export default function DashboardScreen() {
                 </Text>
               </View>
               <View style={{ width: 1, backgroundColor: theme.border }} />
-              {/* المبلغ المتاح */}
               <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
                 <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
                   {t.dashboard.realAvailable}
@@ -438,23 +436,11 @@ export default function DashboardScreen() {
                 {formatCurrency(Math.max(0, dailyLimit), currency, language)}
               </Text>
             </View>
-          </View>
-          </Animated.View>
 
-          {/* ─── Quick Add ─── */}
-          <Animated.View entering={FadeInDown.delay(160).springify()}>
-          <View
-            style={{
-              backgroundColor: theme.card,
-              borderRadius: 20,
-              padding: 14,
-              borderWidth: 1,
-              borderColor: theme.border,
-              gap: 10,
-              ...cardShadow,
-            }}
-          >
-            {/* Secondary actions - Commitment + Savings */}
+            {/* فاصل */}
+            <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: -2 }} />
+
+            {/* الالتزامات | الادخار | تحويل */}
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
               <Pressable
                 onPress={() => {
