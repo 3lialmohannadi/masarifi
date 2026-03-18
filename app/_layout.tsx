@@ -27,7 +27,9 @@ import { CommitmentsProvider } from "@/store/CommitmentsContext";
 import { DebtsProvider } from "@/store/DebtsContext";
 import { BudgetsProvider } from "@/store/BudgetsContext";
 
-SplashScreen.preventAutoHideAsync();
+if (Platform.OS !== "web") {
+  SplashScreen.preventAutoHideAsync();
+}
 
 function AppLoadingGate({ children }: { children: React.ReactNode }) {
   const { isLoaded, isDark, settings } = useApp();
