@@ -10,7 +10,7 @@ import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Platform, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { VideoSplash } from "@/components/VideoSplash";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -27,9 +27,7 @@ import { CommitmentsProvider } from "@/store/CommitmentsContext";
 import { DebtsProvider } from "@/store/DebtsContext";
 import { BudgetsProvider } from "@/store/BudgetsContext";
 
-if (Platform.OS !== "web") {
-  SplashScreen.preventAutoHideAsync();
-}
+SplashScreen.preventAutoHideAsync();
 
 function AppLoadingGate({ children }: { children: React.ReactNode }) {
   const { isLoaded, isDark, settings } = useApp();
@@ -158,7 +156,7 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
-  const [videoSplashDone, setVideoSplashDone] = useState(Platform.OS === "web");
+  const [videoSplashDone, setVideoSplashDone] = useState(false);
   const hideAsyncCalledRef = useRef(false);
 
   // Set up foreground notification handler so local notifications are
@@ -190,16 +188,11 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError, handleSplashHide]);
 
-  useEffect(() => {
-    const emergency = setTimeout(handleSplashHide, 3000);
-    return () => clearTimeout(emergency);
-  }, [handleSplashHide]);
-
   const handleVideoFinish = useCallback(() => {
     setVideoSplashDone(true);
   }, []);
 
-  if (!fontsLoaded && !fontError && Platform.OS !== "web") return null;
+  if (!fontsLoaded && !fontError) return null;
 
   return (
     <ErrorBoundary>

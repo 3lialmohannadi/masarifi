@@ -1,14 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
-import compression from "compression";
 import { registerRoutes } from "./routes";
 import * as fs from "fs";
 import * as path from "path";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 const app = express();
-app.use(compression());
 const log = console.log;
 
 declare module "http" {
@@ -333,16 +331,4 @@ function setupErrorHandler(app: express.Application) {
       log(`express server serving on port ${port}`);
     },
   );
-
-  // Serve the web app on port 8081 too so Replit preview on any port shows the app
-  const mirror8081 = express();
-  mirror8081.use((_req: Request, res: Response) => {
-    const target = process.env.REPLIT_DEV_DOMAIN
-      ? `https://${process.env.REPLIT_DEV_DOMAIN}${_req.originalUrl}`
-      : `http://localhost:5000${_req.originalUrl}`;
-    res.redirect(302, target);
-  });
-  mirror8081.listen({ port: 8081, host: "0.0.0.0" }, () => {
-    log("Port 8081 redirect -> app on port 5000");
-  });
 })();
