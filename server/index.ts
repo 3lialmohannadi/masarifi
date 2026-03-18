@@ -1,12 +1,14 @@
 import "dotenv/config";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import * as fs from "fs";
 import * as path from "path";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 const app = express();
+app.use(compression());
 const log = console.log;
 
 declare module "http" {
