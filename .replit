@@ -59,7 +59,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "fuser -k 5000/tcp 8081/tcp 2>/dev/null; sleep 1; npm run server:dev & sleep 5; npm run expo:dev"
+args = "kill $(lsof -t -i:5000 2>/dev/null) 2>/dev/null; kill $(lsof -t -i:8081 2>/dev/null) 2>/dev/null; sleep 3; npm run server:dev & sleep 6; npm run expo:dev"
 waitForPort = 5000
 
 [userenv]
