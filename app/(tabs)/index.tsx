@@ -173,9 +173,6 @@ export default function DashboardScreen() {
                 <Text style={{ fontSize: 20, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left", letterSpacing: -0.3 }}>
                   {firstName}
                 </Text>
-                <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left", letterSpacing: 0.2 }}>
-                  {t.auth.greetingSub}
-                </Text>
               </View>
             ) : null}
           </View>
