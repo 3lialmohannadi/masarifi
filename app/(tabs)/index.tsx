@@ -337,26 +337,26 @@ export default function DashboardScreen() {
           <View
             style={{
               backgroundColor: theme.card,
-              borderRadius: 20,
-              padding: 14,
+              borderRadius: 18,
+              padding: 10,
               borderWidth: 1,
               borderColor: theme.border,
               ...cardShadow,
             }}
           >
             {/* الالتزامات | الادخار | تحويل */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 6 }}>
               <Pressable
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   router.push("/(modals)/commitment-form");
                 }}
-                style={{ flex: 1, alignItems: "center", gap: 6, paddingVertical: 10 }}
+                style={{ flex: 1, alignItems: "center", gap: 4, paddingVertical: 6 }}
               >
-                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="repeat" size={18} color="#F59E0B" />
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="repeat" size={15} color="#F59E0B" />
                 </View>
-                <Text style={{ fontSize: 11, fontWeight: "600", color: "#F59E0B", textAlign: "center" }}>
+                <Text style={{ fontSize: 10, fontWeight: "600", color: "#F59E0B", textAlign: "center" }}>
                   {t.commitments.title}
                 </Text>
               </Pressable>
@@ -366,12 +366,12 @@ export default function DashboardScreen() {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   router.push("/(modals)/savings-movement");
                 }}
-                style={{ flex: 1, alignItems: "center", gap: 6, paddingVertical: 10 }}
+                style={{ flex: 1, alignItems: "center", gap: 4, paddingVertical: 6 }}
               >
-                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "#3B82F618", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="pocket" size={18} color="#3B82F6" />
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: "#3B82F618", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="pocket" size={15} color="#3B82F6" />
                 </View>
-                <Text style={{ fontSize: 11, fontWeight: "600", color: "#3B82F6", textAlign: "center" }}>
+                <Text style={{ fontSize: 10, fontWeight: "600", color: "#3B82F6", textAlign: "center" }}>
                   {t.tabs.savings}
                 </Text>
               </Pressable>
@@ -381,12 +381,12 @@ export default function DashboardScreen() {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   router.push("/(modals)/transfer-form");
                 }}
-                style={{ flex: 1, alignItems: "center", gap: 6, paddingVertical: 10 }}
+                style={{ flex: 1, alignItems: "center", gap: 4, paddingVertical: 6 }}
               >
-                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: `${theme.transfer}18`, alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="shuffle" size={18} color={theme.transfer} />
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${theme.transfer}18`, alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="shuffle" size={15} color={theme.transfer} />
                 </View>
-                <Text style={{ fontSize: 11, fontWeight: "600", color: theme.transfer, textAlign: "center" }}>
+                <Text style={{ fontSize: 10, fontWeight: "600", color: theme.transfer, textAlign: "center" }}>
                   {t.transfer.title}
                 </Text>
               </Pressable>
