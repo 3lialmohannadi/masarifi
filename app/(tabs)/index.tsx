@@ -260,82 +260,71 @@ export default function DashboardScreen() {
             <View style={{ position: "absolute", bottom: -40, left: -30, width: 140, height: 140, borderRadius: 70, backgroundColor: "rgba(255,255,255,0.05)" }} />
             <View style={{ position: "absolute", top: 30, right: 80, width: 60, height: 60, borderRadius: 30, backgroundColor: "rgba(255,255,255,0.04)" }} />
 
-            {/* Account name + icon row */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+            {/* Header: account name + icon */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
                 {selectedAccount && (
-                  <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: selectedAccount.color || "rgba(255,255,255,0.6)" }} />
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: selectedAccount.color || "rgba(255,255,255,0.6)" }} />
                 )}
-                <Text style={{ fontSize: 14, fontWeight: "600", color: "rgba(255,255,255,0.85)" }}>
-                  {selectedAccount
-                    ? getDisplayName(selectedAccount, language)
-                    : t.common.noAccount}
+                <Text style={{ fontSize: 13, fontWeight: "600", color: "rgba(255,255,255,0.75)", letterSpacing: 0.2 }}>
+                  {selectedAccount ? getDisplayName(selectedAccount, language) : t.common.noAccount}
                 </Text>
               </View>
-              <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.14)", alignItems: "center", justifyContent: "center" }}>
-                <Feather name="credit-card" size={17} color="rgba(255,255,255,0.8)" />
+              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="credit-card" size={16} color="rgba(255,255,255,0.75)" />
               </View>
             </View>
 
             {/* Balance */}
-            <View style={{ gap: 3, marginBottom: 16 }}>
-              <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: "500", textAlign: isRTL ? "right" : "left" }}>
+            <View style={{ marginBottom: 20 }}>
+              <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: "500", textAlign: isRTL ? "right" : "left", marginBottom: 4, letterSpacing: 0.5, textTransform: "uppercase" }}>
                 {t.dashboard.totalBalance}
               </Text>
-              <Text style={{ fontSize: 36, fontWeight: "800", color: "#fff", letterSpacing: -1, textAlign: isRTL ? "right" : "left" }}>
+              <Text style={{ fontSize: 38, fontWeight: "800", color: "#fff", letterSpacing: -1.5, textAlign: isRTL ? "right" : "left" }}>
                 {formatCurrency(totalBalance, currency, language)}
               </Text>
             </View>
 
-            {/* الأموال المخصصة | المبلغ المتاح */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
-              <View style={{ flex: 1, backgroundColor: "rgba(251,191,36,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(251,191,36,0.2)" }}>
-                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                  <Feather name="lock" size={11} color="rgba(251,191,36,0.9)" />
-                  <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.allocatedMoney}</Text>
-                </View>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: "#FCD34D", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+            {/* Divider */}
+            <View style={{ height: 1, backgroundColor: "rgba(255,255,255,0.1)", marginBottom: 16 }} />
+
+            {/* Stats row: الأموال المخصصة | المبلغ المتاح | الحد اليومي */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row" }}>
+              {/* الأموال المخصصة */}
+              <View style={{ flex: 1, alignItems: "center", gap: 5 }}>
+                <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: "500", textAlign: "center" }}>
+                  {t.dashboard.allocatedMoney}
+                </Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: "#FCD34D", textAlign: "center" }} numberOfLines={1}>
                   {formatCurrency(allocatedMoney, currency, language)}
                 </Text>
               </View>
-              <View style={{
-                flex: 1,
-                backgroundColor: realAvailable < 0 ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
-                borderRadius: 12, padding: 10, gap: 2,
-                borderWidth: 1,
-                borderColor: realAvailable < 0 ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)",
-              }}>
-                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                  <Feather name={realAvailable < 0 ? "alert-circle" : "check-circle"} size={11} color={realAvailable < 0 ? "rgba(239,68,68,0.9)" : "rgba(34,197,94,0.9)"} />
-                  <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.realAvailable}</Text>
-                </View>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: realAvailable < 0 ? "#F87171" : "#4ADE80", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+
+              {/* Separator */}
+              <View style={{ width: 1, backgroundColor: "rgba(255,255,255,0.12)", marginHorizontal: 4 }} />
+
+              {/* المبلغ المتاح */}
+              <View style={{ flex: 1, alignItems: "center", gap: 5 }}>
+                <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: "500", textAlign: "center" }}>
+                  {t.dashboard.realAvailable}
+                </Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: realAvailable < 0 ? "#F87171" : "#4ADE80", textAlign: "center" }} numberOfLines={1}>
                   {formatCurrency(realAvailable, currency, language)}
                 </Text>
               </View>
-            </View>
 
-            {/* الحد اليومي */}
-            <View style={{
-              flexDirection: isRTL ? "row-reverse" : "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              backgroundColor: "rgba(251,191,36,0.12)",
-              borderRadius: 12,
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              borderWidth: 1,
-              borderColor: "rgba(251,191,36,0.2)",
-            }}>
-              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                <Feather name="activity" size={13} color="rgba(251,191,36,0.9)" />
-                <Text style={{ fontSize: 12, fontWeight: "600", color: "rgba(255,255,255,0.65)" }}>
+              {/* Separator */}
+              <View style={{ width: 1, backgroundColor: "rgba(255,255,255,0.12)", marginHorizontal: 4 }} />
+
+              {/* الحد اليومي */}
+              <View style={{ flex: 1, alignItems: "center", gap: 5 }}>
+                <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: "500", textAlign: "center" }}>
                   {t.dashboard.dailyLimit}
                 </Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: "#FCD34D", textAlign: "center" }} numberOfLines={1}>
+                  {formatCurrency(Math.max(0, dailyLimit), currency, language)}
+                </Text>
               </View>
-              <Text style={{ fontSize: 15, fontWeight: "700", color: "#FCD34D" }} numberOfLines={1}>
-                {formatCurrency(Math.max(0, dailyLimit), currency, language)}
-              </Text>
             </View>
 
           </LinearGradient>
