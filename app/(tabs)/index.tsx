@@ -151,7 +151,7 @@ export default function DashboardScreen() {
             paddingHorizontal: 20,
             paddingBottom: 16,
             flexDirection: isRTL ? "row-reverse" : "row",
-            alignItems: "center",
+            alignItems: "flex-start",
             justifyContent: "space-between",
           }}
         >
