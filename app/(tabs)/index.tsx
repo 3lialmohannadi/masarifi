@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ScrollView,
   View,
@@ -23,12 +23,10 @@ import { useDebts } from "@/store/DebtsContext";
 import { TransactionItem } from "@/components/TransactionItem";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
-import { QuickAddSheet } from "@/components/QuickAddSheet";
 import { formatCurrency } from "@/utils/currency";
 import { getRemainingDaysInMonth, formatDateShort } from "@/utils/date";
 import { getDisplayName } from "@/utils/display";
 import PayNowModal from "@/components/PayNowModal";
-import type { TransactionType } from "@/types";
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
@@ -44,12 +42,6 @@ export default function DashboardScreen() {
   const { debts, totalRemaining: debtsTotalRemaining, activeDebts } = useDebts();
   const { displayName: firstName } = useAuth();
   const [payingCommitment, setPayingCommitment] = useState<string | null>(null);
-  const [quickAdd, setQuickAdd] = useState<{ visible: boolean; type: TransactionType }>({ visible: false, type: "expense" });
-
-  const openQuickAdd = useCallback((type: TransactionType) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setQuickAdd({ visible: true, type });
-  }, []);
 
   const activeAccounts = useMemo(
     () => accounts.filter((a) => a.is_active),
@@ -279,61 +271,47 @@ export default function DashboardScreen() {
               </Text>
             </View>
 
-            {/* Monthly Income / Expense */}
-            {(() => {
-              const today = new Date();
-              const monthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-              const monthTxs = transactions.filter((tx) =>
-                tx.date.startsWith(monthKey) && (!selectedAccount || tx.account_id === selectedAccount.id)
-              );
-              const monthIncome = monthTxs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
-              const monthExpense = monthTxs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
-              return (
-                <View style={{ gap: 8 }}>
-                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
-                    <View style={{ flex: 1, backgroundColor: "rgba(34,197,94,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(34,197,94,0.2)" }}>
-                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                        <Feather name="arrow-down-left" size={11} color="rgba(34,197,94,0.9)" />
-                        <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.transactions.income}</Text>
-                      </View>
-                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#4ADE80", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
-                        {formatCurrency(monthIncome, currency, language)}
-                      </Text>
-                    </View>
-                    <View style={{ flex: 1, backgroundColor: "rgba(239,68,68,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(239,68,68,0.2)" }}>
-                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                        <Feather name="arrow-up-right" size={11} color="rgba(239,68,68,0.9)" />
-                        <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.transactions.expense}</Text>
-                      </View>
-                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#F87171", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
-                        {formatCurrency(monthExpense, currency, language)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
-                    <View style={{ flex: 1, backgroundColor: "rgba(251,191,36,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(251,191,36,0.2)" }}>
-                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                        <Feather name="lock" size={11} color="rgba(251,191,36,0.9)" />
-                        <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.allocatedMoney}</Text>
-                      </View>
-                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#FCD34D", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
-                        {formatCurrency(allocatedMoney, currency, language)}
-                      </Text>
-                    </View>
-                    <View style={{ flex: 1, backgroundColor: "rgba(251,191,36,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(251,191,36,0.2)" }}>
-                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                        <Feather name="activity" size={11} color="rgba(251,191,36,0.9)" />
-                        <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.dailyLimit}</Text>
-                      </View>
-                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#FCD34D", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
-                        {formatCurrency(Math.max(0, dailyLimit), currency, language)}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              );
-            })()}
           </LinearGradient>
+          </Animated.View>
+
+          {/* ─── Available Balance Card ─── */}
+          <Animated.View entering={FadeInDown.delay(100).springify()}>
+          <View
+            style={{
+              backgroundColor: theme.card,
+              borderRadius: 20,
+              padding: 16,
+              borderWidth: 1,
+              borderColor: theme.border,
+              ...cardShadow,
+            }}
+          >
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: "#F59E0B18", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="lock" size={15} color="#F59E0B" />
+                </View>
+                <Text style={{ fontSize: 10, color: theme.textSecondary, fontWeight: "500", textAlign: "center" }} numberOfLines={1}>{t.dashboard.allocatedMoney}</Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: theme.text, textAlign: "center" }} numberOfLines={1}>{formatCurrency(allocatedMoney, currency, language)}</Text>
+              </View>
+              <View style={{ width: 1, backgroundColor: theme.border }} />
+              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: `${theme.primary}18`, alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="check-circle" size={15} color={theme.primary} />
+                </View>
+                <Text style={{ fontSize: 10, color: theme.textSecondary, fontWeight: "500", textAlign: "center" }} numberOfLines={1}>{t.dashboard.realAvailable}</Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: realAvailable >= 0 ? theme.primary : theme.expense, textAlign: "center" }} numberOfLines={1}>{formatCurrency(Math.max(0, realAvailable), currency, language)}</Text>
+              </View>
+              <View style={{ width: 1, backgroundColor: theme.border }} />
+              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
+                <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: "#3B82F618", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="activity" size={15} color="#3B82F6" />
+                </View>
+                <Text style={{ fontSize: 10, color: theme.textSecondary, fontWeight: "500", textAlign: "center" }} numberOfLines={1}>{t.dashboard.dailyLimit}</Text>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: "#3B82F6", textAlign: "center" }} numberOfLines={1}>{formatCurrency(Math.max(0, dailyLimit), currency, language)}</Text>
+              </View>
+            </View>
+          </View>
           </Animated.View>
 
           {/* ─── Quick Add ─── */}
@@ -345,60 +323,10 @@ export default function DashboardScreen() {
               padding: 14,
               borderWidth: 1,
               borderColor: theme.border,
-              gap: 10,
               ...cardShadow,
             }}
           >
-            {/* Primary actions - Income + Expense */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
-              <Pressable
-                testID="quick-add-income"
-                accessibilityLabel={t.transactions.income}
-                onPress={() => openQuickAdd("income")}
-                style={({ pressed }) => ({
-                  flex: 1,
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  paddingVertical: 14,
-                  borderRadius: 14,
-                  backgroundColor: pressed ? theme.income + "25" : theme.income + "18",
-                  borderWidth: 1,
-                  borderColor: theme.income + "30",
-                })}
-              >
-                <Feather name="arrow-down-left" size={18} color={theme.income} />
-                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.income }}>
-                  {t.transactions.income}
-                </Text>
-              </Pressable>
-
-              <Pressable
-                testID="quick-add-expense"
-                accessibilityLabel={t.transactions.expense}
-                onPress={() => openQuickAdd("expense")}
-                style={({ pressed }) => ({
-                  flex: 1,
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  paddingVertical: 14,
-                  borderRadius: 14,
-                  backgroundColor: pressed ? theme.expense + "25" : theme.expense + "18",
-                  borderWidth: 1,
-                  borderColor: theme.expense + "30",
-                })}
-              >
-                <Feather name="arrow-up-right" size={18} color={theme.expense} />
-                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.expense }}>
-                  {t.transactions.expense}
-                </Text>
-              </Pressable>
-            </View>
-
-            {/* Secondary actions - Commitment + Savings */}
+            {/* Actions - Commitment + Savings + Transfer */}
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
               <Pressable
                 onPress={() => {
@@ -724,13 +652,6 @@ export default function DashboardScreen() {
         <PayNowModal commitmentId={payingCommitment} onClose={() => setPayingCommitment(null)} />
       )}
 
-      {quickAdd.visible && (
-        <QuickAddSheet
-          visible={quickAdd.visible}
-          initialType={quickAdd.type}
-          onClose={() => setQuickAdd((s) => ({ ...s, visible: false }))}
-        />
-      )}
     </View>
   );
 }

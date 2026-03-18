@@ -95,6 +95,8 @@ export const en = {
     edit: "Edit Account",
     delete: "Archive Account",
     deleteConfirm: "Archive this account? Transaction history will be preserved.",
+    permanentDelete: "Delete Permanently",
+    permanentDeleteConfirm: "Delete this account permanently? This action cannot be undone.",
     balance: "Current Balance",
     openingBalance: "Opening Balance",
     accounts: "accounts",

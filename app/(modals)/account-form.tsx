@@ -29,7 +29,7 @@ import type { AccountType } from "@/types";
 export default function AccountFormModal() {
   const insets = useSafeAreaInsets();
   const { theme, t, language, isRTL, showToast } = useApp();
-  const { accounts, addAccount, updateAccount, deleteAccount } = useAccounts();
+  const { accounts, addAccount, updateAccount, deleteAccount, permanentDeleteAccount } = useAccounts();
   const params = useLocalSearchParams<{ id?: string }>();
 
   const existing = params.id ? accounts.find((a) => a.id === params.id) : undefined;
@@ -105,6 +105,21 @@ export default function AccountFormModal() {
     ]);
   };
 
+  const handlePermanentDelete = () => {
+    Alert.alert(t.common.areYouSure, t.accounts.permanentDeleteConfirm, [
+      { text: t.common.cancel, style: "cancel" },
+      {
+        text: t.accounts.permanentDelete,
+        style: "destructive",
+        onPress: () => {
+          if (existing) permanentDeleteAccount(existing.id);
+          showToast(t.toast.deleted, "info");
+          router.back();
+        },
+      },
+    ]);
+  };
+
   const handleRestore = () => {
     if (existing) {
       updateAccount(existing.id, { is_active: true });
@@ -136,13 +151,23 @@ export default function AccountFormModal() {
         </Text>
         {existing ? (
           existing.is_active ? (
-            <Pressable onPress={handleArchive}>
-              <Feather name="archive" size={20} color={theme.expense} />
-            </Pressable>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
+              <Pressable onPress={handleArchive}>
+                <Feather name="archive" size={20} color={theme.textSecondary} />
+              </Pressable>
+              <Pressable onPress={handlePermanentDelete}>
+                <Feather name="trash-2" size={20} color={theme.expense} />
+              </Pressable>
+            </View>
           ) : (
-            <Pressable onPress={handleRestore}>
-              <Feather name="refresh-cw" size={20} color={theme.primary} />
-            </Pressable>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
+              <Pressable onPress={handleRestore}>
+                <Feather name="refresh-cw" size={20} color={theme.primary} />
+              </Pressable>
+              <Pressable onPress={handlePermanentDelete}>
+                <Feather name="trash-2" size={20} color={theme.expense} />
+              </Pressable>
+            </View>
           )
         ) : (
           <View style={{ width: 24 }} />

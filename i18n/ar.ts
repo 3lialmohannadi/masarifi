@@ -95,6 +95,8 @@ export const ar = {
     edit: "تعديل الحساب",
     delete: "أرشفة الحساب",
     deleteConfirm: "هل تريد أرشفة هذا الحساب؟ لن يختفي سجل العمليات المرتبطة به.",
+    permanentDelete: "حذف نهائي",
+    permanentDeleteConfirm: "هل تريد حذف هذا الحساب نهائياً؟ لا يمكن التراجع عن هذا الإجراء.",
     balance: "الرصيد الحالي",
     openingBalance: "الرصيد الافتتاحي",
     accounts: "حسابات",

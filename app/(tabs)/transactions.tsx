@@ -40,7 +40,7 @@ type ListItem =
 
 export default function TransactionsTab() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, selectedAccountId, isRTL, showToast } = useApp();
+  const { theme, t, language, isRTL, showToast } = useApp();
   const { transactions, transfers, isLoaded } = useTransactions();
   const { getCategory, categories } = useCategories();
   const { accounts } = useAccounts();
@@ -75,26 +75,21 @@ export default function TransactionsTab() {
   const filterCounts = useMemo(() => {
     const counts: Record<Filter, number> = { all: 0, income: 0, expense: 0, transfer: 0 };
     for (const tx of transactions) {
-      if (selectedAccountId && tx.account_id !== selectedAccountId) continue;
       counts.all++;
       if (tx.type === "income") counts.income++;
       else if (tx.type === "expense") counts.expense++;
     }
-    for (const tf of transfers) {
-      const isSource = tf.source_account_id === selectedAccountId;
-      const isDest = tf.destination_account_id === selectedAccountId;
-      if (selectedAccountId && !isSource && !isDest) continue;
+    for (const _tf of transfers) {
       counts.transfer++;
       counts.all++;
     }
     return counts;
-  }, [transactions, transfers, selectedAccountId]);
+  }, [transactions, transfers]);
 
   const combined = useMemo<CombinedEntry[]>(() => {
     const entries: CombinedEntry[] = [];
 
     for (const tx of transactions) {
-      if (selectedAccountId && tx.account_id !== selectedAccountId) continue;
       if (filter === "income" && tx.type !== "income") continue;
       if (filter === "expense" && tx.type !== "expense") continue;
       if (filter === "transfer") continue;
@@ -109,9 +104,6 @@ export default function TransactionsTab() {
 
     if (filter !== "income" && filter !== "expense") {
       for (const tf of transfers) {
-        const isSource = tf.source_account_id === selectedAccountId;
-        const isDest = tf.destination_account_id === selectedAccountId;
-        if (selectedAccountId && !isSource && !isDest) continue;
         if (debouncedSearch.trim()) {
           const q = debouncedSearch.toLowerCase();
           if (!(tf.note || "").toLowerCase().includes(q)) continue;
@@ -125,7 +117,7 @@ export default function TransactionsTab() {
       const dateB = b.kind === "tx" ? b.tx.date : b.transfer.date;
       return new Date(dateB).getTime() - new Date(dateA).getTime();
     });
-  }, [transactions, transfers, filter, debouncedSearch, selectedAccountId, language]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [transactions, transfers, filter, debouncedSearch, language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const listData = useMemo<ListItem[]>(() => {
     const items: ListItem[] = [];
@@ -139,16 +131,11 @@ export default function TransactionsTab() {
       if (entry.kind === "tx") {
         items.push({ type: "tx", tx: entry.tx });
       } else {
-        const isSource = entry.transfer.source_account_id === selectedAccountId;
-        const isDest = entry.transfer.destination_account_id === selectedAccountId;
-        const perspective = selectedAccountId
-          ? isSource ? "source" : isDest ? "destination" : "both"
-          : "both";
-        items.push({ type: "transfer", transfer: entry.transfer, perspective });
+        items.push({ type: "transfer", transfer: entry.transfer, perspective: "both" });
       }
     }
     return items;
-  }, [combined, selectedAccountId]);
+  }, [combined]);
 
   const formatGroupDate = useCallback((dateStr: string): string => {
     const today = todayISOString();
