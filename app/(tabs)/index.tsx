@@ -5,7 +5,6 @@ import {
   Text,
   Pressable,
   Platform,
-  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -157,11 +156,9 @@ export default function DashboardScreen() {
         >
           {/* Left: Logo + Greeting */}
           <View style={{ gap: 10, flex: 1 }}>
-            <Image
-              source={isDark ? (language === "ar" ? require("@/assets/logo_ar_dark.png") : require("@/assets/logo_en_dark.png")) : language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo_en_light.png")}
-              resizeMode="contain"
-              style={{ width: language === "ar" ? 200 : 145, height: language === "ar" ? 68 : 50 }}
-            />
+            <Text style={{ fontSize: 26, fontWeight: "900", color: theme.primary, letterSpacing: 1.5 }}>
+              {language === "ar" ? "مصاريفي" : "MASARIFI"}
+            </Text>
             {firstName ? (
               <View style={{ gap: 2 }}>
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>

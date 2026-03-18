@@ -6,7 +6,6 @@ import {
   FlatList,
   Dimensions,
   Platform,
-  Image,
   NativeSyntheticEvent,
   NativeScrollEvent,
   StatusBar as RNStatusBar,
@@ -40,14 +39,9 @@ const CURRENCIES = [
 function Slide1({ t, language, isDark }: { t: TranslationKeys; language: Language; isDark: boolean }) {
   return (
     <View style={{ width: SCREEN_W, flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, gap: 28 }}>
-      <Image
-        source={isDark
-          ? (language === "ar" ? require("@/assets/logo_ar_dark.png") : require("@/assets/logo_en_dark.png"))
-          : (language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo_en_light.png"))
-        }
-        resizeMode="contain"
-        style={{ width: 180, height: 60 }}
-      />
+      <Text style={{ fontSize: 30, fontWeight: "900", color: "#fff", letterSpacing: 1.5, textAlign: "center" }}>
+        {language === "ar" ? "مصاريفي" : "MASARIFI"}
+      </Text>
       <View style={{ alignItems: "center", gap: 12 }}>
         <Text style={{ fontSize: 28, fontWeight: "800", color: "#fff", textAlign: "center", lineHeight: 38 }}>
           {t.onboarding.slide1Title}

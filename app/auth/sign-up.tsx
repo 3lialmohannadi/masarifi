@@ -6,7 +6,6 @@ import {
   ScrollView,
   Platform,
   KeyboardAvoidingView,
-  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -195,14 +194,9 @@ export default function SignUpScreen() {
         >
           {/* Logo & Title */}
           <View style={{ alignItems: "center", gap: 16, paddingTop: 8 }}>
-            <Image
-              source={isDark
-                ? (language === "ar" ? require("@/assets/logo_ar_dark.png") : require("@/assets/logo_en_dark.png"))
-                : (language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo_en_light.png"))
-              }
-              resizeMode="contain"
-              style={{ width: language === "ar" ? 200 : 160, height: language === "ar" ? 72 : 56 }}
-            />
+            <Text style={{ fontSize: 32, fontWeight: "900", color: theme.primary, letterSpacing: 1.5, textAlign: "center" }}>
+              {language === "ar" ? "مصاريفي" : "MASARIFI"}
+            </Text>
             <View style={{ alignItems: "center", gap: 6 }}>
               <Text style={{
                 fontSize: 24,
