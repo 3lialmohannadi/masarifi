@@ -1,0 +1,129 @@
+Running "npm ci --include=dev" in /Users/expo/workingdir/build directory
+npm error code EUSAGE
+npm error
+npm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing.
+npm error
+npm error Invalid: lock file's expo@54.0.32 does not satisfy expo@55.0.7
+npm error Invalid: lock file's expo-router@6.0.22 does not satisfy expo-router@6.0.23
+npm error Invalid: lock file's @expo/cli@54.0.22 does not satisfy @expo/cli@55.0.17
+npm error Missing: @expo/config@55.0.9 from lock file
+npm error Missing: @expo/config-plugins@55.0.6 from lock file
+npm error Invalid: lock file's @expo/devtools@0.1.8 does not satisfy @expo/devtools@55.0.2
+npm error Invalid: lock file's @expo/fingerprint@0.15.4 does not satisfy @expo/fingerprint@0.16.6
+npm error Missing: @expo/local-build-cache-provider@55.0.6 from lock file
+npm error Missing: @expo/log-box@55.0.7 from lock file
+npm error Invalid: lock file's @expo/metro-config@54.0.14 does not satisfy @expo/metro-config@55.0.10
+npm error Invalid: lock file's babel-preset-expo@54.0.10 does not satisfy babel-preset-expo@55.0.11
+npm error Invalid: lock file's expo-asset@12.0.12 does not satisfy expo-asset@55.0.9
+npm error Missing: expo-constants@55.0.8 from lock file
+npm error Invalid: lock file's expo-file-system@55.0.10 does not satisfy expo-file-system@55.0.11
+npm error Missing: expo-font@55.0.4 from lock file
+npm error Invalid: lock file's expo-keep-awake@15.0.8 does not satisfy expo-keep-awake@55.0.4
+npm error Invalid: lock file's expo-modules-autolinking@3.0.24 does not satisfy expo-modules-autolinking@55.0.10
+npm error Invalid: lock file's expo-modules-core@3.0.29 does not satisfy expo-modules-core@55.0.16
+npm error Missing: whatwg-url-minimum@0.1.1 from lock file
+npm error Missing: @expo/env@2.1.1 from lock file
+npm error Invalid: lock file's minimatch@9.0.5 does not satisfy minimatch@10.2.4
+npm error Invalid: lock file's semver@7.7.3 does not satisfy semver@7.7.4
+npm error Missing: @expo/config@55.0.9 from lock file
+npm error Missing: @expo/dom-webview@55.0.3 from lock file
+npm error Missing: @expo/config@55.0.9 from lock file
+npm error Missing: @expo/env@2.1.1 from lock file
+npm error Missing: hermes-parser@0.32.1 from lock file
+npm error Missing: picomatch@4.0.3 from lock file
+npm error Invalid: lock file's @babel/plugin-proposal-decorators@7.28.6 does not satisfy @babel/plugin-proposal-decorators@7.29.0
+npm error Invalid: lock file's @babel/plugin-transform-runtime@7.28.5 does not satisfy @babel/plugin-transform-runtime@7.29.0
+npm error Invalid: lock file's @react-native/babel-preset@0.81.5 does not satisfy @react-native/babel-preset@0.83.2
+npm error Missing: babel-plugin-syntax-hermes-parser@0.32.1 from lock file
+npm error Invalid: lock file's babel-plugin-polyfill-corejs2@0.4.15 does not satisfy babel-plugin-polyfill-corejs2@0.4.17
+npm error Invalid: lock file's babel-plugin-polyfill-regenerator@0.6.6 does not satisfy babel-plugin-polyfill-regenerator@0.6.8
+npm error Invalid: lock file's @babel/plugin-transform-async-generator-functions@7.28.6 does not satisfy @babel/plugin-transform-async-generator-functions@7.29.0
+npm error Invalid: lock file's @babel/plugin-transform-named-capturing-groups-regex@7.27.1 does not satisfy @babel/plugin-transform-named-capturing-groups-regex@7.29.0
+npm error Invalid: lock file's @babel/plugin-transform-regenerator@7.28.6 does not satisfy @babel/plugin-transform-regenerator@7.29.0
+npm error Invalid: lock file's @react-native/babel-plugin-codegen@0.81.5 does not satisfy @react-native/babel-plugin-codegen@0.83.2
+npm error Missing: babel-plugin-syntax-hermes-parser@0.32.0 from lock file
+npm error Invalid: lock file's @babel/traverse@7.28.6 does not satisfy @babel/traverse@7.29.0
+npm error Invalid: lock file's @babel/code-frame@7.28.6 does not satisfy @babel/code-frame@7.29.0
+npm error Invalid: lock file's @babel/generator@7.28.6 does not satisfy @babel/generator@7.29.1
+npm error Invalid: lock file's @babel/parser@7.28.6 does not satisfy @babel/parser@7.29.2
+npm error Invalid: lock file's @babel/types@7.28.6 does not satisfy @babel/types@7.29.0
+npm error Missing: @react-native/codegen@0.83.2 from lock file
+npm error Invalid: lock file's @babel/helper-define-polyfill-provider@0.6.6 does not satisfy @babel/helper-define-polyfill-provider@0.6.8
+npm error Invalid: lock file's core-js-compat@3.48.0 does not satisfy core-js-compat@3.49.0
+npm error Missing: expo-constants@55.0.8 from lock file
+npm error Invalid: lock file's @react-navigation/bottom-tabs@7.10.1 does not satisfy @react-navigation/bottom-tabs@7.15.5
+npm error Invalid: lock file's @react-navigation/native@7.1.28 does not satisfy @react-navigation/native@7.1.33
+npm error Invalid: lock file's @react-navigation/native-stack@7.10.1 does not satisfy @react-navigation/native-stack@7.14.5
+npm error Invalid: lock file's @react-navigation/elements@2.9.5 does not satisfy @react-navigation/elements@2.9.10
+npm error Invalid: lock file's @react-navigation/core@7.14.0 does not satisfy @react-navigation/core@7.16.1
+npm error Invalid: lock file's react-is@19.2.3 does not satisfy react-is@19.2.4
+npm error Invalid: lock file's brace-expansion@2.0.2 does not satisfy brace-expansion@5.0.4
+npm error Missing: balanced-match@4.0.4 from lock file
+npm error Missing: @expo/config-plugins@55.0.6 from lock file
+npm error Missing: @expo/config-types@55.0.5 from lock file
+npm error Missing: semver@7.7.4 from lock file
+npm error Missing: @expo/plist@0.5.2 from lock file
+npm error Missing: @expo/config-plugins@55.0.6 from lock file
+npm error Missing: @expo/config-types@55.0.5 from lock file
+npm error Missing: semver@7.7.4 from lock file
+npm error Missing: @expo/plist@0.5.2 from lock file
+npm error Missing: hermes-estree@0.32.1 from lock file
+npm error Missing: glob@7.2.3 from lock file
+npm error Missing: hermes-parser@0.32.0 from lock file
+npm error Missing: hermes-estree@0.32.0 from lock file
+npm error Missing: hermes-parser@0.32.0 from lock file
+npm error Missing: hermes-estree@0.32.0 from lock file
+npm error Missing: hermes-parser@0.32.1 from lock file
+npm error Missing: hermes-estree@0.32.1 from lock file
+npm error Missing: @expo/config@55.0.9 from lock file
+npm error Missing: @expo/env@2.1.1 from lock file
+npm error Missing: @expo/config-plugins@55.0.6 from lock file
+npm error Missing: @expo/config-types@55.0.5 from lock file
+npm error Missing: semver@7.7.4 from lock file
+npm error Missing: @expo/plist@0.5.2 from lock file
+npm error Missing: @expo/env@2.1.1 from lock file
+npm error Invalid: lock file's @expo/osascript@2.3.8 does not satisfy @expo/osascript@2.4.2
+npm error Invalid: lock file's @expo/package-manager@1.9.10 does not satisfy @expo/package-manager@1.10.3
+npm error Missing: @expo/plist@0.5.2 from lock file
+npm error Missing: @expo/prebuild-config@55.0.9 from lock file
+npm error Missing: @expo/router-server@55.0.10 from lock file
+npm error Missing: expo-server@55.0.6 from lock file
+npm error Missing: @expo/metro-runtime@55.0.6 from lock file
+npm error Missing: @expo/schema-utils@55.0.2 from lock file
+npm error Invalid: lock file's @expo/xcpretty@4.3.2 does not satisfy @expo/xcpretty@4.4.1
+npm error Missing: @react-native/dev-middleware@0.83.2 from lock file
+npm error Missing: dnssd-advertise@1.1.3 from lock file
+npm error Missing: fetch-nodeshim@0.4.9 from lock file
+npm error Invalid: lock file's lan-network@0.1.7 does not satisfy lan-network@0.2.0
+npm error Missing: multitars@0.2.4 from lock file
+npm error Invalid: lock file's picomatch@3.0.1 does not satisfy picomatch@4.0.3
+npm error Invalid: lock file's semver@7.7.3 does not satisfy semver@7.7.4
+npm error Missing: toqr@0.1.1 from lock file
+npm error Invalid: lock file's semver@7.7.3 does not satisfy semver@7.7.4
+npm error Missing: @expo/config-types@55.0.5 from lock file
+npm error Missing: @react-native/normalize-colors@0.83.2 from lock file
+npm error Missing: @react-native/debugger-frontend@0.83.2 from lock file
+npm error Missing: @react-native/debugger-shell@0.83.2 from lock file
+npm error Missing: serve-static@1.16.3 from lock file
+npm error Missing: ws@7.5.10 from lock file
+npm error Missing: fb-dotslash@0.5.8 from lock file
+npm error
+npm error Clean in
+stall a project
+npm error
+npm error Usage:
+npm error npm ci
+npm error
+npm error Options:
+npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+npm error [--no-bin-links] [--no-fund] [--dry-run]
+npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+npm error
+npm error aliases: clean-install, ic, install-clean, isntall-clean
+npm error
+npm error Run "npm help ci" for more info
+npm error A complete log of this run can be found in: /Users/expo/.npm/_logs/2026-03-18T04_21_54_014Z-debug-0.log
