@@ -155,17 +155,30 @@ export default function DashboardScreen() {
             justifyContent: "space-between",
           }}
         >
-          <View style={{ gap: 5 }}>
+          {/* Left: Logo + Greeting */}
+          <View style={{ gap: 10, flex: 1 }}>
             <Image
               source={isDark ? (language === "ar" ? require("@/assets/logo_ar_dark.png") : require("@/assets/logo_en_dark.png")) : language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo_en_light.png")}
               resizeMode="contain"
-              style={{ width: language === "ar" ? 220 : 160, height: language === "ar" ? 76 : 56 }}
+              style={{ width: language === "ar" ? 200 : 145, height: language === "ar" ? 68 : 50 }}
             />
             {firstName ? (
-              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
-                <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: theme.primary }} />
-                <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-                  {t.auth.greeting}{isRTL ? "،" : ","} {firstName}
+              <View style={{ gap: 2 }}>
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: "500", color: theme.textMuted, textAlign: isRTL ? "right" : "left", letterSpacing: 0.3 }}>
+                    {(() => {
+                      const h = new Date().getHours();
+                      if (h >= 5 && h < 12) return t.auth.goodMorning;
+                      if (h >= 12 && h < 17) return t.auth.goodAfternoon;
+                      return t.auth.goodEvening;
+                    })()}{isRTL ? "،" : ","}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 20, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left", letterSpacing: -0.3 }}>
+                  {firstName}
+                </Text>
+                <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left", letterSpacing: 0.2 }}>
+                  {t.auth.greetingSub}
                 </Text>
               </View>
             ) : null}
