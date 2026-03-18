@@ -64,7 +64,7 @@ function SectionHeader({ title }: { title: string }) {
       marginTop: 6,
     }}>
       <View style={{ width: 3, height: 12, borderRadius: 2, backgroundColor: theme.primary }} />
-      <Text style={{ fontSize: 11, fontWeight: "700", color: theme.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>
+      <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textMuted }}>
         {title}
       </Text>
     </View>

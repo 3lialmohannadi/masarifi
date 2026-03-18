@@ -31,7 +31,7 @@ const CURRENCIES = [
 function SectionLabel({ title }: { title: string }) {
   const { theme, isRTL } = useApp();
   return (
-    <Text style={{ fontSize: 12, fontWeight: "700", color: theme.textMuted, textTransform: "uppercase", letterSpacing: 0.8, textAlign: isRTL ? "right" : "left", paddingHorizontal: 4, marginBottom: 4, marginTop: 8 }}>
+    <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textMuted, textAlign: isRTL ? "right" : "left", paddingHorizontal: 4, marginBottom: 4, marginTop: 8 }}>
       {title}
     </Text>
   );
