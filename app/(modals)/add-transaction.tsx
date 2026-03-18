@@ -239,7 +239,7 @@ export default function AddTransactionModal() {
         style={{
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
-          justifyContent: "space-between",
+          gap: 12,
           paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16,
           paddingHorizontal: 16,
           paddingBottom: 14,
@@ -248,18 +248,26 @@ export default function AddTransactionModal() {
           borderBottomColor: theme.border,
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <Feather name="x" size={24} color={theme.textSecondary} />
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name="x" size={18} color={theme.text} />
         </Pressable>
-        <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
+        <Text style={{ flex: 1, fontSize: 17, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {existingTx ? t.transactions.edit : t.transactions.add}
         </Text>
         {existingTx ? (
-          <Pressable onPress={handleDelete} hitSlop={8}>
-            <Feather name="trash-2" size={20} color={theme.expense} />
+          <Pressable
+            onPress={handleDelete}
+            hitSlop={8}
+            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.expense + "15", borderWidth: 1, borderColor: theme.expense + "30", alignItems: "center", justifyContent: "center" }}
+          >
+            <Feather name="trash-2" size={18} color={theme.expense} />
           </Pressable>
         ) : (
-          <View style={{ width: 24 }} />
+          <View style={{ width: 36 }} />
         )}
       </View>
 

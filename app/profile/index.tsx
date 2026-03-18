@@ -159,7 +159,7 @@ const GENDER_OPTIONS = ["male", "female"] as const;
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, isRTL, isDark } = useApp();
+  const { theme, t, isRTL, isDark, showToast } = useApp();
   const { user, isAuthLoading, signOut, setDisplayName } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -225,7 +225,7 @@ export default function ProfileScreen() {
       }
       setIsEditing(false);
     } catch {
-      // ignore save error silently
+      showToast(t.common.error, "error");
     } finally {
       setSaving(false);
     }

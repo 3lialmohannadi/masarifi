@@ -114,33 +114,45 @@ export default function AccountFormModal() {
         style={{
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
-          justifyContent: "space-between",
+          gap: 12,
           paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16),
           paddingHorizontal: 16,
-          paddingBottom: 12,
+          paddingBottom: 14,
           backgroundColor: theme.card,
           borderBottomWidth: 1,
           borderBottomColor: theme.border,
         }}
       >
-        <Pressable onPress={() => router.back()}>
-          <Feather name="x" size={24} color={theme.textSecondary} />
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name="x" size={18} color={theme.text} />
         </Pressable>
-        <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
+        <Text style={{ flex: 1, fontSize: 17, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {existing ? t.accounts.edit : t.accounts.add}
         </Text>
         {existing ? (
           existing.is_active ? (
-            <Pressable onPress={handleArchive}>
-              <Feather name="archive" size={20} color={theme.expense} />
+            <Pressable
+              onPress={handleArchive}
+              hitSlop={8}
+              style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.expense + "15", borderWidth: 1, borderColor: theme.expense + "30", alignItems: "center", justifyContent: "center" }}
+            >
+              <Feather name="archive" size={18} color={theme.expense} />
             </Pressable>
           ) : (
-            <Pressable onPress={handleRestore}>
-              <Feather name="refresh-cw" size={20} color={theme.primary} />
+            <Pressable
+              onPress={handleRestore}
+              hitSlop={8}
+              style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary + "15", borderWidth: 1, borderColor: theme.primary + "30", alignItems: "center", justifyContent: "center" }}
+            >
+              <Feather name="refresh-cw" size={18} color={theme.primary} />
             </Pressable>
           )
         ) : (
-          <View style={{ width: 24 }} />
+          <View style={{ width: 36 }} />
         )}
       </View>
 

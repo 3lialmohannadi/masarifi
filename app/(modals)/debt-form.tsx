@@ -161,6 +161,7 @@ export default function DebtFormModal() {
       addDebt(payload);
     }
 
+    showToast(t.toast.saved, "success");
     setShowSuccess(true);
     setTimeout(() => {
       setShowSuccess(false);

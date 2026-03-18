@@ -81,6 +81,7 @@ export default function TransferFormModal() {
       updateBalance(fromId, -sourceAmount);
       updateBalance(toId, destinationAmount);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      showToast(t.toast.transferred, "success");
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -143,22 +144,26 @@ export default function TransferFormModal() {
         style={{
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
-          justifyContent: "space-between",
+          gap: 12,
           paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16),
           paddingHorizontal: 16,
-          paddingBottom: 12,
+          paddingBottom: 14,
           backgroundColor: theme.card,
           borderBottomWidth: 1,
           borderBottomColor: theme.border,
         }}
       >
-        <Pressable onPress={() => router.back()}>
-          <Feather name="x" size={24} color={theme.textSecondary} />
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name="x" size={18} color={theme.text} />
         </Pressable>
-        <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
+        <Text style={{ flex: 1, fontSize: 17, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {t.transfer.title}
         </Text>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 36 }} />
       </View>
 
       <KeyboardAwareScrollViewCompat contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 30 }} bottomOffset={60} keyboardShouldPersistTaps="handled">
