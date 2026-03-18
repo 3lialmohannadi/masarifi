@@ -163,13 +163,6 @@ export default function MoreTab() {
             color="#8B5CF6"
             onPress={() => router.push("/(tabs)/statistics")}
           />
-          <MenuItem
-            icon="file-text"
-            label={t.statistics.monthlyReport}
-            subtitle={t.more.monthlyReportSubtitle}
-            color={theme.primary}
-            onPress={() => router.push("/report")}
-          />
         </View>
 
         <SectionSeparator />
