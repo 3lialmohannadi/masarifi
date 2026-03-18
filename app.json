@@ -8,7 +8,9 @@
     "scheme": "masarifi",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "backgroundColor": "#000000"
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E8F5F2"
     },
     "ios": {
       "supportsTablet": false,
