@@ -14,10 +14,6 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 8082
-externalPort = 3000
-
-[[ports]]
 localPort = 8083
 externalPort = 3001
 
@@ -54,13 +50,13 @@ name = "Start App"
 author = "agent"
 mode = "parallel"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run server:dev"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "fuser -k 5000/tcp 2>/dev/null; sleep 1; npm run server:dev"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Start Frontend"
@@ -72,7 +68,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run expo:dev"
+args = "fuser -k 8081/tcp 2>/dev/null; sleep 1; npm run expo:dev"
 
 [userenv]
 
