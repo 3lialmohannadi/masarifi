@@ -130,6 +130,17 @@ export default function BudgetFormModal() {
             >
               {existingBudget ? t.categories.budgetEdit : t.categories.budgetSet}
             </Text>
+            {existingBudget ? (
+              <Pressable
+                onPress={handleDelete}
+                hitSlop={8}
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.expense + "15", borderWidth: 1, borderColor: theme.expense + "30", alignItems: "center", justifyContent: "center" }}
+              >
+                <Feather name="trash-2" size={18} color={theme.expense} />
+              </Pressable>
+            ) : (
+              <View style={{ width: 36 }} />
+            )}
           </View>
 
           <View style={{ padding: 20, gap: 24 }}>
@@ -248,24 +259,6 @@ export default function BudgetFormModal() {
               </Text>
             </Pressable>
 
-            {/* Delete button */}
-            {existingBudget && (
-              <Pressable
-                onPress={handleDelete}
-                style={({ pressed }) => ({
-                  borderRadius: 14,
-                  paddingVertical: 14,
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: theme.expense + "40",
-                  backgroundColor: pressed ? theme.expenseBackground : "transparent",
-                })}
-              >
-                <Text style={{ fontSize: 15, fontWeight: "600", color: theme.expense }}>
-                  {t.categories.budgetDelete}
-                </Text>
-              </Pressable>
-            )}
           </View>
         </ScrollView>
 

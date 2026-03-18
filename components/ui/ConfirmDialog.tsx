@@ -4,6 +4,8 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/store/AppContext";
 
+type FeatherIconName = React.ComponentProps<typeof Feather>["name"];
+
 interface ConfirmDialogProps {
   visible: boolean;
   title: string;
@@ -11,7 +13,7 @@ interface ConfirmDialogProps {
   confirmLabel?: string;
   cancelLabel?: string;
   confirmColor?: string;
-  icon?: string;
+  icon?: FeatherIconName;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -99,7 +101,7 @@ export function ConfirmDialog({
               justifyContent: "center",
             }}
           >
-            <Feather name={icon as any} size={28} color={accentColor} />
+            <Feather name={icon} size={28} color={accentColor} />
           </View>
 
           <View style={{ alignItems: "center", gap: 6 }}>

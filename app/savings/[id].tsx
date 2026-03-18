@@ -56,7 +56,7 @@ export default function SavingsDetailScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingBottom: insets.bottom + 100,
-          paddingHorizontal: 16,
+          paddingHorizontal: 20,
         }}
         showsVerticalScrollIndicator={false}
       >
