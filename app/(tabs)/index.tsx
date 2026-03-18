@@ -311,12 +311,12 @@ export default function DashboardScreen() {
                     </View>
                   </View>
                   <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
-                    <View style={{ flex: 1, backgroundColor: "rgba(239,68,68,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(239,68,68,0.2)" }}>
+                    <View style={{ flex: 1, backgroundColor: "rgba(251,191,36,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(251,191,36,0.2)" }}>
                       <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                        <Feather name="lock" size={11} color="rgba(239,68,68,0.9)" />
+                        <Feather name="lock" size={11} color="rgba(251,191,36,0.9)" />
                         <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.allocatedMoney}</Text>
                       </View>
-                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#F87171", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#FCD34D", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
                         {formatCurrency(allocatedMoney, currency, language)}
                       </Text>
                     </View>
