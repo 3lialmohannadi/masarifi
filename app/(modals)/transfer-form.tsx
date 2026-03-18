@@ -160,7 +160,7 @@ export default function TransferFormModal() {
         >
           <Feather name="x" size={18} color={theme.text} />
         </Pressable>
-        <Text style={{ flex: 1, fontSize: 17, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {t.transfer.title}
         </Text>
         <View style={{ width: 36 }} />

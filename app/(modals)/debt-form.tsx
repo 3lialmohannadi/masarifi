@@ -201,31 +201,39 @@ export default function DebtFormModal() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: isRTL ? "row-reverse" : "row",
+          alignItems: "center",
+          gap: 12,
+          paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16,
+          paddingHorizontal: 16,
+          paddingBottom: 14,
+          backgroundColor: theme.card,
+          borderBottomWidth: 1,
+          borderBottomColor: theme.border,
+        }}
+      >
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name="x" size={18} color={theme.text} />
+        </Pressable>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
+          {isEdit ? t.debts.edit : t.debts.add}
+        </Text>
+        <View style={{ width: 36 }} />
+      </View>
+
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 50 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16, paddingBottom: 20 }}>
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={8}
-            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
-          >
-            <Feather name="x" size={18} color={theme.text} />
-          </Pressable>
-          <Text style={{ flex: 1, fontSize: 20, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
-            {isEdit ? t.debts.edit : t.debts.add}
-          </Text>
-          <Pressable
-            onPress={handleSave}
-            disabled={saving}
-            style={{ paddingHorizontal: 18, paddingVertical: 9, borderRadius: 20, backgroundColor: "#EF4444", opacity: saving ? 0.6 : 1 }}
-          >
-            <Text style={{ fontSize: 14, fontWeight: "700", color: "#fff" }}>{t.common.save}</Text>
-          </Pressable>
-        </View>
-
+        <View style={{ height: 20 }} />
         <View style={{ gap: 20 }}>
           <View style={{ gap: 8 }}>
             <LabelText text={t.debts.category} required />

@@ -210,7 +210,7 @@ export default function SavingsMovementModal() {
         style={{
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
-          justifyContent: "space-between",
+          gap: 12,
           paddingTop: topPadding,
           paddingHorizontal: 16,
           paddingBottom: 14,
@@ -219,13 +219,17 @@ export default function SavingsMovementModal() {
           borderBottomColor: theme.border,
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Feather name="x" size={24} color={theme.textSecondary} />
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name="x" size={18} color={theme.text} />
         </Pressable>
-        <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {t.savings.movement}
         </Text>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 36 }} />
       </View>
 
       <KeyboardAwareScrollViewCompat
