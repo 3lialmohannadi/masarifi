@@ -321,7 +321,7 @@ export default function DashboardScreen() {
                 <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: "500", textAlign: "center" }}>
                   {t.dashboard.dailyLimit}
                 </Text>
-                <Text style={{ fontSize: 13, fontWeight: "700", color: "#FCD34D", textAlign: "center" }} numberOfLines={1}>
+                <Text style={{ fontSize: 13, fontWeight: "700", color: "#fff", textAlign: "center" }} numberOfLines={1}>
                   {formatCurrency(Math.max(0, dailyLimit), currency, language)}
                 </Text>
               </View>
