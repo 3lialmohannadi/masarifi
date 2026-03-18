@@ -10,7 +10,8 @@ import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Platform, View } from "react-native";
+import { Platform, View } from "react-native";
+import { AppLoader } from "@/components/ui/AppLoader";
 import { VideoSplash } from "@/components/VideoSplash";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -45,10 +46,10 @@ function AppLoadingGate({ children }: { children: React.ReactNode }) {
 
   if (!isLoaded) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#0F1E1C", alignItems: "center", justifyContent: "center" }}>
+      <>
         <StatusBar style="light" />
-        <ActivityIndicator size="large" color="#2F8F83" />
-      </View>
+        <AppLoader />
+      </>
     );
   }
   return (
