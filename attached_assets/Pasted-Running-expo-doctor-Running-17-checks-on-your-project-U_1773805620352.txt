@@ -1,0 +1,52 @@
+Running "expo doctor"
+Running 17 checks on your project...
+Unexpected error while running 'Check for issues with Metro config' check:
+TypeError: Error loading Metro config at: /Users/expo/workingdir/build/metro.config.js
+configs.toReversed is not a function
+14/17 checks passed. 3 checks failed. Possible issues detected:
+Use the --verbose flag to see more details about passed checks.
+
+✖ Check for issues with Metro config
+✖ Check that no duplicate dependencies are installed
+Your project contains duplicate native module dependencies, which should be de-duplicated.
+Native builds may only contain one version of any given native module, and having multiple versions of a single Native module installed may lead to unexpected build errors.
+Found duplicates for expo-constants:
+  ├─ expo-constants@18.0.13 (at: node_modules/expo-constants)
+  └─ expo-constants@55.0.8 (at: node_modules/expo-notifications/node_modules/expo-constants)
+Found duplicates for expo-file-system:
+  ├─ expo-file-system@55.0.10 (at: node_modules/expo-file-system)
+  └─ expo-file-system@19.0.21 (at: node_modules/expo/node_modules/expo-file-system)
+Advice:
+Resolve your dependency issues and deduplicate your dependencies. Learn more: https://expo.fyi/resolving-dependency-issues
+
+✖ Check that packages match versions required by installed Expo SDK
+
+❗ Major version mismatches
+package                           expected  found    
+expo-file-system                  ~19.0.21  55.0.10  
+expo-notifications                ~0.32.16  55.0.13  
+expo-sharing                      ~14.0.8   55.0.11  
+
+⚠️ Minor version mismatches
+package                           expected  found    
+react-native-keyboard-controller  1.18.5    1.20.6   
+
+🔧 Patch version mismatches
+package                           expected  found    
+expo                              ~54.0.33  54.0.32  
+expo-glass-effect                 ~0.1.9    0.1.8    
+expo-router                       ~6.0.23   6.0.22   
+
+Changelogs:
+- expo-file-system → https://github.com/expo/expo/blob/sdk-54/packages/expo-file-system/CHANGELOG.md
+- expo-glass-effect → https://github.com/expo/expo/blob/sdk-54/packages/expo-glass-effect/CHANGELOG.md
+- expo-notifications → https://github.com/expo/expo/blob/sdk-54/packages/expo-notifications/CHANGELOG.md
+- expo-router → https://github.com/expo/expo/blob/sdk-54/packages/expo-router/CHANGELOG.md
+- expo-sharing → https://github.com/expo/expo/blob/sdk-54/packages/expo-sharing/CHANGELOG.md
+
+7 packages out of date.
+Advice:
+Use 'npx expo install --check' to review and upgrade your dependencies.
+To ignore specific packages, add them to "expo.install.exclude" in package.json. Learn more: https://expo.fyi/dependency-validation
+3 checks failed, indicating possible issues with the project.
+Command "expo doctor" failed.
