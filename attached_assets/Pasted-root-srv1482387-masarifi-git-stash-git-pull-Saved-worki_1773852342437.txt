@@ -1,0 +1,163 @@
+root@srv1482387:~/masarifi# git stash
+git pull
+Saved working directory and index state WIP on main: b152ea3 fix: bump buildNumber to 14 (13 was consumed by previous submission attempt)
+Updating b152ea3..ceb9a4c
+Fast-forward
+ .agents/agent_assets_metadata.toml                                                       |    6 +
+ .replit                                                                                  |   33 +-
+ app.json                                                                                 |    6 +-
+ app/(modals)/account-form.tsx                                                            |   70 +-
+ app/(modals)/add-transaction.tsx                                                         |   79 +-
+ app/(modals)/budget-form.tsx                                                             |   67 +-
+ app/(modals)/category-form.tsx                                                           |   67 +-
+ app/(modals)/commitment-form.tsx                                                         |   91 +-
+ app/(modals)/debt-form.tsx                                                               |   96 +-
+ app/(modals)/debt-payment.tsx                                                            |   10 +-
+ app/(modals)/saving-wallet-form.tsx                                                      |   57 +-
+ app/(modals)/savings-movement.tsx                                                        |   30 +-
+ app/(modals)/transfer-detail.tsx                                                         |   61 +-
+ app/(modals)/transfer-form.tsx                                                           |   37 +-
+ app/(tabs)/_layout.tsx                                                                   |   40 +-
+ app/(tabs)/index.tsx                                                                     |  257 +---
+ app/(tabs)/more.tsx                                                                      |    6 +-
+ app/(tabs)/savings.tsx                                                                   |    2 +-
+ app/(tabs)/statistics.tsx                                                                |  131 +-
+ app/(tabs)/transactions.tsx                                                              |  118 +-
+ app/_layout.tsx                                                                          |   13 +-
+ app/accounts/list.tsx                                                                    |    2 +-
+ app/auth/sign-in.tsx                                                                     |   21 +-
+ app/auth/sign-up.tsx                                                                     |   21 +-
+ app/categories/index.tsx                                                                 |   51 +-
+ app/commitments/[id].tsx                                                                 |   10 +-
+ app/contact-support.tsx                                                                  |   24 +-
+ app/debts/[id].tsx                                                                       |   97 +-
+ app/debts/index.tsx                                                                      |   34 +-
+ app/onboarding.tsx                                                                       |   21 +-
+ app/profile/index.tsx                                                                    |   66 +-
+ app/report/index.tsx                                                                     |    8 +-
+ app/savings/[id].tsx                                                                     |   10 +-
+ app/settings/index.tsx                                                                   |   86 +-
+ assets/images/android-icon-foreground.png                                                |  Bin 373810 -> 96201 bytes
+ assets/images/android-icon-monochrome.png                                                |  Bin 373810 -> 9643 bytes
+ assets/images/favicon.png                                                                |  Bin 316718 -> 3531 bytes
+ assets/images/icon.png                                                                   |  Bin 316718 -> 64577 bytes
+ assets/images/splash-icon.png                                                            |  Bin 316718 -> 216556 bytes
+ assets/images/wallet_mark.png                                                            |  Bin 0 -> 318165 bytes
+ assets/logo.png                                                                          |  Bin 293550 -> 0 bytes
+ assets/logo_ar_dark.png                                                                  |  Bin 186282 -> 273401 bytes
+ assets/logo_ar_light.png                                                                 |  Bin 239406 -> 237485 bytes
+ assets/logo_en_dark.png                                                                  |  Bin 168271 -> 79661 bytes
+ assets/logo_en_light.png                                                                 |  Bin 168780 -> 83767 bytes
+ assets/logo_transparent.png                                                              |  Bin 288362 -> 0 bytes
+ assets/videos/splash.mp4                                                                 |  Bin 2106106 -> 749326 bytes
+ attached_assets/1_1773843135964.png                                                      |  Bin 0 -> 209253 bytes
+ attached_assets/1_1773846717613.png                                                      |  Bin 0 -> 279640 bytes
+ attached_assets/2_1773843135964.png                                                      |  Bin 0 -> 127467 bytes
+ attached_assets/2_1773846717613.png                                                      |  Bin 0 -> 296521 bytes
+ attached_assets/IMG_4959_1773830029401.png                                               |  Bin 0 -> 141952 bytes
+ attached_assets/IMG_4960_1773830586969.png                                               |  Bin 0 -> 141903 bytes
+ attached_assets/IMG_4961_1773831251536.png                                               |  Bin 0 -> 103528 bytes
+ attached_assets/IMG_4962_1773831413352.png                                               |  Bin 0 -> 103703 bytes
+ attached_assets/IMG_4963_1773831572119.png                                               |  Bin 0 -> 103505 bytes
+ attached_assets/IMG_4964_1773831886899.png                                               |  Bin 0 -> 103169 bytes
+ attached_assets/IMG_4965_1773832196669.png                                               |  Bin 0 -> 103931 bytes
+ attached_assets/IMG_4966_1773832990619.jpeg                                              |  Bin 0 -> 1404878 bytes
+ attached_assets/IMG_4967_1773833660373.png                                               |  Bin 0 -> 103158 bytes
+ attached_assets/MasAppLogoArDandL_1773846733920.zip                                      |  Bin 0 -> 576551 bytes
+ .../icon.212238bbe5ead929af8ce0d09939c449.png => attached_assets/app1_1773843135965.png  |  Bin
+ attached_assets/app1_1773847010523.png                                                   |  Bin 0 -> 316718 bytes
+ attached_assets/app1_1773848122763.png                                                   |  Bin 0 -> 316718 bytes
+ attached_assets/app1_1773848377048.png                                                   |  Bin 0 -> 316718 bytes
+ attached_assets/app1_1773849013213.png                                                   |  Bin 0 -> 316718 bytes
+ attached_assets/app1_1773850269437.png                                                   |  Bin 0 -> 316718 bytes
+ attached_assets/brandkit-template-734-2026-03-15_1773843135965.png                       |  Bin 0 -> 41446 bytes
+ attached_assets/generated_images/app_icon_final.png                                      |  Bin 0 -> 808811 bytes
+ attached_assets/generated_images/wallet_flat_v2.png                                      |  Bin 0 -> 450909 bytes
+ attached_assets/generated_images/wallet_icon_v2.png                                      |  Bin 0 -> 457981 bytes
+ attached_assets/generated_images/wallet_mark_transparent.png                             |  Bin 0 -> 318165 bytes
+ attached_assets/generated_videos/masarifi_splash_screen.mp4                              |  Bin 0 -> 749326 bytes
+ attached_assets/logo-primary-2026-03-14_1773843135966.png                                |  Bin 0 -> 88169 bytes
+ attached_assets/logo-primary-2026-03-14_1773846733920.png                                |  Bin 0 -> 88169 bytes
+ attached_assets/logo-primary-2026-03-15_(1)_1773843135966.png                            |  Bin 0 -> 76516 bytes
+ attached_assets/logo-primary-2026-03-15_(1)_1773846733919.png                            |  Bin 0 -> 76516 bytes
+ components/Toast.tsx                                                                     |    3 +
+ components/ui/AppLoader.tsx                                                              |  183 +++
+ components/ui/AppLogo.tsx                                                                |   44 +
+ components/ui/ConfirmDialog.tsx                                                          |  192 +++
+ dist/_expo/static/css/native-tabs.module-78b0f59737571f455720970791a36bdd.css            |    1 -
+ ...try-e83a35f6e2b40f5829b73f6f60924aad.js => entry-20307578d93267b8553b46e2e41e77ae.js} | 2953 +++++++++++++++++++++---------------------
+ dist/_expo/static/js/web/index-42c6b92a3a40f6742dd0b355c09fe84e.js                       |   68 +
+ dist/_expo/static/js/web/notifications-6bdee3c0be2a53471d8055bc5d24fc75.js               |    1 +
+ dist/assets/assets/images/icon.381f97712995ffab8a776a384662f654.png                      |  Bin 0 -> 64577 bytes
+ dist/assets/assets/logo_ar_dark.23e313bbf3cc638508f2ae857ea7df2b.png                     |  Bin 186282 -> 0 bytes
+ dist/assets/assets/logo_ar_dark.b264470f966cd305d90d80bae37bae22.png                     |  Bin 0 -> 273401 bytes
+ dist/assets/assets/logo_ar_light.874f151e9c4659e024ff993138b8fc4b.png                    |  Bin 0 -> 237485 bytes
+ dist/assets/assets/logo_ar_light.c1e6bd25b57e5cfeedb6fbcf01efad23.png                    |  Bin 239406 -> 0 bytes
+ dist/assets/assets/logo_en_dark.85b4eebbc2a054f5f4adc87276952737.png                     |  Bin 168271 -> 0 bytes
+ dist/assets/assets/logo_en_dark.a6c4d6311f841060339bb27bcb94ff54.png                     |  Bin 0 -> 79661 bytes
+ dist/assets/assets/logo_en_light.0f6ae6e2155e1e5cbde3d91e8674c9e8.png                    |  Bin 168780 -> 0 bytes
+ dist/assets/assets/logo_en_light.8e94f099ad90399aaf5c3ef210887935.png                    |  Bin 0 -> 83767 bytes
+ dist/assets/assets/videos/splash.722d6a263c0b111674ec401a1d0cc015.mp4                    |  Bin 2106106 -> 0 bytes
+ dist/assets/assets/videos/splash.8e175880d8a5f83b139e17c2d9e82486.mp4                    |  Bin 0 -> 749326 bytes
+ dist/favicon.ico                                                                         |  Bin 14510 -> 14510 bytes
+ dist/index.html                                                                          |    4 +-
+ i18n/ar.ts                                                                               |    4 +
+ i18n/en.ts                                                                               |    4 +
+ index.js                                                                                 |    1 +
+ package.json                                                                             |    2 +-
+ replit.md                                                                                |   12 +
+ server/index.ts                                                                          |    2 +-
+ store/AppContext.tsx                                                                     |    2 +-
+ 105 files changed, 2952 insertions(+), 2252 deletions(-)
+ create mode 100644 assets/images/wallet_mark.png
+ delete mode 100644 assets/logo.png
+ delete mode 100644 assets/logo_transparent.png
+ create mode 100644 attached_assets/1_1773843135964.png
+ create mode 100644 attached_assets/1_1773846717613.png
+ create mode 100644 attached_assets/2_1773843135964.png
+ create mode 100644 attached_assets/2_1773846717613.png
+ create mode 100644 attached_assets/IMG_4959_1773830029401.png
+ create mode 100644 attached_assets/IMG_4960_1773830586969.png
+ create mode 100644 attached_assets/IMG_4961_1773831251536.png
+ create mode 100644 attached_assets/IMG_4962_1773831413352.png
+ create mode 100644 attached_assets/IMG_4963_1773831572119.png
+ create mode 100644 attached_assets/IMG_4964_1773831886899.png
+ create mode 100644 attached_assets/IMG_4965_1773832196669.png
+ create mode 100644 attached_assets/IMG_4966_1773832990619.jpeg
+ create mode 100644 attached_assets/IMG_4967_1773833660373.png
+ create mode 100644 attached_assets/MasAppLogoArDandL_1773846733920.zip
+ rename dist/assets/assets/images/icon.212238bbe5ead929af8ce0d09939c449.png => attached_assets/app1_1773843135965.png (100%)
+ create mode 100644 attached_assets/app1_1773847010523.png
+ create mode 100644 attached_assets/app1_1773848122763.png
+ create mode 100644 attached_assets/app1_1773848377048.png
+ create mode 100644 attached_assets/app1_1773849013213.png
+ create mode 100644 attached_assets/app1_1773850269437.png
+ create mode 100644 attached_assets/brandkit-template-734-2026-03-15_1773843135965.png
+ create mode 100644 attached_assets/generated_images/app_icon_final.png
+ create mode 100644 attached_assets/generated_images/wallet_flat_v2.png
+ create mode 100644 attached_assets/generated_images/wallet_icon_v2.png
+ create mode 100644 attached_assets/generated_images/wallet_mark_transparent.png
+ create mode 100644 attached_assets/generated_videos/masarifi_splash_screen.mp4
+ create mode 100644 attached_assets/logo-primary-2026-03-14_1773843135966.png
+ create mode 100644 attached_assets/logo-primary-2026-03-14_1773846733920.png
+ create mode 100644 attached_assets/logo-primary-2026-03-15_(1)_1773843135966.png
+ create mode 100644 attached_assets/logo-primary-2026-03-15_(1)_1773846733919.png
+ create mode 100644 components/ui/AppLoader.tsx
+ create mode 100644 components/ui/AppLogo.tsx
+ create mode 100644 components/ui/ConfirmDialog.tsx
+ delete mode 100644 dist/_expo/static/css/native-tabs.module-78b0f59737571f455720970791a36bdd.css
+ rename dist/_expo/static/js/web/{entry-e83a35f6e2b40f5829b73f6f60924aad.js => entry-20307578d93267b8553b46e2e41e77ae.js} (72%)
+ create mode 100644 dist/_expo/static/js/web/index-42c6b92a3a40f6742dd0b355c09fe84e.js
+ create mode 100644 dist/_expo/static/js/web/notifications-6bdee3c0be2a53471d8055bc5d24fc75.js
+ create mode 100644 dist/assets/assets/images/icon.381f97712995ffab8a776a384662f654.png
+ delete mode 100644 dist/assets/assets/logo_ar_dark.23e313bbf3cc638508f2ae857ea7df2b.png
+ create mode 100644 dist/assets/assets/logo_ar_dark.b264470f966cd305d90d80bae37bae22.png
+ create mode 100644 dist/assets/assets/logo_ar_light.874f151e9c4659e024ff993138b8fc4b.png
+ delete mode 100644 dist/assets/assets/logo_ar_light.c1e6bd25b57e5cfeedb6fbcf01efad23.png
+ delete mode 100644 dist/assets/assets/logo_en_dark.85b4eebbc2a054f5f4adc87276952737.png
+ create mode 100644 dist/assets/assets/logo_en_dark.a6c4d6311f841060339bb27bcb94ff54.png
+ delete mode 100644 dist/assets/assets/logo_en_light.0f6ae6e2155e1e5cbde3d91e8674c9e8.png
+ create mode 100644 dist/assets/assets/logo_en_light.8e94f099ad90399aaf5c3ef210887935.png
+ delete mode 100644 dist/assets/assets/videos/splash.722d6a263c0b111674ec401a1d0cc015.mp4
+ create mode 100644 dist/assets/assets/videos/splash.8e175880d8a5f83b139e17c2d9e82486.mp4
+ create mode 100644 index.js
