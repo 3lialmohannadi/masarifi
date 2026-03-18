@@ -159,18 +159,16 @@ export default function DashboardScreen() {
           <View style={{ gap: 10, flex: 1, alignItems: isRTL ? "flex-end" : "flex-start" }}>
             <AppLogo language={language} isDark={isDark} primaryColor={theme.primary} size="md" />
             {firstName ? (
-              <View style={{ gap: 2 }}>
-                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                  <Text style={{ fontSize: 12, fontWeight: "500", color: theme.textMuted, textAlign: isRTL ? "right" : "left", letterSpacing: 0.3 }}>
-                    {(() => {
-                      const h = new Date().getHours();
-                      if (h >= 5 && h < 12) return t.auth.goodMorning;
-                      if (h >= 12 && h < 17) return t.auth.goodAfternoon;
-                      return t.auth.goodEvening;
-                    })()}{isRTL ? "،" : ","}
-                  </Text>
-                </View>
-                <Text style={{ fontSize: 20, fontWeight: "800", color: theme.text, textAlign: isRTL ? "right" : "left", letterSpacing: -0.3 }}>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
+                <Text style={{ fontSize: 15, color: theme.textMuted, letterSpacing: 0.2 }}>
+                  {(() => {
+                    const h = new Date().getHours();
+                    if (h >= 5 && h < 12) return t.auth.goodMorning;
+                    if (h >= 12 && h < 17) return t.auth.goodAfternoon;
+                    return t.auth.goodEvening;
+                  })()}{isRTL ? "،" : ","}
+                </Text>
+                <Text style={{ fontSize: 15, fontWeight: "800", color: theme.text, letterSpacing: -0.2 }}>
                   {firstName}
                 </Text>
               </View>
