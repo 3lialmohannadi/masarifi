@@ -21,7 +21,6 @@ interface AccountsContextValue {
   addAccount: (account: Omit<Account, "id" | "created_at" | "updated_at">) => Account;
   updateAccount: (id: string, updates: Partial<Account>) => void;
   deleteAccount: (id: string) => void;
-  permanentDeleteAccount: (id: string) => void;
   getAccount: (id: string) => Account | undefined;
   updateBalance: (id: string, delta: number) => void;
   clearAll: () => void;
@@ -119,12 +118,6 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
     sync(apiRequest("DELETE", `/api/accounts/${id}`), "delete account");
   };
 
-  const permanentDeleteAccount = (id: string) => {
-    const updated = accounts.filter((a) => a.id !== id);
-    persist(updated);
-    sync(apiRequest("DELETE", `/api/accounts/${id}`), "permanent delete account");
-  };
-
   const getAccount = (id: string) => accounts.find((a) => a.id === id);
 
   const updateBalance = (id: string, delta: number) => {
@@ -141,7 +134,7 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
   };
 
   const value = useMemo(
-    () => ({ accounts, addAccount, updateAccount, deleteAccount, permanentDeleteAccount, getAccount, updateBalance, clearAll, isLoaded, syncError }),
+    () => ({ accounts, addAccount, updateAccount, deleteAccount, getAccount, updateBalance, clearAll, isLoaded, syncError }),
     [accounts, isLoaded, syncError] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
