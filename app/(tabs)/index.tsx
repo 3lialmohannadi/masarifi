@@ -454,55 +454,6 @@ export default function DashboardScreen() {
               ...cardShadow,
             }}
           >
-            {/* Primary actions - Income + Expense */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
-              <Pressable
-                testID="quick-add-income"
-                accessibilityLabel={t.transactions.income}
-                onPress={() => openQuickAdd("income")}
-                style={({ pressed }) => ({
-                  flex: 1,
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  paddingVertical: 14,
-                  borderRadius: 14,
-                  backgroundColor: pressed ? theme.income + "25" : theme.income + "18",
-                  borderWidth: 1,
-                  borderColor: theme.income + "30",
-                })}
-              >
-                <Feather name="arrow-down-left" size={18} color={theme.income} />
-                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.income }}>
-                  {t.transactions.income}
-                </Text>
-              </Pressable>
-
-              <Pressable
-                testID="quick-add-expense"
-                accessibilityLabel={t.transactions.expense}
-                onPress={() => openQuickAdd("expense")}
-                style={({ pressed }) => ({
-                  flex: 1,
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  paddingVertical: 14,
-                  borderRadius: 14,
-                  backgroundColor: pressed ? theme.expense + "25" : theme.expense + "18",
-                  borderWidth: 1,
-                  borderColor: theme.expense + "30",
-                })}
-              >
-                <Feather name="arrow-up-right" size={18} color={theme.expense} />
-                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.expense }}>
-                  {t.transactions.expense}
-                </Text>
-              </Pressable>
-            </View>
-
             {/* Secondary actions - Commitment + Savings */}
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
               <Pressable
