@@ -289,71 +289,51 @@ export default function DashboardScreen() {
               const monthIncome = monthTxs.filter((tx) => tx.type === "income").reduce((s, tx) => s + tx.amount, 0);
               const monthExpense = monthTxs.filter((tx) => tx.type === "expense").reduce((s, tx) => s + tx.amount, 0);
               return (
-                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
-                  <View style={{ flex: 1, backgroundColor: "rgba(34,197,94,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(34,197,94,0.2)" }}>
-                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                      <Feather name="arrow-down-left" size={11} color="rgba(34,197,94,0.9)" />
-                      <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.transactions.income}</Text>
+                <View style={{ gap: 8 }}>
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
+                    <View style={{ flex: 1, backgroundColor: "rgba(34,197,94,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(34,197,94,0.2)" }}>
+                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                        <Feather name="arrow-down-left" size={11} color="rgba(34,197,94,0.9)" />
+                        <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.transactions.income}</Text>
+                      </View>
+                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#4ADE80", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+                        {formatCurrency(monthIncome, currency, language)}
+                      </Text>
                     </View>
-                    <Text style={{ fontSize: 14, fontWeight: "700", color: "#4ADE80", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
-                      {formatCurrency(monthIncome, currency, language)}
-                    </Text>
+                    <View style={{ flex: 1, backgroundColor: "rgba(239,68,68,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(239,68,68,0.2)" }}>
+                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                        <Feather name="arrow-up-right" size={11} color="rgba(239,68,68,0.9)" />
+                        <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.transactions.expense}</Text>
+                      </View>
+                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#F87171", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+                        {formatCurrency(monthExpense, currency, language)}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={{ flex: 1, backgroundColor: "rgba(239,68,68,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(239,68,68,0.2)" }}>
-                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-                      <Feather name="arrow-up-right" size={11} color="rgba(239,68,68,0.9)" />
-                      <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.transactions.expense}</Text>
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
+                    <View style={{ flex: 1, backgroundColor: "rgba(239,68,68,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(239,68,68,0.2)" }}>
+                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                        <Feather name="lock" size={11} color="rgba(239,68,68,0.9)" />
+                        <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.allocatedMoney}</Text>
+                      </View>
+                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#F87171", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+                        {formatCurrency(allocatedMoney, currency, language)}
+                      </Text>
                     </View>
-                    <Text style={{ fontSize: 14, fontWeight: "700", color: "#F87171", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
-                      {formatCurrency(monthExpense, currency, language)}
-                    </Text>
+                    <View style={{ flex: 1, backgroundColor: "rgba(251,191,36,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(251,191,36,0.2)" }}>
+                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                        <Feather name="activity" size={11} color="rgba(251,191,36,0.9)" />
+                        <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.dailyLimit}</Text>
+                      </View>
+                      <Text style={{ fontSize: 14, fontWeight: "700", color: "#FCD34D", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
+                        {formatCurrency(Math.max(0, dailyLimit), currency, language)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               );
             })()}
           </LinearGradient>
-          </Animated.View>
-
-          {/* ─── Financial Metrics Card ─── */}
-          <Animated.View entering={FadeInDown.delay(80).springify()}>
-          <View
-            style={{
-              backgroundColor: theme.card,
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: theme.border,
-              overflow: "hidden",
-              ...cardShadow,
-            }}
-          >
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", padding: 10, gap: 10 }}>
-              {/* Allocated Money Tile */}
-              <View style={{ flex: 1, backgroundColor: "#EF444410", borderRadius: 14, padding: 14, gap: 10, borderWidth: 1, borderColor: "#EF444422" }}>
-                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
-                  <Text style={{ fontSize: 10, color: "#EF4444", fontWeight: "600", textAlign: isRTL ? "right" : "left" }}>
-                    {t.dashboard.allocatedMoney}
-                  </Text>
-                  <Feather name="lock" size={13} color="#EF444488" />
-                </View>
-                <Text style={{ fontSize: 16, fontWeight: "800", color: "#EF4444", textAlign: isRTL ? "right" : "left" }} numberOfLines={1} adjustsFontSizeToFit>
-                  {formatCurrency(allocatedMoney, currency, language)}
-                </Text>
-              </View>
-
-              {/* Daily Limit Tile */}
-              <View style={{ flex: 1, backgroundColor: `${theme.income}10`, borderRadius: 14, padding: 14, gap: 10, borderWidth: 1, borderColor: `${theme.income}22` }}>
-                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
-                  <Text style={{ fontSize: 10, color: theme.income, fontWeight: "600", textAlign: isRTL ? "right" : "left" }}>
-                    {t.dashboard.dailyLimit}
-                  </Text>
-                  <Feather name="activity" size={13} color={`${theme.income}88`} />
-                </View>
-                <Text style={{ fontSize: 16, fontWeight: "800", color: theme.income, textAlign: isRTL ? "right" : "left" }} numberOfLines={1} adjustsFontSizeToFit>
-                  {formatCurrency(Math.max(0, dailyLimit), currency, language)}
-                </Text>
-              </View>
-            </View>
-          </View>
           </Animated.View>
 
           {/* ─── Quick Add ─── */}
