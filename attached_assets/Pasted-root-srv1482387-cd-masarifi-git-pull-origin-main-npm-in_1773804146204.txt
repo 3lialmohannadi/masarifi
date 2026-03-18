@@ -1,0 +1,155 @@
+root@srv1482387:~# cd ~/masarifi
+git pull origin main
+npm install
+npm run build
+pm2 restart all
+remote: Enumerating objects: 432, done.
+remote: Counting objects: 100% (432/432), done.
+remote: Compressing objects: 100% (139/139), done.
+remote: Total 358 (delta 245), reused 305 (delta 192), pack-reused 0 (from 0)
+Receiving objects: 100% (358/358), 3.98 MiB | 10.58 MiB/s, done.
+Resolving deltas: 100% (245/245), completed with 50 local objects.
+From https://github.com/3lialmohannadi/masarifi
+ * branch            main       -> FETCH_HEAD
+   b4b733a..1e39e7f  main       -> origin/main
+Updating b4b733a..1e39e7f
+Fast-forward
+ app/(modals)/account-form.tsx                                                           |   58 +-
+ app/(modals)/add-transaction.tsx                                                        |  115 ++--
+ app/(modals)/budget-form.tsx                                                            |  280 ++++++++
+ app/(modals)/commitment-form.tsx                                                        |  120 +++-
+ app/(modals)/debt-form.tsx                                                              |   67 +-
+ app/(modals)/saving-wallet-form.tsx                                                     |   14 +-
+ app/(modals)/savings-movement.tsx                                                       |  113 +--
+ app/(modals)/transfer-form.tsx                                                          |   68 +-
+ app/(tabs)/_layout.tsx                                                                  |  406 ++++++++---
+ app/(tabs)/add.tsx                                                                      |    4 +
+ app/(tabs)/index.tsx                                                                    |  279 +++++---
+ app/(tabs)/more.tsx                                                                     |  265 ++++---
+ app/(tabs)/savings.tsx                                                                  |   87 ++-
+ app/(tabs)/statistics.tsx                                                               |  531 ++++++++++++--
+ app/(tabs)/transactions.tsx                                                             |  221 +++++-
+ app/_layout.tsx                                                                         |   39 +-
+ app/accounts/list.tsx                                                                   |   15 +-
+ app/auth/sign-in.tsx                                                                    |  101 ++-
+ app/auth/sign-up.tsx                                                                    |  125 ++--
+ app/categories/index.tsx                                                                |  109 ++-
+ app/commitments/[id].tsx                                                                |   77 ++-
+ app/commitments/index.tsx                                                               |   15 +-
+ app/debts/index.tsx                                                                     |   15 +-
+ app/onboarding.tsx                                                                      |  326 +++++++++
+ app/profile/index.tsx                                                                   |   41 +-
+ app/report/index.tsx                                                                    |  338 +++++++++
+ app/settings/index.tsx                                                                  |  226 ++++--
+ components/PayNowModal.tsx                                                              |   32 +-
+ components/QuickAddSheet.tsx                                                            |  227 ++++--
+ components/SavingsWalletCard.tsx                                                        |  162 ++++-
+ components/Toast.tsx                                                                    |   63 +-
+ components/TransactionItem.tsx                                                          |  102 ++-
+ components/VideoSplash.tsx                                                              |   28 +-
+ components/ui/AppButton.tsx                                                             |  174 +++--
+ components/ui/AppInput.tsx                                                              |  134 +++-
+ components/ui/EmptyState.tsx                                                            |   45 +-
+ components/ui/ProgressBar.tsx                                                           |   46 +-
+ components/ui/Skeleton.tsx                                                              |  233 +++++++
+ components/ui/SuccessOverlay.tsx                                                        |   73 ++
+ constants/design.ts                                                                     |   58 ++
+ ...ry-760e9af0b34de50f2567575f28d94422.js => entry-e83a35f6e2b40f5829b73f6f60924aad.js} | 1560 ++++++++++++++++++++++--------------------
+ dist/assets/assets/images/icon.212238bbe5ead929af8ce0d09939c449.png                     |  Bin 0 -> 316718 bytes
+ dist/assets/assets/logo_ar_dark.23e313bbf3cc638508f2ae857ea7df2b.png                    |  Bin 0 -> 186282 bytes
+ dist/assets/assets/logo_ar_light.c1e6bd25b57e5cfeedb6fbcf01efad23.png                   |  Bin 0 -> 239406 bytes
+ dist/assets/assets/logo_en_dark.85b4eebbc2a054f5f4adc87276952737.png                    |  Bin 0 -> 168271 bytes
+ dist/assets/assets/logo_en_light.0f6ae6e2155e1e5cbde3d91e8674c9e8.png                   |  Bin 0 -> 168780 bytes
+ dist/assets/assets/logo_transparent.9f5060e5792b70cb479d5647dfb34465.png                |  Bin 1069735 -> 0 bytes
+ dist/assets/assets/videos/splash.2120d4ab32a862cae07bbaaa10c8a460.mp4                   |  Bin 321584 -> 0 bytes
+ dist/assets/assets/videos/splash.722d6a263c0b111674ec401a1d0cc015.mp4                   |  Bin 0 -> 2106106 bytes
+ dist/favicon.ico                                                                        |  Bin 14510 -> 14510 bytes
+ dist/index.html                                                                         |    2 +-
+ hooks/useTrendData.ts                                                                   |   43 ++
+ i18n/ar.ts                                                                              |   55 ++
+ i18n/en.ts                                                                              |   55 ++
+ package-lock.json                                                                       |  301 ++++++--
+ package.json                                                                            |    3 +
+ replit.md                                                                               |    5 +
+ server/index.ts                                                                         |    4 +-
+ server/routes.ts                                                                        |   91 +++
+ server/storage.ts                                                                       |   47 ++
+ static-build/1773753308326-4451/_expo/static/js/assets/images/icon.png                  |  Bin 0 -> 316718 bytes
+ static-build/1773753308326-4451/_expo/static/js/assets/logo_ar_dark.png                 |  Bin 0 -> 186282 bytes
+ static-build/1773753308326-4451/_expo/static/js/assets/logo_ar_light.png                |  Bin 0 -> 239406 bytes
+ static-build/1773753308326-4451/_expo/static/js/assets/logo_en_dark.png                 |  Bin 0 -> 168271 bytes
+ static-build/1773753308326-4451/_expo/static/js/assets/logo_en_light.png                |  Bin 0 -> 168780 bytes
+ static-build/1773753308326-4451/_expo/static/js/assets/videos/splash.mp4                |  Bin 0 -> 2106106 bytes
+ store/AppContext.tsx                                                                    |    4 +-
+ store/BudgetsContext.tsx                                                                |  157 +++++
+ store/TransactionsContext.tsx                                                           |   31 +-
+ types/index.ts                                                                          |   10 +
+ utils/export.ts                                                                         |  145 ++++
+ utils/notifications.ts                                                                  |  168 +++++
+ utils/storage.ts                                                                        |    1 +
+ 73 files changed, 6316 insertions(+), 1798 deletions(-)
+ create mode 100644 app/(modals)/budget-form.tsx
+ create mode 100644 app/(tabs)/add.tsx
+ create mode 100644 app/onboarding.tsx
+ create mode 100644 app/report/index.tsx
+ create mode 100644 components/ui/Skeleton.tsx
+ create mode 100644 components/ui/SuccessOverlay.tsx
+ create mode 100644 constants/design.ts
+ rename dist/_expo/static/js/web/{entry-760e9af0b34de50f2567575f28d94422.js => entry-e83a35f6e2b40f5829b73f6f60924aad.js} (78%)
+ create mode 100644 dist/assets/assets/images/icon.212238bbe5ead929af8ce0d09939c449.png
+ create mode 100644 dist/assets/assets/logo_ar_dark.23e313bbf3cc638508f2ae857ea7df2b.png
+ create mode 100644 dist/assets/assets/logo_ar_light.c1e6bd25b57e5cfeedb6fbcf01efad23.png
+ create mode 100644 dist/assets/assets/logo_en_dark.85b4eebbc2a054f5f4adc87276952737.png
+ create mode 100644 dist/assets/assets/logo_en_light.0f6ae6e2155e1e5cbde3d91e8674c9e8.png
+ delete mode 100644 dist/assets/assets/logo_transparent.9f5060e5792b70cb479d5647dfb34465.png
+ delete mode 100644 dist/assets/assets/videos/splash.2120d4ab32a862cae07bbaaa10c8a460.mp4
+ create mode 100644 dist/assets/assets/videos/splash.722d6a263c0b111674ec401a1d0cc015.mp4
+ create mode 100644 hooks/useTrendData.ts
+ create mode 100644 static-build/1773753308326-4451/_expo/static/js/assets/images/icon.png
+ create mode 100644 static-build/1773753308326-4451/_expo/static/js/assets/logo_ar_dark.png
+ create mode 100644 static-build/1773753308326-4451/_expo/static/js/assets/logo_ar_light.png
+ create mode 100644 static-build/1773753308326-4451/_expo/static/js/assets/logo_en_dark.png
+ create mode 100644 static-build/1773753308326-4451/_expo/static/js/assets/logo_en_light.png
+ create mode 100644 static-build/1773753308326-4451/_expo/static/js/assets/videos/splash.mp4
+ create mode 100644 store/BudgetsContext.tsx
+ create mode 100644 utils/export.ts
+ create mode 100644 utils/notifications.ts
+
+> expo-app@1.0.0 postinstall
+> patch-package && node scripts/fix-missing-modules.js
+
+patch-package 8.0.1
+Applying patches...
+expo-asset@12.0.12 ✔
+
+added 17 packages, removed 5 packages, changed 2 packages, and audited 1145 packages in 9s
+
+212 packages are looking for funding
+  run `npm fund` for details
+
+11 vulnerabilities (1 low, 5 moderate, 5 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm error Missing script: "build"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /root/.npm/_logs/2026-03-18T03_20_26_550Z-debug-0.log
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [all](ids: [ 2, 3, 4 ])
+[PM2] [doyoomi-mobile](2) ✓
+[PM2] [doyoomi-api](3) ✓
+[PM2] [masarifi](4) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ doyoomi-api       │ default     │ 0.0.0   │ fork    │ 111002   │ 0s     │ 22   │ online    │ 0%       │ 44.8mb   │ root     │ disabled │
+│ 2  │ doyoomi-mobile    │ default     │ 0.0.0   │ fork    │ 111000   │ 0s     │ 22   │ online    │ 0%       │ 34.0mb   │ root     │ disabled │
+│ 4  │ masarifi          │ default     │ 1.0.0   │ fork    │ 111014   │ 0s     │ 22   │ online    │ 0%       │ 8.2mb    │ root     │ disabled │
+└────┴───────
