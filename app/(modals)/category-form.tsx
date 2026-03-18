@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, Alert, Platform } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
@@ -70,24 +71,22 @@ export default function CategoryFormModal() {
     }
   };
 
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
   const handleDelete = () => {
     if (!existing) return;
-    Alert.alert(t.common.areYouSure, t.categories.deleteConfirm, [
-      { text: t.common.cancel, style: "cancel" },
-      {
-        text: t.common.delete,
-        style: "destructive",
-        onPress: () => {
-          const success = deleteCategory(existing.id);
-          if (!success) {
-            Alert.alert(t.categories.cannotDelete, t.categories.cannotDeleteInUse);
-            return;
-          }
-          showToast(t.toast.deleted, "info");
-          router.back();
-        },
-      },
-    ]);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDeleteCategory = () => {
+    if (!existing) return;
+    const success = deleteCategory(existing.id);
+    if (!success) {
+      showToast(t.categories.cannotDeleteInUse, "warning");
+      return;
+    }
+    showToast(t.toast.deleted, "info");
+    router.back();
   };
 
   const topPad = Platform.OS === "web" ? insets.top + 51 : insets.top;
@@ -199,6 +198,14 @@ export default function CategoryFormModal() {
         onSelect={setColor}
         visible={showColor}
         onClose={() => setShowColor(false)}
+      />
+
+      <ConfirmDialog
+        visible={showConfirmDelete}
+        title={t.common.areYouSure}
+        message={t.categories.deleteConfirm}
+        onConfirm={confirmDeleteCategory}
+        onCancel={() => setShowConfirmDelete(false)}
       />
     </View>
   );

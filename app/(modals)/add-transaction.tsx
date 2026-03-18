@@ -7,9 +7,9 @@ import {
   TextInput,
   Modal,
   FlatList,
-  Alert,
   Platform,
 } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -200,23 +200,18 @@ export default function AddTransactionModal() {
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(t.common.areYouSure, t.transactions.deleteConfirm, [
-      { text: t.common.cancel, style: "cancel" },
-      {
-        text: t.common.delete,
-        style: "destructive",
-        onPress: () => {
-          if (existingTx) {
-            const delta = existingTx.type === "income" ? -existingTx.amount : existingTx.amount;
-            updateBalance(existingTx.account_id, delta);
-            deleteTransaction(existingTx.id);
-          }
-          showToast(t.toast.transactionDeleted, "info");
-          router.back();
-        },
-      },
-    ]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+  const handleDelete = () => setShowConfirmDelete(true);
+
+  const confirmDelete = () => {
+    if (existingTx) {
+      const delta = existingTx.type === "income" ? -existingTx.amount : existingTx.amount;
+      updateBalance(existingTx.account_id, delta);
+      deleteTransaction(existingTx.id);
+    }
+    showToast(t.toast.transactionDeleted, "info");
+    router.back();
   };
 
   const setQuickDate = (daysAgo: number) => {
@@ -671,6 +666,14 @@ export default function AddTransactionModal() {
         maxDate={todayISOString()}
         onConfirm={(d) => { setDate(d); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
         onClose={() => setShowDatePicker(false)}
+      />
+
+      <ConfirmDialog
+        visible={showConfirmDelete}
+        title={t.common.areYouSure}
+        message={t.transactions.deleteConfirm}
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirmDelete(false)}
       />
     </View>
   );

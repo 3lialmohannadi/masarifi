@@ -26,7 +26,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   onboarded: false,
 };
 
-export type ToastType = "success" | "error" | "info";
+export type ToastType = "success" | "error" | "info" | "warning";
 
 export interface ToastItem {
   id: number;

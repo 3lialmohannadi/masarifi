@@ -6,9 +6,9 @@ import {
   ScrollView,
   ActivityIndicator,
   Platform,
-  Alert,
   TextInput,
 } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -170,23 +170,14 @@ export default function ProfileScreen() {
   const [editPhone, setEditPhone] = useState("");
   const [editGender, setEditGender] = useState("");
 
-  const handleSignOut = () => {
-    Alert.alert(
-      t.auth.signOut,
-      t.auth.signOutConfirm,
-      [
-        { text: t.common.cancel, style: "cancel" },
-        {
-          text: t.auth.signOut,
-          style: "destructive",
-          onPress: async () => {
-            await signOut();
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            router.replace("/(tabs)");
-          },
-        },
-      ]
-    );
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+
+  const handleSignOut = () => setShowSignOutConfirm(true);
+
+  const confirmSignOut = async () => {
+    await signOut();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    router.replace("/(tabs)");
   };
 
   useEffect(() => {
@@ -234,7 +225,7 @@ export default function ProfileScreen() {
       }
       setIsEditing(false);
     } catch {
-      Alert.alert(t.common.error);
+      // ignore save error silently
     } finally {
       setSaving(false);
     }
@@ -608,6 +599,17 @@ export default function ProfileScreen() {
           </Text>
         </Pressable>
       </ScrollView>
+
+      <ConfirmDialog
+        visible={showSignOutConfirm}
+        title={t.auth.signOut}
+        message={t.auth.signOutConfirm}
+        confirmLabel={t.auth.signOut}
+        icon="log-out"
+        confirmColor="#EF4444"
+        onConfirm={confirmSignOut}
+        onCancel={() => setShowSignOutConfirm(false)}
+      />
     </View>
   );
 }

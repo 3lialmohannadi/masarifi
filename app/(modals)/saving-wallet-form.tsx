@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, Alert, Platform } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -85,20 +86,17 @@ export default function SavingWalletFormModal() {
     }
   };
 
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
   const handleDelete = () => {
     if (isDefault) return;
-    Alert.alert(t.common.areYouSure, t.savings.deleteConfirm, [
-      { text: t.common.cancel, style: "cancel" },
-      {
-        text: t.common.delete,
-        style: "destructive",
-        onPress: () => {
-          if (existing) deleteWallet(existing.id);
-          showToast(t.toast.deleted, "info");
-          router.back();
-        },
-      },
-    ]);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDelete = () => {
+    if (existing) deleteWallet(existing.id);
+    showToast(t.toast.deleted, "info");
+    router.back();
   };
 
   return (
@@ -215,6 +213,14 @@ export default function SavingWalletFormModal() {
       />
       <IconPicker selectedIcon={icon} onSelect={setIcon} visible={showIcon} onClose={() => setShowIcon(false)} />
       <ColorPicker selectedColor={color} onSelect={setColor} visible={showColor} onClose={() => setShowColor(false)} />
+
+      <ConfirmDialog
+        visible={showConfirmDelete}
+        title={t.common.areYouSure}
+        message={t.savings.deleteConfirm}
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirmDelete(false)}
+      />
     </View>
   );
 }

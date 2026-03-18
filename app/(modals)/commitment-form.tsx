@@ -4,7 +4,6 @@ import {
   View,
   Text,
   Pressable,
-  Alert,
   Modal,
   FlatList,
   Platform,
@@ -12,6 +11,7 @@ import {
   ActivityIndicator,
   Switch,
 } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
@@ -133,24 +133,19 @@ export default function CommitmentFormModal() {
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(t.common.areYouSure, t.commitments.deleteConfirm, [
-      { text: t.common.cancel, style: "cancel" },
-      {
-        text: t.common.delete,
-        style: "destructive",
-        onPress: () => {
-          if (existing) {
-            deleteCommitment(existing.id);
-            import("@/utils/notifications").then(({ cancelCommitmentReminder }) => {
-              cancelCommitmentReminder(existing.id).catch(() => {});
-            });
-          }
-          showToast(t.toast.deleted, "info");
-          router.back();
-        },
-      },
-    ]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+  const handleDelete = () => setShowConfirmDelete(true);
+
+  const confirmDelete = () => {
+    if (existing) {
+      deleteCommitment(existing.id);
+      import("@/utils/notifications").then(({ cancelCommitmentReminder }) => {
+        cancelCommitmentReminder(existing.id).catch(() => {});
+      });
+    }
+    showToast(t.toast.deleted, "info");
+    router.back();
   };
 
   const selectedAccount = activeAccounts.find((a) => a.id === accountId);
@@ -520,6 +515,14 @@ export default function CommitmentFormModal() {
         value={dueDate}
         onConfirm={(d) => { setDueDate(d); if (errors.date) setErrors((e) => ({ ...e, date: "" })); }}
         onClose={() => setShowDatePicker(false)}
+      />
+
+      <ConfirmDialog
+        visible={showConfirmDelete}
+        title={t.common.areYouSure}
+        message={t.commitments.deleteConfirm}
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirmDelete(false)}
       />
     </View>
   );

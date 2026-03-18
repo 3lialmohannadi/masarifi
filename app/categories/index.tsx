@@ -1,5 +1,6 @@
-import React, { useMemo } from "react";
-import { View, Text, FlatList, Pressable, Alert, Platform } from "react-native";
+import React, { useMemo, useState } from "react";
+import { View, Text, FlatList, Pressable, Platform } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { CategoryIcon } from "@/components/CategoryIcon";
@@ -24,7 +25,7 @@ const CURRENT_MONTH_KEY = getCurrentMonthKey();
 
 export default function CategoriesScreen() {
   const insets = useSafeAreaInsets();
-  const { theme, t, language, isRTL, isDark } = useApp();
+  const { theme, t, language, isRTL, isDark, showToast } = useApp();
   const { categories, deleteCategory, isLoaded } = useCategories();
   const { transactions } = useTransactions();
   const { getBudgetForCategory } = useBudgets();
@@ -55,22 +56,22 @@ export default function CategoriesScreen() {
     ? { boxShadow: "0 2px 8px rgba(47,143,131,0.07)" }
     : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 };
 
-  const handleDelete = (item: Category) => {
-    Alert.alert(t.categories.title, t.categories.deleteConfirm, [
-      { text: t.common.cancel, style: "cancel" },
-      {
-        text: t.common.delete,
-        style: "destructive",
-        onPress: () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          const success = deleteCategory(item.id);
-          if (!success) {
-            Alert.alert(t.categories.cannotDelete, t.categories.cannotDeleteInUse);
-          }
-        },
-      },
-    ]);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+
+  const handleDelete = (item: Category) => setCategoryToDelete(item);
+
+  const confirmDeleteCategory = () => {
+    if (!categoryToDelete) return;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    const success = deleteCategory(categoryToDelete.id);
+    if (!success) {
+      setCategoryToDelete(null);
+      showToast(t.categories.cannotDeleteInUse, "warning");
+      return;
+    }
+    setCategoryToDelete(null);
   };
+
 
   const topPad = Platform.OS === "web" ? insets.top + 51 : insets.top;
 
@@ -364,6 +365,14 @@ export default function CategoriesScreen() {
           </View>
         }
         showsVerticalScrollIndicator={false}
+      />
+
+      <ConfirmDialog
+        visible={!!categoryToDelete}
+        title={t.common.areYouSure}
+        message={t.categories.deleteConfirm}
+        onConfirm={confirmDeleteCategory}
+        onCancel={() => setCategoryToDelete(null)}
       />
     </View>
   );

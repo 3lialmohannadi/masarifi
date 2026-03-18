@@ -4,12 +4,12 @@ import {
   Text,
   ScrollView,
   Pressable,
-  Alert,
   Modal,
   FlatList,
   TextInput,
   Platform,
 } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -90,19 +90,14 @@ export default function AccountFormModal() {
     }
   };
 
-  const handleArchive = () => {
-    Alert.alert(t.common.areYouSure, t.accounts.deleteConfirm, [
-      { text: t.common.cancel, style: "cancel" },
-      {
-        text: t.accounts.delete,
-        style: "destructive",
-        onPress: () => {
-          if (existing) deleteAccount(existing.id);
-          showToast(t.toast.deleted, "info");
-          router.back();
-        },
-      },
-    ]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+  const handleArchive = () => setShowConfirmDelete(true);
+
+  const confirmDelete = () => {
+    if (existing) deleteAccount(existing.id);
+    showToast(t.toast.deleted, "info");
+    router.back();
   };
 
   const handleRestore = () => {
@@ -343,6 +338,16 @@ export default function AccountFormModal() {
           </View>
         </View>
       </Modal>
+
+      <ConfirmDialog
+        visible={showConfirmDelete}
+        title={t.common.areYouSure}
+        message={t.accounts.deleteConfirm}
+        confirmLabel={t.accounts.delete}
+        icon="archive"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirmDelete(false)}
+      />
     </View>
   );
 }

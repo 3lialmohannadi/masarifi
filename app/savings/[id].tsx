@@ -62,8 +62,12 @@ export default function SavingsDetailScreen() {
       >
         {/* Header */}
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12, paddingTop: Platform.OS === "web" ? insets.top + 67 : insets.top + 16, paddingBottom: 16 }}>
-          <Pressable onPress={() => router.back()}>
-            <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={24} color={theme.text} />
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={8}
+            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+          >
+            <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={20} color={theme.text} />
           </Pressable>
           <Text style={{ flex: 1, fontSize: 20, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
             {getDisplayName(wallet, language)}

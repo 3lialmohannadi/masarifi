@@ -1,5 +1,6 @@
-import React from "react";
-import { View, Text, ScrollView, Pressable, Alert, Platform } from "react-native";
+import React, { useState } from "react";
+import { View, Text, ScrollView, Pressable, Platform } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -32,21 +33,16 @@ export default function TransferDetailModal() {
   const destAccount = getAccount(transfer.destination_account_id);
   const sameCurrency = sourceAccount?.currency === destAccount?.currency;
 
-  const handleDelete = () => {
-    Alert.alert(t.common.areYouSure, t.transfer.deleteConfirm, [
-      { text: t.common.cancel, style: "cancel" },
-      {
-        text: t.transfer.delete,
-        style: "destructive",
-        onPress: () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          updateBalance(transfer.source_account_id, transfer.source_amount);
-          updateBalance(transfer.destination_account_id, -transfer.destination_amount);
-          deleteTransfer(transfer.id);
-          router.back();
-        },
-      },
-    ]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+  const handleDelete = () => setShowConfirmDelete(true);
+
+  const confirmDelete = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    updateBalance(transfer.source_account_id, transfer.source_amount);
+    updateBalance(transfer.destination_account_id, -transfer.destination_amount);
+    deleteTransfer(transfer.id);
+    router.back();
   };
 
   const Row = ({
@@ -262,6 +258,15 @@ export default function TransferDetailModal() {
           </Pressable>
         </View>
       </ScrollView>
+
+      <ConfirmDialog
+        visible={showConfirmDelete}
+        title={t.common.areYouSure}
+        message={t.transfer.deleteConfirm}
+        confirmLabel={t.transfer.delete}
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirmDelete(false)}
+      />
     </View>
   );
 }

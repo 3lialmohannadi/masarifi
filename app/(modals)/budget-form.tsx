@@ -7,8 +7,8 @@ import {
   Platform,
   KeyboardAvoidingView,
   ScrollView,
-  Alert,
 } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -64,25 +64,19 @@ export default function BudgetFormModal() {
     router.back();
   };
 
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
   const handleDelete = () => {
     if (!existingBudget) return;
-    Alert.alert(
-      t.categories.budgetDelete,
-      language === "ar" ? "إزالة الميزانية لهذا الشهر؟" : "Remove budget for this month?",
-      [
-        { text: t.common.cancel, style: "cancel" },
-        {
-          text: t.common.delete,
-          style: "destructive",
-          onPress: () => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            deleteBudget(existingBudget.id);
-            showToast(t.categories.budgetDeleted, "success");
-            router.back();
-          },
-        },
-      ]
-    );
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDelete = () => {
+    if (!existingBudget) return;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    deleteBudget(existingBudget.id);
+    showToast(t.categories.budgetDeleted, "success");
+    router.back();
   };
 
   return (
@@ -274,6 +268,14 @@ export default function BudgetFormModal() {
             )}
           </View>
         </ScrollView>
+
+        <ConfirmDialog
+          visible={showConfirmDelete}
+          title={t.categories.budgetDelete}
+          message={language === "ar" ? "إزالة الميزانية لهذا الشهر؟" : "Remove budget for this month?"}
+          onConfirm={confirmDelete}
+          onCancel={() => setShowConfirmDelete(false)}
+        />
       </View>
     </KeyboardAvoidingView>
   );

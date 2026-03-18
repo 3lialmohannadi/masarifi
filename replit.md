@@ -15,6 +15,10 @@ Masarifi is a bilingual (Arabic/English) personal finance mobile app built with 
 
 **Card Shadows:** Platform-aware — `boxShadow` on web, native `shadow*` props on iOS/Android (light mode only). Shadow utility functions (`cardShadow`, `strongShadow`, `subtleShadow`) are exported from `theme/colors.ts`. Use these helpers for new components.
 
+**ConfirmDialog:** All delete/destructive confirmations use `components/ui/ConfirmDialog.tsx` instead of `Alert.alert`. The dialog shows an animated modal with icon, title, message, cancel and confirm buttons. Import and use `<ConfirmDialog visible={...} title={...} message={...} onConfirm={...} onCancel={...} />`. Never use `Alert.alert` for destructive operations.
+
+**Toast types:** `"success"` (green), `"error"` (red), `"info"` (teal), `"warning"` (amber). Use `"warning"` when an action cannot be completed (e.g. deleting a category that's in use). The `ToastType` is defined in `store/AppContext.tsx`.
+
 **Design Tokens (strictly enforced across all screens):**
 - Screen title: `fontSize: 22, fontWeight: "800"` — applies to ALL screens (tab and stack)
 - Screen horizontal padding: `paddingHorizontal: 20` — both tab and stack screens

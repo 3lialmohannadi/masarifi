@@ -8,18 +8,21 @@ const ICONS: Record<string, string> = {
   success: "check-circle",
   error: "x-circle",
   info: "info",
+  warning: "alert-triangle",
 };
 
 const BG_COLORS: Record<string, string> = {
   success: "#16A34A",
   error: "#DC2626",
   info: "#2F8F83",
+  warning: "#D97706",
 };
 
 const ACCENT_COLORS: Record<string, string> = {
   success: "rgba(255,255,255,0.25)",
   error: "rgba(255,255,255,0.25)",
   info: "rgba(255,255,255,0.25)",
+  warning: "rgba(255,255,255,0.25)",
 };
 
 interface ToastProps {

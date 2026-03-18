@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, Platform, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Platform } from "react-native";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -15,8 +16,6 @@ export default function DebtDetailScreen() {
   const insets = useSafeAreaInsets();
   const { theme, language, isRTL, t, isDark, showToast } = useApp();
   const { debts, deleteDebt, updateDebt, getPaymentsForDebt, deletePayment } = useDebts();
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
   const debt = debts.find((d) => d.id === id);
 
   if (!debt) {
@@ -53,24 +52,18 @@ export default function DebtDetailScreen() {
         elevation: 2,
       };
 
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+
   function handleDelete() {
+    setShowConfirmDelete(true);
+  }
+
+  function confirmDeleteDebt() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    Alert.alert(
-      t.debts.delete,
-      t.debts.deleteConfirm,
-      [
-        { text: t.common.cancel, style: "cancel" },
-        {
-          text: t.common.delete,
-          style: "destructive",
-          onPress: () => {
-            if (debt) deleteDebt(debt.id);
-            router.back();
-            showToast(t.toast.deleted, "success");
-          },
-        },
-      ]
-    );
+    if (debt) deleteDebt(debt.id);
+    router.back();
+    showToast(t.toast.deleted, "success");
   }
 
   function InfoRow({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
@@ -202,24 +195,14 @@ export default function DebtDetailScreen() {
         {debt.status !== "completed" && (
           <Pressable
             onPress={() => {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-              Alert.alert(
-                debt.status === "cancelled" ? t.debts.reactivateDebt : t.debts.cancelDebt,
-                debt.status === "cancelled" ? "" : t.debts.cancelDebtConfirm,
-                [
-                  { text: t.common.cancel, style: "cancel" },
-                  {
-                    text: debt.status === "cancelled" ? t.debts.reactivateDebt : t.debts.cancelDebt,
-                    style: debt.status === "cancelled" ? "default" : "destructive",
-                    onPress: () => {
-                      const newStatus: import("@/types").DebtStatus = debt.status === "cancelled" ? "active" : "cancelled";
-                      updateDebt(debt.id, { status: newStatus });
-                      showToast(t.toast.saved, "success");
-                      router.back();
-                    },
-                  },
-                ]
-              );
+              if (debt.status === "cancelled") {
+                const newStatus: import("@/types").DebtStatus = "active";
+                updateDebt(debt.id, { status: newStatus });
+                showToast(t.toast.saved, "success");
+                router.back();
+              } else {
+                setShowConfirmCancel(true);
+              }
             }}
             style={({ pressed }) => ({
               borderRadius: 16,
@@ -287,6 +270,30 @@ export default function DebtDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      <ConfirmDialog
+        visible={showConfirmDelete}
+        title={t.debts.delete}
+        message={t.debts.deleteConfirm}
+        onConfirm={confirmDeleteDebt}
+        onCancel={() => setShowConfirmDelete(false)}
+      />
+
+      <ConfirmDialog
+        visible={showConfirmCancel}
+        title={t.debts.cancelDebt}
+        message={t.debts.cancelDebtConfirm}
+        confirmLabel={t.debts.cancelDebt}
+        icon="x-circle"
+        confirmColor="#6B7280"
+        onConfirm={() => {
+          updateDebt(debt.id, { status: "cancelled" });
+          showToast(t.toast.saved, "success");
+          setShowConfirmCancel(false);
+          router.back();
+        }}
+        onCancel={() => setShowConfirmCancel(false)}
+      />
     </View>
   );
 }
