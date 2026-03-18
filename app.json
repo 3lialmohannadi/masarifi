@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.masarifi.app",
-      "buildNumber": "12"
+      "buildNumber": "14"
     },
     "android": {
       "package": "com.masarifi.app",
