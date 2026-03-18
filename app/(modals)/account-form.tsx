@@ -78,6 +78,7 @@ export default function AccountFormModal() {
       } else {
         addAccount(data);
       }
+      showToast(t.toast.saved, "success");
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);

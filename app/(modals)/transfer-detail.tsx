@@ -80,23 +80,31 @@ export default function TransferDetailModal() {
         style={{
           flexDirection: isRTL ? "row-reverse" : "row",
           alignItems: "center",
-          justifyContent: "space-between",
+          gap: 12,
           paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16),
           paddingHorizontal: 16,
-          paddingBottom: 12,
+          paddingBottom: 14,
           backgroundColor: theme.card,
           borderBottomWidth: 1,
           borderBottomColor: theme.border,
         }}
       >
-        <Pressable onPress={() => router.back()}>
-          <Feather name="x" size={24} color={theme.textSecondary} />
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name="x" size={18} color={theme.text} />
         </Pressable>
-        <Text style={{ fontSize: 17, fontWeight: "700", color: theme.text }}>
+        <Text style={{ flex: 1, fontSize: 17, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {t.transfer.detail}
         </Text>
-        <Pressable onPress={handleDelete}>
-          <Feather name="trash-2" size={20} color={theme.expense} />
+        <Pressable
+          onPress={handleDelete}
+          hitSlop={8}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.expense + "15", borderWidth: 1, borderColor: theme.expense + "30", alignItems: "center", justifyContent: "center" }}
+        >
+          <Feather name="trash-2" size={18} color={theme.expense} />
         </Pressable>
       </View>
 

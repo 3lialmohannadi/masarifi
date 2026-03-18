@@ -74,6 +74,7 @@ export default function SavingWalletFormModal() {
       } else {
         addWallet(data);
       }
+      showToast(t.toast.saved, "success");
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);

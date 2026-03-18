@@ -458,9 +458,32 @@ export default function TransactionsTab() {
           contentContainerStyle={{ paddingBottom: insets.bottom + (Platform.OS === "web" ? 90 : 110) }}
           ListEmptyComponent={
             <EmptyState
-              icon="repeat"
+              icon={filter === "transfer" ? "repeat" : "plus-circle"}
               title={filter === "transfer" ? t.transfer.noTransfers : t.transactions.noTransactions}
               subtitle={filter === "transfer" ? t.transfer.addFirstTransfer : t.transactions.addFirst}
+              action={
+                <Pressable
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    router.push(filter === "transfer" ? "/(modals)/transfer-form" : "/(modals)/add-transaction");
+                  }}
+                  style={{
+                    marginTop: 4,
+                    paddingHorizontal: 24,
+                    paddingVertical: 12,
+                    borderRadius: 14,
+                    backgroundColor: theme.primary,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <Feather name="plus" size={16} color="#fff" />
+                  <Text style={{ color: "#fff", fontWeight: "700", fontSize: 14 }}>
+                    {filter === "transfer" ? t.transfer.title : t.transactions.add}
+                  </Text>
+                </Pressable>
+              }
             />
           }
           showsVerticalScrollIndicator={false}

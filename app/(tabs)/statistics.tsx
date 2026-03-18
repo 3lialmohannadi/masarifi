@@ -17,6 +17,8 @@ import { getDisplayName } from "@/utils/display";
 import { formatCurrency } from "@/utils/currency";
 import { buildTransactionsCSV, shareCSV, buildCSVFilename } from "@/utils/export";
 import { useMonthPicker, MONTH_NAMES_AR, MONTH_NAMES_EN } from "@/hooks/useMonthPicker";
+import { router } from "expo-router";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useTrendData } from "@/hooks/useTrendData";
 import type { Language } from "@/types";
 
@@ -601,6 +603,38 @@ export default function StatisticsTab() {
         </ExpoLinearGradient>
 
         <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 20 }}>
+
+          {/* ── No-data guidance ── */}
+          {monthTxs.length === 0 && monthTransfers.length === 0 && (
+            <EmptyState
+              icon="bar-chart-2"
+              title={t.statistics.noData}
+              subtitle={language === "ar" ? "أضف معاملاتك لهذا الشهر لعرض الإحصائيات" : "Add transactions this month to see your statistics"}
+              action={
+                <Pressable
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    router.push("/(modals)/add-transaction");
+                  }}
+                  style={{
+                    marginTop: 4,
+                    paddingHorizontal: 24,
+                    paddingVertical: 12,
+                    borderRadius: 14,
+                    backgroundColor: theme.primary,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <Feather name="plus" size={16} color="#fff" />
+                  <Text style={{ color: "#fff", fontWeight: "700", fontSize: 14 }}>
+                    {t.transactions.add}
+                  </Text>
+                </Pressable>
+              }
+            />
+          )}
 
           {/* ── Monthly Summary ── */}
           <View style={{ gap: 8 }}>
