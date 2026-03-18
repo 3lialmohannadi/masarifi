@@ -330,6 +330,33 @@ export default function DashboardScreen() {
                       </Text>
                     </View>
                   </View>
+                  <View style={{
+                    backgroundColor: realAvailable < 0 ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
+                    borderRadius: 12,
+                    padding: 10,
+                    gap: 2,
+                    borderWidth: 1,
+                    borderColor: realAvailable < 0 ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)",
+                  }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                      <Feather
+                        name={realAvailable < 0 ? "alert-circle" : "check-circle"}
+                        size={11}
+                        color={realAvailable < 0 ? "rgba(239,68,68,0.9)" : "rgba(34,197,94,0.9)"}
+                      />
+                      <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>
+                        {t.dashboard.realAvailable}
+                      </Text>
+                    </View>
+                    <Text style={{
+                      fontSize: 14,
+                      fontWeight: "700",
+                      color: realAvailable < 0 ? "#F87171" : "#4ADE80",
+                      textAlign: isRTL ? "right" : "left",
+                    }} numberOfLines={1}>
+                      {formatCurrency(realAvailable, currency, language)}
+                    </Text>
+                  </View>
                 </View>
               );
             })()}
