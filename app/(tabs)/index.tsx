@@ -156,7 +156,7 @@ export default function DashboardScreen() {
           }}
         >
           {/* Left: Logo + Greeting */}
-          <View style={{ gap: 10, flex: 1 }}>
+          <View style={{ gap: 10, flex: 1, alignItems: isRTL ? "flex-end" : "flex-start" }}>
             <AppLogo language={language} isDark={isDark} primaryColor={theme.primary} size="md" />
             {firstName ? (
               <View style={{ gap: 2 }}>
