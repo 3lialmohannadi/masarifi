@@ -1,0 +1,93 @@
+Running "expo doctor"
+Running 17 checks on your project...
+14/17 checks passed. 3 checks failed. Possible issues detected:
+Use the --verbose flag to see more details about passed checks.
+
+✖ Check Expo config (app.json/ app.config.js) schema
+Error validating fields in /Users/expo/workingdir/build/app.json:
+ should NOT have additional property 'newArchEnabled'.
+Advice:
+Resolve schema errors in your app config. Learn more: https://docs.expo.dev/workflow/configuration/
+
+✖ Check that no duplicate dependencies are installed
+Your project contains duplicate native module dependencies, which should be de-duplicated.
+Native builds may only contain one version of any given native module, and having multiple versions of a single Native module installed may lead to unexpected build errors.
+Found duplicates for expo-constants:
+  ├─ expo-constants@18.0.13 (at: node_modules/expo-constants)
+  ├─ expo-constants@55.0.8 (at: node_modules/expo/node_modules/expo-constants)
+  ├─ expo-constants@55.0.8 (at: node_modules/expo-asset/node_modules/expo-constants)
+  └─ expo-constants@55.0.8 (at: node_modules/expo-notifications/node_modules/expo-constants)
+Found duplicates for expo-font:
+  ├─ expo-font@14.0.11 (at: node_modules/expo-font)
+  └─ expo-font@55.0.4 (at: node_modules/expo/node_modules/expo-font)
+Advice:
+Resolve your dependency issues and deduplicate your dependencies. Learn more: https://expo.fyi/resolving-dependency-issues
+
+✖ Check that packages match versions required by installed Expo SDK
+
+❗ Major version mismatches
+package                           expected  found    
+expo-blur                         ~55.0.10  15.0.8   
+expo-constants                    ~55.0.8   18.0.13  
+expo-crypto                       ~55.0.10  15.0.8   
+expo-font                         ~55.0.4   14.0.11  
+expo-glass-effect                 ~55.0.8   0.1.8    
+expo-haptics                      ~55.0.9   15.0.8   
+expo-image                        ~55.0.6   3.0.11   
+expo-image-picker                 ~55.0.13  17.0.10  
+expo-linear-gradient              ~55.0.9   15.0.8   
+expo-linking                      ~55.0.7   8.0.11   
+expo-location                     ~55.1.3   19.0.8   
+expo-router                       ~55.0.6   6.0.23   
+expo-splash-screen                ~55.0.11  31.0.13  
+expo-status-bar                   ~55.0.4   3.0.9    
+expo-symbols                      ~55.0.5   1.0.8    
+expo-system-ui                    ~55.0.10  6.0.9    
+expo-video                        ~55.0.11  3.0.16   
+expo-web-browser                  ~55.0.10  15.0.10  
+eslint-config-expo                ~55.0.0   10.0.0   
+
+⚠️ Minor version mismatches
+package                           expected  found    
+react                             19.2.0    19.1.0   
+react-dom                         19.2.0    19.1.0   
+react-native                      0.83.2    0.81.5   
+react-native-gesture-handler      ~2.30.0   2.28.0   
+react-native-reanimated           4.2.1     4.1.6    
+react-native-screens              ~4.23.0   4.16.0   
+react-native-svg                  15.15.3   15.12.1  
+react-native-worklets             0.7.2     0.5.1    
+@types/react                      ~19.2.10  19.1.17  
+
+🔧 Patch version mismatches
+package                           expected  found    
+expo-sharing                      ~55.0.12  55.0.11  
+react-native-keyboard-controller  1.20.7    1.20.6   
+
+Changelogs:
+- expo-blur → https://github.com/expo/expo/blob/sdk-55/packages/expo-blur/CHANGELOG.md
+- expo-constants → https://github.com/expo/expo/blob/sdk-55/packages/expo-constants/CHANGELOG.md
+- expo-crypto → https://github.com/expo/expo/blob/sdk-55/packages/expo-crypto/CHANGELOG.md
+- expo-font → https://github.com/expo/expo/blob/sdk-55/packages/expo-font/CHANGELOG.md
+- expo-glass-effect → https://github.com/expo/expo/blob/sdk-55/packages/expo-glass-effect/CHANGELOG.md
+- expo-haptics → https://github.com/expo/expo/blob/sdk-55/packages/expo-haptics/CHANGELOG.md
+- expo-image → https://github.com/expo/expo/blob/sdk-55/packages/expo-image/CHANGELOG.md
+- expo-image-picker → https://github.com/expo/expo/blob/sdk-55/packages/expo-image-picker/CHANGELOG.md
+- expo-linear-gradient → https://github.com/expo/expo/blob/sdk-55/packages/expo-linear-gradient/CHANGELOG.md
+- expo-linking → https://github.com/expo/expo/blob/sdk-55/packages/expo-linking/CHANGELOG.md
+- expo-location → https://github.com/expo/expo/blob/sdk-55/packages/expo-location/CHANGELOG.md
+- expo-router → https://github.com/expo/expo/blob/sdk-55/packages/expo-router/CHANGELOG.md
+- expo-sharing → https://github.com/expo/expo/blob/sdk-55/packages/expo-sharing/CHANGELOG.md
+- expo-splash-screen → https://github.com/expo/expo/blob/sdk-55/packages/expo-splash-screen/CHANGELOG.md
+- expo-status-bar → https://github.com/expo/expo/blob/sdk-55/packages/expo-status-bar/CHANGELOG.md
+- expo-symbols → https://github.com/expo/expo/blob/sdk-55/packages/expo-symbols/CHANGELOG.md
+- expo-system-ui → https://github.com/expo/expo/blob/sdk-55/packages/expo-system-ui/CHANGELOG.md
+- expo-video → https://github.com/expo/expo/blob/sdk-55/packages/expo-video/CHANGELOG.md
+- expo-web-browser → https://github.com/expo/expo/blob/sdk-55/packages/expo-web-browser/CHANGELOG.md
+
+30 packages out of date.
+Advice:
+Use 'npx expo install --check' to review and upgrade your dependencies.
+To ignore specific packages, add them to "expo.install.exclude" in package.json. Learn more: https://expo.fyi/dependency-validation
+3 checks failed, indicating possible issues with the project.
+Command "expo doctor" failed.
