@@ -80,7 +80,7 @@ function DonutChart({ slices, totalAmount, currency, language, theme, isRTL }: {
         {slices.slice(0, 6).map((s, i) => {
           const hasBudget = s.budget != null && s.budget > 0;
           const budgetPct = hasBudget ? Math.min(s.amount / s.budget!, 1) : 0;
-          const budgetColor = budgetPct >= 1 ? "#EF4444" : budgetPct >= 0.75 ? "#F59E0B" : theme.primary;
+          const budgetColor = budgetPct >= 1 ? theme.expense : budgetPct >= 0.75 ? "#F59E0B" : theme.primary;
           const shortAmount = (v: number) => {
             const fmt = formatCurrency(v, currency, language);
             return fmt.length > 9 ? fmt.slice(0, 9) + "…" : fmt;
@@ -157,8 +157,8 @@ function BarChart({ data, theme, isRTL, forecastLine }: { data: BarMonth[]; them
         const expX = groupX + 2;
         return (
           <G key={d.label}>
-            <Rect x={incX} y={paddingTop + barH - incH} width={barW} height={incH} rx={3} fill="#22C55E99" />
-            <Rect x={expX} y={paddingTop + barH - expH} width={barW} height={expH} rx={3} fill="#EF444499" />
+            <Rect x={incX} y={paddingTop + barH - incH} width={barW} height={incH} rx={3} fill={theme.income + "99"} />
+            <Rect x={expX} y={paddingTop + barH - expH} width={barW} height={expH} rx={3} fill={theme.expense + "99"} />
             <SvgText x={groupX} y={chartH - 4} textAnchor="middle" fill={theme.textMuted} fontSize={9} fontWeight="500">
               {d.label}
             </SvgText>
@@ -271,12 +271,12 @@ function DualTrendChart({ data, theme, isRTL }: { data: TrendChartMonth[]; theme
     <Svg width={chartW} height={chartH}>
       <Defs>
         <LinearGradient id="incArea" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0%" stopColor="#22C55E" stopOpacity={0.18} />
-          <Stop offset="100%" stopColor="#22C55E" stopOpacity={0.01} />
+          <Stop offset="0%" stopColor={theme.income} stopOpacity={0.18} />
+          <Stop offset="100%" stopColor={theme.income} stopOpacity={0.01} />
         </LinearGradient>
         <LinearGradient id="expArea" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0%" stopColor="#EF4444" stopOpacity={0.14} />
-          <Stop offset="100%" stopColor="#EF4444" stopOpacity={0.01} />
+          <Stop offset="0%" stopColor={theme.expense} stopOpacity={0.14} />
+          <Stop offset="100%" stopColor={theme.expense} stopOpacity={0.01} />
         </LinearGradient>
       </Defs>
       {[0, 0.33, 0.66, 1].map((pct) => (
@@ -289,13 +289,13 @@ function DualTrendChart({ data, theme, isRTL }: { data: TrendChartMonth[]; theme
       ))}
       <Polygon points={incAreaPoints} fill="url(#incArea)" />
       <Polygon points={expAreaPoints} fill="url(#expArea)" />
-      <Polyline points={toPolyPoints(incPts)} fill="none" stroke="#22C55E" strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />
-      <Polyline points={toPolyPoints(expPts)} fill="none" stroke="#EF4444" strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />
+      <Polyline points={toPolyPoints(incPts)} fill="none" stroke={theme.income} strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />
+      <Polyline points={toPolyPoints(expPts)} fill="none" stroke={theme.expense} strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />
       {displayData.map((d, i) => (
         <G key={i}>
-          <Circle cx={incPts[i].x} cy={incPts[i].y} r={3.5} fill="#22C55E" />
+          <Circle cx={incPts[i].x} cy={incPts[i].y} r={3.5} fill={theme.income} />
           <Circle cx={incPts[i].x} cy={incPts[i].y} r={1.8} fill={theme.card} />
-          <Circle cx={expPts[i].x} cy={expPts[i].y} r={3.5} fill="#EF4444" />
+          <Circle cx={expPts[i].x} cy={expPts[i].y} r={3.5} fill={theme.expense} />
           <Circle cx={expPts[i].x} cy={expPts[i].y} r={1.8} fill={theme.card} />
           <SvgText x={incPts[i].x} y={chartH - 4} textAnchor="middle" fill={theme.textMuted} fontSize={9} fontWeight="500">
             {d.label}
@@ -452,7 +452,7 @@ export default function StatisticsTab() {
   const savingsRate = totalIncome > 0
     ? ((totalIncome - totalExpense) / totalIncome) * 100
     : 0;
-  const savingsRateColor = savingsRate >= 20 ? "#22C55E" : savingsRate >= 10 ? "#F59E0B" : "#EF4444";
+  const savingsRateColor = savingsRate >= 20 ? theme.income : savingsRate >= 10 ? "#F59E0B" : theme.expense;
 
   // ── Spending Forecast (current month only) ──────────────────────────────────
   const today = new Date();
@@ -542,12 +542,12 @@ export default function StatisticsTab() {
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "rgba(255,255,255,0.07)", borderRadius: 16, padding: 16 }}>
             <View style={{ flex: 1, marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }}>
               <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{t.statistics.netSavings}</Text>
-              <Text style={{ fontSize: 26, fontWeight: "800", color: netSavings >= 0 ? "#22C55E" : "#EF4444", marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>
+              <Text style={{ fontSize: 26, fontWeight: "800", color: netSavings >= 0 ? theme.income : theme.expense, marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>
                 {netSavings >= 0 ? "+" : ""}{formatCurrency(netSavings, primaryCurrency, language)}
               </Text>
             </View>
-            <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: (netSavings >= 0 ? "#22C55E" : "#EF4444") + "20", alignItems: "center", justifyContent: "center" }}>
-              <Feather name={netSavings >= 0 ? "trending-up" : "trending-down"} size={26} color={netSavings >= 0 ? "#22C55E" : "#EF4444"} />
+            <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: (netSavings >= 0 ? theme.income : theme.expense) + "20", alignItems: "center", justifyContent: "center" }}>
+              <Feather name={netSavings >= 0 ? "trending-up" : "trending-down"} size={26} color={netSavings >= 0 ? theme.income : theme.expense} />
             </View>
           </View>
 
@@ -556,8 +556,8 @@ export default function StatisticsTab() {
             <View style={{ flex: 1, backgroundColor: "rgba(34,197,94,0.12)", borderRadius: 14, padding: 14, gap: 4, borderWidth: 1, borderColor: "rgba(34,197,94,0.2)" }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
-                  <Feather name="arrow-down-left" size={13} color="#22C55E" />
-                  <Text style={{ fontSize: 11, color: "#22C55E", fontWeight: "600" }}>{t.transactions.income}</Text>
+                  <Feather name="arrow-down-left" size={13} color={theme.income} />
+                  <Text style={{ fontSize: 11, color: theme.income, fontWeight: "600" }}>{t.transactions.income}</Text>
                 </View>
                 {incomeDelta !== null && (
                   <View style={{
@@ -566,21 +566,21 @@ export default function StatisticsTab() {
                     borderRadius: 8,
                     backgroundColor: incomeDelta >= 0 ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)",
                   }}>
-                    <Text style={{ fontSize: 9, fontWeight: "700", color: incomeDelta >= 0 ? "#22C55E" : "#EF4444" }}>
+                    <Text style={{ fontSize: 9, fontWeight: "700", color: incomeDelta >= 0 ? theme.income : theme.expense }}>
                       {incomeDelta >= 0 ? "+" : ""}{Math.round(incomeDelta)}%
                     </Text>
                   </View>
                 )}
               </View>
-              <Text style={{ fontSize: 17, fontWeight: "800", color: "#22C55E" }} numberOfLines={1}>
+              <Text style={{ fontSize: 17, fontWeight: "800", color: theme.income }} numberOfLines={1}>
                 {formatCurrency(totalIncome, primaryCurrency, language)}
               </Text>
             </View>
             <View style={{ flex: 1, backgroundColor: "rgba(239,68,68,0.12)", borderRadius: 14, padding: 14, gap: 4, borderWidth: 1, borderColor: "rgba(239,68,68,0.2)" }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
-                  <Feather name="arrow-up-right" size={13} color="#EF4444" />
-                  <Text style={{ fontSize: 11, color: "#EF4444", fontWeight: "600" }}>{t.transactions.expense}</Text>
+                  <Feather name="arrow-up-right" size={13} color={theme.expense} />
+                  <Text style={{ fontSize: 11, color: theme.expense, fontWeight: "600" }}>{t.transactions.expense}</Text>
                 </View>
                 {expenseDelta !== null && (
                   <View style={{
@@ -589,13 +589,13 @@ export default function StatisticsTab() {
                     borderRadius: 8,
                     backgroundColor: expenseDelta <= 0 ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)",
                   }}>
-                    <Text style={{ fontSize: 9, fontWeight: "700", color: expenseDelta <= 0 ? "#22C55E" : "#EF4444" }}>
+                    <Text style={{ fontSize: 9, fontWeight: "700", color: expenseDelta <= 0 ? theme.income : theme.expense }}>
                       {expenseDelta >= 0 ? "+" : ""}{Math.round(expenseDelta)}%
                     </Text>
                   </View>
                 )}
               </View>
-              <Text style={{ fontSize: 17, fontWeight: "800", color: "#EF4444" }} numberOfLines={1}>
+              <Text style={{ fontSize: 17, fontWeight: "800", color: theme.expense }} numberOfLines={1}>
                 {formatCurrency(totalExpense, primaryCurrency, language)}
               </Text>
             </View>
@@ -643,8 +643,8 @@ export default function StatisticsTab() {
             </Text>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", flexWrap: "wrap", gap: 10 }}>
               {[
-                { label: t.statistics.income, value: totalIncome, color: "#22C55E", icon: "arrow-down-left" },
-                { label: t.statistics.expense, value: totalExpense, color: "#EF4444", icon: "arrow-up-right" },
+                { label: t.statistics.income, value: totalIncome, color: theme.income, icon: "arrow-down-left" },
+                { label: t.statistics.expense, value: totalExpense, color: theme.expense, icon: "arrow-up-right" },
                 { label: t.statistics.savings, value: monthSavingsDeposited, color: theme.primary, icon: "archive" },
                 { label: t.statistics.remaining, value: monthRemaining, color: monthRemaining >= 0 ? "#3B82F6" : "#F59E0B", icon: monthRemaining >= 0 ? "pocket" : "alert-circle" },
               ].map((item) => (
@@ -684,19 +684,19 @@ export default function StatisticsTab() {
             {/* Forecast */}
             <View style={{ flex: 1, backgroundColor: theme.card, borderRadius: 16, padding: 14, gap: 6, borderWidth: 1, borderColor: theme.border }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: (forecastHigher ? "#EF4444" : "#3B82F6") + "20", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="activity" size={13} color={forecastHigher ? "#EF4444" : "#3B82F6"} />
+                <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: (forecastHigher ? theme.expense : "#3B82F6") + "20", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="activity" size={13} color={forecastHigher ? theme.expense : "#3B82F6"} />
                 </View>
                 <Text style={{ fontSize: 11, fontWeight: "600", color: theme.textSecondary, flex: 1 }} numberOfLines={1}>{t.statistics.forecastCard}</Text>
               </View>
               {forecastedExpense !== null ? (
                 <>
                   <Text style={{ fontSize: 9, color: theme.textSecondary, marginTop: 2 }}>{t.statistics.forecastLabel}</Text>
-                  <Text style={{ fontSize: 14, fontWeight: "800", color: forecastHigher ? "#EF4444" : theme.text }} numberOfLines={1}>
+                  <Text style={{ fontSize: 14, fontWeight: "800", color: forecastHigher ? theme.expense : theme.text }} numberOfLines={1}>
                     {formatCurrency(forecastedExpense, primaryCurrency, language)}
                   </Text>
                   {forecastHigher && (
-                    <Text style={{ fontSize: 9, color: "#EF4444" }} numberOfLines={1}>{t.statistics.forecastHigher}</Text>
+                    <Text style={{ fontSize: 9, color: theme.expense }} numberOfLines={1}>{t.statistics.forecastHigher}</Text>
                   )}
                   <Text style={{ fontSize: 9, color: theme.textMuted }}>
                     {language === "ar" ? `${elapsedDays} / ${daysInMonth} يوم` : `${elapsedDays} / ${daysInMonth} days`}
@@ -849,11 +849,11 @@ export default function StatisticsTab() {
             </View>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 16 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                <View style={{ width: 18, height: 3, borderRadius: 2, backgroundColor: "#22C55E" }} />
+                <View style={{ width: 18, height: 3, borderRadius: 2, backgroundColor: theme.income }} />
                 <Text style={{ fontSize: 11, color: theme.textSecondary }}>{t.transactions.income}</Text>
               </View>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                <View style={{ width: 18, height: 3, borderRadius: 2, backgroundColor: "#EF4444" }} />
+                <View style={{ width: 18, height: 3, borderRadius: 2, backgroundColor: theme.expense }} />
                 <Text style={{ fontSize: 11, color: theme.textSecondary }}>{t.transactions.expense}</Text>
               </View>
             </View>
@@ -872,7 +872,7 @@ export default function StatisticsTab() {
             </View>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 16 }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                <View style={{ width: 12, height: 10, borderRadius: 2, backgroundColor: "#22C55E99" }} />
+                <View style={{ width: 12, height: 10, borderRadius: 2, backgroundColor: theme.income + "99" }} />
                 <Text style={{ fontSize: 11, color: theme.textSecondary }}>{t.transactions.income}</Text>
               </View>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>

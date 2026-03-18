@@ -121,7 +121,7 @@ export default function AccountsListScreen() {
               borderBottomColor: theme.border,
               ...(isDark ? {} : Platform.OS === "web"
                 ? { boxShadow: "0 2px 8px rgba(47,143,131,0.08)" }
-                : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
+                : { shadowColor: theme.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 }),
             })}
           >
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: item.color + "20", alignItems: "center", justifyContent: "center" }}>

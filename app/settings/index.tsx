@@ -541,9 +541,9 @@ export default function SettingsScreen() {
                 <Feather
                   name={notifPermission === "granted" ? "check-circle" : notifPermission === "denied" ? "x-circle" : "info"}
                   size={13}
-                  color={notifPermission === "granted" ? "#22C55E" : notifPermission === "denied" ? "#EF4444" : "#F59E0B"}
+                  color={notifPermission === "granted" ? theme.success : notifPermission === "denied" ? theme.error : "#F59E0B"}
                 />
-                <Text style={{ fontSize: 12, color: notifPermission === "granted" ? "#22C55E" : notifPermission === "denied" ? "#EF4444" : "#F59E0B" }}>
+                <Text style={{ fontSize: 12, color: notifPermission === "granted" ? theme.success : notifPermission === "denied" ? theme.error : "#F59E0B" }}>
                   {notifPermission === "granted"
                     ? t.settings.notifPermGranted
                     : notifPermission === "denied"
@@ -554,9 +554,9 @@ export default function SettingsScreen() {
               {notifPermission === "denied" && (
                 <Pressable
                   onPress={() => Linking.openSettings()}
-                  style={{ backgroundColor: "#EF444415", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: "#EF444430" }}
+                  style={{ backgroundColor: theme.error + "15", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, borderWidth: 1, borderColor: theme.error + "30" }}
                 >
-                  <Text style={{ fontSize: 11, color: "#EF4444", fontWeight: "600" }}>{t.settings.notifOpenSettings}</Text>
+                  <Text style={{ fontSize: 11, color: theme.error, fontWeight: "600" }}>{t.settings.notifOpenSettings}</Text>
                 </Pressable>
               )}
             </View>
@@ -727,9 +727,9 @@ export default function SettingsScreen() {
             gap: 14,
             padding: 14,
             borderRadius: 16,
-            backgroundColor: resetDone ? "#EF444415" : pressed ? "#EF444410" : theme.card,
+            backgroundColor: resetDone ? theme.error + "15" : pressed ? theme.error + "10" : theme.card,
             borderWidth: 1.5,
-            borderColor: resetDone ? "#EF4444" : "#EF444440",
+            borderColor: resetDone ? theme.error : theme.error + "40",
             marginBottom: 8,
           })}
         >
@@ -737,18 +737,18 @@ export default function SettingsScreen() {
             <Feather
               name={resetDone ? "check-circle" : "trash-2"}
               size={18}
-              color="#EF4444"
+              color={theme.error}
             />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 15, fontWeight: "600", color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>
+            <Text style={{ fontSize: 15, fontWeight: "600", color: theme.error, textAlign: isRTL ? "right" : "left" }}>
               {resetDone ? t.settings.resetSuccess : t.settings.reset}
             </Text>
             <Text style={{ fontSize: 12, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>
               {t.settings.resetDesc}
             </Text>
           </View>
-          {!resetDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color="#EF444460" />}
+          {!resetDone && <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={16} color={theme.error + "60"} />}
         </Pressable>
 
         {/* ── 8. Support ── */}
@@ -793,20 +793,20 @@ export default function SettingsScreen() {
               padding: 24,
               gap: 16,
               borderWidth: 1.5,
-              borderColor: "#EF444440",
+              borderColor: theme.error + "40",
             }}
             onPress={() => {}}
           >
             <View style={{ alignItems: "center", gap: 8 }}>
               <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: "#EF444420", alignItems: "center", justifyContent: "center" }}>
-                <Feather name="alert-triangle" size={30} color="#EF4444" />
+                <Feather name="alert-triangle" size={30} color={theme.error} />
               </View>
-              <Text style={{ fontSize: 20, fontWeight: "800", color: "#EF4444", textAlign: "center" }}>
+              <Text style={{ fontSize: 20, fontWeight: "800", color: theme.error, textAlign: "center" }}>
                 {t.settings.resetConfirmTitle}
               </Text>
             </View>
 
-            <View style={{ backgroundColor: "#EF444410", borderRadius: 12, padding: 14, borderWidth: 1, borderColor: "#EF444425" }}>
+            <View style={{ backgroundColor: theme.error + "10", borderRadius: 12, padding: 14, borderWidth: 1, borderColor: "#EF444425" }}>
               <Text style={{ fontSize: 14, color: theme.text, textAlign: isRTL ? "right" : "left", lineHeight: 22 }}>
                 {t.settings.resetConfirmMessage}
               </Text>
@@ -839,7 +839,7 @@ export default function SettingsScreen() {
                   padding: 14,
                   borderRadius: 12,
                   alignItems: "center",
-                  backgroundColor: resetting ? "#EF444460" : pressed ? "#DC2626" : "#EF4444",
+                  backgroundColor: resetting ? theme.error + "60" : pressed ? "#DC2626" : theme.error,
                 })}
               >
                 {resetting ? (

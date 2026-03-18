@@ -172,7 +172,7 @@ export default function TransferFormModal() {
           <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>{t.transfer.fromAccount}</Text>
           <Pressable
             onPress={() => setShowFrom(true)}
-            style={{ backgroundColor: theme.input, borderRadius: 12, borderWidth: 1.5, borderColor: errors.from ? "#EF4444" : theme.inputBorder, padding: 13, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}
+            style={{ backgroundColor: theme.input, borderRadius: 12, borderWidth: 1.5, borderColor: errors.from ? theme.error : theme.inputBorder, padding: 13, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}
           >
             {fromAccount ? (
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
@@ -185,7 +185,7 @@ export default function TransferFormModal() {
             )}
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
-          {errors.from && <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.from}</Text>}
+          {errors.from && <Text style={{ fontSize: 12, color: theme.error }}>{errors.from}</Text>}
         </View>
 
         {/* Arrow Indicator */}
@@ -200,7 +200,7 @@ export default function TransferFormModal() {
           <Text style={{ fontSize: 13, fontWeight: "500", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>{t.transfer.toAccount}</Text>
           <Pressable
             onPress={() => setShowTo(true)}
-            style={{ backgroundColor: theme.input, borderRadius: 12, borderWidth: 1.5, borderColor: errors.to ? "#EF4444" : theme.inputBorder, padding: 13, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}
+            style={{ backgroundColor: theme.input, borderRadius: 12, borderWidth: 1.5, borderColor: errors.to ? theme.error : theme.inputBorder, padding: 13, flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}
           >
             {toAccount ? (
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
@@ -213,15 +213,15 @@ export default function TransferFormModal() {
             )}
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
-          {errors.to && <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.to}</Text>}
+          {errors.to && <Text style={{ fontSize: 12, color: theme.error }}>{errors.to}</Text>}
         </View>
 
         {/* Source Amount */}
         <View style={{
-          backgroundColor: errors.amount ? "#EF444408" : theme.transfer + "08",
+          backgroundColor: errors.amount ? theme.error + "08" : theme.transfer + "08",
           borderRadius: 20,
           borderWidth: 1.5,
-          borderColor: errors.amount ? "#EF4444" : theme.transfer + "30",
+          borderColor: errors.amount ? theme.error : theme.transfer + "30",
           paddingVertical: 20,
           paddingHorizontal: 16,
           alignItems: "center",
@@ -256,8 +256,8 @@ export default function TransferFormModal() {
           )}
           {!!errors.amount && (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-              <Feather name="alert-circle" size={12} color="#EF4444" />
-              <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.amount}</Text>
+              <Feather name="alert-circle" size={12} color={theme.error} />
+              <Text style={{ fontSize: 12, color: theme.error }}>{errors.amount}</Text>
             </View>
           )}
         </View>
@@ -301,7 +301,7 @@ export default function TransferFormModal() {
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.date ? "#EF4444" : theme.inputBorder,
+              borderColor: errors.date ? theme.error : theme.inputBorder,
               paddingHorizontal: 14,
               paddingVertical: 13,
               flexDirection: isRTL ? "row-reverse" : "row",
@@ -315,7 +315,7 @@ export default function TransferFormModal() {
             </Text>
             <Feather name="chevron-down" size={14} color={theme.textMuted} />
           </Pressable>
-          {!!errors.date && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.date}</Text>}
+          {!!errors.date && <Text style={{ fontSize: 12, color: theme.error, textAlign: isRTL ? "right" : "left" }}>{errors.date}</Text>}
         </View>
 
         <AppInput

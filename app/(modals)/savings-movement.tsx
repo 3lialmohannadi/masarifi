@@ -402,7 +402,7 @@ export default function SavingsMovementModal() {
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.wallet ? "#EF4444" : theme.inputBorder,
+              borderColor: errors.wallet ? theme.error : theme.inputBorder,
               padding: 13,
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
@@ -423,7 +423,7 @@ export default function SavingsMovementModal() {
             <Feather name="chevron-down" size={16} color={theme.textMuted} style={{ marginStart: 8 }} />
           </Pressable>
           {!!errors.wallet && (
-            <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.wallet}</Text>
+            <Text style={{ fontSize: 12, color: theme.error }}>{errors.wallet}</Text>
           )}
         </View>
 
@@ -440,7 +440,7 @@ export default function SavingsMovementModal() {
                 backgroundColor: theme.input,
                 borderRadius: 12,
                 borderWidth: 1.5,
-                borderColor: errors.account ? "#EF4444" : theme.inputBorder,
+                borderColor: errors.account ? theme.error : theme.inputBorder,
                 padding: 13,
                 flexDirection: isRTL ? "row-reverse" : "row",
                 alignItems: "center",
@@ -461,7 +461,7 @@ export default function SavingsMovementModal() {
               <Feather name="chevron-down" size={16} color={theme.textMuted} style={{ marginStart: 8 }} />
             </Pressable>
             {!!errors.account && (
-              <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.account}</Text>
+              <Text style={{ fontSize: 12, color: theme.error }}>{errors.account}</Text>
             )}
           </View>
         )}
@@ -510,10 +510,10 @@ export default function SavingsMovementModal() {
 
         {/* Amount */}
         <View style={{
-          backgroundColor: errors.amount ? "#EF444408" : actionColor + "08",
+          backgroundColor: errors.amount ? theme.error + "08" : actionColor + "08",
           borderRadius: 20,
           borderWidth: 1.5,
-          borderColor: errors.amount ? "#EF4444" : actionColor + "30",
+          borderColor: errors.amount ? theme.error : actionColor + "30",
           paddingVertical: 20,
           paddingHorizontal: 16,
           alignItems: "center",
@@ -545,8 +545,8 @@ export default function SavingsMovementModal() {
           )}
           {!!errors.amount && (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-              <Feather name="alert-circle" size={12} color="#EF4444" />
-              <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.amount}</Text>
+              <Feather name="alert-circle" size={12} color={theme.error} />
+              <Text style={{ fontSize: 12, color: theme.error }}>{errors.amount}</Text>
             </View>
           )}
         </View>

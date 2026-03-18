@@ -35,7 +35,7 @@ export default function DebtDetailScreen() {
 
   const progressColor =
     debt.status === "completed"      ? "#059669" :
-    debt.status === "overdue"        ? "#EF4444" :
+    debt.status === "overdue"        ? theme.error :
     debt.status === "partially_paid" ? "#D97706" :
     debt.status === "cancelled"      ? "#6B7280" :
     theme.primary;
@@ -102,9 +102,9 @@ export default function DebtDetailScreen() {
           <Pressable
             onPress={handleDelete}
             hitSlop={8}
-            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}
+            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.error + "18", alignItems: "center", justifyContent: "center" }}
           >
-            <Feather name="trash-2" size={16} color="#EF4444" />
+            <Feather name="trash-2" size={16} color={theme.error} />
           </Pressable>
         </View>
 
@@ -143,7 +143,7 @@ export default function DebtDetailScreen() {
           <InfoRow
             label={t.debts.remainingAmount}
             value={formatCurrency(debt.remaining_amount, currency, language)}
-            valueColor={debt.status === "overdue" ? "#EF4444" : theme.text}
+            valueColor={debt.status === "overdue" ? theme.error : theme.text}
           />
           {debt.is_installment_based && debt.monthly_installment > 0 && (
             <InfoRow label={t.debts.monthlyInstallment} value={formatCurrency(debt.monthly_installment, currency, language)} />
@@ -166,9 +166,9 @@ export default function DebtDetailScreen() {
         </View>
 
         {debt.status === "overdue" && (
-          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8, backgroundColor: "#EF444410", borderRadius: 14, padding: 14, marginBottom: 16, alignItems: "center" }}>
-            <Feather name="alert-triangle" size={16} color="#EF4444" />
-            <Text style={{ flex: 1, fontSize: 13, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{t.debts.overdueWarning}</Text>
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8, backgroundColor: theme.error + "10", borderRadius: 14, padding: 14, marginBottom: 16, alignItems: "center" }}>
+            <Feather name="alert-triangle" size={16} color={theme.error} />
+            <Text style={{ flex: 1, fontSize: 13, color: theme.error, textAlign: isRTL ? "right" : "left" }}>{t.debts.overdueWarning}</Text>
           </View>
         )}
 
@@ -176,7 +176,7 @@ export default function DebtDetailScreen() {
           <Pressable
             onPress={() => { Haptics.selectionAsync(); router.push({ pathname: "/(modals)/debt-payment" as any, params: { debtId: debt?.id } }); }}
             style={({ pressed }) => ({
-              backgroundColor: "#EF4444",
+              backgroundColor: theme.error,
               borderRadius: 16,
               paddingVertical: 14,
               alignItems: "center",

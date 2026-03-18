@@ -213,7 +213,7 @@ export default function CommitmentFormModal() {
                 backgroundColor: theme.input,
                 borderRadius: 12,
                 borderWidth: 1.5,
-                borderColor: errors.name ? "#EF4444" : theme.inputBorder,
+                borderColor: errors.name ? theme.error : theme.inputBorder,
                 paddingHorizontal: 14,
                 paddingVertical: 13,
                 fontSize: 15,
@@ -231,7 +231,7 @@ export default function CommitmentFormModal() {
                 backgroundColor: theme.input,
                 borderRadius: 12,
                 borderWidth: 1.5,
-                borderColor: errors.name ? "#EF4444" : theme.inputBorder,
+                borderColor: errors.name ? theme.error : theme.inputBorder,
                 paddingHorizontal: 14,
                 paddingVertical: 13,
                 fontSize: 15,
@@ -240,15 +240,15 @@ export default function CommitmentFormModal() {
               }}
             />
           </View>
-          {!!errors.name && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.name}</Text>}
+          {!!errors.name && <Text style={{ fontSize: 12, color: theme.error, textAlign: isRTL ? "right" : "left" }}>{errors.name}</Text>}
         </View>
 
         {/* Amount */}
         <View style={{
-          backgroundColor: errors.amount ? "#EF444408" : theme.expense + "08",
+          backgroundColor: errors.amount ? theme.error + "08" : theme.expense + "08",
           borderRadius: 20,
           borderWidth: 1.5,
-          borderColor: errors.amount ? "#EF4444" : theme.expense + "30",
+          borderColor: errors.amount ? theme.error : theme.expense + "30",
           paddingVertical: 20,
           paddingHorizontal: 16,
           alignItems: "center",
@@ -275,8 +275,8 @@ export default function CommitmentFormModal() {
           />
           {!!errors.amount && (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-              <Feather name="alert-circle" size={12} color="#EF4444" />
-              <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.amount}</Text>
+              <Feather name="alert-circle" size={12} color={theme.error} />
+              <Text style={{ fontSize: 12, color: theme.error }}>{errors.amount}</Text>
             </View>
           )}
         </View>
@@ -292,7 +292,7 @@ export default function CommitmentFormModal() {
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.account ? "#EF4444" : theme.inputBorder,
+              borderColor: errors.account ? theme.error : theme.inputBorder,
               padding: 13,
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
@@ -312,7 +312,7 @@ export default function CommitmentFormModal() {
             )}
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
-          {!!errors.account && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.account}</Text>}
+          {!!errors.account && <Text style={{ fontSize: 12, color: theme.error, textAlign: isRTL ? "right" : "left" }}>{errors.account}</Text>}
         </View>
 
         {/* Category Picker */}
@@ -326,7 +326,7 @@ export default function CommitmentFormModal() {
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.category ? "#EF4444" : theme.inputBorder,
+              borderColor: errors.category ? theme.error : theme.inputBorder,
               padding: 13,
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
@@ -345,7 +345,7 @@ export default function CommitmentFormModal() {
             </Text>
             <Feather name="chevron-down" size={16} color={theme.textMuted} />
           </Pressable>
-          {!!errors.category && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.category}</Text>}
+          {!!errors.category && <Text style={{ fontSize: 12, color: theme.error, textAlign: isRTL ? "right" : "left" }}>{errors.category}</Text>}
         </View>
 
         {/* Due Date */}
@@ -359,7 +359,7 @@ export default function CommitmentFormModal() {
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.date ? "#EF4444" : theme.inputBorder,
+              borderColor: errors.date ? theme.error : theme.inputBorder,
               paddingHorizontal: 14,
               paddingVertical: 13,
               flexDirection: isRTL ? "row-reverse" : "row",
@@ -373,7 +373,7 @@ export default function CommitmentFormModal() {
             </Text>
             <Feather name="chevron-down" size={14} color={theme.textMuted} />
           </Pressable>
-          {!!errors.date && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.date}</Text>}
+          {!!errors.date && <Text style={{ fontSize: 12, color: theme.error, textAlign: isRTL ? "right" : "left" }}>{errors.date}</Text>}
         </View>
 
         {/* Note */}

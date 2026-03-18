@@ -113,24 +113,24 @@ export default function DebtsScreen() {
             paddingHorizontal: 12,
             paddingVertical: 7,
             borderRadius: 18,
-            backgroundColor: isFiltered ? "#EF444418" : theme.card,
+            backgroundColor: isFiltered ? theme.error + "18" : theme.card,
             borderWidth: 1,
-            borderColor: isFiltered ? "#EF4444" : theme.border,
+            borderColor: isFiltered ? theme.error : theme.border,
           }}
         >
-          <Feather name="sliders" size={14} color={isFiltered ? "#EF4444" : theme.textSecondary} />
-          <Text style={{ fontSize: 13, fontWeight: "600", color: isFiltered ? "#EF4444" : theme.textSecondary }}>
+          <Feather name="sliders" size={14} color={isFiltered ? theme.error : theme.textSecondary} />
+          <Text style={{ fontSize: 13, fontWeight: "600", color: isFiltered ? theme.error : theme.textSecondary }}>
             {t.debts.filters}
           </Text>
           {isFiltered && (
-            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "#EF4444" }} />
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.error }} />
           )}
         </Pressable>
         <Pressable
           onPress={() => { Haptics.selectionAsync(); router.push("/(modals)/debt-form" as any); }}
-          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.error + "18", alignItems: "center", justifyContent: "center" }}
         >
-          <Feather name="plus" size={18} color="#EF4444" />
+          <Feather name="plus" size={18} color={theme.error} />
         </Pressable>
       </View>
 
@@ -151,8 +151,8 @@ export default function DebtsScreen() {
             {filtered.length} {filtered.length === 1 ? t.debts.title.slice(0, -1) : t.debts.title}
           </Text>
           <Pressable onPress={clearFilters} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-            <Text style={{ fontSize: 12, color: "#EF4444", fontWeight: "600" }}>{t.debts.clearFilters}</Text>
-            <Feather name="x" size={12} color="#EF4444" />
+            <Text style={{ fontSize: 12, color: theme.error, fontWeight: "600" }}>{t.debts.clearFilters}</Text>
+            <Feather name="x" size={12} color={theme.error} />
           </Pressable>
         </View>
       )}
@@ -195,7 +195,7 @@ export default function DebtsScreen() {
               !isFiltered ? (
                 <Pressable
                   onPress={() => { Haptics.selectionAsync(); router.push("/(modals)/debt-form" as any); }}
-                  style={{ marginTop: 4, backgroundColor: "#EF4444", borderRadius: 24, paddingHorizontal: 24, paddingVertical: 11 }}
+                  style={{ marginTop: 4, backgroundColor: theme.error, borderRadius: 24, paddingHorizontal: 24, paddingVertical: 11 }}
                 >
                   <Text style={{ fontSize: 14, fontWeight: "700", color: "#fff" }}>{t.debts.add}</Text>
                 </Pressable>
@@ -212,7 +212,7 @@ export default function DebtsScreen() {
           bottom: insets.bottom + 20,
           right: isRTL ? undefined : 20,
           left: isRTL ? 20 : undefined,
-          backgroundColor: "#EF4444",
+          backgroundColor: theme.error,
           borderRadius: 28,
           paddingHorizontal: 20,
           paddingVertical: 14,
@@ -220,7 +220,7 @@ export default function DebtsScreen() {
           alignItems: "center",
           gap: 8,
           opacity: pressed ? 0.85 : 1,
-          shadowColor: "#EF4444",
+          shadowColor: theme.error,
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.35,
           shadowRadius: 8,
@@ -275,9 +275,9 @@ export default function DebtsScreen() {
                         paddingHorizontal: 14,
                         paddingVertical: 8,
                         borderRadius: 20,
-                        backgroundColor: active ? "#EF4444" : theme.card,
+                        backgroundColor: active ? theme.error : theme.card,
                         borderWidth: 1,
-                        borderColor: active ? "#EF4444" : theme.border,
+                        borderColor: active ? theme.error : theme.border,
                       }}
                     >
                       <Text style={{ fontSize: 13, fontWeight: "600", color: active ? "#fff" : theme.textSecondary }}>
@@ -304,9 +304,9 @@ export default function DebtsScreen() {
                         paddingHorizontal: 14,
                         paddingVertical: 8,
                         borderRadius: 20,
-                        backgroundColor: active ? "#EF4444" : theme.card,
+                        backgroundColor: active ? theme.error : theme.card,
                         borderWidth: 1,
-                        borderColor: active ? "#EF4444" : theme.border,
+                        borderColor: active ? theme.error : theme.border,
                       }}
                     >
                       <Text style={{ fontSize: 13, fontWeight: "600", color: active ? "#fff" : theme.textSecondary }}>
@@ -338,7 +338,7 @@ export default function DebtsScreen() {
                   flex: 2,
                   paddingVertical: 13,
                   borderRadius: 14,
-                  backgroundColor: "#EF4444",
+                  backgroundColor: theme.error,
                   alignItems: "center",
                 }}
               >

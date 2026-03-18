@@ -118,7 +118,7 @@ export default function MoreTab() {
             icon="credit-card"
             label={t.debts.title}
             subtitle={t.more.debtsSubtitle}
-            color="#EF4444"
+            color={theme.error}
             onPress={() => router.push("/debts")}
           />
           <MenuItem

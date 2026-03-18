@@ -79,7 +79,7 @@ export default function ContactSupportScreen() {
     backgroundColor: theme.input,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: hasError ? "#EF4444" : theme.inputBorder,
+    borderColor: hasError ? theme.error : theme.inputBorder,
     padding: 13,
     color: theme.text,
     fontSize: 15,
@@ -154,7 +154,7 @@ export default function ContactSupportScreen() {
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.type ? "#EF4444" : theme.inputBorder,
+              borderColor: errors.type ? theme.error : theme.inputBorder,
               padding: 13,
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
@@ -284,13 +284,13 @@ function Field({
     <View style={{ gap: 6 }}>
       <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
         <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary }}>{label}</Text>
-        {required && <Text style={{ fontSize: 12, color: "#EF4444" }}>*</Text>}
+        {required && <Text style={{ fontSize: 12, color: theme.error }}>*</Text>}
       </View>
       {children}
       {!!error && (
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-          <Feather name="alert-circle" size={12} color="#EF4444" />
-          <Text style={{ fontSize: 12, color: "#EF4444" }}>{error}</Text>
+          <Feather name="alert-circle" size={12} color={theme.error} />
+          <Text style={{ fontSize: 12, color: theme.error }}>{error}</Text>
         </View>
       )}
     </View>

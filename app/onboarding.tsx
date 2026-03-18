@@ -60,7 +60,7 @@ function Slide1({ t, language, isDark }: { t: TranslationKeys; language: Languag
   );
 }
 
-function Slide2({ t }: { t: TranslationKeys }) {
+function Slide2({ t, isRTL }: { t: TranslationKeys; isRTL: boolean }) {
   const features = [
     { icon: "credit-card" as const, title: t.onboarding.feature1Title, desc: t.onboarding.feature1Desc },
     { icon: "repeat" as const, title: t.onboarding.feature2Title, desc: t.onboarding.feature2Desc },
@@ -76,13 +76,13 @@ function Slide2({ t }: { t: TranslationKeys }) {
       </Text>
       <View style={{ gap: 14 }}>
         {features.map((f, i) => (
-          <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 16, backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 16, padding: 16 }}>
+          <View key={i} style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 16, backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 16, padding: 16 }}>
             <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" }}>
               <Feather name={f.icon} size={22} color="#fff" />
             </View>
             <View style={{ flex: 1, gap: 2 }}>
-              <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff" }}>{f.title}</Text>
-              <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 18 }}>{f.desc}</Text>
+              <Text style={{ fontSize: 15, fontWeight: "700", color: "#fff", textAlign: isRTL ? "right" : "left" }}>{f.title}</Text>
+              <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 18, textAlign: isRTL ? "right" : "left" }}>{f.desc}</Text>
             </View>
           </View>
         ))}
@@ -233,7 +233,7 @@ export default function OnboardingScreen() {
 
   const forwardSlides = [
     <Slide1 key="1" t={t} language={language} isDark={isDark} />,
-    <Slide2 key="2" t={t} />,
+    <Slide2 key="2" t={t} isRTL={isRTL} />,
     <Slide3
       key="3"
       t={t}

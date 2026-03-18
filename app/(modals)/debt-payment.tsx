@@ -82,7 +82,7 @@ export default function DebtPaymentModal() {
           <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: isRTL ? "right" : "left" }}>{debt.entity_name}</Text>
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between" }}>
             <Text style={{ fontSize: 13, color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>{t.debts.remainingAmount}:</Text>
-            <Text style={{ fontSize: 15, fontWeight: "700", color: "#EF4444" }}>
+            <Text style={{ fontSize: 15, fontWeight: "700", color: theme.error }}>
               {formatCurrency(debt.remaining_amount, currency, language)}
             </Text>
           </View>
@@ -91,9 +91,9 @@ export default function DebtPaymentModal() {
         <View style={{ gap: 16 }}>
           <View style={{ gap: 6 }}>
             <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-              {t.debts.payAmount} <Text style={{ color: "#EF4444" }}>*</Text>
+              {t.debts.payAmount} <Text style={{ color: theme.error }}>*</Text>
             </Text>
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, backgroundColor: theme.card, borderRadius: 14, borderWidth: 1, borderColor: error ? "#EF4444" : theme.border, paddingHorizontal: 14 }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 10, backgroundColor: theme.card, borderRadius: 14, borderWidth: 1, borderColor: error ? theme.error : theme.border, paddingHorizontal: 14 }}>
               <Feather name="dollar-sign" size={16} color={theme.textMuted} />
               <TextInput
                 value={amount}
@@ -105,7 +105,7 @@ export default function DebtPaymentModal() {
               />
               <Text style={{ fontSize: 13, color: theme.textMuted }}>{currency}</Text>
             </View>
-            {error ? <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{error}</Text> : null}
+            {error ? <Text style={{ fontSize: 12, color: theme.error, textAlign: isRTL ? "right" : "left" }}>{error}</Text> : null}
           </View>
 
           {(installmentSuggestion || maxSuggestion > 0) && (
@@ -167,7 +167,7 @@ export default function DebtPaymentModal() {
           disabled={saving}
           style={({ pressed }) => ({
             marginTop: 28,
-            backgroundColor: "#EF4444",
+            backgroundColor: theme.error,
             borderRadius: 16,
             paddingVertical: 15,
             alignItems: "center",

@@ -83,7 +83,7 @@ export default function CommitmentDetailScreen() {
   const isPaid = commitment.status === "paid";
 
   const accentColor = isOverdue
-    ? "#EF4444"
+    ? theme.error
     : isDueToday
     ? "#F59E0B"
     : isPaid
@@ -101,7 +101,7 @@ export default function CommitmentDetailScreen() {
   const cardShadow = Platform.OS === "web"
     ? { boxShadow: isDark ? "none" : "0 2px 12px rgba(47,143,131,0.08)" }
     : isDark ? {} : {
-        shadowColor: "#2F8F83",
+        shadowColor: theme.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,
         shadowRadius: 8,
@@ -156,7 +156,7 @@ export default function CommitmentDetailScreen() {
               backgroundColor: theme.card,
               borderRadius: 20,
               borderWidth: 1,
-              borderColor: isOverdue ? "#EF444430" : isDueToday ? "#F59E0B30" : theme.border,
+              borderColor: isOverdue ? theme.error + "30" : isDueToday ? "#F59E0B30" : theme.border,
               overflow: "hidden",
               ...cardShadow,
             }}
@@ -319,7 +319,7 @@ export default function CommitmentDetailScreen() {
                 borderRadius: 14,
                 backgroundColor: theme.expenseBackground,
                 borderWidth: 1,
-                borderColor: "#EF444430",
+                borderColor: theme.error + "30",
                 alignItems: "center",
                 justifyContent: "center",
                 flexDirection: "row",
@@ -337,7 +337,7 @@ export default function CommitmentDetailScreen() {
 
           {/* ─── Confirm Delete ─── */}
           {confirmDelete && (
-            <View style={{ backgroundColor: theme.expenseBackground, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: "#EF444430", gap: 12 }}>
+            <View style={{ backgroundColor: theme.expenseBackground, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: theme.error + "30", gap: 12 }}>
               <Text style={{ color: theme.expense, fontWeight: "700", fontSize: 15, textAlign: isRTL ? "right" : "left" }}>
                 {t.commitments.deleteConfirm}
               </Text>

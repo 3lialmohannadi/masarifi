@@ -54,7 +54,7 @@ export default function CategoriesScreen() {
 
   const cardShadow = isDark ? {} : Platform.OS === "web"
     ? { boxShadow: "0 2px 8px rgba(47,143,131,0.07)" }
-    : { shadowColor: "#2F8F83", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 };
+    : { shadowColor: theme.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 };
 
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
@@ -244,12 +244,12 @@ export default function CategoriesScreen() {
                       progress={budgetProgress}
                       height={4}
                       animated={false}
-                      color={budgetProgress >= 1 ? "#EF4444" : budgetProgress >= 0.75 ? "#F59E0B" : theme.primary}
+                      color={budgetProgress >= 1 ? theme.error : budgetProgress >= 0.75 ? "#F59E0B" : theme.primary}
                     />
                     <Text
                       style={{
                         fontSize: 9,
-                        color: budgetProgress >= 1 ? "#EF4444" : budgetProgress >= 0.75 ? "#F59E0B" : theme.textMuted,
+                        color: budgetProgress >= 1 ? theme.error : budgetProgress >= 0.75 ? "#F59E0B" : theme.textMuted,
                         textAlign: "center",
                       }}
                       numberOfLines={1}

@@ -205,7 +205,7 @@ export default function DebtFormModal() {
   function LabelText({ text, required }: { text: string; required?: boolean }) {
     return (
       <Text style={{ fontSize: 13, fontWeight: "600", color: theme.textSecondary, textAlign: isRTL ? "right" : "left" }}>
-        {text}{required && <Text style={{ color: "#EF4444" }}> *</Text>}
+        {text}{required && <Text style={{ color: theme.error }}> *</Text>}
       </Text>
     );
   }
@@ -345,14 +345,14 @@ export default function DebtFormModal() {
                   placeholderTextColor={theme.textMuted}
                   style={{ color: theme.text, fontSize: 14, textAlign: isRTL ? "right" : "left", borderBottomWidth: 1, borderBottomColor: theme.border, paddingVertical: 6, ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}) }}
                 />
-                {errors.customName && <Text style={{ fontSize: 11, color: "#EF4444" }}>{errors.customName}</Text>}
+                {errors.customName && <Text style={{ fontSize: 11, color: theme.error }}>{errors.customName}</Text>}
               </View>
             )}
           </View>
 
           <View style={{ gap: 6 }}>
             <LabelText text={t.debts.entityName} required />
-            <View style={[rowStyle, { borderColor: errors.entityName ? "#EF4444" : theme.border }]}>
+            <View style={[rowStyle, { borderColor: errors.entityName ? theme.error : theme.border }]}>
               <Feather name="user" size={16} color={theme.textMuted} />
               <TextInput
                 value={entityName}
@@ -362,14 +362,14 @@ export default function DebtFormModal() {
                 style={inputStyle}
               />
             </View>
-            {errors.entityName && <Text style={{ fontSize: 12, color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>{errors.entityName}</Text>}
+            {errors.entityName && <Text style={{ fontSize: 12, color: theme.error, textAlign: isRTL ? "right" : "left" }}>{errors.entityName}</Text>}
           </View>
 
           <View style={{
-            backgroundColor: errors.originalAmount ? "#EF444408" : theme.primary + "08",
+            backgroundColor: errors.originalAmount ? theme.error + "08" : theme.primary + "08",
             borderRadius: 20,
             borderWidth: 1.5,
-            borderColor: errors.originalAmount ? "#EF4444" : theme.primary + "30",
+            borderColor: errors.originalAmount ? theme.error : theme.primary + "30",
             paddingVertical: 20,
             paddingHorizontal: 16,
             alignItems: "center",
@@ -397,8 +397,8 @@ export default function DebtFormModal() {
             <Text style={{ fontSize: 12, color: theme.textMuted }}>{currency}</Text>
             {errors.originalAmount && (
               <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                <Feather name="alert-circle" size={12} color="#EF4444" />
-                <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.originalAmount}</Text>
+                <Feather name="alert-circle" size={12} color={theme.error} />
+                <Text style={{ fontSize: 12, color: theme.error }}>{errors.originalAmount}</Text>
               </View>
             )}
           </View>
@@ -547,7 +547,7 @@ export default function DebtFormModal() {
           disabled={saving}
           style={({ pressed }) => ({
             marginTop: 28,
-            backgroundColor: "#EF4444",
+            backgroundColor: theme.error,
             borderRadius: 16,
             paddingVertical: 15,
             alignItems: "center",

@@ -230,7 +230,7 @@ export default function SignUpScreen() {
               ...(Platform.OS === "web"
                 ? ({ boxShadow: isDark ? "none" : "0 4px 20px rgba(47,143,131,0.10)" } as object)
                 : isDark ? {} : {
-                    shadowColor: "#2F8F83",
+                    shadowColor: theme.primary,
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: 0.10,
                     shadowRadius: 16,
@@ -241,20 +241,20 @@ export default function SignUpScreen() {
             {authError ? (
               <View
                 style={{
-                  backgroundColor: "#EF444415",
+                  backgroundColor: theme.error + "15",
                   borderRadius: 12,
                   padding: 12,
                   flexDirection: isRTL ? "row-reverse" : "row",
                   alignItems: "center",
                   gap: 8,
                   borderWidth: 1,
-                  borderColor: "#EF444430",
+                  borderColor: theme.error + "30",
                 }}
               >
-                <Feather name="alert-circle" size={15} color="#EF4444" />
+                <Feather name="alert-circle" size={15} color={theme.error} />
                 <Text
                   style={{
-                    color: "#EF4444",
+                    color: theme.error,
                     fontSize: 14,
                     flex: 1,
                     textAlign: isRTL ? "right" : "left",

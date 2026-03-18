@@ -53,8 +53,8 @@ function TxField({
       {children}
       {!!error && (
         <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
-          <Feather name="alert-circle" size={12} color="#EF4444" />
-          <Text style={{ fontSize: 12, color: "#EF4444" }}>{error}</Text>
+          <Feather name="alert-circle" size={12} color={theme.error} />
+          <Text style={{ fontSize: 12, color: theme.error }}>{error}</Text>
         </View>
       )}
     </View>
@@ -225,7 +225,7 @@ export default function AddTransactionModal() {
     backgroundColor: theme.input,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: hasError ? "#EF4444" : theme.inputBorder,
+    borderColor: hasError ? theme.error : theme.inputBorder,
     padding: 13,
     flexDirection: (isRTL ? "row-reverse" : "row") as "row" | "row-reverse",
     alignItems: "center" as const,
@@ -285,7 +285,7 @@ export default function AddTransactionModal() {
             padding: 4,
             gap: 4,
             borderWidth: 1,
-            borderColor: errors.type ? "#EF4444" : theme.border,
+            borderColor: errors.type ? theme.error : theme.border,
           }}
         >
           {(["expense", "income"] as TransactionType[]).map((ty) => {
@@ -330,10 +330,10 @@ export default function AddTransactionModal() {
 
         {/* ── Amount ── */}
         <View style={{
-          backgroundColor: errors.amount ? "#EF444408" : (type === "income" ? theme.income + "08" : theme.expense + "08"),
+          backgroundColor: errors.amount ? theme.error + "08" : (type === "income" ? theme.income + "08" : theme.expense + "08"),
           borderRadius: 20,
           borderWidth: 1.5,
-          borderColor: errors.amount ? "#EF4444" : (type === "income" ? theme.income + "30" : theme.expense + "30"),
+          borderColor: errors.amount ? theme.error : (type === "income" ? theme.income + "30" : theme.expense + "30"),
           paddingVertical: 20,
           paddingHorizontal: 16,
           alignItems: "center",
@@ -369,8 +369,8 @@ export default function AddTransactionModal() {
           )}
           {!!errors.amount && (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-              <Feather name="alert-circle" size={12} color="#EF4444" />
-              <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.amount}</Text>
+              <Feather name="alert-circle" size={12} color={theme.error} />
+              <Text style={{ fontSize: 12, color: theme.error }}>{errors.amount}</Text>
             </View>
           )}
         </View>
@@ -487,7 +487,7 @@ export default function AddTransactionModal() {
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.date ? "#EF4444" : theme.inputBorder,
+              borderColor: errors.date ? theme.error : theme.inputBorder,
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
               paddingHorizontal: 13,

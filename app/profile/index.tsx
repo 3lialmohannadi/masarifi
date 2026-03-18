@@ -8,6 +8,7 @@ import {
   Platform,
   TextInput,
 } from "react-native";
+import { AppLoader } from "@/components/ui/AppLoader";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -268,18 +269,7 @@ export default function ProfileScreen() {
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
   if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: theme.background,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
+    return <AppLoader />;
   }
 
   return (
@@ -585,16 +575,16 @@ export default function ProfileScreen() {
             gap: 14,
             padding: 14,
             borderRadius: 16,
-            backgroundColor: pressed ? "#EF444410" : theme.card,
+            backgroundColor: pressed ? theme.error + "10" : theme.card,
             borderWidth: 1.5,
-            borderColor: "#EF444440",
+            borderColor: theme.error + "40",
             marginTop: 4,
           })}
         >
-          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
-            <Feather name="log-out" size={20} color="#EF4444" />
+          <View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: theme.error + "18", alignItems: "center", justifyContent: "center" }}>
+            <Feather name="log-out" size={20} color={theme.error} />
           </View>
-          <Text style={{ flex: 1, fontSize: 15, fontWeight: "600", color: "#EF4444", textAlign: isRTL ? "right" : "left" }}>
+          <Text style={{ flex: 1, fontSize: 15, fontWeight: "600", color: theme.error, textAlign: isRTL ? "right" : "left" }}>
             {t.auth.signOut}
           </Text>
         </Pressable>
@@ -606,7 +596,7 @@ export default function ProfileScreen() {
         message={t.auth.signOutConfirm}
         confirmLabel={t.auth.signOut}
         icon="log-out"
-        confirmColor="#EF4444"
+        confirmColor={theme.error}
         onConfirm={confirmSignOut}
         onCancel={() => setShowSignOutConfirm(false)}
       />

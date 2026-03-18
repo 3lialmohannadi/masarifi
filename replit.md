@@ -121,6 +121,14 @@ The backend is an Express server that serves static Expo web build files and pro
 - **components/Toast.tsx**: `pointerEvents` lives on outer `View` (not `Animated.View`) to prevent React Native Web deprecation warning.
 - **Remaining known warnings**: `props.pointerEvents is deprecated` — emitted by `react-native-screens@4.16.0` and `react-native-web@0.21.2` internals, not by application code. Unfixable without upgrading those libraries.
 
+## Design Token Enforcement (Updated)
+- **Error color**: All destructive/error UI (form validation, delete buttons, sign-out, overdue warnings) now use `theme.error` instead of hardcoded `"#EF4444"`. Applies to: profile, auth screens, debts, settings, all modals.
+- **Expense color**: All financial data visualization (chart lines, bars, gradient stops) uses `theme.expense` instead of hardcoded `"#EF4444"`. Applies to: statistics, report screens.
+- **Income color**: All income data visualization uses `theme.income` instead of hardcoded `"#22C55E"`. Applies to: statistics, report screens.
+- **Primary color**: Shadow colors now use `theme.primary` instead of hardcoded `"#2F8F83"`. Applies to: auth screens, tab layout, index, categories.
+- **Onboarding RTL**: Slide2 feature list rows now flip with `isRTL ? "row-reverse" : "row"` and text aligns correctly.
+- **Profile loading**: `ActivityIndicator` replaced with `AppLoader` component for consistent loading experience.
+
 ## UI Patterns
 
 ### Empty States

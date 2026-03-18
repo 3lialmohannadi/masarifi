@@ -116,7 +116,7 @@ export default function DashboardScreen() {
         : isDark
         ? {}
         : {
-            shadowColor: "#2F8F83",
+            shadowColor: theme.primary,
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.08,
             shadowRadius: 8,
@@ -243,7 +243,7 @@ export default function DashboardScreen() {
               ...(Platform.OS === "web"
                 ? { boxShadow: `0 8px 32px rgba(47,143,131,${isDark ? 0.25 : 0.40})` }
                 : {
-                    shadowColor: "#2F8F83",
+                    shadowColor: theme.primary,
                     shadowOffset: { width: 0, height: 8 },
                     shadowOpacity: isDark ? 0.25 : 0.40,
                     shadowRadius: 20,
@@ -413,7 +413,7 @@ export default function DashboardScreen() {
                 {shownCommitments.map((c, index) => {
                   const isOverdue = c.status === "overdue";
                   const isDueToday = c.status === "due_today";
-                  const accentColor = isOverdue ? "#EF4444" : isDueToday ? "#F59E0B" : theme.primary;
+                  const accentColor = isOverdue ? theme.error : isDueToday ? "#F59E0B" : theme.primary;
                   const commitmentAccount = accounts.find((a) => a.id === c.account_id);
                   const commitmentCurrency = commitmentAccount?.currency || settings.default_currency || "QAR";
                   return (
@@ -561,8 +561,8 @@ export default function DashboardScreen() {
                   onPress={() => { Haptics.selectionAsync(); router.push("/debts"); }}
                   style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}
                 >
-                  <Text style={{ fontSize: 13, color: "#EF4444", fontWeight: "600" }}>{t.dashboard.showAll}</Text>
-                  <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={14} color="#EF4444" />
+                  <Text style={{ fontSize: 13, color: theme.error, fontWeight: "600" }}>{t.dashboard.showAll}</Text>
+                  <Feather name={isRTL ? "chevron-left" : "chevron-right"} size={14} color={theme.error} />
                 </Pressable>
               </View>
               <Pressable
@@ -580,8 +580,8 @@ export default function DashboardScreen() {
                   ...cardShadow,
                 })}
               >
-                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "#EF444418", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="credit-card" size={18} color="#EF4444" />
+                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: theme.error + "18", alignItems: "center", justifyContent: "center" }}>
+                  <Feather name="credit-card" size={18} color={theme.error} />
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>

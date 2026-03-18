@@ -105,8 +105,8 @@ export default function MonthlyReportScreen() {
   const netBalanceIcon: "trending-up" | "trending-down" = netBalance >= 0 ? "trending-up" : "trending-down";
 
   const summaryCards: { label: string; value: number; color: string; icon: "arrow-down-left" | "arrow-up-right" | "trending-up" | "trending-down" | "archive" }[] = [
-    { label: t.statistics.income, value: totalIncome, color: "#22C55E", icon: "arrow-down-left" },
-    { label: t.statistics.expense, value: totalExpense, color: "#EF4444", icon: "arrow-up-right" },
+    { label: t.statistics.income, value: totalIncome, color: theme.income, icon: "arrow-down-left" },
+    { label: t.statistics.expense, value: totalExpense, color: theme.error, icon: "arrow-up-right" },
     { label: t.statistics.netSavings, value: netBalance, color: netBalance >= 0 ? "#3B82F6" : "#F59E0B", icon: netBalanceIcon },
     { label: t.statistics.savings, value: monthSavingsNet, color: monthSavingsNet >= 0 ? theme.primary : "#F59E0B", icon: "archive" },
   ];
@@ -239,8 +239,8 @@ export default function MonthlyReportScreen() {
         {categorySpending.length > 0 && (
           <View style={{ gap: 12 }}>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
-              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: "#EF444415", alignItems: "center", justifyContent: "center" }}>
-                <Feather name="pie-chart" size={16} color="#EF4444" />
+              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.error + "15", alignItems: "center", justifyContent: "center" }}>
+                <Feather name="pie-chart" size={16} color={theme.error} />
               </View>
               <Text style={{ fontSize: 15, fontWeight: "700", color: theme.text }}>{t.statistics.topCategories}</Text>
             </View>

@@ -277,7 +277,7 @@ export default function AccountFormModal() {
               backgroundColor: theme.input,
               borderRadius: 12,
               borderWidth: 1.5,
-              borderColor: errors.currency ? "#EF4444" : theme.inputBorder,
+              borderColor: errors.currency ? theme.error : theme.inputBorder,
               padding: 13,
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
@@ -296,7 +296,7 @@ export default function AccountFormModal() {
               <Feather name="chevron-down" size={16} color={theme.textMuted} />
             </View>
           </Pressable>
-          {errors.currency && <Text style={{ fontSize: 12, color: "#EF4444" }}>{errors.currency}</Text>}
+          {errors.currency && <Text style={{ fontSize: 12, color: theme.error }}>{errors.currency}</Text>}
         </View>
 
         <AppButton title={t.common.save} onPress={handleSave} loading={loading} fullWidth size="lg" />
