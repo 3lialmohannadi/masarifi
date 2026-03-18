@@ -10,7 +10,7 @@ import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import { VideoSplash } from "@/components/VideoSplash";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -27,7 +27,9 @@ import { CommitmentsProvider } from "@/store/CommitmentsContext";
 import { DebtsProvider } from "@/store/DebtsContext";
 import { BudgetsProvider } from "@/store/BudgetsContext";
 
-SplashScreen.preventAutoHideAsync();
+if (Platform.OS !== "web") {
+  SplashScreen.preventAutoHideAsync();
+}
 
 function AppLoadingGate({ children }: { children: React.ReactNode }) {
   const { isLoaded, isDark, settings } = useApp();
