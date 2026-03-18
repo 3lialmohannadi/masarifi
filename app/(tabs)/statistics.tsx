@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback } from "react";
 import { View, Text, ScrollView, Pressable, Platform, Dimensions, ActivityIndicator } from "react-native";
 import { StatisticsSkeleton } from "@/components/ui/Skeleton";
+import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
 import Svg, { Circle, Path, G, Line, Rect, Defs, LinearGradient, Stop, Polyline, Polygon, Text as SvgText } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -463,7 +464,7 @@ export default function StatisticsTab() {
   const forecastHigher = forecastedExpense !== null && prevMonthExpenseFullMonth > 0 && forecastedExpense > prevMonthExpenseFullMonth;
 
   const primaryCurrency = settings.default_currency || accounts.find((a) => a.is_active)?.currency || "QAR";
-  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
+  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
   const hasExpenses = totalExpense > 0;
 
   const [exporting, setExporting] = useState(false);
@@ -501,15 +502,25 @@ export default function StatisticsTab() {
         showsVerticalScrollIndicator={false}
       >
         {/* ── Hero Header ── */}
-        <View style={{
-          backgroundColor: isDark ? "#132825" : theme.primary,
-          paddingTop: topPadding,
-          paddingHorizontal: 20,
-          paddingBottom: 28,
-          borderBottomLeftRadius: 32,
-          borderBottomRightRadius: 32,
-          gap: 16,
-        }}>
+        <ExpoLinearGradient
+          colors={isDark
+            ? ["#1A3630", "#0F2820", "#0A1C16"] as const
+            : ["#2D8F83", "#1E6B63", "#165550"] as const}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            paddingTop: topPadding,
+            paddingHorizontal: 20,
+            paddingBottom: 28,
+            borderBottomLeftRadius: 36,
+            borderBottomRightRadius: 36,
+            gap: 16,
+            overflow: "hidden",
+          }}
+        >
+          {/* Decorative circles */}
+          <View style={{ position: "absolute", top: -50, right: -40, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(255,255,255,0.06)" }} />
+          <View style={{ position: "absolute", bottom: -30, left: -20, width: 130, height: 130, borderRadius: 65, backgroundColor: "rgba(255,255,255,0.04)" }} />
           <Text style={{ fontSize: 22, fontWeight: "800", color: "#fff" }}>{t.statistics.title}</Text>
 
           {/* Month Picker */}
@@ -587,7 +598,7 @@ export default function StatisticsTab() {
               </Text>
             </View>
           </View>
-        </View>
+        </ExpoLinearGradient>
 
         <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 20 }}>
 

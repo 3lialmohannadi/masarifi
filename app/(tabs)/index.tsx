@@ -85,14 +85,6 @@ export default function DashboardScreen() {
     [settings.daily_limit_mode, settings.manual_daily_limit, remainingDays, realAvailable]
   );
 
-  const monthExpense = useMemo(() => {
-    const today = new Date();
-    const monthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-    return transactions
-      .filter((tx) => tx.date.startsWith(monthKey) && tx.type === "expense" && (!selectedAccount || tx.account_id === selectedAccount.id))
-      .reduce((s, tx) => s + tx.amount, 0);
-  }, [transactions, selectedAccount]);
-
   const recentTransactions = useMemo(() => {
     const filtered = selectedAccount
       ? transactions.filter((tx) => tx.account_id === selectedAccount.id)

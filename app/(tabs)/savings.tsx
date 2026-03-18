@@ -33,7 +33,7 @@ export default function SavingsTab() {
   const overallGoalProgress = totalGoal > 0 ? Math.min(totalGoalReached / totalGoal, 1) : 0;
 
   const primaryCurrency = settings.default_currency || "QAR";
-  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 20;
+  const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top + 16;
 
   if (!isLoaded) {
     return (
