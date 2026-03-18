@@ -278,7 +278,7 @@ export default function DashboardScreen() {
             </View>
 
             {/* Balance */}
-            <View style={{ gap: 3, marginBottom: 20 }}>
+            <View style={{ gap: 3, marginBottom: 16 }}>
               <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: "500", textAlign: isRTL ? "right" : "left" }}>
                 {t.dashboard.totalBalance}
               </Text>
@@ -287,47 +287,29 @@ export default function DashboardScreen() {
               </Text>
             </View>
 
-          </LinearGradient>
-          </Animated.View>
-
-          {/* ─── Summary + Quick Add (merged) ─── */}
-          <Animated.View entering={FadeInDown.delay(80).springify()}>
-          <View
-            style={{
-              backgroundColor: theme.card,
-              borderRadius: 20,
-              padding: 16,
-              borderWidth: 1,
-              borderColor: theme.border,
-              gap: 12,
-              ...cardShadow,
-            }}
-          >
-            {/* مصروف | الأموال المخصصة | المبلغ المتاح */}
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8 }}>
-              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
-                <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
-                  {t.transactions.expense}
-                </Text>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.expense, textAlign: "center" }} numberOfLines={1}>
-                  {formatCurrency(monthExpense, currency, language)}
-                </Text>
-              </View>
-              <View style={{ width: 1, backgroundColor: theme.border }} />
-              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
-                <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
-                  {t.dashboard.allocatedMoney}
-                </Text>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: "#FCD34D", textAlign: "center" }} numberOfLines={1}>
+            {/* الأموال المخصصة | المبلغ المتاح */}
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
+              <View style={{ flex: 1, backgroundColor: "rgba(251,191,36,0.15)", borderRadius: 12, padding: 10, gap: 2, borderWidth: 1, borderColor: "rgba(251,191,36,0.2)" }}>
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                  <Feather name="lock" size={11} color="rgba(251,191,36,0.9)" />
+                  <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.allocatedMoney}</Text>
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: "#FCD34D", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
                   {formatCurrency(allocatedMoney, currency, language)}
                 </Text>
               </View>
-              <View style={{ width: 1, backgroundColor: theme.border }} />
-              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
-                <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
-                  {t.dashboard.realAvailable}
-                </Text>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: realAvailable < 0 ? theme.expense : theme.income, textAlign: "center" }} numberOfLines={1}>
+              <View style={{
+                flex: 1,
+                backgroundColor: realAvailable < 0 ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
+                borderRadius: 12, padding: 10, gap: 2,
+                borderWidth: 1,
+                borderColor: realAvailable < 0 ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)",
+              }}>
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                  <Feather name={realAvailable < 0 ? "alert-circle" : "check-circle"} size={11} color={realAvailable < 0 ? "rgba(239,68,68,0.9)" : "rgba(34,197,94,0.9)"} />
+                  <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: "500" }}>{t.dashboard.realAvailable}</Text>
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: realAvailable < 0 ? "#F87171" : "#4ADE80", textAlign: isRTL ? "right" : "left" }} numberOfLines={1}>
                   {formatCurrency(realAvailable, currency, language)}
                 </Text>
               </View>
@@ -338,7 +320,7 @@ export default function DashboardScreen() {
               flexDirection: isRTL ? "row-reverse" : "row",
               alignItems: "center",
               justifyContent: "space-between",
-              backgroundColor: isDark ? "rgba(251,191,36,0.1)" : "rgba(251,191,36,0.08)",
+              backgroundColor: "rgba(251,191,36,0.12)",
               borderRadius: 12,
               paddingHorizontal: 14,
               paddingVertical: 10,
@@ -346,19 +328,31 @@ export default function DashboardScreen() {
               borderColor: "rgba(251,191,36,0.2)",
             }}>
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                <Feather name="activity" size={13} color="#F59E0B" />
-                <Text style={{ fontSize: 12, fontWeight: "600", color: theme.textSecondary }}>
+                <Feather name="activity" size={13} color="rgba(251,191,36,0.9)" />
+                <Text style={{ fontSize: 12, fontWeight: "600", color: "rgba(255,255,255,0.65)" }}>
                   {t.dashboard.dailyLimit}
                 </Text>
               </View>
-              <Text style={{ fontSize: 15, fontWeight: "700", color: "#F59E0B" }} numberOfLines={1}>
+              <Text style={{ fontSize: 15, fontWeight: "700", color: "#FCD34D" }} numberOfLines={1}>
                 {formatCurrency(Math.max(0, dailyLimit), currency, language)}
               </Text>
             </View>
 
-            {/* فاصل */}
-            <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: -2 }} />
+          </LinearGradient>
+          </Animated.View>
 
+          {/* ─── Quick Actions ─── */}
+          <Animated.View entering={FadeInDown.delay(80).springify()}>
+          <View
+            style={{
+              backgroundColor: theme.card,
+              borderRadius: 20,
+              padding: 14,
+              borderWidth: 1,
+              borderColor: theme.border,
+              ...cardShadow,
+            }}
+          >
             {/* الالتزامات | الادخار | تحويل */}
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10 }}>
               <Pressable
