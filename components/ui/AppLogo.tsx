@@ -1,48 +1,44 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
-import { Language } from "@/i18n/types";
+import { Image } from "react-native";
+import type { Language } from "@/i18n/types";
 
 interface AppLogoProps {
   language: Language;
   isDark: boolean;
-  primaryColor: string;
+  primaryColor?: string;
   size?: "sm" | "md" | "lg";
 }
 
 const SIZES = {
-  sm: { icon: 28, fontSize: 16, gap: 7, letterSpacing: 1.2 },
-  md: { icon: 36, fontSize: 20, gap: 9, letterSpacing: 1.5 },
-  lg: { icon: 46, fontSize: 26, gap: 11, letterSpacing: 2 },
+  ar: {
+    sm:  { width: 130, height: 38 },
+    md:  { width: 170, height: 50 },
+    lg:  { width: 210, height: 62 },
+  },
+  en: {
+    sm:  { width: 100, height: 22 },
+    md:  { width: 135, height: 30 },
+    lg:  { width: 175, height: 40 },
+  },
 };
 
-export default function AppLogo({ language, isDark, primaryColor, size = "md" }: AppLogoProps) {
-  const s = SIZES[size];
+export default function AppLogo({ language, isDark, size = "md" }: AppLogoProps) {
   const isAr = language === "ar";
-  const textColor = isDark ? "#ffffff" : primaryColor;
+  const dims = SIZES[isAr ? "ar" : "en"][size];
+
+  const source = isAr
+    ? (isDark
+        ? require("@/assets/logo_ar_dark.png")
+        : require("@/assets/logo_ar_light.png"))
+    : (isDark
+        ? require("@/assets/logo_en_dark.png")
+        : require("@/assets/logo_en_light.png"));
 
   return (
-    <View
-      style={{
-        flexDirection: isAr ? "row-reverse" : "row",
-        alignItems: "center",
-        gap: s.gap,
-      }}
-    >
-      <Image
-        source={require("@/assets/images/wallet_mark.png")}
-        style={{ width: s.icon, height: s.icon }}
-        resizeMode="contain"
-      />
-      <Text
-        style={{
-          fontSize: s.fontSize,
-          fontWeight: "900",
-          color: textColor,
-          letterSpacing: s.letterSpacing,
-        }}
-      >
-        {isAr ? "مصاريفي" : "MASARIFI"}
-      </Text>
-    </View>
+    <Image
+      source={source}
+      style={{ width: dims.width, height: dims.height }}
+      resizeMode="contain"
+    />
   );
 }
