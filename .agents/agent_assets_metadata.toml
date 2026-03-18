@@ -48,3 +48,9 @@ id = "ok66G7XM0SftpENg2jr5o"
 uri = "file://attached_assets/generated_images/icon_v2_option5_infinity.png"
 type = "image"
 title = "5 — رمز اللانهاية مع تدفق مالي"
+
+[[outputs]]
+id = "Gqz5zGnLoXUlbiCjheffl"
+uri = "file://assets/images/icon.png"
+type = "image"
+title = "Polished App Icon"
