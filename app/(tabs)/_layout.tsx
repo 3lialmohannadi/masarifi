@@ -56,21 +56,27 @@ export default function TabLayout() {
   const anim1 = useSharedValue(0);
   const anim2 = useSharedValue(0);
   const anim3 = useSharedValue(0);
+  const anim4 = useSharedValue(0);
+  const anim5 = useSharedValue(0);
   const fabRotate = useSharedValue(0);
 
   function openMenu() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsMenuOpen(true);
-    anim1.value = withDelay(0, withSpring(1, { damping: 14, stiffness: 280 }));
-    anim2.value = withDelay(55, withSpring(1, { damping: 14, stiffness: 280 }));
-    anim3.value = withDelay(110, withSpring(1, { damping: 14, stiffness: 280 }));
+    anim1.value = withDelay(0,   withSpring(1, { damping: 14, stiffness: 280 }));
+    anim2.value = withDelay(50,  withSpring(1, { damping: 14, stiffness: 280 }));
+    anim3.value = withDelay(100, withSpring(1, { damping: 14, stiffness: 280 }));
+    anim4.value = withDelay(150, withSpring(1, { damping: 14, stiffness: 280 }));
+    anim5.value = withDelay(200, withSpring(1, { damping: 14, stiffness: 280 }));
     fabRotate.value = withSpring(45, { damping: 14, stiffness: 280 });
   }
 
   function closeMenu(cb?: () => void) {
-    anim3.value = withSpring(0, { damping: 14, stiffness: 280 });
-    anim2.value = withDelay(40, withSpring(0, { damping: 14, stiffness: 280 }));
-    anim1.value = withDelay(80, withSpring(0, { damping: 14, stiffness: 280 }));
+    anim5.value = withSpring(0, { damping: 14, stiffness: 280 });
+    anim4.value = withDelay(30,  withSpring(0, { damping: 14, stiffness: 280 }));
+    anim3.value = withDelay(60,  withSpring(0, { damping: 14, stiffness: 280 }));
+    anim2.value = withDelay(90,  withSpring(0, { damping: 14, stiffness: 280 }));
+    anim1.value = withDelay(120, withSpring(0, { damping: 14, stiffness: 280 }));
     fabRotate.value = withSpring(0, { damping: 14, stiffness: 280 });
     setTimeout(() => {
       setIsMenuOpen(false);
@@ -89,6 +95,14 @@ export default function TabLayout() {
   const item3Style = useAnimatedStyle(() => ({
     opacity: interpolate(anim3.value, [0, 1], [0, 1], Extrapolation.CLAMP),
     transform: [{ translateY: interpolate(anim3.value, [0, 1], [16, 0], Extrapolation.CLAMP) }],
+  }));
+  const item4Style = useAnimatedStyle(() => ({
+    opacity: interpolate(anim4.value, [0, 1], [0, 1], Extrapolation.CLAMP),
+    transform: [{ translateY: interpolate(anim4.value, [0, 1], [16, 0], Extrapolation.CLAMP) }],
+  }));
+  const item5Style = useAnimatedStyle(() => ({
+    opacity: interpolate(anim5.value, [0, 1], [0, 1], Extrapolation.CLAMP),
+    transform: [{ translateY: interpolate(anim5.value, [0, 1], [16, 0], Extrapolation.CLAMP) }],
   }));
   const fabIconStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${fabRotate.value}deg` }],
@@ -118,6 +132,20 @@ export default function TabLayout() {
       label: t.transfer.title,
       animStyle: item3Style,
       onPress: () => closeMenu(() => router.push("/(modals)/transfer-form")),
+    },
+    {
+      icon: "pocket" as const,
+      color: "#3B82F6",
+      label: t.tabs.savings,
+      animStyle: item4Style,
+      onPress: () => closeMenu(() => router.push("/(modals)/savings-movement")),
+    },
+    {
+      icon: "repeat" as const,
+      color: "#F59E0B",
+      label: t.commitments.title,
+      animStyle: item5Style,
+      onPress: () => closeMenu(() => router.push("/(modals)/commitment-form")),
     },
   ];
 

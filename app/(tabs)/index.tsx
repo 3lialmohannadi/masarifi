@@ -233,7 +233,7 @@ export default function DashboardScreen() {
         <View style={{ paddingHorizontal: 20, gap: 14 }}>
 
           {/* ─── Account Card (Bank Card Style) ─── */}
-          <Animated.View entering={FadeInDown.delay(0).springify()} style={{ zIndex: 1 }}>
+          <Animated.View entering={FadeInDown.delay(0).springify()}>
           <LinearGradient
             colors={isDark
               ? ["#1A3630", "#0F2820", "#0A1C16"] as const
@@ -242,9 +242,7 @@ export default function DashboardScreen() {
             end={{ x: 1, y: 1 }}
             style={{
               borderRadius: 24,
-              paddingTop: 22,
-              paddingHorizontal: 22,
-              paddingBottom: 42,
+              padding: 22,
               overflow: "hidden",
               ...(Platform.OS === "web"
                 ? { boxShadow: `0 8px 32px rgba(47,143,131,${isDark ? 0.25 : 0.40})` }
@@ -332,83 +330,6 @@ export default function DashboardScreen() {
           </LinearGradient>
           </Animated.View>
 
-          {/* ─── Quick Actions (floating from green card) ─── */}
-          <Animated.View
-            entering={FadeInDown.delay(80).springify()}
-            style={{ marginTop: -22, zIndex: 2, flexDirection: isRTL ? "row-reverse" : "row", paddingHorizontal: 16, gap: 0 }}
-          >
-            {/* الالتزامات */}
-            <Pressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/(modals)/commitment-form");
-              }}
-              style={{ flex: 1, alignItems: "center", gap: 6 }}
-            >
-              <View style={{
-                width: 52, height: 52, borderRadius: 16,
-                backgroundColor: theme.card,
-                alignItems: "center", justifyContent: "center",
-                borderWidth: 1, borderColor: theme.border,
-                ...(Platform.OS === "web"
-                  ? { boxShadow: "0 4px 16px rgba(0,0,0,0.10)" }
-                  : { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.10, shadowRadius: 10, elevation: 6 }),
-              }}>
-                <Feather name="repeat" size={20} color="#F59E0B" />
-              </View>
-              <Text style={{ fontSize: 11, fontWeight: "600", color: theme.textSecondary, textAlign: "center" }}>
-                {t.commitments.title}
-              </Text>
-            </Pressable>
-
-            {/* الادخار */}
-            <Pressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/(modals)/savings-movement");
-              }}
-              style={{ flex: 1, alignItems: "center", gap: 6 }}
-            >
-              <View style={{
-                width: 52, height: 52, borderRadius: 16,
-                backgroundColor: theme.card,
-                alignItems: "center", justifyContent: "center",
-                borderWidth: 1, borderColor: theme.border,
-                ...(Platform.OS === "web"
-                  ? { boxShadow: "0 4px 16px rgba(0,0,0,0.10)" }
-                  : { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.10, shadowRadius: 10, elevation: 6 }),
-              }}>
-                <Feather name="pocket" size={20} color="#3B82F6" />
-              </View>
-              <Text style={{ fontSize: 11, fontWeight: "600", color: theme.textSecondary, textAlign: "center" }}>
-                {t.tabs.savings}
-              </Text>
-            </Pressable>
-
-            {/* تحويل */}
-            <Pressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/(modals)/transfer-form");
-              }}
-              style={{ flex: 1, alignItems: "center", gap: 6 }}
-            >
-              <View style={{
-                width: 52, height: 52, borderRadius: 16,
-                backgroundColor: theme.card,
-                alignItems: "center", justifyContent: "center",
-                borderWidth: 1, borderColor: theme.border,
-                ...(Platform.OS === "web"
-                  ? { boxShadow: "0 4px 16px rgba(0,0,0,0.10)" }
-                  : { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.10, shadowRadius: 10, elevation: 6 }),
-              }}>
-                <Feather name="shuffle" size={20} color={theme.transfer} />
-              </View>
-              <Text style={{ fontSize: 11, fontWeight: "600", color: theme.textSecondary, textAlign: "center" }}>
-                {t.transfer.title}
-              </Text>
-            </Pressable>
-          </Animated.View>
 
           {/* ─── Recent Transactions ─── */}
           <Animated.View entering={FadeInDown.delay(240).springify()}>
