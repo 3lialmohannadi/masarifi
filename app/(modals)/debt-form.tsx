@@ -15,6 +15,7 @@ import { useApp } from "@/store/AppContext";
 import { useDebts } from "@/store/DebtsContext";
 import { DatePickerModal } from "@/components/DatePickerModal";
 import { SuccessOverlay } from "@/components/ui/SuccessOverlay";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { dateToISO } from "@/utils/date";
 import type { DebtCategory, DebtStatus } from "@/types";
 import {
@@ -30,7 +31,7 @@ export default function DebtFormModal() {
   const insets = useSafeAreaInsets();
   const { theme, language, isRTL, t, showToast, settings } = useApp();
   const appCurrency = settings.default_currency;
-  const { debts, addDebt, updateDebt } = useDebts();
+  const { debts, addDebt, updateDebt, deleteDebt } = useDebts();
 
   const existingDebt = id ? debts.find((d) => d.id === id) : undefined;
   const isEdit = !!existingDebt;
@@ -64,6 +65,16 @@ export default function DebtFormModal() {
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+  const handleDeleteDebt = () => setShowConfirmDelete(true);
+  const confirmDeleteDebt = () => {
+    if (!existingDebt) return;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    deleteDebt(existingDebt.id);
+    showToast(t.toast.deleted, "info");
+    router.back();
+  };
 
   const CATEGORIES: { key: DebtCategory; label: string; icon: string; color: string }[] = [
     { key: "bank",     label: t.debts.categories.bank,     icon: CATEGORY_META.bank.icon,     color: CATEGORY_META.bank.color },
@@ -225,7 +236,17 @@ export default function DebtFormModal() {
         <Text style={{ flex: 1, fontSize: 22, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>
           {isEdit ? t.debts.edit : t.debts.add}
         </Text>
-        <View style={{ width: 36 }} />
+        {isEdit ? (
+          <Pressable
+            onPress={handleDeleteDebt}
+            hitSlop={8}
+            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.expense + "15", borderWidth: 1, borderColor: theme.expense + "30", alignItems: "center", justifyContent: "center" }}
+          >
+            <Feather name="trash-2" size={18} color={theme.expense} />
+          </Pressable>
+        ) : (
+          <View style={{ width: 36 }} />
+        )}
       </View>
 
       <ScrollView
@@ -560,6 +581,14 @@ export default function DebtFormModal() {
         visible={showSuccess}
         message={t.toast.saved}
         color={theme.primary}
+      />
+
+      <ConfirmDialog
+        visible={showConfirmDelete}
+        title={t.debts.delete}
+        message={t.debts.deleteConfirm}
+        onConfirm={confirmDeleteDebt}
+        onCancel={() => setShowConfirmDelete(false)}
       />
     </View>
   );

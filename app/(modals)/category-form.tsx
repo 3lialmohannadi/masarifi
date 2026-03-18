@@ -81,6 +81,7 @@ export default function CategoryFormModal() {
   const confirmDeleteCategory = () => {
     if (!existing) return;
     const success = deleteCategory(existing.id);
+    setShowConfirmDelete(false);
     if (!success) {
       showToast(t.categories.cannotDeleteInUse, "warning");
       return;
