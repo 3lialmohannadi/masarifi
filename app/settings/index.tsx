@@ -238,34 +238,7 @@ export default function SettingsScreen() {
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
       >
-        {/* ── 1. Language ── */}
-        <SectionLabel title={t.settings.language} />
-        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10, marginBottom: 8 }}>
-          {LANG_OPTIONS.map((opt) => (
-            <Pressable
-              key={opt.code}
-              testID={`lang-${opt.code}`}
-              onPress={() => { Haptics.selectionAsync(); setLanguage(opt.code); }}
-              style={{
-                flex: 1, paddingVertical: 16, borderRadius: 16, alignItems: "center", gap: 6,
-                backgroundColor: language === opt.code ? theme.primary : theme.card,
-                borderWidth: 2,
-                borderColor: language === opt.code ? theme.primary : theme.border,
-              }}
-            >
-              <Text style={{ fontSize: 14, fontWeight: "700", color: language === opt.code ? "#fff" : theme.text }}>
-                {opt.label}
-              </Text>
-              {language === opt.code && (
-                <View style={{ position: "absolute", top: 8, right: 8 }}>
-                  <Feather name="check-circle" size={14} color="#fff" />
-                </View>
-              )}
-            </Pressable>
-          ))}
-        </View>
-
-        {/* ── 2. Account ── */}
+        {/* ── 1. Account ── */}
         <SectionLabel title={t.auth.account} />
 
         {user ? (
@@ -449,6 +422,33 @@ export default function SettingsScreen() {
             </View>
           </View>
         )}
+
+        {/* ── 2. Language ── */}
+        <SectionLabel title={t.settings.language} />
+        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10, marginBottom: 8 }}>
+          {LANG_OPTIONS.map((opt) => (
+            <Pressable
+              key={opt.code}
+              testID={`lang-${opt.code}`}
+              onPress={() => { Haptics.selectionAsync(); setLanguage(opt.code); }}
+              style={{
+                flex: 1, paddingVertical: 16, borderRadius: 16, alignItems: "center", gap: 6,
+                backgroundColor: language === opt.code ? theme.primary : theme.card,
+                borderWidth: 2,
+                borderColor: language === opt.code ? theme.primary : theme.border,
+              }}
+            >
+              <Text style={{ fontSize: 14, fontWeight: "700", color: language === opt.code ? "#fff" : theme.text }}>
+                {opt.label}
+              </Text>
+              {language === opt.code && (
+                <View style={{ position: "absolute", top: 8, right: 8 }}>
+                  <Feather name="check-circle" size={14} color="#fff" />
+                </View>
+              )}
+            </Pressable>
+          ))}
+        </View>
 
         {/* ── 3. Theme ── */}
         <SectionLabel title={t.settings.theme} />
