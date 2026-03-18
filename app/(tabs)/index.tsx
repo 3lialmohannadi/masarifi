@@ -85,6 +85,14 @@ export default function DashboardScreen() {
     [settings.daily_limit_mode, settings.manual_daily_limit, remainingDays, realAvailable]
   );
 
+  const monthExpense = useMemo(() => {
+    const today = new Date();
+    const monthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+    return transactions
+      .filter((tx) => tx.date.startsWith(monthKey) && tx.type === "expense" && (!selectedAccount || tx.account_id === selectedAccount.id))
+      .reduce((s, tx) => s + tx.amount, 0);
+  }, [transactions, selectedAccount]);
+
   const recentTransactions = useMemo(() => {
     const filtered = selectedAccount
       ? transactions.filter((tx) => tx.account_id === selectedAccount.id)
@@ -361,6 +369,76 @@ export default function DashboardScreen() {
               );
             })()}
           </LinearGradient>
+          </Animated.View>
+
+          {/* ─── Summary Card ─── */}
+          <Animated.View entering={FadeInDown.delay(80).springify()}>
+          <View
+            style={{
+              backgroundColor: theme.card,
+              borderRadius: 20,
+              padding: 16,
+              borderWidth: 1,
+              borderColor: theme.border,
+              gap: 12,
+              ...cardShadow,
+            }}
+          >
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 8 }}>
+              {/* مصروف */}
+              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
+                <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
+                  {t.transactions.expense}
+                </Text>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: theme.expense, textAlign: "center" }} numberOfLines={1}>
+                  {formatCurrency(monthExpense, currency, language)}
+                </Text>
+              </View>
+              <View style={{ width: 1, backgroundColor: theme.border }} />
+              {/* الأموال المخصصة */}
+              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
+                <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
+                  {t.dashboard.allocatedMoney}
+                </Text>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: "#FCD34D", textAlign: "center" }} numberOfLines={1}>
+                  {formatCurrency(allocatedMoney, currency, language)}
+                </Text>
+              </View>
+              <View style={{ width: 1, backgroundColor: theme.border }} />
+              {/* المبلغ المتاح */}
+              <View style={{ flex: 1, alignItems: "center", gap: 4 }}>
+                <Text style={{ fontSize: 10, fontWeight: "500", color: theme.textSecondary, textAlign: "center" }}>
+                  {t.dashboard.realAvailable}
+                </Text>
+                <Text style={{ fontSize: 14, fontWeight: "700", color: realAvailable < 0 ? theme.expense : theme.income, textAlign: "center" }} numberOfLines={1}>
+                  {formatCurrency(realAvailable, currency, language)}
+                </Text>
+              </View>
+            </View>
+
+            {/* الحد اليومي */}
+            <View style={{
+              flexDirection: isRTL ? "row-reverse" : "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              backgroundColor: isDark ? "rgba(251,191,36,0.1)" : "rgba(251,191,36,0.08)",
+              borderRadius: 12,
+              paddingHorizontal: 14,
+              paddingVertical: 10,
+              borderWidth: 1,
+              borderColor: "rgba(251,191,36,0.2)",
+            }}>
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                <Feather name="activity" size={13} color="#F59E0B" />
+                <Text style={{ fontSize: 12, fontWeight: "600", color: theme.textSecondary }}>
+                  {t.dashboard.dailyLimit}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 15, fontWeight: "700", color: "#F59E0B" }} numberOfLines={1}>
+                {formatCurrency(Math.max(0, dailyLimit), currency, language)}
+              </Text>
+            </View>
+          </View>
           </Animated.View>
 
           {/* ─── Quick Add ─── */}
