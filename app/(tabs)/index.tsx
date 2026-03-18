@@ -21,6 +21,7 @@ import { useSavings } from "@/store/SavingsContext";
 import { useDebts } from "@/store/DebtsContext";
 import { TransactionItem } from "@/components/TransactionItem";
 import { EmptyState } from "@/components/ui/EmptyState";
+import AppLogo from "@/components/ui/AppLogo";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { QuickAddSheet } from "@/components/QuickAddSheet";
 import { formatCurrency } from "@/utils/currency";
@@ -156,9 +157,7 @@ export default function DashboardScreen() {
         >
           {/* Left: Logo + Greeting */}
           <View style={{ gap: 10, flex: 1 }}>
-            <Text style={{ fontSize: 26, fontWeight: "900", color: theme.primary, letterSpacing: 1.5 }}>
-              {language === "ar" ? "مصاريفي" : "MASARIFI"}
-            </Text>
+            <AppLogo language={language} isDark={isDark} primaryColor={theme.primary} size="md" />
             {firstName ? (
               <View style={{ gap: 2 }}>
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>

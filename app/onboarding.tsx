@@ -19,6 +19,7 @@ import { useApp } from "@/store/AppContext";
 import { apiRequest } from "@/services/api";
 import type { Language } from "@/types";
 import type { TranslationKeys } from "@/i18n/en";
+import AppLogo from "@/components/ui/AppLogo";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -39,9 +40,7 @@ const CURRENCIES = [
 function Slide1({ t, language, isDark }: { t: TranslationKeys; language: Language; isDark: boolean }) {
   return (
     <View style={{ width: SCREEN_W, flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, gap: 28 }}>
-      <Text style={{ fontSize: 30, fontWeight: "900", color: "#fff", letterSpacing: 1.5, textAlign: "center" }}>
-        {language === "ar" ? "مصاريفي" : "MASARIFI"}
-      </Text>
+      <AppLogo language={language} isDark={true} primaryColor="#2D8F83" size="lg" />
       <View style={{ alignItems: "center", gap: 12 }}>
         <Text style={{ fontSize: 28, fontWeight: "800", color: "#fff", textAlign: "center", lineHeight: 38 }}>
           {t.onboarding.slide1Title}

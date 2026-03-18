@@ -15,6 +15,7 @@ import { useApp } from "@/store/AppContext";
 import { supabase } from "@/src/lib/supabase";
 import { AppInput } from "@/components/ui/AppInput";
 import { AppButton } from "@/components/ui/AppButton";
+import AppLogo from "@/components/ui/AppLogo";
 
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
@@ -107,9 +108,7 @@ export default function SignInScreen() {
         >
           {/* Logo & Title */}
           <View style={{ alignItems: "center", gap: 16, paddingTop: 8 }}>
-            <Text style={{ fontSize: 32, fontWeight: "900", color: theme.primary, letterSpacing: 1.5, textAlign: "center" }}>
-              {language === "ar" ? "مصاريفي" : "MASARIFI"}
-            </Text>
+            <AppLogo language={language} isDark={isDark} primaryColor={theme.primary} size="md" />
             <View style={{ alignItems: "center", gap: 6 }}>
               <Text style={{
                 fontSize: 24,
