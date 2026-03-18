@@ -230,35 +230,6 @@ export default function SettingsScreen() {
           </Text>
         </View>
 
-        {/* App identity banner */}
-        <View style={{
-          flexDirection: isRTL ? "row-reverse" : "row",
-          alignItems: "center",
-          gap: 12,
-          backgroundColor: theme.card,
-          borderRadius: 16,
-          padding: 12,
-          borderWidth: 1,
-          borderColor: theme.border,
-        }}>
-          <Image
-            source={isDark
-              ? (language === "ar" ? require("@/assets/logo_ar_dark.png") : require("@/assets/logo_en_dark.png"))
-              : (language === "ar" ? require("@/assets/logo_ar_light.png") : require("@/assets/logo_en_light.png"))
-            }
-            resizeMode="contain"
-            style={{ height: 36, width: 110 }}
-          />
-          <View style={{ flex: 1, alignItems: isRTL ? "flex-end" : "flex-start", gap: 2 }}>
-            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 5 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.income }} />
-              <Text style={{ fontSize: 11, color: theme.textMuted, fontWeight: "500" }}>{t.settings.version} 1.1.0</Text>
-            </View>
-            <Text style={{ fontSize: 10, color: theme.textMuted }}>
-              {accounts.filter((a) => a.is_active).length} {t.settings.accountsCount}
-            </Text>
-          </View>
-        </View>
       </View>
 
       <KeyboardAwareScrollViewCompat
