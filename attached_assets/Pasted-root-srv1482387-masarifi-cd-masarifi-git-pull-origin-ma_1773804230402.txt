@@ -1,0 +1,48 @@
+root@srv1482387:~/masarifi# cd ~/masarifi
+git pull origin main
+npm install
+npm run server:build
+pm2 restart masarifi
+From https://github.com/3lialmohannadi/masarifi
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+
+> expo-app@1.0.0 postinstall
+> patch-package && node scripts/fix-missing-modules.js
+
+patch-package 8.0.1
+Applying patches...
+expo-asset@12.0.12 ✔
+
+up to date, audited 1145 packages in 3s
+
+212 packages are looking for funding
+  run `npm fund` for details
+
+11 vulnerabilities (1 low, 5 moderate, 5 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> expo-app@1.0.0 server:build
+> esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=server_dist
+
+
+  server_dist/index.js  88.4kb
+
+⚡ Done in 63ms
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [masarifi](ids: [ 4 ])
+[PM2] [masarifi](4) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ doyoomi-api       │ default     │ 0.0.0   │ fork    │ 111002   │ 2m     │ 22   │ online    │ 0%       │ 58.9mb   │ root     │ disabled │
+│ 2  │ doyoomi-mobile    │ default     │ 0.0.0   │ fork    │ 111000   │ 2m     │ 22   │ online    │ 0%       │ 52.0mb   │ root     │ disabled │
+│ 4  │ masarifi          │ default     │ 1.0.0   │ fork    │ 111101   │ 0s     │ 23   │ online    │ 0%       │ 13.9mb   │ root     │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
