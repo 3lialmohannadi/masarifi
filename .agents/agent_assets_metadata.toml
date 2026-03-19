@@ -54,3 +54,15 @@ id = "Gqz5zGnLoXUlbiCjheffl"
 uri = "file://assets/images/icon.png"
 type = "image"
 title = "Masarifi App Icon"
+
+[[outputs]]
+id = "d1fnqzzb_mr24GaIvC4N-"
+uri = "file://assets/images/splash-icon.png"
+type = "image"
+title = "Splash Screen Icon"
+
+[[outputs]]
+id = "xZXngnmD_4rch_5dckq6q"
+uri = "file://assets/images/splash.mp4"
+type = "video"
+title = "Splash Video"
