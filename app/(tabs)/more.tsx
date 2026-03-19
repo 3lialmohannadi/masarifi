@@ -19,7 +19,7 @@ function MenuItem({ icon, label, color, subtitle, onPress }: MenuItemProps) {
   const { theme, isRTL } = useApp();
   return (
     <Pressable
-      onPress={() => { Haptics.selectionAsync(); onPress(); }}
+      onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }}
       style={({ pressed }) => ({
         flexDirection: isRTL ? "row-reverse" : "row",
         alignItems: "center",
@@ -115,7 +115,7 @@ export default function MoreTab() {
         <SectionHeader title={t.more.financial} />
         <View style={{ gap: 8 }}>
           <MenuItem
-            icon="credit-card"
+            icon="trending-down"
             label={t.debts.title}
             subtitle={t.more.debtsSubtitle}
             color={theme.error}
@@ -125,15 +125,22 @@ export default function MoreTab() {
             icon="calendar"
             label={t.commitments.title}
             subtitle={t.more.commitmentsSubtitle}
-            color="#F59E0B"
+            color={theme.commitment}
             onPress={() => router.push("/commitments")}
           />
           <MenuItem
             icon="shuffle"
             label={t.transfer.title}
             subtitle={t.more.transferSubtitle}
-            color="#06B6D4"
+            color={theme.transfer}
             onPress={() => router.push("/(modals)/transfer-form")}
+          />
+          <MenuItem
+            icon="bar-chart-2"
+            label={t.tabs.statistics}
+            subtitle={t.more.statisticsSubtitle}
+            color="#8B5CF6"
+            onPress={() => router.push("/(tabs)/statistics")}
           />
         </View>
 
@@ -143,7 +150,7 @@ export default function MoreTab() {
         <SectionHeader title={t.more.accounts} />
         <View style={{ gap: 8 }}>
           <MenuItem
-            icon="credit-card"
+            icon="layers"
             label={t.accounts.title}
             subtitle={t.more.accountsSubtitle}
             color={theme.primary}
@@ -155,13 +162,6 @@ export default function MoreTab() {
             subtitle={t.more.categoriesSubtitle}
             color="#EC4899"
             onPress={() => router.push("/categories")}
-          />
-          <MenuItem
-            icon="bar-chart-2"
-            label={t.tabs.statistics}
-            subtitle={t.more.statisticsSubtitle}
-            color="#8B5CF6"
-            onPress={() => router.push("/(tabs)/statistics")}
           />
         </View>
 
@@ -264,7 +264,7 @@ export default function MoreTab() {
             icon="settings"
             label={t.settings.title}
             subtitle={t.more.settingsSubtitle}
-            color="#6B7280"
+            color={theme.textSecondary}
             onPress={() => router.push("/settings")}
           />
         </View>

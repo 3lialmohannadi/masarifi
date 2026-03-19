@@ -413,7 +413,7 @@ export default function DashboardScreen() {
                 {shownCommitments.map((c, index) => {
                   const isOverdue = c.status === "overdue";
                   const isDueToday = c.status === "due_today";
-                  const accentColor = isOverdue ? theme.error : isDueToday ? "#F59E0B" : theme.primary;
+                  const accentColor = isOverdue ? theme.error : isDueToday ? theme.warning : theme.primary;
                   const commitmentAccount = accounts.find((a) => a.id === c.account_id);
                   const commitmentCurrency = commitmentAccount?.currency || settings.default_currency || "QAR";
                   return (
@@ -558,7 +558,7 @@ export default function DashboardScreen() {
                   {t.debts.debtSummary}
                 </Text>
                 <Pressable
-                  onPress={() => { Haptics.selectionAsync(); router.push("/debts"); }}
+                  onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/debts"); }}
                   style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}
                 >
                   <Text style={{ fontSize: 13, color: theme.error, fontWeight: "600" }}>{t.dashboard.showAll}</Text>
@@ -566,7 +566,7 @@ export default function DashboardScreen() {
                 </Pressable>
               </View>
               <Pressable
-                onPress={() => { Haptics.selectionAsync(); router.push("/debts"); }}
+                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/debts"); }}
                 style={({ pressed }) => ({
                   backgroundColor: theme.card,
                   borderRadius: 16,
@@ -581,7 +581,7 @@ export default function DashboardScreen() {
                 })}
               >
                 <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: theme.error + "18", alignItems: "center", justifyContent: "center" }}>
-                  <Feather name="credit-card" size={18} color={theme.error} />
+                  <Feather name="trending-down" size={18} color={theme.error} />
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text style={{ fontSize: 14, fontWeight: "700", color: theme.text, textAlign: isRTL ? "right" : "left" }}>

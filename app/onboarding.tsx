@@ -38,8 +38,13 @@ const CURRENCIES = [
 ];
 
 function Slide1({ t, language, isDark }: { t: TranslationKeys; language: Language; isDark: boolean }) {
+  const features = [
+    { icon: "dollar-sign" as const, label: t.onboarding.feature1Title },
+    { icon: "bar-chart-2" as const, label: t.onboarding.feature3Title },
+    { icon: "target" as const, label: t.onboarding.feature2Title },
+  ];
   return (
-    <View style={{ width: SCREEN_W, flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, gap: 28 }}>
+    <View style={{ width: SCREEN_W, flex: 1, alignItems: "center", justifyContent: "space-evenly", paddingHorizontal: 32, paddingVertical: 24 }}>
       <AppLogo language={language} isDark={true} primaryColor="#2D8F83" size="lg" />
       <View style={{ alignItems: "center", gap: 12 }}>
         <Text style={{ fontSize: 28, fontWeight: "800", color: "#fff", textAlign: "center", lineHeight: 38 }}>
@@ -49,10 +54,15 @@ function Slide1({ t, language, isDark }: { t: TranslationKeys; language: Languag
           {t.onboarding.slide1Subtitle}
         </Text>
       </View>
-      <View style={{ flexDirection: "row", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        {(["💰", "📊", "🎯"] as const).map((emoji, i) => (
-          <View key={i} style={{ width: 60, height: 60, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center" }}>
-            <Text style={{ fontSize: 28 }}>{emoji}</Text>
+      <View style={{ flexDirection: "row", gap: 20, justifyContent: "center" }}>
+        {features.map((f, i) => (
+          <View key={i} style={{ alignItems: "center", gap: 10 }}>
+            <View style={{ width: 72, height: 72, borderRadius: 22, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,255,255,0.2)" }}>
+              <Feather name={f.icon} size={30} color="#fff" />
+            </View>
+            <Text style={{ fontSize: 11, fontWeight: "600", color: "rgba(255,255,255,0.75)", textAlign: "center" }}>
+              {f.label}
+            </Text>
           </View>
         ))}
       </View>
