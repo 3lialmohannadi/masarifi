@@ -1,0 +1,30 @@
+root@srv1482387:~# cd masarifi && git stash && git pull origin main && pm2 restart masarifi
+Saved working directory and index state WIP on main: f24edd6 Bump iOS buildNumber to 15 (autoIncrement will produce build 16)
+remote: Enumerating objects: 24, done.
+remote: Counting objects: 100% (24/24), done.
+remote: Compressing objects: 100% (7/7), done.
+remote: Total 16 (delta 10), reused 14 (delta 8), pack-reused 0 (from 0)
+Unpacking objects: 100% (16/16), 468.33 KiB | 7.20 MiB/s, done.
+From https://github.com/3lialmohannadi/masarifi
+ * branch            main       -> FETCH_HEAD
+   f24edd6..9b957b0  main       -> origin/main
+Updating f24edd6..9b957b0
+Fast-forward
+ .agents/agent_assets_metadata.toml                                              |  12 ++++++++++++
+ .canvas/assets/splash-icon.png                                                  | Bin 0 -> 216556 bytes
+ assets/images/splash.mp4                                                        | Bin 0 -> 481171 bytes
+ attached_assets/Colorful_Abstract_Splash_Neon_Phone_Wallpaper_1773887351200.mp4 | Bin 0 -> 481171 bytes
+ 4 files changed, 12 insertions(+)
+ create mode 100644 .canvas/assets/splash-icon.png
+ create mode 100644 assets/images/splash.mp4
+ create mode 100644 attached_assets/Colorful_Abstract_Splash_Neon_Phone_Wallpaper_1773887351200.mp4
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [masarifi](ids: [ 4 ])
+[PM2] [masarifi](4) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ doyoomi-api       │ default     │ 0.0.0   │ fork    │ 111002   │ 25h    │ 22   │ online    │ 0%       │ 73.0mb   │ root     │ disabled │
+│ 2  │ doyoomi-mobile    │ default     │ 0.0.0   │ fork    │ 111000   │ 25h    │ 22   │ online    │ 0%       │ 60.5mb   │ root     │ disabled │
+│ 4  │ masarifi          │ default     │ 1.0.0   │ fork    │ 126368   │ 0s     │ 24   │ online    │ 0%       │ 22.6mb   │ root     │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
