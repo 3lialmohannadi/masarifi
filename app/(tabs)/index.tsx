@@ -5,6 +5,7 @@ import {
   Text,
   Pressable,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";

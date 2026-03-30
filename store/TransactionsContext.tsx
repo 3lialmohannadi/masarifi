@@ -1,181 +1,68 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-  ReactNode,
-} from "react";
+import React, { ReactNode, useMemo, useEffect } from "react";
+import { useStore } from "@/store/useStore";
 import type { Transaction, Transfer } from "@/types";
-import { loadData, saveData, KEYS } from "@/utils/storage";
-import { generateId, now } from "@/utils/id";
-import { apiRequest } from "@/services/api";
-import { createSyncFn } from "@/utils/syncHelper";
 import { useAuth } from "@/store/AuthContext";
+import { apiRequest } from "@/services/api";
 
-const GUEST_ID = "guest";
-
-export interface DailyLimitOpts {
-  enabled: boolean;
-  dailyLimit: number;
-}
-
-interface TransactionsContextValue {
-  transactions: Transaction[];
-  transfers: Transfer[];
-  addTransaction: (tx: Omit<Transaction, "id" | "created_at" | "updated_at">, dailyLimitOpts?: DailyLimitOpts) => Transaction;
-  updateTransaction: (id: string, updates: Partial<Transaction>) => void;
-  deleteTransaction: (id: string) => void;
-  addTransfer: (tf: Omit<Transfer, "id" | "created_at">) => Transfer;
-  deleteTransfer: (id: string) => void;
-  getTransactionsByAccount: (accountId: string) => Transaction[];
-  getTransactionsByCategory: (categoryId: string) => Transaction[];
-  categoryIdsInUse: string[];
-  clearAll: () => void;
-  isLoaded: boolean;
-}
-
-const TransactionsContext = createContext<TransactionsContextValue | null>(null);
-
+// We keep the provider so we don't break _layout imports, but it does nothing wrapper-wise.
 export function TransactionsProvider({ children }: { children: ReactNode }) {
+  const setTransactions = useStore((s) => s.setTransactions);
+  const setTransfers = useStore((s) => s.setTransfers);
   const { user } = useAuth();
-  const userId = user?.id || GUEST_ID;
-
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const sync = createSyncFn();
-
+  
+  // Opportunistic fetch on mount to get latest from server
   useEffect(() => {
-    setTransactions([]);
-    setTransfers([]);
-    setIsLoaded(false);
     let cancelled = false;
-    const txKey = `${KEYS.TRANSACTIONS}_${userId}`;
-    const tfKey = `${KEYS.TRANSFERS}_${userId}`;
-
-    async function hydrate() {
-      const localTx = await loadData<Transaction[]>(txKey) || [];
-      const localTf = await loadData<Transfer[]>(tfKey) || [];
-      if (cancelled) return;
-
-      if (localTx.length > 0 || localTf.length > 0) {
-        setTransactions(localTx);
-        setTransfers(localTf);
-        setIsLoaded(true);
-        setTimeout(async () => {
-          if (cancelled) return;
-          try {
-            const [apiTx, apiTf] = await Promise.all([
-              apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
-              apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
-            ]);
-            if (cancelled) return;
-            if (Array.isArray(apiTx) && apiTx.length > 0) {
-              setTransactions(apiTx);
-              saveData(txKey, apiTx);
-            }
-            if (Array.isArray(apiTf) && apiTf.length > 0) {
-              setTransfers(apiTf);
-              saveData(tfKey, apiTf);
-            }
-          } catch { /* ignore */ }
-        }, 2000);
-      } else {
-        try {
-          const [apiTx, apiTf] = await Promise.all([
-            apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
-            apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
-          ]);
-          if (cancelled) return;
-          if (Array.isArray(apiTx) && apiTx.length > 0) {
-            setTransactions(apiTx);
-            saveData(txKey, apiTx);
-          }
-          if (Array.isArray(apiTf) && apiTf.length > 0) {
-            setTransfers(apiTf);
-            saveData(tfKey, apiTf);
-          }
-        } catch {
-          // server unavailable — start with empty state
-        }
-        if (!cancelled) setIsLoaded(true);
+    async function fetchLatest() {
+      try {
+        const [apiTx, apiTf] = await Promise.all([
+          apiRequest("GET", "/api/transactions").then((r) => r.json()).catch(() => null),
+          apiRequest("GET", "/api/transfers").then((r) => r.json()).catch(() => null),
+        ]);
+        if (cancelled) return;
+        if (Array.isArray(apiTx) && apiTx.length > 0) setTransactions(apiTx);
+        if (Array.isArray(apiTf) && apiTf.length > 0) setTransfers(apiTf);
+      } catch {
+        // Ignore
       }
     }
-
-    hydrate();
+    fetchLatest();
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [user]);
 
-  const txKey = `${KEYS.TRANSACTIONS}_${userId}`;
-  const tfKey = `${KEYS.TRANSFERS}_${userId}`;
+  return <>{children}</>;
+}
 
-  const persistTx = (data: Transaction[]) => {
-    setTransactions(data);
-    saveData(txKey, data);
-  };
-
-  const persistTf = (data: Transfer[]) => {
-    setTransfers(data);
-    saveData(tfKey, data);
-  };
-
+export function useTransactions() {
+  const transactions = useStore((s) => s.transactions);
+  const transfers = useStore((s) => s.transfers);
+  const addTransactionNative = useStore((s) => s.addTransaction);
+  const updateTransaction = useStore((s) => s.updateTransaction);
+  const deleteTransaction = useStore((s) => s.deleteTransaction);
+  const addTransfer = useStore((s) => s.addTransfer);
+  const deleteTransfer = useStore((s) => s.deleteTransfer);
+  const isLoaded = useStore((s) => s.isLoaded);
+  
+  // Backwards compat daily limit wrapping
   const addTransaction = (
     tx: Omit<Transaction, "id" | "created_at" | "updated_at">,
-    dailyLimitOpts?: DailyLimitOpts
-  ): Transaction => {
-    const newTx: Transaction = {
-      ...tx,
-      id: generateId(),
-      created_at: now(),
-      updated_at: now(),
-    };
-    const updatedTransactions = [...transactions, newTx];
-    persistTx(updatedTransactions);
-    sync(apiRequest("POST", "/api/transactions", newTx), "create transaction");
-
-    // Trigger daily limit alert for expense transactions
+    dailyLimitOpts?: { enabled: boolean; dailyLimit: number }
+  ) => {
+    const newTx = addTransactionNative(tx);
     if (
       tx.type === "expense" &&
       dailyLimitOpts?.enabled &&
       dailyLimitOpts.dailyLimit > 0
     ) {
       const todayStr = new Date().toISOString().slice(0, 10);
-      const todaySpend = updatedTransactions
-        .filter((t) => t.type === "expense" && t.date.startsWith(todayStr))
-        .reduce((s, t) => s + t.amount, 0);
+      const todaySpend = useStore.getState().transactions
+        .filter((t: Transaction) => t.type === "expense" && t.date.startsWith(todayStr))
+        .reduce((s: number, t: Transaction) => s + t.amount, 0);
       import("@/utils/notifications").then(({ checkDailyLimitAlert }) => {
         checkDailyLimitAlert(todaySpend, dailyLimitOpts.dailyLimit).catch(() => {});
       });
     }
-
     return newTx;
-  };
-
-  const updateTransaction = (id: string, updates: Partial<Transaction>) => {
-    const updated = transactions.map((t) =>
-      t.id === id ? { ...t, ...updates, updated_at: now() } : t
-    );
-    persistTx(updated);
-    const record = updated.find((t) => t.id === id);
-    if (record) sync(apiRequest("PATCH", `/api/transactions/${id}`, record), "update transaction");
-  };
-
-  const deleteTransaction = (id: string) => {
-    persistTx(transactions.filter((t) => t.id !== id));
-    sync(apiRequest("DELETE", `/api/transactions/${id}`), "delete transaction");
-  };
-
-  const addTransfer = (transfer: Omit<Transfer, "id" | "created_at">): Transfer => {
-    const newTransfer: Transfer = { ...transfer, id: generateId(), created_at: now() };
-    persistTf([...transfers, newTransfer]);
-    sync(apiRequest("POST", "/api/transfers", newTransfer), "create transfer");
-    return newTransfer;
-  };
-
-  const deleteTransfer = (id: string) => {
-    persistTf(transfers.filter((t) => t.id !== id));
-    sync(apiRequest("DELETE", `/api/transfers/${id}`), "delete transfer");
   };
 
   const getTransactionsByAccount = (accountId: string) =>
@@ -189,34 +76,18 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     [transactions]
   );
 
-  const clearAll = () => {
-    persistTx([]);
-    persistTf([]);
+  return {
+    transactions,
+    transfers,
+    addTransaction,
+    updateTransaction,
+    deleteTransaction,
+    addTransfer,
+    deleteTransfer,
+    getTransactionsByAccount,
+    getTransactionsByCategory,
+    categoryIdsInUse,
+    clearAll: () => {},
+    isLoaded,
   };
-
-  const value = useMemo(
-    () => ({
-      transactions,
-      transfers,
-      addTransaction,
-      updateTransaction,
-      deleteTransaction,
-      addTransfer,
-      deleteTransfer,
-      getTransactionsByAccount,
-      getTransactionsByCategory,
-      categoryIdsInUse,
-      clearAll,
-      isLoaded,
-    }),
-    [transactions, transfers, isLoaded] // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
-  return <TransactionsContext.Provider value={value}>{children}</TransactionsContext.Provider>;
-}
-
-export function useTransactions() {
-  const ctx = useContext(TransactionsContext);
-  if (!ctx) throw new Error("useTransactions must be used within TransactionsProvider");
-  return ctx;
 }
